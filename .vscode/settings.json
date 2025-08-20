@@ -1,0 +1,11 @@
+{
+    "github.copilot.editor.enableAutoCompletions": true,
+    "github.copilot.enable": {
+        "*": true
+    },
+    "github.copilot.chat.experimental.model": "gpt-5",
+    "github.copilot.chat.model": "gpt-5",
+    "github.copilot.chat.alternateGptPrompt.enabled": true,
+    "chat.todoListTool.enabled": true,
+    "github.copilot.chat.codeGeneration.useInstructionFiles": true
+}

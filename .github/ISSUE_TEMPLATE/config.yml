@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Project Blueprint
+    url: https://github.com/bbasketballer75/theporadas_site/blob/main/.github/project_instructions.md
+    about: Canonical scope/architecture/standards. Align issues and PRs to this document.
