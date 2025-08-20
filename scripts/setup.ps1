@@ -5,7 +5,8 @@ Param(
     [switch]$WithGcloud,
     [switch]$WithPnpm,
     [switch]$WithGit,
-    [switch]$WithUv
+    [switch]$WithUv,
+    [switch]$WithDocker
 )
 
 $ErrorActionPreference = 'Stop'
@@ -99,6 +100,9 @@ function Add-ToUserPath($path) {
 try {
     $candidatePaths = @()
     $candidatePaths += (Join-Path $env:APPDATA 'npm')
+    $candidatePaths += (Join-Path $env:LOCALAPPDATA 'nvm')
+    $candidatePaths += (Join-Path $env:LOCALAPPDATA 'nodejs')
+    $candidatePaths += 'C:\\Program Files\\nodejs'
     $candidatePaths += (Join-Path $env:USERPROFILE '.local\bin')
     try {
         $userBase = python -c "import site; print(site.USER_BASE)" 2>$null
@@ -152,32 +156,117 @@ if ($Install) {
         if (-not (Test-Command nvm)) {
             Ensure-Package -id 'CoreyButler.NVMforWindows' -name 'NVM for Windows'
         }
-        if (-not (Test-Command nvm)) {
+        # Ensure NVM env vars and PATH are persisted and available in this session
+        try {
+            $nvmHome = [Environment]::GetEnvironmentVariable('NVM_HOME','Machine')
+            if (-not $nvmHome) { $nvmHome = [Environment]::GetEnvironmentVariable('NVM_HOME','User') }
+            if (-not $nvmHome) { $nvmHome = Join-Path $env:LOCALAPPDATA 'nvm' }
+            $defaultProgramFiles = 'C:\\Program Files\\nodejs'
+            $userSymlink = Join-Path $env:LOCALAPPDATA 'nodejs'
+            $nvmLink = [Environment]::GetEnvironmentVariable('NVM_SYMLINK','Machine')
+            if (-not $nvmLink) { $nvmLink = [Environment]::GetEnvironmentVariable('NVM_SYMLINK','User') }
+            if (-not $nvmLink) { $nvmLink = $defaultProgramFiles }
+
+            # Choose a writable symlink directory: prefer Program Files if writable, else user LOCALAPPDATA
+            $useUserSymlink = $false
             try {
-                $nvmHome = [Environment]::GetEnvironmentVariable('NVM_HOME','Machine')
-                if (-not $nvmHome) { $nvmHome = [Environment]::GetEnvironmentVariable('NVM_HOME','User') }
-                $nvmLink = [Environment]::GetEnvironmentVariable('NVM_SYMLINK','Machine')
-                if (-not $nvmLink) { $nvmLink = [Environment]::GetEnvironmentVariable('NVM_SYMLINK','User') }
-                foreach ($p in @($nvmHome,$nvmLink)) {
-                    if ($p -and (Test-Path $p) -and ($env:PATH -notlike "*$p*")) { $env:PATH = "$env:PATH;$p" }
+                if (-not (Test-Path $defaultProgramFiles)) { New-Item -ItemType Directory -Path $defaultProgramFiles -Force | Out-Null }
+                $testFile = Join-Path $defaultProgramFiles '.__write_test__'
+                Set-Content -Path $testFile -Value 'ok' -Force
+                Remove-Item -Path $testFile -Force
+            } catch { $useUserSymlink = $true }
+
+            if ($useUserSymlink) { $nvmLink = $userSymlink }
+
+            # Ensure NVM settings.txt has root/path and avoid physical dir at symlink path
+            $settings = Join-Path $nvmHome 'settings.txt'
+            try {
+                if (Test-Path $nvmLink) {
+                    $attr = (Get-Item $nvmLink -Force).Attributes
+                    $isLink = ($attr -band [IO.FileAttributes]::ReparsePoint) -ne 0
+                    if (-not $isLink) {
+                        Remove-Item -Recurse -Force -Path $nvmLink
+                        Write-Host "Removed physical directory at symlink path: $nvmLink" -ForegroundColor Yellow
+                    }
                 }
             } catch {}
-        }
+            if (-not (Test-Path $settings)) {
+                # Create with both root and path entries
+                if (-not (Test-Path $nvmHome)) { New-Item -ItemType Directory -Path $nvmHome -Force | Out-Null }
+                Set-Content -Path $settings -Value @(
+                    "root: $nvmHome",
+                    "path: $nvmLink"
+                ) -Force
+            } else {
+                $lines = Get-Content $settings -ErrorAction SilentlyContinue
+                $new   = @()
+                $foundPath = $false
+                $foundRoot = $false
+                foreach ($l in $lines) {
+                    if ($l -match '^path\s*:') { $new += ("path: $nvmLink"); $foundPath = $true }
+                    elseif ($l -match '^root\s*:') { $new += ("root: $nvmHome"); $foundRoot = $true }
+                    else { $new += $l }
+                }
+                if (-not $foundRoot) { $new += ("root: $nvmHome") }
+                if (-not $foundPath) { $new += ("path: $nvmLink") }
+                if (-not ($lines -join "`n").Equals($new -join "`n")) {
+                    Set-Content -Path $settings -Value $new -Force
+                    Write-Host "Updated NVM settings.txt (root/path) -> $nvmLink" -ForegroundColor Yellow
+                }
+            }
+
+            # Persist env vars for future shells
+            [Environment]::SetEnvironmentVariable('NVM_HOME', $nvmHome, 'User')
+            [Environment]::SetEnvironmentVariable('NVM_SYMLINK', $nvmLink, 'User')
+
+            # Set in current session so nvm knows where settings.txt is
+            $env:NVM_HOME = $nvmHome
+            $env:NVM_SYMLINK = $nvmLink
+
+            # Ensure directories exist (avoid PATH entries to non-existent dirs)
+            # Do NOT create the symlink target directory here; nvm will create a junction. Just ensure parent exists.
+            try {
+                $parent = Split-Path -Path $nvmLink -Parent
+                if ($parent -and -not (Test-Path $parent)) { New-Item -ItemType Directory -Path $parent -Force | Out-Null }
+            } catch {}
+
+            # Add to PATH (current session and persist for user)
+            Add-ToUserPath $nvmHome
+            Add-ToUserPath $nvmLink
+            Add-ToUserPath (Join-Path $env:APPDATA 'npm')
+        } catch {}
         if (Test-Command nvm) {
             # Ensure at least one LTS Node exists if none installed under nvm
             $nvmRoot = "$env:LOCALAPPDATA\nvm"
-            $haveAny = Test-Path "$nvmRoot\v*"
+            # NVM for Windows stores versions like "v22.18.0" (with 'v' prefix)
+            $haveAny = @(Get-ChildItem -Path $nvmRoot -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '^v?\d+\.\d+\.\d+$' }).Count -gt 0
             if (-not $haveAny) {
                 Write-Host "No Node versions under NVM detected. Installing latest LTS..." -ForegroundColor Yellow
                 try {
-                    nvm list available | Select-String -Pattern "LTS" | Select-Object -First 1 | Out-Null
                     # Use the built-in alias for latest LTS
                     nvm install lts | Out-Host
+                    # Ensure we don't hit physical directory issue before 'use'
+                    try {
+                        $link = [Environment]::GetEnvironmentVariable('NVM_SYMLINK','User')
+                        if (-not $link) { $link = [Environment]::GetEnvironmentVariable('NVM_SYMLINK','Machine') }
+                        if ($link -and (Test-Path $link)) {
+                            $attr = (Get-Item $link -Force).Attributes
+                            $isLink = ($attr -band [IO.FileAttributes]::ReparsePoint) -ne 0
+                            if (-not $isLink) { Remove-Item -Recurse -Force -Path $link }
+                        }
+                    } catch {}
                     nvm use lts | Out-Host
                 } catch {
                     Write-Host "Failed to auto-install Node LTS via nvm. You can run 'nvm install lts' later." -ForegroundColor Yellow
                 }
             }
+            # Ensure node/npm/npx are on PATH for this session after nvm use
+            try {
+                $userNpm = Join-Path $env:APPDATA 'npm'
+                foreach ($p in @($nvmHome,$nvmLink,$userNpm)) {
+                    if ($p -and (Test-Path $p) -and ($env:PATH -notlike "*$p*")) { $env:PATH = "$env:PATH;$p" }
+                }
+            } catch {}
         } else {
             Write-Host "NVM appears installed but not on PATH. Open a new terminal (or sign out/in) then run 'nvm version'." -ForegroundColor Yellow
         }
@@ -265,6 +354,21 @@ if ($Install) {
                 Write-Host "Failed to install uv via script." -ForegroundColor Red
             }
         }
+    }
+
+    if ($WithDocker) {
+        if (Test-Command docker) {
+            Write-Host "✓ Docker CLI already available" -ForegroundColor Green
+        } else {
+            Ensure-Package -id 'Docker.DockerDesktop' -name 'Docker Desktop'
+        }
+        # Ensure Docker CLI path is on PATH for current session and future shells
+        try {
+            $dockerBin = Join-Path ${env:ProgramFiles} 'Docker/Docker/resources/bin'
+            if (Test-Path $dockerBin) {
+                Add-ToUserPath $dockerBin
+            }
+        } catch {}
     }
 }
 

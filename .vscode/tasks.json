@@ -54,6 +54,46 @@
         "-WithUv"
       ],
       "problemMatcher": []
+    },
+    {
+      "label": "Setup: Refresh Node PATH (session)",
+      "type": "process",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/scripts/refresh_node_path.ps1"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Firebase: Login",
+      "type": "process",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/scripts/firebase_login.ps1",
+        "-Reauth"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Firebase: Start MCP (stdio)",
+      "type": "process",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/scripts/firebase_mcp.ps1"
+      ],
+      "problemMatcher": []
     }
   ]
 }

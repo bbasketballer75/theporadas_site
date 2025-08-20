@@ -47,6 +47,7 @@ What it can manage via WinGet/Corepack:
 - pipx (`PyPA.pipx`)
 - pnpm via Corepack (or `pnpm.pnpm` as fallback)
 - uv (`astral-sh.uv`)
+- Docker Desktop (`Docker.DockerDesktop`)
 
 ## Run directly from terminal
 You can also run the script yourself:
@@ -57,6 +58,14 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/setup.ps1
 
 # Install the common toolchain
 pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/setup.ps1 -Install -WithGit -WithGcloud -WithNode -WithPython -WithPnpm -WithUv
+
+# Install Docker Desktop too
+pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/setup.ps1 -Install -WithDocker
+
+# After install, ensure Docker CLI is on PATH for this session
+$dockerBin = Join-Path $Env:ProgramFiles 'Docker/Docker/resources/bin'
+if (Test-Path $dockerBin) { $Env:PATH += ";$dockerBin" }
+docker --version
 ```
 
 ## Tips to avoid duplicate installs
@@ -79,3 +88,74 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/setup.ps1 -Install -With
   - Docs: https://learn.microsoft.com/windows/package-manager/winget/
 - If PowerShell blocks script execution, we pass `-ExecutionPolicy Bypass` in tasks.
 - The script is safe to run repetitively; it checks presence before installing.
+
+## Dev Tooling
+- Extensions (auto-suggested via `.vscode/extensions.json`): ESLint, Prettier, EditorConfig, Code Spell Checker, Error Lens, axe Accessibility Linter, Dotenv, Tailwind CSS IntelliSense, Stylelint, Vitest Explorer, GitHub PRs & Issues.
+- Install prompts appear when you open the workspace. You can also run: View → Extensions → `@recommended`.
+- Formatting: Prettier on save; linting by ESLint/Stylelint; accessibility by axe linter.
+
+### MCP Strategy (hosted-first)
+- Prefer hosted HTTP/SSE MCP servers from the VS Code curated list: `https://code.visualstudio.com/mcp`.
+- Use local stdio for trusted CLIs (e.g., Firebase). Docker is fine for local experimentation.
+- Keep credentials out of files by using VS Code `inputs` prompts in `mcp.json`.
+
+Helpful docs:
+- VS Code curated MCP servers: `https://code.visualstudio.com/mcp`
+- Firebase MCP server (official): `https://firebase.google.com/docs/cli/mcp-server`
+- GitHub MCP server repo: `https://github.com/github/github-mcp-server`
+
+### Example: `.vscode/mcp.json`
+Project-scoped configuration for Copilot agent mode. These are examples; tailor to your needs.
+
+GitHub (hosted HTTP):
+
+```json
+{
+  "servers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
+    }
+  }
+}
+```
+
+Stripe (hosted HTTP with input prompt for API key):
+
+```json
+{
+  "inputs": [
+    { "id": "stripe_api_key", "type": "promptString", "description": "Stripe API Key", "password": true }
+  ],
+  "servers": {
+    "stripe": {
+      "type": "http",
+      "url": "https://mcp.stripe.com/",
+      "headers": { "Authorization": "Bearer ${input:stripe_api_key}" }
+    }
+  }
+}
+```
+
+Firebase (local stdio via CLI):
+
+```json
+{
+  "servers": {
+    "firebase": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "firebase-tools@latest", "experimental:mcp"]
+    }
+  }
+}
+```
+
+Notes for Firebase MCP:
+- Authenticate first: `npx -y firebase-tools@latest login --reauth`.
+- Optional flags: `--dir` (absolute path to project with `firebase.json`) and `--only` (comma list: `auth,firestore,storage,...`). Example:
+  - `... "args": ["-y", "firebase-tools@latest", "experimental:mcp", "--dir", "/abs/path/to/project", "--only", "auth,firestore,storage"]`
+- You can also use the VS Code tasks:
+  - `Firebase: Login` to authenticate
+  - `Firebase: Start MCP (stdio)` to start the server
+

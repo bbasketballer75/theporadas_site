@@ -1,0 +1,16 @@
+[debug] [2025-08-20T20:07:25.196Z] ----------------------------------------------------------------------
+[debug] [2025-08-20T20:07:25.198Z] Command:       C:\Users\Austin\AppData\Local\nodejs\node.exe C:\Users\Austin\AppData\Local\npm-cache\_npx\ba4f1959e38407b5\node_modules\firebase-tools\lib\bin\firebase.js -- experimental:mcp
+[debug] [2025-08-20T20:07:25.198Z] CLI Version:   14.12.1
+[debug] [2025-08-20T20:07:25.198Z] Platform:      win32
+[debug] [2025-08-20T20:07:25.199Z] Node Version:  v22.18.0
+[debug] [2025-08-20T20:07:25.199Z] Time:          Wed Aug 20 2025 16:07:25 GMT-0400 (Eastern Daylight Time)
+[debug] [2025-08-20T20:07:25.199Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-08-20T20:07:25.203Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-08-20T20:07:25.203Z] > authorizing via signed-in user (inquiry@friendlycityprintshop.com)
+[debug] [2025-08-20T20:07:25.405Z] Error: MCP logic is implemented elsewhere, this should never be reached.
+    at Command.actionFn (C:\Users\Austin\AppData\Local\npm-cache\_npx\ba4f1959e38407b5\node_modules\firebase-tools\lib\commands\mcp.js:10:11)
+    at C:\Users\Austin\AppData\Local\npm-cache\_npx\ba4f1959e38407b5\node_modules\firebase-tools\lib\command.js:250:25
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[error] 
+[error] Error: An unexpected error has occurred.

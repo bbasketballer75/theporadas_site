@@ -4,6 +4,6 @@ $arguments = @(
     '-NoProfile',
     '-ExecutionPolicy','Bypass',
     '-File',"$script",
-    '-Install','-WithGit','-WithGcloud','-WithNode','-WithPython','-WithPnpm','-WithUv'
+    '-Install','-WithGit','-WithGcloud','-WithNode','-WithPython','-WithPnpm','-WithUv','-WithDocker'
 )
 Start-Process -FilePath pwsh -ArgumentList $arguments -Verb RunAs -Wait
