@@ -19,6 +19,7 @@ export default [
       "**/*.lock",
       "**/dist/**",
       "**/build/**",
+      "coverage/**",
       "**/.vscode/**",
       "**/scripts/**",
     ],
