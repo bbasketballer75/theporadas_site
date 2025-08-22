@@ -1,15 +1,16 @@
 {
-    "recommendations": [
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
-        "editorconfig.editorconfig",
-        "streetsidesoftware.code-spell-checker",
-        "usernamehw.errorlens",
-        "deque-systems.vscode-axe-linter",
-        "dotenv.dotenv-vscode",
-        "bradlc.vscode-tailwindcss",
-        "stylelint.vscode-stylelint",
-        "vitest.explorer",
-        "GitHub.vscode-pull-request-github"
-    ]
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "editorconfig.editorconfig",
+    "streetsidesoftware.code-spell-checker",
+    "usernamehw.errorlens",
+    "deque-systems.vscode-axe-linter",
+    "dotenv.dotenv-vscode",
+    "bradlc.vscode-tailwindcss",
+    "stylelint.vscode-stylelint",
+    "vitest.explorer",
+    "GitHub.vscode-pull-request-github",
+    "dsznajder.es7-react-js-snippets"
+  ]
 }

@@ -19,14 +19,17 @@ if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
     }
 }
 
-$exe = 'npm'
-$cmdArgs = @('exec', '-y', 'firebase-tools@latest', '--', 'experimental:mcp')
+# Prefer NVM symlinked npx to avoid npm prefix conflicts
+$npxSymlink = Join-Path $nodeLink 'npx.cmd'
+$exe = if (Test-Path $npxSymlink) { $npxSymlink } else { 'npx' }
+$cmdArgs = @('-y', 'firebase-tools@latest', 'experimental:mcp')
 if ($Dir) {
     try {
-    $absDir = if ([System.IO.Path]::IsPathRooted($Dir)) { $Dir } else { (Resolve-Path -Path $Dir).Path }
-    $cmdArgs += @('--dir', $absDir)
-    } catch {
-    $cmdArgs += @('--dir', $Dir)
+        $absDir = if ([System.IO.Path]::IsPathRooted($Dir)) { $Dir } else { (Resolve-Path -Path $Dir).Path }
+        $cmdArgs += @('--dir', $absDir)
+    }
+    catch {
+        $cmdArgs += @('--dir', $Dir)
     }
 }
 
@@ -36,7 +39,8 @@ Write-Host ("Command: {0} {1}" -f $exe, ($cmdArgs -join ' ')) -ForegroundColor D
 
 try {
     & $exe @cmdArgs
-} catch {
+}
+catch {
     Write-Host "Direct npx failed, retrying via cmd.exe /c..." -ForegroundColor Yellow
     $joined = ($cmdArgs | ForEach-Object { if ($_ -match '\s') { '"' + $_ + '"' } else { $_ } }) -join ' '
     $cmdline = "npx $joined"
