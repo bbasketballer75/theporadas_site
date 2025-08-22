@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+# Simplified Husky v9+ pre-commit hook (deprecated _/husky.sh removed)
+
+command -v npx >/dev/null 2>&1 || {
+	echo "npx not found; aborting commit" >&2
+	exit 1
+}
+
+npx lint-staged

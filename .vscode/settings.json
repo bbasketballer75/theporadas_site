@@ -1,11 +1,20 @@
 {
-    "github.copilot.editor.enableAutoCompletions": true,
-    "github.copilot.enable": {
-        "*": true
-    },
-    "github.copilot.chat.experimental.model": "gpt-5",
-    "github.copilot.chat.model": "gpt-5",
-    "github.copilot.chat.alternateGptPrompt.enabled": true,
-    "chat.todoListTool.enabled": true,
-    "github.copilot.chat.codeGeneration.useInstructionFiles": true
+  "github.copilotChat.model": "gpt-5",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "github.copilot.enable": {
+    "*": true
+  },
+  "github.copilot.editor.enableAutoCompletions": true,
+  "python.terminal.useEnvFile": true,
+  "python.envFile": "${workspaceFolder}/.env",
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "terminal.integrated.cwd": "${workspaceFolder}",
+  "terminal.integrated.splitCwd": "workspaceRoot",
+  "powershell.cwd": "${workspaceFolder}"
 }

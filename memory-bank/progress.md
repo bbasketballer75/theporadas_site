@@ -2,8 +2,6 @@
 
 ## Done
 
-
-
 ## Doing
 
 - Record VS Code Insiders preference
