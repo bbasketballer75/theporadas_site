@@ -3,11 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { VideoPlayer, VideoPlayerProps } from "./VideoPlayer";
 
 export interface LazyVideoPlayerProps extends VideoPlayerProps {
-  /**
-   * Root margin for IntersectionObserver (e.g., '200px'). Defaults to '200px' to pre-load slightly early.
-   */
   rootMargin?: string;
-  /** Placeholder height (used to preserve layout via aspect-ratio). */
   aspectRatio?: string; // e.g. "16/9"
 }
 
@@ -17,16 +13,14 @@ export function LazyVideoPlayer(props: LazyVideoPlayerProps) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (visible) return; // already loaded
+    if (visible) return;
     const el = containerRef.current;
     if (!el) return;
-
     const supports = typeof IntersectionObserver !== "undefined";
     if (!supports) {
-      setVisible(true); // graceful fallback
+      setVisible(true);
       return;
     }
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {

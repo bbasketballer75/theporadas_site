@@ -69,6 +69,14 @@ export interface VideoPlayerProps {
   placeholderLabel?: string;
   onEvent?: (payload: VideoPlayerEventPayload) => void;
   showChapters?: boolean;
+  /** Optional poster image shown before playback begins. */
+  poster?: string;
+  /** Attempt to autoplay (caller must ensure muted for browsers). */
+  autoPlay?: boolean;
+  /** Pass through muted attribute (often required for autoplay). */
+  muted?: boolean;
+  /** Pass through playsInline attribute (iOS inline playback). */
+  playsInline?: boolean;
 }
 
 export interface QualitySource extends VideoSource {
@@ -93,6 +101,10 @@ export function VideoPlayer(props: VideoPlayerProps) {
     placeholderLabel,
     onEvent,
     showChapters = true,
+    poster,
+    autoPlay,
+    muted,
+    playsInline,
   } = props;
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -236,6 +248,10 @@ export function VideoPlayer(props: VideoPlayerProps) {
             ref={videoRef}
             controls
             style={{ maxWidth: "100%", display: "block" }}
+            {...(poster ? { poster } : {})}
+            {...(autoPlay ? { autoPlay: true } : {})}
+            {...(muted ? { muted: true } : {})}
+            {...(playsInline ? { playsInline: true } : {})}
             // If only one simple source (no type), keep src attribute for simplicity
             {...(resolvedSources.length === 1 && !resolvedSources[0].type
               ? { src: resolvedSources[0].src }
