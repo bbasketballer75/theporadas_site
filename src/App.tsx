@@ -1,17 +1,39 @@
 import React from "react";
 
+import { MotionToggle } from "./components/MotionToggle";
 import { VideoPlayer } from "./components/VideoPlayer/VideoPlayer";
+import "./designSystem.css";
 
 export default function App() {
   return (
-    <main style={{ fontFamily: "system-ui, sans-serif", padding: "1rem" }}>
-      <h1>The Poradas Wedding Videos</h1>
-      <p>Welcome! This is the early scaffold of the site.</p>
-      <VideoPlayer
-        src=""
-        caption="Sample"
-        placeholderLabel="Sample (placeholder)"
-      />
-    </main>
+    <div id="appShell" role="main" tabIndex={-1}>
+      <section className="snap-section hero" aria-label="Welcome">
+        <div className="stack" style={{ textAlign: "center" }}>
+          <h1 className="display">
+            <span className="hero-accent">The Poradas Wedding Videos</span>
+          </h1>
+          <p>
+            A celebration in sage & blush. This is an evolving immersive
+            experience—sections will appear here as they are completed.
+          </p>
+          <div className="stack" style={{ alignItems: "center" }}>
+            <button className="btn btn-primary" type="button">
+              Enter Story
+            </button>
+            <MotionToggle />
+          </div>
+        </div>
+      </section>
+      <section className="snap-section" aria-label="Video Feature">
+        <div className="card stack">
+          <h2>Feature Video</h2>
+          <VideoPlayer
+            src=""
+            caption="Feature Video (placeholder)"
+            placeholderLabel="placeholder"
+          />
+        </div>
+      </section>
+    </div>
   );
 }

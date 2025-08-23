@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" fill="none">
+  <defs>
+    <linearGradient id="gs" x1="100" y1="100" x2="700" y2="700">
+      <stop stop-color="#a7c4b5"/>
+      <stop offset="1" stop-color="#f5bdc9"/>
+    </linearGradient>
+  </defs>
+  <path d="M180 430c0-140 200-210 230-110 30 100-170 140-120 30 40-90 210-170 290-100 80 70-10 200-110 170-90-25 0-170 120-120 80 33 80 150-10 210-110 75-250 110-310 40-60-70 10-170 120-160 130 10 185 130 140 210" stroke="url(#gs)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="400" y="680" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="42" fill="url(#gs)">Austin &amp; Jordyn • 05·10·2025</text>
+</svg>
