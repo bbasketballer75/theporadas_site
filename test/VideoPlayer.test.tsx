@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 
 import { VideoPlayer } from "../src/components/VideoPlayer/VideoPlayer";
 
@@ -93,5 +93,77 @@ describe("VideoPlayer", () => {
     expect(names).toContain("play");
     expect(names).toContain("timeupdate");
     expect(names).toContain("pause");
+  });
+
+  describe("qualitySources heuristic", () => {
+    const originalInnerHeight = window.innerHeight;
+    const setInnerHeight = (h: number) => {
+      Object.defineProperty(window, "innerHeight", {
+        value: h,
+        configurable: true,
+      });
+    };
+    const resetInnerHeight = () => setInnerHeight(originalInnerHeight);
+
+    const mockConnection = (
+      conn: Partial<{ saveData: boolean; downlink: number }>,
+    ) => {
+      Object.defineProperty(navigator, "connection", {
+        value: conn,
+        configurable: true,
+      });
+    };
+
+    afterEach(() => {
+      resetInnerHeight();
+      mockConnection({});
+    });
+
+    const sample = [
+      {
+        src: "vid-1080.mp4",
+        type: "video/mp4",
+        height: 1080,
+        bitrateKbps: 6000,
+        label: "1080p",
+      },
+      {
+        src: "vid-720.mp4",
+        type: "video/mp4",
+        height: 720,
+        bitrateKbps: 3000,
+        label: "720p",
+      },
+      {
+        src: "vid-480.mp4",
+        type: "video/mp4",
+        height: 480,
+        bitrateKbps: 1200,
+        label: "480p",
+      },
+    ];
+
+    it("selects 1080p for tall viewport and good connection", () => {
+      setInnerHeight(1000);
+      mockConnection({ saveData: false, downlink: 20 }); // 20 Mbps
+      render(<VideoPlayer qualitySources={sample} caption="Qual" />);
+      expect(document.body.textContent).toMatch(/1080p/);
+    });
+
+    it("clamps to 480p on save-data despite large viewport", () => {
+      setInnerHeight(1000);
+      mockConnection({ saveData: true, downlink: 10 });
+      render(<VideoPlayer qualitySources={sample} caption="Qual" />);
+      expect(document.body.textContent).toMatch(/480p/);
+    });
+
+    it("drops to 720p if bitrate exceeds downlink budget for 1080p", () => {
+      setInnerHeight(1000); // would target 1080
+      // Provide a downlink that is sufficient for 3000 kbps but not 6000 under 0.85 multiplier
+      // Budget = 5 * 0.85 = 4.25 Mbps -> 1080 (6 Mbps) excluded, 720 (3 Mbps) allowed
+      mockConnection({ saveData: false, downlink: 5 });
+      render(<VideoPlayer qualitySources={sample} caption="Qual" />);
+      expect(document.body.textContent).toMatch(/720p/);
+    });
   });
 });
