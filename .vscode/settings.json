@@ -8,12 +8,7 @@
   "github.copilot.editor.enableAutoCompletions": true,
   "python.terminal.useEnvFile": true,
   "python.envFile": "${workspaceFolder}/.env",
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact"
-  ],
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
   "terminal.integrated.cwd": "${workspaceFolder}",
   "terminal.integrated.splitCwd": "workspaceRoot",
   "powershell.cwd": "${workspaceFolder}"

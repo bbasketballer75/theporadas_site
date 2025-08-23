@@ -186,13 +186,9 @@ The `VideoPlayer` component wraps the native HTML5 `<video>` element adding mult
 ### Basic Usage
 
 ```tsx
-import { VideoPlayer } from "./src/components/VideoPlayer/VideoPlayer";
+import { VideoPlayer } from './src/components/VideoPlayer/VideoPlayer';
 
-<VideoPlayer
-  src="/media/sample.mp4"
-  caption="Sample"
-  placeholderLabel="Loading video"
-/>;
+<VideoPlayer src="/media/sample.mp4" caption="Sample" placeholderLabel="Loading video" />;
 ```
 
 ### Props
@@ -213,18 +209,18 @@ import { VideoPlayer } from "./src/components/VideoPlayer/VideoPlayer";
 
 ```ts
 type VideoPlayerEvent =
-  | { type: "ready"; duration: number }
-  | { type: "play" }
-  | { type: "pause" }
+  | { type: 'ready'; duration: number }
+  | { type: 'play' }
+  | { type: 'pause' }
   | {
-      type: "timeupdate";
+      type: 'timeupdate';
       currentTime: number;
       duration: number;
       chapter?: ChapterDef;
     }
-  | { type: "ended" }
-  | { type: "seeked"; currentTime: number }
-  | { type: "error"; message?: string };
+  | { type: 'ended' }
+  | { type: 'seeked'; currentTime: number }
+  | { type: 'error'; message?: string };
 ```
 
 Chapters active when `currentTime >= start` and `< end` (if defined). Active chapter recomputed on each `timeupdate`.
@@ -312,15 +308,15 @@ interface VideoTrackDef {
 ### Usage
 
 ```tsx
-import { LazyVideoPlayer } from "./src/components/VideoPlayer/LazyVideoPlayer";
+import { LazyVideoPlayer } from './src/components/VideoPlayer/LazyVideoPlayer';
 
 <LazyVideoPlayer
   caption="Feature Clip"
   placeholderLabel="Preparing video"
   qualitySources={[
-    { src: "/media/encoded/feature-480.mp4", height: 480 },
-    { src: "/media/encoded/feature-720.mp4", height: 720 },
-    { src: "/media/encoded/feature-1080.mp4", height: 1080 },
+    { src: '/media/encoded/feature-480.mp4', height: 480 },
+    { src: '/media/encoded/feature-720.mp4', height: 720 },
+    { src: '/media/encoded/feature-1080.mp4', height: 1080 },
   ]}
 />;
 ```

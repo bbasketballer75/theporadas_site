@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 
-const STORAGE_KEY = "prefersReducedMotionOverride"; // values: "reduce" | "no-preference" | null
+const STORAGE_KEY = 'prefersReducedMotionOverride'; // values: "reduce" | "no-preference" | null
 
 export function MotionToggle() {
   const [pref, setPref] = useState<string | null>(() => {
@@ -20,7 +20,7 @@ export function MotionToggle() {
         /* ignore */
       }
     } else {
-      document.documentElement.removeAttribute("data-motion");
+      document.documentElement.removeAttribute('data-motion');
       try {
         localStorage.removeItem(STORAGE_KEY);
       } catch {
@@ -29,24 +29,21 @@ export function MotionToggle() {
     }
   }, [pref]);
 
-  const systemReduced = window.matchMedia(
-    "(prefers-reduced-motion: reduce)",
-  ).matches;
-  const effective = pref || (systemReduced ? "reduce" : "no-preference");
+  const systemReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const effective = pref || (systemReduced ? 'reduce' : 'no-preference');
 
   function cycle() {
     setPref((current) => {
-      if (current === "reduce") return "no-preference";
-      if (current === "no-preference") return null;
-      return "reduce";
+      if (current === 'reduce') return 'no-preference';
+      if (current === 'no-preference') return null;
+      return 'reduce';
     });
   }
 
   let label: string;
-  if (pref === null)
-    label = systemReduced ? "Motion: System (Reduced)" : "Motion: System";
-  else if (effective === "reduce") label = "Motion: Reduced";
-  else label = "Motion: Full";
+  if (pref === null) label = systemReduced ? 'Motion: System (Reduced)' : 'Motion: System';
+  else if (effective === 'reduce') label = 'Motion: Reduced';
+  else label = 'Motion: Full';
 
   return (
     <button

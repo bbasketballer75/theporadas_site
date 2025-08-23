@@ -1,0 +1,22 @@
+# EditorConfig unifies basic whitespace & charset behavior across editors
+# http://editorconfig.org
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+
+[*.md]
+# Preserve intentional trailing spaces in markdown tables / line breaks
+trim_trailing_whitespace = false
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[*.{js,jsx,ts,tsx,json,css,html}]
+indent_size = 2

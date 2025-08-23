@@ -42,8 +42,8 @@
   --c-focus: var(--c-blush-500);
 
   /* Typography */
-  --font-display: "Playfair Display", Georgia, serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
   --fs-display: clamp(2.5rem, 6vw, 5rem);
   --fs-h1: clamp(2rem, 5vw, 3.5rem);
   --fs-h2: clamp(1.6rem, 3.6vw, 2.5rem);
@@ -66,12 +66,9 @@
   --radius-sm: 4px;
   --radius-md: 10px;
   --radius-lg: 28px;
-  --shadow-sm:
-    0 1px 2px rgba(var(--c-shadow) / 0.08),
-    0 0 0 1px rgba(var(--c-shadow) / 0.04);
+  --shadow-sm: 0 1px 2px rgba(var(--c-shadow) / 0.08), 0 0 0 1px rgba(var(--c-shadow) / 0.04);
   --shadow-md:
-    0 4px 12px -2px rgba(var(--c-shadow) / 0.12),
-    0 2px 4px -2px rgba(var(--c-shadow) / 0.1);
+    0 4px 12px -2px rgba(var(--c-shadow) / 0.12), 0 2px 4px -2px rgba(var(--c-shadow) / 0.1);
   --shadow-lg: 0 12px 40px -8px rgba(var(--c-shadow) / 0.22);
 
   /* Motion */
@@ -83,7 +80,7 @@
 }
 
 /* User override: reduced motion via toggle sets [data-motion="reduce"] */
-[data-motion="reduce"] * {
+[data-motion='reduce'] * {
   animation: none !important;
   transition-duration: 1ms !important;
   scroll-behavior: auto !important;
