@@ -63,7 +63,7 @@ Future enhancements may incorporate dynamic switching / `effectiveType`, but sta
 
 1. Add `qualitySources` prop + selection function (no lazy loading yet).
 2. Write tests for selection logic (mock viewport width + saveData).
-3. Integrate placeholder + observer for lazy load.
+3. Integrate placeholder + observer for lazy load. (Implemented: `LazyVideoPlayer` wrapper with `IntersectionObserver`, graceful fallback.)
 4. Add caption & chapter sample assets (stub .vtt until final transcripts).
 5. Measure Lighthouse vs baseline; adjust ladder if regressions.
 6. Finalize docs with actual CRF/bitrate outputs.
