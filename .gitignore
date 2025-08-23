@@ -4,6 +4,10 @@ media/raw/*
 
 # Generated encoded variants can be large; keep only ladder finals if explicitly added
 media/encoded/*.tmp
+media/encoded/**/*.tmp
+*.log
+*.tmp
+*.DS_Store
 
 .env*
 .flaskenv*

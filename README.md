@@ -382,8 +382,8 @@ Implemented baseline accessibility and performance guardrails before adding heav
 
 Reference docs:
 
-- Overview / strategy: [`docs/video_ingestion_overview.md`](./docs/video_ingestion_overview.md)
-- Encoding ladder & ffmpeg commands: [`docs/encoding_recipes.md`](./docs/encoding_recipes.md)
+- Overview / strategy: [`docs/video/video_ingestion_overview.md`](./docs/video/video_ingestion_overview.md)
+- Encoding ladder & ffmpeg commands: [`docs/video/encoding_recipes.md`](./docs/video/encoding_recipes.md)
 
 Goals: Ingest wedding feature + ancillary clips with an accessible, performant delivery pipeline while preserving existing budgets.
 
