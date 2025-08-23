@@ -1,3 +1,9 @@
+# Raw media originals (keep structure, ignore heavy sources)
+media/raw/*
+!media/raw/.gitkeep
+
+# Generated encoded variants can be large; keep only ladder finals if explicitly added
+media/encoded/*.tmp
 
 .env*
 .flaskenv*
