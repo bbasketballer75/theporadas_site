@@ -8,3 +8,9 @@
 Last updated: 2025-08-23
 
 Add new docs here (e.g., `lazy_loading.md`, `chapters_captions.md`, `metrics.md`).
+
+## Deprecations
+
+| Deprecated                   | Replacement | First Noted | Removal (Planned)     | Notes                                                                                                                                           |
+| ---------------------------- | ----------- | ----------- | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `srclang` track prop (input) | `srcLang`   | 2025-08-23  | >= 2025-10 (earliest) | The component now maps legacy `srclang` to React's camelCase `srcLang` and emits a development warning. Update any usage before removal window. |

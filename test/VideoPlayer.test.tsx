@@ -50,6 +50,32 @@ describe("VideoPlayer", () => {
     expect(document.querySelectorAll("track").length).toBe(2);
   });
 
+  it("warns when deprecated srclang is used", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    // Create a track object with deprecated srclang using extended type trick
+    // Legacy track includes deprecated srclang; we purposely bypass current type union.
+    interface LegacyTrack {
+      kind: "captions";
+      src: string;
+      srclang: string; // deprecated prop
+    }
+    const legacy: LegacyTrack = {
+      kind: "captions",
+      src: "captions.vtt",
+      srclang: "en",
+    };
+    // Cast through unknown then to VideoPlayer prop expectation to avoid explicit any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- needed to inject deprecated field
+    const legacyTracks = [legacy as unknown as any];
+    render(
+      <VideoPlayer caption="Warn" src="video.mp4" tracks={legacyTracks} />,
+    );
+    expect(warnSpy).toHaveBeenCalledWith(
+      "[VideoPlayer] 'srclang' prop is deprecated; use 'srcLang' instead.",
+    );
+    warnSpy.mockRestore();
+  });
+
   it("renders chapters navigation and highlights active chapter (timeupdate simulation)", () => {
     // jsdom won't play video; simulate chapter button click triggers seeking handler.
     const chapters = [
