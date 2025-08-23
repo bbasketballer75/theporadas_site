@@ -1,22 +1,11 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export interface VideoSource {
   src: string;
   type?: string; // e.g., "video/mp4" | "video/webm"
 }
 
-export type TrackKind =
-  | "subtitles"
-  | "captions"
-  | "chapters"
-  | "metadata"
-  | "descriptions";
+export type TrackKind = 'subtitles' | 'captions' | 'chapters' | 'metadata' | 'descriptions';
 
 export interface VideoTrackDef {
   kind: TrackKind;
@@ -37,14 +26,14 @@ export interface ChapterDef {
 }
 
 export type VideoPlayerEventName =
-  | "play"
-  | "pause"
-  | "timeupdate"
-  | "ended"
-  | "seeking"
-  | "seeked"
-  | "error"
-  | "loadedmetadata";
+  | 'play'
+  | 'pause'
+  | 'timeupdate'
+  | 'ended'
+  | 'seeking'
+  | 'seeked'
+  | 'error'
+  | 'loadedmetadata';
 
 export interface VideoPlayerEventPayload {
   name: VideoPlayerEventName;
@@ -118,7 +107,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
 
     // Gather signals
     const rawConnection =
-      typeof navigator !== "undefined" &&
+      typeof navigator !== 'undefined' &&
       (navigator as unknown as { connection?: unknown }).connection
         ? (navigator as unknown as { connection?: unknown }).connection
         : undefined;
@@ -129,9 +118,8 @@ export function VideoPlayer(props: VideoPlayerProps) {
     const connection: NetInfo = (rawConnection || {}) as NetInfo;
     const saveData: boolean = !!connection.saveData;
     const downlink: number | undefined =
-      typeof connection.downlink === "number" ? connection.downlink : undefined; // Mbps
-    const viewportH =
-      typeof window !== "undefined" ? window.innerHeight || 0 : 0;
+      typeof connection.downlink === 'number' ? connection.downlink : undefined; // Mbps
+    const viewportH = typeof window !== 'undefined' ? window.innerHeight || 0 : 0;
 
     // Establish target resolution based on viewport height (simple mapping).
     let targetHeight = 480;
@@ -164,9 +152,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
   // Merge single src into sources list for rendering (ignored if qualitySources active)
   const resolvedSources = useMemo<VideoSource[] | undefined>(() => {
     if (selectedQualitySource)
-      return [
-        { src: selectedQualitySource.src, type: selectedQualitySource.type },
-      ];
+      return [{ src: selectedQualitySource.src, type: selectedQualitySource.type }];
     if (sources && sources.length) return sources;
     if (src) return [{ src }];
     return undefined;
@@ -191,7 +177,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
         name,
         currentTime: el ? el.currentTime : 0,
         duration: el && !Number.isNaN(el.duration) ? el.duration : null,
-        src: el ? el.currentSrc || el.getAttribute("src") : null,
+        src: el ? el.currentSrc || el.getAttribute('src') : null,
         chapterIndex,
       });
     },
@@ -206,26 +192,25 @@ export function VideoPlayer(props: VideoPlayerProps) {
     function handleTimeUpdate() {
       if (!el) return;
       setCurrentTime(el.currentTime);
-      emit("timeupdate");
+      emit('timeupdate');
     }
     function handleLoadedMetadata() {
       if (!el) return;
       setDuration(!Number.isNaN(el.duration) ? el.duration : null);
-      emit("loadedmetadata");
+      emit('loadedmetadata');
     }
     const listeners: Array<[string, () => void]> = [
-      ["play", () => emit("play")],
-      ["pause", () => emit("pause")],
-      ["ended", () => emit("ended")],
-      ["seeking", () => emit("seeking")],
-      ["seeked", () => emit("seeked")],
-      ["error", () => emit("error")],
-      ["timeupdate", handleTimeUpdate],
-      ["loadedmetadata", handleLoadedMetadata],
+      ['play', () => emit('play')],
+      ['pause', () => emit('pause')],
+      ['ended', () => emit('ended')],
+      ['seeking', () => emit('seeking')],
+      ['seeked', () => emit('seeked')],
+      ['error', () => emit('error')],
+      ['timeupdate', handleTimeUpdate],
+      ['loadedmetadata', handleLoadedMetadata],
     ];
     listeners.forEach(([evt, fn]) => el.addEventListener(evt, fn));
-    return () =>
-      listeners.forEach(([evt, fn]) => el.removeEventListener(evt, fn));
+    return () => listeners.forEach(([evt, fn]) => el.removeEventListener(evt, fn));
   }, [emit]);
 
   const handleSelectChapter = useCallback(
@@ -233,13 +218,13 @@ export function VideoPlayer(props: VideoPlayerProps) {
       const el = videoRef.current;
       if (!el || !chapters || !chapters[idx]) return;
       el.currentTime = chapters[idx].start;
-      emit("seeking");
+      emit('seeking');
       // timeupdate will fire subsequently
     },
     [chapters, emit],
   );
 
-  const sectionLabel = caption || "video player";
+  const sectionLabel = caption || 'video player';
   return (
     <section aria-label={sectionLabel} style={{ maxWidth: 640 }}>
       {resolvedSources ? (
@@ -247,7 +232,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
           <video
             ref={videoRef}
             controls
-            style={{ maxWidth: "100%", display: "block" }}
+            style={{ maxWidth: '100%', display: 'block' }}
             {...(poster ? { poster } : {})}
             {...(autoPlay ? { autoPlay: true } : {})}
             {...(muted ? { muted: true } : {})}
@@ -259,11 +244,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
           >
             {resolvedSources.length > 1 &&
               resolvedSources.map((s, i) => (
-                <source
-                  key={i}
-                  src={s.src}
-                  {...(s.type ? { type: s.type } : {})}
-                />
+                <source key={i} src={s.src} {...(s.type ? { type: s.type } : {})} />
               ))}
             {tracks &&
               tracks.map((t, i) => {
@@ -272,14 +253,14 @@ export function VideoPlayer(props: VideoPlayerProps) {
                   env?: { MODE?: string };
                 };
                 const mode = meta.env?.MODE;
-                if (mode !== "production" && t.srclang) {
+                if (mode !== 'production' && t.srclang) {
                   console.warn(
                     "[VideoPlayer] 'srclang' prop is deprecated; use 'srcLang' instead.",
                   );
                 }
                 return (
                   <track
-                    key={`${t.kind}-${t.label || i}-${lang || ""}`}
+                    key={`${t.kind}-${t.label || i}-${lang || ''}`}
                     kind={t.kind}
                     src={t.src}
                     {...(lang ? { srcLang: lang } : {})}
@@ -299,31 +280,31 @@ export function VideoPlayer(props: VideoPlayerProps) {
       ) : (
         <div
           role="img"
-          aria-label={placeholderLabel || "Sample (placeholder)"}
+          aria-label={placeholderLabel || 'Sample (placeholder)'}
           style={{
             width: 320,
             height: 180,
-            background: "#ddd",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            background: '#ddd',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             fontSize: 14,
-            color: "#555",
-            fontFamily: "sans-serif",
+            color: '#555',
+            fontFamily: 'sans-serif',
           }}
         >
-          {placeholderLabel || "Sample (placeholder)"}
+          {placeholderLabel || 'Sample (placeholder)'}
         </div>
       )}
       {showChapters && chapters && chapters.length > 0 && (
         <nav aria-label="Chapters" style={{ marginTop: 12 }}>
           <ol
             style={{
-              listStyle: "none",
+              listStyle: 'none',
               padding: 0,
               margin: 0,
-              display: "flex",
-              flexDirection: "column",
+              display: 'flex',
+              flexDirection: 'column',
               gap: 4,
             }}
           >
@@ -334,18 +315,18 @@ export function VideoPlayer(props: VideoPlayerProps) {
                   <button
                     type="button"
                     onClick={() => handleSelectChapter(i)}
-                    aria-current={active ? "true" : undefined}
+                    aria-current={active ? 'true' : undefined}
                     style={{
-                      display: "block",
-                      width: "100%",
-                      textAlign: "left",
-                      background: active ? "#005fdd" : "#f3f3f3",
-                      color: active ? "#fff" : "#222",
-                      border: "1px solid #ccc",
-                      padding: "4px 8px",
+                      display: 'block',
+                      width: '100%',
+                      textAlign: 'left',
+                      background: active ? '#005fdd' : '#f3f3f3',
+                      color: active ? '#fff' : '#222',
+                      border: '1px solid #ccc',
+                      padding: '4px 8px',
                       fontSize: 13,
                       borderRadius: 4,
-                      cursor: "pointer",
+                      cursor: 'pointer',
                     }}
                   >
                     {c.title}
@@ -354,16 +335,16 @@ export function VideoPlayer(props: VideoPlayerProps) {
                         style={{
                           opacity: 0.7,
                           marginLeft: 6,
-                          fontVariantNumeric: "tabular-nums",
+                          fontVariantNumeric: 'tabular-nums',
                         }}
                       >
                         {Math.floor(c.start / 60)
                           .toString()
-                          .padStart(2, "0")}
+                          .padStart(2, '0')}
                         :
                         {Math.floor(c.start % 60)
                           .toString()
-                          .padStart(2, "0")}
+                          .padStart(2, '0')}
                       </span>
                     ) : null}
                   </button>
