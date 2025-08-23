@@ -1,9 +1,9 @@
 {
   "total": {
-    "lines": { "total": 279, "covered": 242, "skipped": 0, "pct": 86.73 },
-    "statements": { "total": 279, "covered": 242, "skipped": 0, "pct": 86.73 },
+    "lines": { "total": 320, "covered": 280, "skipped": 0, "pct": 87.5 },
+    "statements": { "total": 320, "covered": 280, "skipped": 0, "pct": 87.5 },
     "functions": { "total": 12, "covered": 10, "skipped": 0, "pct": 83.33 },
-    "branches": { "total": 83, "covered": 64, "skipped": 0, "pct": 77.1 },
+    "branches": { "total": 116, "covered": 89, "skipped": 0, "pct": 76.72 },
     "branchesTrue": { "total": 0, "covered": 0, "skipped": 0, "pct": 100 }
   },
   "C:\\Users\\Austin\\Documents\\theporadas_site\\src\\App.tsx": {
@@ -37,9 +37,9 @@
     "branches": { "total": 1, "covered": 1, "skipped": 0, "pct": 100 }
   },
   "C:\\Users\\Austin\\Documents\\theporadas_site\\src\\components\\VideoPlayer\\VideoPlayer.tsx": {
-    "lines": { "total": 183, "covered": 170, "skipped": 0, "pct": 92.89 },
+    "lines": { "total": 224, "covered": 208, "skipped": 0, "pct": 92.85 },
     "functions": { "total": 5, "covered": 4, "skipped": 0, "pct": 80 },
-    "statements": { "total": 183, "covered": 170, "skipped": 0, "pct": 92.89 },
-    "branches": { "total": 69, "covered": 56, "skipped": 0, "pct": 81.15 }
+    "statements": { "total": 224, "covered": 208, "skipped": 0, "pct": 92.85 },
+    "branches": { "total": 102, "covered": 81, "skipped": 0, "pct": 79.41 }
   }
 }

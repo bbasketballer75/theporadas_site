@@ -199,8 +199,9 @@ import { VideoPlayer } from "./src/components/VideoPlayer/VideoPlayer";
 
 | Prop               | Type                            | Required | Description                                                                                             |
 | ------------------ | ------------------------------- | -------- | ------------------------------------------------------------------------------------------------------- |
-| `src`              | `string`                        | No\*     | Convenience single source (mutually exclusive with `sources`)                                           |
+| `src`              | `string`                        | No\*     | Convenience single source (mutually exclusive with `sources` / `qualitySources`)                        |
 | `sources`          | `VideoSource[]`                 | No\*     | Array of sources with `src` and optional `type` for format fallback. Provide either `src` or `sources`. |
+| `qualitySources`   | `QualitySource[]`               | No\*     | Tiered sources (height/bitrate). If provided, heuristic selects ONE best; overrides `src` / `sources`.  |
 | `tracks`           | `VideoTrackDef[]`               | No       | Text tracks (captions/subtitles). Rendered as `<track>` elements.                                       |
 | `chapters`         | `ChapterDef[]`                  | No       | Chapters with `start`, optional `end`, and `title` used for navigation & active highlighting.           |
 | `showChapters`     | `boolean`                       | No       | Force chapter list rendering even if no chapters (fallback UI).                                         |
@@ -242,12 +243,35 @@ If `end` omitted it runs until next chapter start (or video end).
 
 ### Sources
 
-```ts
+````ts
 interface VideoSource {
   src: string;
   type?: string;
 }
-```
+
+### Quality Sources (Adaptive Heuristic)
+
+```ts
+interface QualitySource extends VideoSource {
+  height: number;        // e.g., 1080, 720
+  bitrateKbps?: number;  // approximate average bitrate
+  label?: string;        // "1080p", etc.
+  default?: boolean;
+}
+````
+
+Heuristic (initial simple pass):
+
+1. Sort descending by `height`.
+2. Derive target height from `window.innerHeight` (>=900→1080, >=720→720, >=540→540 else 480).
+3. Respect `navigator.connection.saveData` by clamping target ≤480.
+4. Filter sources <= target height (fallback to smallest if none).
+5. If `navigator.connection.downlink` present, drop candidates whose `bitrateKbps` exceeds `(downlink * (saveData?0.6:0.85)) Mbps`.
+6. Pick highest remaining resolution.
+
+Result: only a single `<video src>` is used (no multi `<source>` tags) to avoid needless HEAD requests. Future iterations may add mid-play adaptive switching once metrics justify complexity.
+
+````
 
 Order sources by preference (`video/webm` then `video/mp4`, etc.).
 
@@ -261,7 +285,7 @@ interface VideoTrackDef {
   label?: string;
   default?: boolean;
 }
-```
+````
 
 ### Accessibility Notes
 
@@ -312,10 +336,15 @@ Implemented baseline accessibility and performance guardrails before adding heav
 
 ### Next (Phase 1.5: Video Ingestion)
 
-- Add transcoded multi-source video variants (AV1 / H.264), captions (WebVTT), chapters, poster & blurred placeholder.
-- Lazy mount / intersection-based preloading to preserve initial LCP dominated by hero heading.
+- Add transcoded multi-source video variants (AV1 / H.264), captions (WebVTT), chapters, poster & blurred placeholder. See [`video_ingestion_overview.md`](./docs/video_ingestion_overview.md) for objectives & data model.
+- Lazy mount / intersection-based preloading to preserve initial LCP dominated by hero heading. Encoding ladder & ffmpeg commands captured in [`encoding_recipes.md`](./docs/encoding_recipes.md).
 
 ## Phase 1.5 – Video Ingestion (Planned Detailed Tasks)
+
+Reference docs:
+
+- Overview / strategy: [`docs/video_ingestion_overview.md`](./docs/video_ingestion_overview.md)
+- Encoding ladder & ffmpeg commands: [`docs/encoding_recipes.md`](./docs/encoding_recipes.md)
 
 Goals: Ingest wedding feature + ancillary clips with an accessible, performant delivery pipeline while preserving existing budgets.
 

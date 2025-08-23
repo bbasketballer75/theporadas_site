@@ -52,6 +52,12 @@ export interface VideoPlayerEventPayload {
 export interface VideoPlayerProps {
   src?: string; // convenience single source
   sources?: VideoSource[]; // multi-source list
+  /**
+   * Optional quality-tiered sources. If provided, overrides `src` / `sources`.
+   * The component will select the most appropriate single source to load
+   * (not multiple <source> elements) based on network + viewport heuristics.
+   */
+  qualitySources?: QualitySource[];
   tracks?: VideoTrackDef[];
   chapters?: ChapterDef[];
   caption?: string;
@@ -60,10 +66,22 @@ export interface VideoPlayerProps {
   showChapters?: boolean;
 }
 
+export interface QualitySource extends VideoSource {
+  /** Approx vertical resolution of the encoded asset (e.g., 1080, 720). */
+  height: number;
+  /** Approximate bitrate in kbps (used to compare against connection). */
+  bitrateKbps?: number;
+  /** Optional label ("1080p", etc.). */
+  label?: string;
+  /** Mark as default fallback if heuristic uncertain. */
+  default?: boolean;
+}
+
 export function VideoPlayer(props: VideoPlayerProps) {
   const {
     src,
     sources,
+    qualitySources,
     tracks,
     chapters,
     caption,
@@ -76,12 +94,66 @@ export function VideoPlayer(props: VideoPlayerProps) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState<number | null>(null);
 
-  // Merge single src into sources list for rendering.
+  // Quality selection heuristic – choose ONE best source when qualitySources provided.
+  const selectedQualitySource = useMemo<QualitySource | undefined>(() => {
+    if (!qualitySources || qualitySources.length === 0) return undefined;
+    const sorted = [...qualitySources].sort((a, b) => b.height - a.height);
+
+    // Gather signals
+    const rawConnection =
+      typeof navigator !== "undefined" &&
+      (navigator as unknown as { connection?: unknown }).connection
+        ? (navigator as unknown as { connection?: unknown }).connection
+        : undefined;
+    interface NetInfo {
+      saveData?: boolean;
+      downlink?: number; // Mbps
+    }
+    const connection: NetInfo = (rawConnection || {}) as NetInfo;
+    const saveData: boolean = !!connection.saveData;
+    const downlink: number | undefined =
+      typeof connection.downlink === "number" ? connection.downlink : undefined; // Mbps
+    const viewportH =
+      typeof window !== "undefined" ? window.innerHeight || 0 : 0;
+
+    // Establish target resolution based on viewport height (simple mapping).
+    let targetHeight = 480;
+    if (viewportH >= 900) targetHeight = 1080;
+    else if (viewportH >= 720) targetHeight = 720;
+    else if (viewportH >= 540) targetHeight = 540;
+
+    // If save-data requested, clamp target lower.
+    if (saveData) targetHeight = Math.min(targetHeight, 480);
+
+    // Filter candidates under or equal to targetHeight (fallback to smallest if none)
+    let candidates = sorted.filter((q) => q.height <= targetHeight);
+    if (candidates.length === 0) candidates = [sorted[sorted.length - 1]]; // smallest
+
+    // If connection downlink present & bitrate data exists, prefer medium that fits budget.
+    if (downlink && downlink > 0) {
+      const mbpsBudget = downlink * (saveData ? 0.6 : 0.85);
+      // Convert candidate bitrate to Mbps and filter under budget
+      const bitrateFiltered = candidates.filter((c) => {
+        if (!c.bitrateKbps) return true; // unknown bitrate -> keep
+        return c.bitrateKbps / 1000 <= mbpsBudget;
+      });
+      if (bitrateFiltered.length) candidates = bitrateFiltered;
+    }
+
+    // Prefer highest resolution within candidates.
+    return candidates.sort((a, b) => b.height - a.height)[0];
+  }, [qualitySources]);
+
+  // Merge single src into sources list for rendering (ignored if qualitySources active)
   const resolvedSources = useMemo<VideoSource[] | undefined>(() => {
+    if (selectedQualitySource)
+      return [
+        { src: selectedQualitySource.src, type: selectedQualitySource.type },
+      ];
     if (sources && sources.length) return sources;
     if (src) return [{ src }];
     return undefined;
-  }, [sources, src]);
+  }, [sources, src, selectedQualitySource]);
 
   const chapterIndex = useMemo(() => {
     if (!chapters || !chapters.length) return null;
@@ -184,6 +256,11 @@ export function VideoPlayer(props: VideoPlayerProps) {
                 />
               ))}
           </video>
+          {selectedQualitySource?.label ? (
+            <div style={{ fontSize: 11, opacity: 0.7, marginTop: 4 }}>
+              {selectedQualitySource.label}
+            </div>
+          ) : null}
           {caption && <figcaption>{caption}</figcaption>}
         </figure>
       ) : (
