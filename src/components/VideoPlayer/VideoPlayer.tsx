@@ -21,6 +21,9 @@ export type TrackKind =
 export interface VideoTrackDef {
   kind: TrackKind;
   src: string;
+  /**
+   * @deprecated Use `srcLang` (camelCase) instead. Kept for backward compatibility.
+   */
   srclang?: string;
   /** React uses camelCase srcLang attribute; accept either for inputs. */
   srcLang?: string;
@@ -249,6 +252,15 @@ export function VideoPlayer(props: VideoPlayerProps) {
             {tracks &&
               tracks.map((t, i) => {
                 const lang = t.srcLang || t.srclang; // backward compatibility
+                const meta = import.meta as unknown as {
+                  env?: { MODE?: string };
+                };
+                const mode = meta.env?.MODE;
+                if (mode !== "production" && t.srclang) {
+                  console.warn(
+                    "[VideoPlayer] 'srclang' prop is deprecated; use 'srcLang' instead.",
+                  );
+                }
                 return (
                   <track
                     key={`${t.kind}-${t.label || i}-${lang || ""}`}
