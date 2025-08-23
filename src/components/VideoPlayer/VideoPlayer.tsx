@@ -22,6 +22,8 @@ export interface VideoTrackDef {
   kind: TrackKind;
   src: string;
   srclang?: string;
+  /** React uses camelCase srcLang attribute; accept either for inputs. */
+  srcLang?: string;
   label?: string;
   default?: boolean;
 }
@@ -245,16 +247,19 @@ export function VideoPlayer(props: VideoPlayerProps) {
                 />
               ))}
             {tracks &&
-              tracks.map((t, i) => (
-                <track
-                  key={`${t.kind}-${t.label || i}-${t.srclang || ""}`}
-                  kind={t.kind}
-                  src={t.src}
-                  {...(t.srclang ? { srclang: t.srclang } : {})}
-                  {...(t.label ? { label: t.label } : {})}
-                  {...(t.default ? { default: true } : {})}
-                />
-              ))}
+              tracks.map((t, i) => {
+                const lang = t.srcLang || t.srclang; // backward compatibility
+                return (
+                  <track
+                    key={`${t.kind}-${t.label || i}-${lang || ""}`}
+                    kind={t.kind}
+                    src={t.src}
+                    {...(lang ? { srcLang: lang } : {})}
+                    {...(t.label ? { label: t.label } : {})}
+                    {...(t.default ? { default: true } : {})}
+                  />
+                );
+              })}
           </video>
           {selectedQualitySource?.label ? (
             <div style={{ fontSize: 11, opacity: 0.7, marginTop: 4 }}>
