@@ -305,6 +305,45 @@ interface VideoTrackDef {
 - Debounced analytics for `timeupdate`.
 - Poster/thumbnail preview support.
 
+## LazyVideoPlayer Wrapper
+
+`LazyVideoPlayer` defers mounting of the heavy `VideoPlayer` (and thus network requests) until the component is near or within the viewport using `IntersectionObserver`.
+
+### Usage
+
+```tsx
+import { LazyVideoPlayer } from "./src/components/VideoPlayer/LazyVideoPlayer";
+
+<LazyVideoPlayer
+  caption="Feature Clip"
+  placeholderLabel="Preparing video"
+  qualitySources={[
+    { src: "/media/encoded/feature-480.mp4", height: 480 },
+    { src: "/media/encoded/feature-720.mp4", height: 720 },
+    { src: "/media/encoded/feature-1080.mp4", height: 1080 },
+  ]}
+/>;
+```
+
+### Behavior
+
+- Renders an accessible region with `aria-busy` until intersection.
+- Uses a `rootMargin` (default `200px`) to prefetch slightly before entering viewport.
+- Falls back to immediate render if `IntersectionObserver` not supported.
+- Accepts the same `VideoPlayer` props relevant to source/track/chapter configuration.
+
+### Props (Additions)
+
+| Prop          | Type                 | Default | Description                                                      |
+| ------------- | -------------------- | ------- | ---------------------------------------------------------------- |
+| `rootMargin`  | `string`             | `200px` | Margin passed to observer for early load.                        |
+| `threshold`   | `number \| number[]` | `0`     | Intersection threshold(s).                                       |
+| `aspectRatio` | `string`             | `16/9`  | Optional CSS `aspect-ratio` placeholder to prevent layout shift. |
+
+### Testing Note
+
+In tests we shim `IntersectionObserver` to trigger callbacks immediately (see `vitest.setup.ts`) so the inner `VideoPlayer` renders synchronously, simplifying assertions.
+
 ## Phase 1 Foundations (Accessibility & Performance)
 
 Implemented baseline accessibility and performance guardrails before adding heavy media content.
