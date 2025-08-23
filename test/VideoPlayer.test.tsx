@@ -40,10 +40,10 @@ describe("VideoPlayer", () => {
           {
             kind: "captions",
             src: "captions.vtt",
-            srclang: "en",
+            srcLang: "en",
             label: "English",
           },
-          { kind: "chapters", src: "chapters.vtt", srclang: "en" },
+          { kind: "chapters", src: "chapters.vtt", srcLang: "en" },
         ]}
       />,
     );
