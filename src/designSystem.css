@@ -1,0 +1,282 @@
+/* Design Tokens: Sage & Blush Wedding Theme */
+:root {
+  /* Core Wedding Palette */
+  --c-sage-50: #f4f7f5;
+  --c-sage-100: #e3ece6;
+  --c-sage-200: #c7d9cf;
+  --c-sage-300: #a7c4b5;
+  --c-sage-400: #87af9b;
+  --c-sage-500: #6b9c84; /* primary mid */
+  --c-sage-600: #56836c;
+  --c-sage-700: #466957;
+  --c-sage-800: #385446;
+  --c-sage-900: #273a31;
+
+  --c-blush-50: #fef7f8;
+  --c-blush-100: #fdecef;
+  --c-blush-200: #fad9e0;
+  --c-blush-300: #f5bdc9;
+  --c-blush-400: #ee9dae;
+  --c-blush-500: #e37996; /* accent */
+  --c-blush-600: #cc5c7d;
+  --c-blush-700: #ad4866;
+  --c-blush-800: #8c3b54;
+  --c-blush-900: #612638;
+
+  /* Dark Neutrals (Default) */
+  --c-bg: #0c0d0c;
+  --c-bg-alt: #131413;
+  --c-surface: #161817;
+  --c-surface-alt: #1e211f;
+  --c-border: #2d312f;
+  --c-shadow: 12 16 15; /* rgb triplet for shadows */
+  --c-text: #f3f5f4;
+  --c-text-soft: #b7bbb9;
+  --c-text-invert: #ffffff;
+
+  /* Semantic */
+  --c-primary: var(--c-sage-400);
+  --c-primary-hover: var(--c-sage-300);
+  --c-accent: var(--c-blush-400);
+  --c-accent-hover: var(--c-blush-300);
+  --c-focus: var(--c-blush-500);
+
+  /* Typography */
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --fs-display: clamp(2.5rem, 6vw, 5rem);
+  --fs-h1: clamp(2rem, 5vw, 3.5rem);
+  --fs-h2: clamp(1.6rem, 3.6vw, 2.5rem);
+  --fs-body: clamp(1rem, 1.4vw, 1.125rem);
+  --fs-meta: clamp(0.75rem, 1vw, 0.85rem);
+
+  /* Spacing (4px base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 72px;
+  --section-pad-block: clamp(3rem, 10vh, 9rem);
+  --section-pad-inline: clamp(1rem, 6vw, 6rem);
+
+  /* Radii & Shadows */
+  --radius-sm: 4px;
+  --radius-md: 10px;
+  --radius-lg: 28px;
+  --shadow-sm:
+    0 1px 2px rgba(var(--c-shadow) / 0.08),
+    0 0 0 1px rgba(var(--c-shadow) / 0.04);
+  --shadow-md:
+    0 4px 12px -2px rgba(var(--c-shadow) / 0.12),
+    0 2px 4px -2px rgba(var(--c-shadow) / 0.1);
+  --shadow-lg: 0 12px 40px -8px rgba(var(--c-shadow) / 0.22);
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-emphatic: cubic-bezier(0.83, 0, 0.17, 1);
+  --dur-short: 160ms;
+  --dur-med: 320ms;
+  --dur-long: 700ms;
+}
+
+/* User override: reduced motion via toggle sets [data-motion="reduce"] */
+[data-motion="reduce"] * {
+  animation: none !important;
+  transition-duration: 1ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Optional Light Theme Override */
+.theme-light {
+  --c-bg: #ffffff;
+  --c-bg-alt: #f8f8f7;
+  --c-surface: #ffffff;
+  --c-surface-alt: #faf9f8;
+  --c-border: #e2e0dc;
+  --c-shadow: 32 28 24;
+  --c-text: #2b2d2c;
+  --c-text-soft: #5b5e5c;
+  --c-primary: var(--c-sage-500);
+  --c-primary-hover: var(--c-sage-600);
+  --c-accent: var(--c-blush-500);
+  --c-accent-hover: var(--c-blush-600);
+  --c-focus: var(--c-blush-400);
+}
+
+/* Base Resets */
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  -webkit-font-smoothing: antialiased;
+}
+body {
+  min-height: 100dvh;
+}
+
+/* Skip Link */
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateY(-150%);
+  background: var(--c-primary);
+  color: var(--c-text-invert);
+  padding: 0.75em 1em;
+  border-radius: 0 0 var(--radius-md) 0;
+  font-weight: 600;
+  z-index: 1000;
+}
+.skip-link:focus {
+  transform: translateY(0);
+  outline: 2px solid var(--c-focus);
+  outline-offset: 2px;
+  transition: transform var(--dur-short) var(--ease-standard);
+}
+
+/* Scroll Shell */
+#appShell {
+  height: 100dvh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  #appShell {
+    scroll-snap-type: none;
+    scroll-behavior: auto;
+  }
+}
+
+.snap-section {
+  scroll-snap-align: start;
+  min-height: 100dvh;
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding-block: var(--section-pad-block);
+  padding-inline: var(--section-pad-inline);
+}
+
+/* Headings */
+h1,
+.display {
+  font-family: var(--font-display);
+  font-size: var(--fs-display);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--space-5);
+}
+h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--space-4);
+}
+p {
+  max-width: 65ch;
+  line-height: 1.55;
+}
+
+/* Buttons */
+button,
+.btn {
+  font: inherit;
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-weight: 500;
+  border-radius: var(--radius-lg);
+  padding: 0.75em 1.4em;
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary {
+  background: var(--c-primary);
+  color: var(--c-text-invert);
+  box-shadow: var(--shadow-sm);
+  transition:
+    background var(--dur-short) var(--ease-standard),
+    transform var(--dur-short) var(--ease-standard);
+}
+.btn-primary:hover {
+  background: var(--c-primary-hover);
+}
+.btn-primary:active {
+  transform: translateY(1px);
+}
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--c-primary);
+  color: var(--c-primary);
+}
+.btn-outline:hover {
+  background: var(--c-primary);
+  color: var(--c-text-invert);
+}
+
+/* Focus */
+:focus-visible {
+  outline: 2px solid var(--c-focus);
+  outline-offset: 3px;
+}
+
+/* Card */
+.card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  max-width: 70ch;
+  backdrop-filter: blur(6px);
+  background-color: color-mix(in srgb, var(--c-surface) 85%, transparent);
+}
+
+/* Hero Variation */
+.hero {
+  text-align: center;
+}
+.hero-accent {
+  background: linear-gradient(120deg, var(--c-sage-300), var(--c-blush-400));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Utility */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.center {
+  display: grid;
+  place-items: center;
+}
+
+/* Dark overlay utility */
+.overlay-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.55),
+    rgba(0, 0, 0, 0.2) 40%,
+    rgba(0, 0, 0, 0.55)
+  );
+  pointer-events: none;
+}

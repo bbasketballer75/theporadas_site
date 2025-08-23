@@ -280,3 +280,63 @@ interface VideoTrackDef {
 - Keyboard shortcuts for chapter navigation.
 - Debounced analytics for `timeupdate`.
 - Poster/thumbnail preview support.
+
+## Phase 1 Foundations (Accessibility & Performance)
+
+Implemented baseline accessibility and performance guardrails before adding heavy media content.
+
+### Skip Link
+
+- First focusable element in `index.html`: `<a class="skip-link" href="#appShell">`.
+- Targets the main scroll container (`#appShell`) which has `role="main"` and `tabIndex="-1"` to receive programmatic focus.
+
+### Reduced Motion Toggle
+
+- `MotionToggle` component sets `document.documentElement.dataset.motion` to `reduce` or `no-preference`.
+- Global CSS disables animations/transitions when `[data-motion="reduce"]` present; respects user system setting + manual override persisted in `localStorage`.
+
+### Automated Accessibility Test
+
+- Vitest + `axe-core` integration (`test/accessibility.test.tsx`) fails if any violations detected on initial app render.
+- Provides detailed violation report (rule id, help text, impacted node targets) to speed remediation.
+
+### Performance Budgets & Lighthouse CI
+
+- `lighthouserc.json` defines budgets: LCP < 2000ms, CLS < 0.02, TBT < 200ms, script (initial gz) < 90KB, stylesheet < 12KB, largest hero image < 180KB.
+- GitHub Action `.github/workflows/lighthouse.yml` builds site, serves locally, runs `lhci autorun` with assertions; will surface regressions in PRs.
+
+### Rationale
+
+- Establishing guardrails early prevents silent regressions when integrating the real feature video and future interactive sections.
+- Budgets are intentionally strict to encourage lean incremental development.
+
+### Next (Phase 1.5: Video Ingestion)
+
+- Add transcoded multi-source video variants (AV1 / H.264), captions (WebVTT), chapters, poster & blurred placeholder.
+- Lazy mount / intersection-based preloading to preserve initial LCP dominated by hero heading.
+
+## Phase 1.5 – Video Ingestion (Planned Detailed Tasks)
+
+Goals: Ingest wedding feature + ancillary clips with an accessible, performant delivery pipeline while preserving existing budgets.
+
+Planned Tasks Checklist:
+
+1. Inventory Raw Media: document source resolutions, frame rates, durations.
+2. Define Encoding Ladder: e.g. 1080p ~5-6Mbps, 720p ~3Mbps, 480p ~1.2Mbps (tune after sample Lighthouse runs).
+3. Codec/Container Strategy: MP4/H.264 (baseline), optional WebM/VP9 (quality), evaluate AV1 feasibility (size vs encoding cost).
+4. ffmpeg Command Library: add `docs/encoding_recipes.md` with reproducible commands & two-pass guidance.
+5. Poster & LQIP: generate high-quality poster (≤60KB webp) + ultra low-res blurred placeholder (base64 inline) for immediate paint.
+6. Text Tracks: author `captions.vtt` (accurate timing), `chapters.vtt` (semantic titles) – validate with testing harness.
+7. Extend `VideoPlayer`: accept `qualitySources` prop; auto-pick best based on `navigator.connection` (save-data, downlink) and viewport size.
+8. Lazy Loading: wrap player in IntersectionObserver; defer loading until near viewport; preconnect / preload only first required source.
+9. Metrics Validation: run Lighthouse & WebPageTest on video page variant; confirm no budget breaches (script/style unaffected, media excluded by design but watch LCP).
+10. Accessibility QA: keyboard nav for chapter list, captions toggle visibility, contrast & focus states, reduced motion respects user preference (no autoplay scroll jank).
+11. Analytics Hook (Optional): extend `onEvent` to emit structured payload to future telemetry endpoint.
+12. Documentation: update README + `docs/accessibility_performance_plan.md` with video strategy & trade-offs.
+
+Success Criteria:
+
+- All lint/tests pass post-integration.
+- Budgets remain green; LCP increase < 200ms versus placeholder baseline.
+- Captions & chapters fully operable and discoverable.
+- Encoding ladder & commands reproducible (checked into `docs/`).

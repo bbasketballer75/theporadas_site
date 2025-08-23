@@ -150,8 +150,9 @@ export function VideoPlayer(props: VideoPlayerProps) {
     [chapters, emit],
   );
 
+  const sectionLabel = caption || "video player";
   return (
-    <section aria-label="video player" style={{ maxWidth: 640 }}>
+    <section aria-label={sectionLabel} style={{ maxWidth: 640 }}>
       {resolvedSources ? (
         <figure>
           <video
@@ -188,7 +189,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
       ) : (
         <div
           role="img"
-          aria-label={placeholderLabel || "placeholder"}
+          aria-label={placeholderLabel || "Sample (placeholder)"}
           style={{
             width: 320,
             height: 180,

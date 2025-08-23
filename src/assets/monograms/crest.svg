@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" fill="none">
+  <defs>
+    <linearGradient id="gc" x1="200" y1="120" x2="600" y2="680">
+      <stop stop-color="#87af9b"/>
+      <stop offset="1" stop-color="#ee9dae"/>
+    </linearGradient>
+  </defs>
+  <path d="M200 160h400v250c0 120-90 210-200 230-110-20-200-110-200-230V160Z" stroke="url(#gc)" stroke-width="18" fill="rgba(255,255,255,0.02)"/>
+  <text x="400" y="340" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-size="200" fill="url(#gc)">A</text>
+  <text x="400" y="500" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-size="200" fill="url(#gc)">J</text>
+  <text x="400" y="620" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="44" fill="url(#gc)">10 May 2025</text>
+</svg>
