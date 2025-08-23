@@ -76,6 +76,31 @@ describe("VideoPlayer", () => {
     warnSpy.mockRestore();
   });
 
+  it("applies poster attribute to underlying video", () => {
+    render(
+      <VideoPlayer
+        caption="poster test"
+        poster="/media/posters/sample.jpg"
+        qualitySources={[
+          {
+            src: "low.mp4",
+            type: "video/mp4",
+            height: 480,
+            bitrateKbps: 800,
+            label: "480p",
+            default: true,
+          },
+        ]}
+      />,
+    );
+    // Wrapper is a <section aria-label="caption"> giving it role region
+    const video = screen
+      .getByRole("region", { name: "poster test" })
+      .querySelector("video");
+    expect(video).toBeTruthy();
+    expect(video?.getAttribute("poster")).toBe("/media/posters/sample.jpg");
+  });
+
   it("renders chapters navigation and highlights active chapter (timeupdate simulation)", () => {
     // jsdom won't play video; simulate chapter button click triggers seeking handler.
     const chapters = [
