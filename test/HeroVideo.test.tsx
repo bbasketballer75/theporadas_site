@@ -29,4 +29,21 @@ describe('HeroVideo', () => {
     // Our component sets muted when autoplay; verify either attribute or property
     expect(video?.muted || video?.hasAttribute('muted')).toBe(true);
   });
+
+  it('falls back to registry defaults when props omitted', () => {
+    setMotion('reduce'); // ensure no autoplay side-effects in expectation
+    render(<HeroVideo />);
+    // Caption should default from registry ("Hero Feature" or configured caption)
+    const region = screen.getByRole('region', {
+      name: /poradas wedding feature/i,
+    });
+    const video = region.querySelector('video') as HTMLVideoElement | null;
+    expect(video).toBeTruthy();
+    // Poster from registry
+    expect(video?.getAttribute('poster')).toBe('/media/posters/hero.jpg');
+    // Selected quality label should render (heuristic likely picks 720p for default viewport)
+    expect(screen.getByText(/720p/)).toBeTruthy();
+    // Figcaption present with registry caption
+    expect(screen.getByText(/Poradas Wedding Feature/i)).toBeTruthy();
+  });
 });

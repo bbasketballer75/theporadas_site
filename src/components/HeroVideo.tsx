@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 
 import { useMotionPreference } from '../hooks/useMotionPreference';
+import { getVideo } from '../video/registry';
 
 import { LazyVideoPlayer } from './VideoPlayer/LazyVideoPlayer';
 import { QualitySource } from './VideoPlayer/VideoPlayer';
@@ -13,7 +14,7 @@ export interface HeroVideoProps {
   children?: React.ReactNode;
 }
 
-export function HeroVideo({ qualitySources, src, poster, caption, children }: HeroVideoProps) {
+export function HeroVideo({ qualitySources, poster, caption, children }: HeroVideoProps) {
   const videoWrapperRef = useRef<HTMLDivElement | null>(null);
 
   const motionPref = useMotionPreference();
@@ -26,41 +27,27 @@ export function HeroVideo({ qualitySources, src, poster, caption, children }: He
     if (motionPref === 'reduce') vid.pause();
   }, [motionPref]);
 
-  const placeholderQuality: QualitySource[] = [
-    {
-      src: src || '/media/encoded/hero-480.mp4',
-      type: 'video/mp4',
-      height: 480,
-      bitrateKbps: 1200,
-      label: '480p',
-      default: true,
-    },
-    {
-      src: '/media/encoded/hero-720.mp4',
-      type: 'video/mp4',
-      height: 720,
-      bitrateKbps: 3000,
-      label: '720p',
-    },
-    {
-      src: '/media/encoded/hero-1080.mp4',
-      type: 'video/mp4',
-      height: 1080,
-      bitrateKbps: 6000,
-      label: '1080p',
-    },
-  ];
-
-  const ladder = qualitySources && qualitySources.length > 0 ? qualitySources : placeholderQuality;
+  const heroMeta = getVideo('hero');
+  const ladder =
+    qualitySources && qualitySources.length > 0
+      ? qualitySources
+      : heroMeta?.quality.map((q) => ({ ...q, src: q.src })) || [];
+  const effectivePoster = poster || heroMeta?.poster;
+  const effectiveCaption = caption || heroMeta?.caption || 'Hero Feature';
+  const placeholderLabel = heroMeta?.placeholderLabel || 'Loading hero video';
   const shouldAutoplay = motionPref === 'no-preference';
 
   return (
-    <div className="hero-video-shell" aria-label={caption || 'Hero video'} ref={videoWrapperRef}>
+    <div
+      className="hero-video-shell"
+      aria-label={effectiveCaption || 'Hero video'}
+      ref={videoWrapperRef}
+    >
       <LazyVideoPlayer
         qualitySources={ladder}
-        poster={poster}
-        caption={caption || 'Hero Feature'}
-        placeholderLabel="Loading hero video"
+        poster={effectivePoster}
+        caption={effectiveCaption}
+        placeholderLabel={placeholderLabel}
         showChapters={false}
         autoPlay={shouldAutoplay}
         muted={shouldAutoplay}
