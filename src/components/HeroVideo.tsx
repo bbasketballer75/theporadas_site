@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 
+import { useMotionPreference } from '../hooks/useMotionPreference';
+
 import { LazyVideoPlayer } from './VideoPlayer/LazyVideoPlayer';
 import { QualitySource } from './VideoPlayer/VideoPlayer';
 
@@ -14,20 +16,7 @@ export interface HeroVideoProps {
 export function HeroVideo({ qualitySources, src, poster, caption, children }: HeroVideoProps) {
   const videoWrapperRef = useRef<HTMLDivElement | null>(null);
 
-  function getMotionPref(): 'reduce' | 'no-preference' {
-    if (typeof document === 'undefined') return 'no-preference';
-    const attr = document.documentElement.getAttribute('data-motion');
-    if (attr === 'reduce') return 'reduce';
-    if (attr === 'no-preference') return 'no-preference';
-    try {
-      return window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        ? 'reduce'
-        : 'no-preference';
-    } catch {
-      return 'no-preference';
-    }
-  }
-  const motionPref = getMotionPref();
+  const motionPref = useMotionPreference();
 
   useEffect(() => {
     const root = videoWrapperRef.current;
