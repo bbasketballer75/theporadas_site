@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { readdirSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
-import { resolve, join } from "node:path";
+import { readdirSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { resolve, join } from 'node:path';
 
 // Merge multiple coverage-summary.json files by summing covered/total per metric.
 function mergeSummaries(summaries) {
@@ -27,9 +27,9 @@ function findSummaries(baseDir) {
   const entries = readdirSync(baseDir, { withFileTypes: true });
   for (const ent of entries) {
     if (ent.isDirectory()) {
-      const candidate = resolve(baseDir, ent.name, "coverage-summary.json");
+      const candidate = resolve(baseDir, ent.name, 'coverage-summary.json');
       try {
-        const raw = readFileSync(candidate, "utf8");
+        const raw = readFileSync(candidate, 'utf8');
         summaries.push(JSON.parse(raw));
       } catch (_) {
         // ignore
@@ -37,31 +37,31 @@ function findSummaries(baseDir) {
     }
   }
   // Also check root coverage/coverage-summary.json if present
-  const rootSummary = resolve("coverage", "coverage-summary.json");
+  const rootSummary = resolve('coverage', 'coverage-summary.json');
   try {
-    const raw = readFileSync(rootSummary, "utf8");
+    const raw = readFileSync(rootSummary, 'utf8');
     summaries.push(JSON.parse(raw));
   } catch (_) {}
   return summaries;
 }
 
 function main() {
-  const baseDir = resolve("coverage-matrix");
+  const baseDir = resolve('coverage-matrix');
   let summaries = [];
   try {
     summaries = findSummaries(baseDir);
   } catch (e) {
-    console.error("Failed scanning coverage-matrix:", e.message);
+    console.error('Failed scanning coverage-matrix:', e.message);
   }
   if (summaries.length === 0) {
-    console.error("No coverage summaries found to aggregate.");
+    console.error('No coverage summaries found to aggregate.');
     process.exit(1);
   }
   const merged = mergeSummaries(summaries);
-  mkdirSync("coverage", { recursive: true });
-  const out = resolve("coverage", "coverage-summary.json");
+  mkdirSync('coverage', { recursive: true });
+  const out = resolve('coverage', 'coverage-summary.json');
   writeFileSync(out, JSON.stringify(merged, null, 2));
-  console.log("Aggregated", summaries.length, "summaries ->", out);
+  console.log('Aggregated', summaries.length, 'summaries ->', out);
 }
 
 main();

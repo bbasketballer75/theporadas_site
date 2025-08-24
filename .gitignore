@@ -14,3 +14,9 @@ media/encoded/**/*.tmp
 !.env.project
 !.env.vault
 node_modules
+
+# Generated coverage reports
+coverage/
+
+# Local ESLint cache
+.eslintcache
