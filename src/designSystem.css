@@ -41,6 +41,36 @@
   --c-accent-hover: var(--c-blush-300);
   --c-focus: var(--c-blush-500);
 
+  /* Alias Layer (role-based) */
+  /* Background Roles */
+  --color-bg-app: var(--c-bg);
+  --color-bg-alt: var(--c-bg-alt);
+  --color-bg-surface: var(--c-surface);
+  --color-bg-surface-alt: var(--c-surface-alt);
+
+  /* Border / Divider */
+  --color-border-default: var(--c-border);
+  --color-border-strong: var(--c-sage-700);
+
+  /* Text Roles */
+  --color-text-primary: var(--c-text);
+  --color-text-secondary: var(--c-text-soft);
+  --color-text-invert: var(--c-text-invert);
+  --color-text-accent: var(--c-accent);
+  --color-text-brand: var(--c-primary);
+
+  /* Interactive */
+  --color-int-primary-bg: var(--c-primary);
+  --color-int-primary-bg-hover: var(--c-primary-hover);
+  --color-int-accent-bg: var(--c-accent);
+  --color-int-accent-bg-hover: var(--c-accent-hover);
+  --color-int-focus-ring: var(--c-focus);
+
+  /* States (placeholder for future expansion) */
+  --color-state-success: var(--c-sage-400);
+  --color-state-danger: var(--c-blush-600);
+  --color-state-warning: var(--c-blush-400);
+
   /* Typography */
   --font-display: 'Playfair Display', Georgia, serif;
   --font-sans: 'Inter', system-ui, sans-serif;
@@ -101,6 +131,14 @@
   --c-accent: var(--c-blush-500);
   --c-accent-hover: var(--c-blush-600);
   --c-focus: var(--c-blush-400);
+
+  /* Light Theme Overrides for Alias Layer */
+  --color-border-strong: var(--c-sage-600);
+  --color-text-accent: var(--c-accent);
+  --color-text-brand: var(--c-primary);
+  --color-state-success: var(--c-sage-500);
+  --color-state-danger: var(--c-blush-600);
+  --color-state-warning: var(--c-blush-500);
 }
 
 /* Base Resets */
