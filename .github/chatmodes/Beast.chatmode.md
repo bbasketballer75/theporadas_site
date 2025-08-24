@@ -1,7 +1,7 @@
 ---
 description: Aggressive, research-heavy agent workflow (Beast Mode).
 model: gpt-5
-tools: ["readNotebookCellOutput", "terminalLastCommand", "terminalSelection"]
+tools: ['readNotebookCellOutput', 'terminalLastCommand', 'terminalSelection']
 ---
 
 # Beast Mode
