@@ -6,6 +6,7 @@
 
 - Record VS Code Insiders preference
 - Enable terminal/notebook tools in Beast Mode
+- Upgraded Husky hooks (simplified, removed deprecated sourcing)
 
 ## Next
 
