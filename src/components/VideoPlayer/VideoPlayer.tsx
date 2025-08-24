@@ -52,6 +52,8 @@ export interface VideoPlayerProps {
    * (not multiple <source> elements) based on network + viewport heuristics.
    */
   qualitySources?: QualitySource[];
+  /** If true, always pick the highest height quality source ignoring heuristics. */
+  preferHighestQuality?: boolean;
   tracks?: VideoTrackDef[];
   chapters?: ChapterDef[];
   caption?: string;
@@ -84,6 +86,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
     src,
     sources,
     qualitySources,
+    preferHighestQuality,
     tracks,
     chapters,
     caption,
@@ -103,6 +106,9 @@ export function VideoPlayer(props: VideoPlayerProps) {
   // Quality selection heuristic – choose ONE best source when qualitySources provided.
   const selectedQualitySource = useMemo<QualitySource | undefined>(() => {
     if (!qualitySources || qualitySources.length === 0) return undefined;
+    if (preferHighestQuality) {
+      return [...qualitySources].sort((a, b) => b.height - a.height)[0];
+    }
     const sorted = [...qualitySources].sort((a, b) => b.height - a.height);
 
     // Gather signals
@@ -147,7 +153,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
 
     // Prefer highest resolution within candidates.
     return candidates.sort((a, b) => b.height - a.height)[0];
-  }, [qualitySources]);
+  }, [qualitySources, preferHighestQuality]);
 
   // Merge single src into sources list for rendering (ignored if qualitySources active)
   const resolvedSources = useMemo<VideoSource[] | undefined>(() => {

@@ -1,4 +1,8 @@
-import type { QualitySource } from '../components/VideoPlayer/VideoPlayer';
+import type {
+  QualitySource,
+  ChapterDef,
+  VideoTrackDef,
+} from '../components/VideoPlayer/VideoPlayer';
 
 export interface VideoMeta {
   id: string;
@@ -7,7 +11,9 @@ export interface VideoMeta {
   poster: string;
   placeholderLabel: string;
   quality: QualitySource[];
-  // Future: tracks, chapters, durations, aspect ratio, etc.
+  tracks?: VideoTrackDef[];
+  chapters?: ChapterDef[];
+  // Future: durations, aspect ratio, etc.
 }
 
 const heroQuality: QualitySource[] = [
@@ -43,6 +49,21 @@ const videos: Record<string, VideoMeta> = {
     poster: '/media/posters/hero.jpg', // TODO: supply actual poster asset
     placeholderLabel: 'Loading hero video',
     quality: heroQuality,
+    tracks: [
+      {
+        kind: 'captions',
+        src: '/media/captions/hero.en.vtt',
+        srcLang: 'en',
+        label: 'English',
+        default: true,
+      },
+    ],
+    chapters: [
+      { start: 0, title: 'Opening' },
+      { start: 30, title: 'Ceremony' },
+      { start: 90, title: 'Reception' },
+      { start: 150, title: 'First Dance' },
+    ],
   },
 };
 
