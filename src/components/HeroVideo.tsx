@@ -45,10 +45,13 @@ export function HeroVideo({ qualitySources, poster, caption, children }: HeroVid
     >
       <LazyVideoPlayer
         qualitySources={ladder}
+        preferHighestQuality
+        tracks={heroMeta?.tracks}
+        chapters={heroMeta?.chapters}
         poster={effectivePoster}
         caption={effectiveCaption}
         placeholderLabel={placeholderLabel}
-        showChapters={false}
+        showChapters={true}
         autoPlay={shouldAutoplay}
         muted={shouldAutoplay}
         playsInline

@@ -30,7 +30,7 @@ describe('HeroVideo', () => {
     expect(video?.muted || video?.hasAttribute('muted')).toBe(true);
   });
 
-  it('falls back to registry defaults when props omitted', () => {
+  it('falls back to registry defaults when props omitted (max quality + chapters + captions)', () => {
     setMotion('reduce'); // ensure no autoplay side-effects in expectation
     render(<HeroVideo />);
     // Caption should default from registry ("Hero Feature" or configured caption)
@@ -41,9 +41,14 @@ describe('HeroVideo', () => {
     expect(video).toBeTruthy();
     // Poster from registry
     expect(video?.getAttribute('poster')).toBe('/media/posters/hero.jpg');
-    // Selected quality label should render (heuristic likely picks 720p for default viewport)
-    expect(screen.getByText(/720p/)).toBeTruthy();
+    // Selected quality label should be highest (1080p) due to preferHighestQuality
+    expect(screen.getByText(/1080p/)).toBeTruthy();
     // Figcaption present with registry caption
     expect(screen.getByText(/Poradas Wedding Feature/i)).toBeTruthy();
+    // Chapters navigation present
+    expect(screen.getByRole('navigation', { name: /chapters/i })).toBeTruthy();
+    // Captions track present
+    const track = video?.querySelector('track[kind="captions"]');
+    expect(track).toBeTruthy();
   });
 });
