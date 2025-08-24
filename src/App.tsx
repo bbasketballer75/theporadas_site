@@ -2,6 +2,7 @@ import React from 'react';
 
 import { HeroVideo } from './components/HeroVideo';
 import { MotionToggle } from './components/MotionToggle';
+import { ThemeToggle } from './components/ThemeToggle';
 import { VideoPlayer } from './components/VideoPlayer/VideoPlayer';
 import './designSystem.css';
 
@@ -22,7 +23,10 @@ export default function App() {
               <button className="btn btn-primary" type="button">
                 Enter Story
               </button>
-              <MotionToggle />
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <MotionToggle />
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         </HeroVideo>
