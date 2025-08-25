@@ -24,8 +24,10 @@ jobs:
           cache: npm
       - name: Install deps
         run: npm ci
-      - name: Run tests with coverage
+      - name: Run tests with coverage (STRICT a11y headers)
         run: npm run coverage
+        env:
+          COVERAGE_A11Y_STRICT: '1'
       - name: Compute coverage diff
         run: npm run coverage:diff
       - name: Comment coverage diff
