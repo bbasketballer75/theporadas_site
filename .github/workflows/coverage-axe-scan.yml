@@ -1,0 +1,39 @@
+name: coverage-axe-scan
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  axe-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install deps
+        run: npm ci
+      - name: Generate coverage (STRICT a11y headers)
+        run: npm run coverage
+        env:
+          COVERAGE_A11Y_STRICT: '1'
+      - name: Install axe-core/cli
+        run: npm install --no-save @axe-core/cli
+      - name: Run axe on coverage root summary
+        run: npx axe --exit file://$PWD/coverage/index.html --include 'table.coverage-summary'
+      - name: Summarize axe scan
+        if: always()
+        run: |
+          echo '## Axe Scan (coverage report)' >> $GITHUB_STEP_SUMMARY
+          echo 'Command: npx axe --exit file://$PWD/coverage/index.html --include table.coverage-summary' >> $GITHUB_STEP_SUMMARY
