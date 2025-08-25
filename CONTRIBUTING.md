@@ -16,16 +16,22 @@ This repository follows a blueprint-first approach. The canonical guide is
 - Verify locally: builds/tests linters pass.
 - Security & privacy reviewed; secrets not in code.
 - Accessibility considered for UI changes (WCAG 2.1 AA aim).
+- Branch coverage ≥85% (add focused tests with new conditional logic).
+- No regression in Lighthouse performance budgets (see `lighthouserc.json`).
 
 ## Commit & PR
 
 - Conventional style (if possible): feat:, fix:, chore:, docs:, refactor:.
 - Small PRs with clear intent and rollback plan.
+- Keep commit messages Conventional where it clarifies intent (`feat:`, `fix:`,
+  `chore:`, `docs:`, `refactor:`). This feeds automated changelog generation.
 
 ## Docs
 
 - Update README or add docs alongside code.
 - If scope/architecture changes, propose an update to `.github/project_instructions.md`.
+- Update `CHANGELOG.md` with `npm run changelog:unreleased` when a feature set
+  accumulates; do not wait until tagging to collect months of changes.
 
 ## MCP & Environment
 
@@ -66,6 +72,25 @@ git clone https://github.com/GoogleChrome/lighthouse.git lighthouse-upstream
 1. Run root lint/tests to confirm no regressions.
 1. Commit with message: `chore(lighthouse): sync to upstream v12.3.0` summarizing notable upstream changes (link release notes).
 
+### Sync Script (Alternative Fast Path)
+
+Instead of manual rsync, you can use the helper:
+
+```powershell
+node scripts/sync_lighthouse.mjs --ref v12.3.0 --preserve build/reset-link.js
+```
+
+Flags: `--ref <git-ref>` (default `latest`), `--dry-run`, repeatable
+`--preserve <glob>` (minimatch) to skip overwriting local patches.
+
+Post-sync checklist:
+
+- [ ] Review `git diff` for unintended deletions
+- [ ] Confirm `SYNC_METADATA.json` added/updated
+- [ ] Re-apply zlib shim gating if upstream changed build scripts
+- [ ] Run `npm run lh:build` (and optionally `lh:build:full`)
+- [ ] Run root verification `npm run verify`
+
 ### Zlib Shim Gating Reference
 
 Default build uses lightweight shims to exclude heavy inflate/deflate logic. To build with original zlib code (upstream parity / size comparison):
@@ -83,3 +108,31 @@ LH_DISABLE_ZLIB_SHIMS=1 yarn build-devtools
 ```
 
 Document any bundle size deltas when posting PRs that adjust shim logic.
+
+## Release Process
+
+1. Ensure main is clean and up to date.
+2. Run `npm run changelog:unreleased` and edit wording if needed.
+3. Bump version in `package.json` (semver; patch unless public API additions).
+4. Commit: `chore(release): vX.Y.Z` including updated `CHANGELOG.md`.
+5. Tag: `git tag -a vX.Y.Z -m "vX.Y.Z"` then push tag & main.
+6. GitHub Action `release.yml` finalizes changelog & publishes Release.
+
+If Action updates the changelog formatting, pull those changes locally before next work.
+
+## Coverage Expectations
+
+Coverage thresholds (enforced via Vitest config) are:
+branches ≥85%, statements ≥85%, lines ≥85%, functions ≥85%.
+When adding conditional branches (if/else, guard clauses), add focused tests
+hitting both sides. Prefer unit-level tests over broad integration scope for
+precision. If a change causes a dip below any threshold, add or refine tests in
+the same PR rather than lowering targets.
+
+To inspect current numbers:
+
+```powershell
+npm run coverage
+```
+
+If target dips below threshold, prioritize adding tests before feature work.
