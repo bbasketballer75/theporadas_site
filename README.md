@@ -512,6 +512,15 @@ Environment variables controlling behavior:
 Idempotent: Re-running makes no further modifications once labels present. STRICT mode is applied
 in coverage-related CI jobs to prevent regressions.
 
+Note: If you invoke coverage generation directly via `vitest run --coverage` (bypassing
+`npm run coverage`), the post-processing script will not execute and some header cells will appear
+empty. Always prefer `npm run coverage` locally to mirror CI behavior and ensure accessible header
+labels are applied. You can manually fix an already generated report by running:
+
+```powershell
+node scripts/fix_coverage_a11y.mjs
+```
+
 ### Axe Scan Workflow
 
 Workflow `coverage-axe-scan.yml` generates coverage (with STRICT header enforcement) then runs an

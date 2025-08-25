@@ -23,11 +23,21 @@ function gatherCoverageHtmlFiles() {
   const results = [];
   function walk(dir) {
     let entries = [];
-    try { entries = readdirSync(dir); } catch { return; }
+    try {
+      entries = readdirSync(dir);
+    } catch {
+      return;
+    }
     for (const name of entries) {
       const full = join(dir, name);
-      let st; try { st = statSync(full); } catch { continue; }
-      if (st.isDirectory()) walk(full); else if (st.isFile() && name === 'index.html') results.push(full);
+      let st;
+      try {
+        st = statSync(full);
+      } catch {
+        continue;
+      }
+      if (st.isDirectory()) walk(full);
+      else if (st.isFile() && name === 'index.html') results.push(full);
     }
   }
   walk(baseDir);
@@ -55,9 +65,12 @@ const headerLabelMap = {
 let globalFailures = [];
 for (const reportPath of files) {
   let html;
-  try { html = readFileSync(reportPath, 'utf8'); } catch (e) {
+  try {
+    html = readFileSync(reportPath, 'utf8');
+  } catch (e) {
     console.error('[fix_coverage_a11y] failed reading', reportPath, e.message);
-    if (STRICT) process.exit(1); else continue;
+    if (STRICT) process.exit(1);
+    else continue;
   }
   let modified = false;
   for (const [dataCol, label] of Object.entries(headerLabelMap)) {
@@ -66,11 +79,16 @@ for (const reportPath of files) {
     html = html.replace(pattern, (m, openTag) => `${openTag}${label}</th>`);
     if (html !== before) {
       modified = true;
-      if (!SILENT) console.log(`[fix_coverage_a11y] ensured header for data-col="${dataCol}" in ${reportPath}`);
+      if (!SILENT)
+        console.log(
+          `[fix_coverage_a11y] ensured header for data-col="${dataCol}" in ${reportPath}`,
+        );
     }
   }
   if (modified) {
-    try { writeFileSync(reportPath, html); } catch (e) {
+    try {
+      writeFileSync(reportPath, html);
+    } catch (e) {
       console.error('[fix_coverage_a11y] failed writing', reportPath, e.message);
       if (STRICT) process.exit(1);
     }
@@ -87,10 +105,27 @@ for (const reportPath of files) {
 }
 if (STRICT) {
   if (globalFailures.length) {
-    for (const f of globalFailures) console.error('[fix_coverage_a11y][STRICT] Missing labels in', f.file, 'for data-col:', f.cols.join(', '));
+    for (const f of globalFailures)
+      console.error(
+        '[fix_coverage_a11y][STRICT] Missing labels in',
+        f.file,
+        'for data-col:',
+        f.cols.join(', '),
+      );
     process.exit(2);
   } else if (!SILENT) {
     console.log('[fix_coverage_a11y][STRICT] All targeted headers labeled in all files.');
   }
 }
-
+// When not STRICT, still surface a warning if any empty headers remain anywhere.
+if (!STRICT && globalFailures.length && !SILENT) {
+  for (const f of globalFailures) {
+    console.warn(
+      '[fix_coverage_a11y] WARNING: headers still empty in',
+      f.file,
+      'for data-col:',
+      f.cols.join(', '),
+      '— run with COVERAGE_A11Y_STRICT=1 to enforce.',
+    );
+  }
+}
