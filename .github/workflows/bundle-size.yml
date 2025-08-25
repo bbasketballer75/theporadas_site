@@ -1,0 +1,51 @@
+name: bundle-size
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  bundle-size:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install deps (root + lighthouse)
+        run: |
+          npm ci
+          cd lighthouse && yarn install --frozen-lockfile
+      - name: Run bundle comparison
+        env:
+          LH_MIN_GZIP_DELTA_BYTES: 1
+          LH_MIN_GZIP_DELTA_PCT: 0.01
+          LH_MIN_RAW_DELTA_BYTES: 1
+          LH_MIN_RAW_DELTA_PCT: 0.01
+        run: npm run lh:verify-bundles
+      - name: Attach size artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-bundle-sizes
+          path: lighthouse_bundle_sizes.json
+      - name: Comment bundle sizes
+        if: success()
+        run: |
+          echo '### Lighthouse Bundle Size Comparison' > bundle-size.md
+          echo '' >> bundle-size.md
+          cat lighthouse_bundle_sizes.json >> bundle-size.md
+      - name: PR comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          recreate: true
+          path: bundle-size.md
