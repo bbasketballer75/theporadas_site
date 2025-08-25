@@ -19,7 +19,7 @@
     "coverage:badge": "node scripts/generate_coverage_badge.mjs",
     "lighthouse": "node scripts/lighthouse.mjs",
     "validate:video": "node scripts/validate_video.mjs",
-    "lint:md": "markdownlint \"**/*.md\" --ignore lighthouse --ignore lighthouse/** -c .markdownlint.jsonc",
+    "lint:md": "markdownlint \"**/*.md\" --ignore lighthouse --ignore lighthouse/** --ignore docs/video/** -c .markdownlint.jsonc && markdownlint \"docs/video/**/*.md\" -c docs/video/.markdownlint.jsonc",
     "lh:build": "cd lighthouse && yarn build-devtools",
     "lh:build:full": "cd lighthouse && cross-env LH_DISABLE_ZLIB_SHIMS=1 yarn build-devtools",
     "lh:compare": "node scripts/compare_lighthouse_bundles.mjs",
