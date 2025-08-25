@@ -1,0 +1,87 @@
+name: 'Lighthouse Budgets'
+description: 'Run Lighthouse with budgets, generate summary, sticky comment, and annotations on overages'
+author: 'theporadas'
+inputs:
+  url:
+    description: 'URL to audit'
+    required: true
+  budgetsPath:
+    description: 'Path to Lighthouse budgets JSON'
+    required: true
+    default: 'lighthouse-budgets.json'
+  node-version:
+    description: 'Node version to use'
+    required: false
+    default: '20'
+  working-directory:
+    description: 'Working directory for build and run'
+    required: false
+    default: '.'
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs['node-version'] }}
+        cache: npm
+    - name: Install deps
+      shell: bash
+      working-directory: ${{ inputs['working-directory'] }}
+      run: npm ci
+    - name: Build (if package build script exists)
+      id: build
+      shell: bash
+      working-directory: ${{ inputs['working-directory'] }}
+      run: |
+        if npm run | grep -q 'build'; then
+          echo "Build script detected; running build";
+          npm run build;
+        else
+          echo "No build script; skipping";
+        fi
+    - name: Start static preview (if dist exists)
+      shell: bash
+      working-directory: ${{ inputs['working-directory'] }}
+      run: |
+        if [ -d dist ]; then
+          npx serve dist -l 4173 &
+          echo $! > preview.pid
+        else
+          echo "No dist directory; assuming provided URL is externally served";
+        fi
+    - name: Wait for target
+      shell: bash
+      run: npx wait-on ${{ inputs.url }} || echo 'Wait-on failed (continuing to attempt Lighthouse)'
+    - name: Run Lighthouse
+      shell: bash
+      working-directory: ${{ inputs['working-directory'] }}
+      run: |
+        npx lighthouse ${{ inputs.url }} --preset=desktop --budgets-path=${{ inputs.budgetsPath }} --output=json --output-path=lh-report.json --quiet
+    - name: Generate summary & overages
+      shell: bash
+      working-directory: ${{ inputs['working-directory'] }}
+      run: node scripts/lh_budget_comment.mjs
+    - name: Sticky PR comment
+      if: github.event_name == 'pull_request'
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        recreate: true
+        path: ${{ inputs['working-directory'] }}/lighthouse-summary.md
+    - name: Emit annotations & fail if overages
+      shell: bash
+      working-directory: ${{ inputs['working-directory'] }}
+      run: |
+        if [ -f lighthouse-budget-overages.txt ] && [ -s lighthouse-budget-overages.txt ]; then
+          while IFS= read -r line; do
+            echo "::error title=Lighthouse Budget Overages::${line}";
+          done < lighthouse-budget-overages.txt
+          exit 1
+        else
+          echo "No lighthouse budget overages.";
+        fi
+    - name: Upload report artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: lighthouse-report
+        path: ${{ inputs['working-directory'] }}/lh-report.json
