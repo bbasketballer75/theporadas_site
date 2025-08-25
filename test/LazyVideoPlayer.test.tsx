@@ -15,6 +15,7 @@ describe('LazyVideoPlayer', () => {
         ]}
       />,
     );
-    expect(screen.getByRole('region', { name: /lazy clip/i })).toBeInTheDocument();
+    expect(screen.getByRole('figure')).toBeInTheDocument();
+    expect(screen.getByText(/lazy clip/i)).toBeInTheDocument();
   });
 });
