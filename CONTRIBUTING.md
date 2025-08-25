@@ -19,6 +19,44 @@ This repository follows a blueprint-first approach. The canonical guide is
 - Branch coverage ≥85% (add focused tests with new conditional logic).
 - No regression in Lighthouse performance budgets (see `lighthouserc.json`).
 
+### Performance / Lighthouse Section (PR Template)
+
+If the PR changes any perf‑affecting files (detected by `pr-validate.yml`), you
+must fill out the `## Performance / Lighthouse` section in the PR body. Include:
+
+1. Summary of changes impacting bundle size or runtime (e.g. new dependency,
+   large content addition, algorithm changes).
+2. Mitigations applied (code splitting, tree shaking, lazy loading) if relevant.
+3. Token delta rationale when the sticky comment shows a soft warning.
+4. Confirmation Lighthouse budgets still pass locally (`npm run lighthouse` or
+   rely on CI result if deterministic).
+
+Failing to include this section when required causes the workflow to error.
+
+### Token Growth Heuristic
+
+On perf‑affecting PRs the validation workflow counts alphanumeric tokens in
+changed JS/TS files vs base branch:
+
+- Warn threshold: `MAX_NET_TOKEN_DELTA` (default 800 net increase)
+- Hard fail: `MAX_ABS_TOKEN_ADDED` (default 1600 added tokens irrespective of removals)
+
+Actions when warning triggers:
+
+- Provide rationale (feature module, necessary refactor, etc.)
+- Consider splitting feature into smaller PRs
+- Ensure dead code / unused exports removed prior to review
+
+Actions when near hard fail (≥75% of limit):
+
+- Explicitly justify necessity or split PR
+- Check for opportunity to isolate rarely used logic behind dynamic import
+
+### Coverage Regression
+
+If coverage diff reports drops beyond allowed thresholds, add/adjust tests in
+same PR. Do not raise thresholds unless agreed with maintainers.
+
 ## Commit & PR
 
 - Conventional style (if possible): feat:, fix:, chore:, docs:, refactor:.
@@ -32,6 +70,19 @@ This repository follows a blueprint-first approach. The canonical guide is
 - If scope/architecture changes, propose an update to `.github/project_instructions.md`.
 - Update `CHANGELOG.md` with `npm run changelog:unreleased` when a feature set
   accumulates; do not wait until tagging to collect months of changes.
+
+### Content Authoring (Markdown Sections)
+
+Content lives in `content/*.md` with minimal frontmatter. Steps to add/update:
+
+1. Create or edit file with frontmatter fields: `slug`, `title`, `order`, optional `hero`.
+2. Keep only supported markdown patterns (`##` headings, blank-line separated paragraphs).
+3. Run `npm test` to confirm ordering & accessibility tests.
+4. If large textual addition pushes token growth warning, summarize reason in Performance section.
+5. Avoid adding images or large inline HTML; propose an extension first if needed.
+
+Ordering rule: The trio `story`, `rings`, `wedding-party` are fixed early
+sequence; subsequent sections use ascending numeric `order`.
 
 ## MCP & Environment
 
@@ -136,3 +187,21 @@ npm run coverage
 ```
 
 If target dips below threshold, prioritize adding tests before feature work.
+
+## Automation & Validation
+
+The repository includes additional automation to keep quality gates enforceable:
+
+- **Issue Forms**: Structured forms for bugs, features, and tasks (adds blueprint alignment, a11y & perf fields). Located in `.github/ISSUE_TEMPLATE/`.
+- **PR Template Validation (`pr-validate.yml`)**: Fails the PR if the Blueprint
+  Alignment checkbox is not checked. When perf-affecting files change (design
+  tokens, Lighthouse configs, core src, bundle scripts) the action also requires
+  the `## Performance / Lighthouse` section to be present.
+- **Bundle Size Workflow (`bundle-size.yml`)**: Skips execution when no relevant
+  files changed; otherwise attaches a JSON artifact and sticky comment
+  summarizing DevTools (shim vs full) bundle size deltas.
+- **Lighthouse Budgets**: Composite action posts key metrics & fails on defined budget overages (`lighthouse-budgets.yml`).
+
+When adding new performance-impacting areas (e.g. large new asset pipelines),
+extend the change detection heuristics in `pr-validate.yml` to ensure the
+performance section remains mandatory.
