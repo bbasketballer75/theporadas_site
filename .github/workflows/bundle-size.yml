@@ -41,9 +41,7 @@ jobs:
       - name: Comment bundle sizes
         if: success()
         run: |
-          echo '### Lighthouse Bundle Size Comparison' > bundle-size.md
-          echo '' >> bundle-size.md
-          cat lighthouse_bundle_sizes.json >> bundle-size.md
+          node scripts/bundle_size_table.mjs > bundle-size.md
       - name: PR comment
         uses: marocchino/sticky-pull-request-comment@v2
         with:
