@@ -1,28 +1,21 @@
 import '@testing-library/jest-dom';
 
-// Minimal canvas mock for axe (avoid Not implemented getContext warning)
+// Unconditional canvas mock (prevents jsdom "Not implemented: HTMLCanvasElement.prototype.getContext")
 if (typeof window !== 'undefined') {
   const ctor =
     window.HTMLCanvasElement ||
     (class extends window.HTMLElement {} as typeof window.HTMLCanvasElement);
-  // @ts-expect-error assign if missing
   if (!window.HTMLCanvasElement) window.HTMLCanvasElement = ctor;
-  const proto = window.HTMLCanvasElement.prototype as unknown as {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    getContext?: (type: string) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window.HTMLCanvasElement.prototype as any).getContext = (type: string) => {
+    if (type === '2d') {
+      return {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        measureText: (text: string): any => ({ width: text.length * 8 }),
+      };
+    }
+    return null;
   };
-  if (!proto.getContext) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    proto.getContext = (type: string): any => {
-      if (type === '2d') {
-        return {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          measureText: (text: string): any => ({ width: text.length * 8 }),
-        };
-      }
-      return null;
-    };
-  }
 }
 
 // Provide a basic matchMedia mock for components relying on prefers-reduced-motion

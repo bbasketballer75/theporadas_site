@@ -11,8 +11,9 @@ describe('VideoPlayer', () => {
 
   it('renders video element when src provided', () => {
     render(<VideoPlayer src="video.mp4" caption="Clip" />);
-    expect(screen.getByRole('region', { name: /clip/i })).toBeInTheDocument();
+    // Figure wraps the video and figcaption supplies caption text
     expect(screen.getByRole('figure')).toBeInTheDocument();
+    expect(screen.getByText(/clip/i)).toBeInTheDocument();
   });
 
   it('renders multiple sources', () => {
@@ -89,8 +90,8 @@ describe('VideoPlayer', () => {
         ]}
       />,
     );
-    // Wrapper is a <section aria-label="caption"> giving it role region
-    const video = screen.getByRole('region', { name: 'poster test' }).querySelector('video');
+    const figure = screen.getByRole('figure');
+    const video = figure.querySelector('video');
     expect(video).toBeTruthy();
     expect(video?.getAttribute('poster')).toBe('/media/posters/sample.jpg');
   });
