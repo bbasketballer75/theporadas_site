@@ -1,7 +1,7 @@
 {
   "name": "theporadas-site",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "scripts": {
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --cache --cache-location .eslintcache --max-warnings=0",

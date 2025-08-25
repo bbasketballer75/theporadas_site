@@ -34,6 +34,43 @@ This project adheres to [Conventional Commits](https://www.conventionalcommits.o
 
 ---
 
+## [0.1.2] - 2025-08-25
+
+### Added (0.1.2)
+
+- Markdown-driven content system (home, story, schedule highlights, travel info, gallery, party, rings, thanks) with loader abstraction.
+- Coverage accessibility post-processor script (`scripts/fix_coverage_a11y.mjs`) recursive labeling of coverage
+  summary headers; STRICT & SILENT modes.
+- Axe scan workflow for coverage report (`coverage-axe-scan`).
+- Skip link focus management utility and associated accessibility tests.
+- Issue auto-labeling workflow and structured issue templates (bug, feature, task).
+
+### Changed (0.1.2)
+
+- Coverage workflows enforce STRICT a11y labeling; added warning guard when non-STRICT.
+- Coverage diff workflow now emits JSON artifact and richer job summary.
+- Bundle size workflow conditional execution & improved comment formatting.
+- Enhanced PR template (a11y, performance, bundle, lighthouse sections).
+- Improved design system focus ring styles for clarity/contrast.
+- `.gitattributes` normalization for consistent line endings.
+- Decision log updated documenting a11y coverage approach.
+
+### Quality (0.1.2)
+
+- Maintained ~95% statements / ~86% branches coverage (no regressions).
+- All 48 tests passing; axe scan of initial render clean; coverage HTML headers labeled.
+
+### Documentation (0.1.2)
+
+- README expanded with coverage accessibility section, environment variable usage, and local vs CI guidance.
+- PR template enhancements to reinforce governance.
+
+### Notes (0.1.2)
+
+- No breaking changes; patch version bump reflects tooling/content system additions without API changes.
+
+---
+
 ## [0.1.1] - 2025-08-25
 
 ### Added (0.1.1)
