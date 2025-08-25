@@ -1,0 +1,134 @@
+name: pr-validate
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Node (for token analysis)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Collect PR body
+        id: pr
+        uses: actions-ecosystem/action-get-PR@v1
+      - name: Validate blueprint alignment checkbox
+        id: blueprint
+        run: |
+          body=$(jq -r '.body' <<< '${{ toJson(steps.pr.outputs) }}')
+          echo "$body" > pr_body.txt
+          if ! grep -qi '\[x\] Blueprint alignment' pr_body.txt; then
+            echo '::error title=Blueprint Alignment Missing::Please check the Blueprint alignment box in the PR template.'
+            echo 'blueprint_ok=false' >> $GITHUB_OUTPUT
+          else
+            echo 'blueprint_ok=true' >> $GITHUB_OUTPUT
+          fi
+      - name: Detect changed files & perf-affecting set
+        id: perfFiles
+        run: |
+          set -e
+          base_ref=${{ github.base_ref }}
+          git fetch origin "$base_ref" --depth=1
+          git diff --name-only origin/$base_ref...${{ github.sha }} > changed.txt
+          echo 'Changed files:'
+          cat changed.txt
+          # Perf-affecting heuristics
+          if grep -E '^(src/|lighthouserc.json|lighthouse-budgets.json|src/designSystem.css|scripts/lighthouse|scripts/compare_lighthouse_bundles.mjs)' changed.txt; then
+            echo 'perf_changed=true' >> $GITHUB_OUTPUT
+          else
+            echo 'perf_changed=false' >> $GITHUB_OUTPUT
+          fi
+      - name: Analyze JS/TS token deltas
+        if: steps.perfFiles.outputs.perf_changed == 'true'
+        id: tokens
+        run: |
+          set -e
+          base_ref=${{ github.base_ref }}
+          git fetch origin $base_ref --depth=1
+          # Collect changed TS/TSX/JS/JSX files under src
+          files=$(grep -E '^src/.*\.(ts|tsx|js|jsx)$' changed.txt || true)
+          if [ -z "$files" ]; then
+            echo 'no_token_files=true' >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          total_added=0
+          total_removed=0
+          echo 'Token delta details:' > token-deltas.txt
+          for f in $files; do
+            if [ ! -f "$f" ]; then continue; fi
+            # Simple tokenization: split on non-alphanumeric (JS identifiers + numbers)
+            base_file=$(mktemp)
+            git show origin/$base_ref:"$f" > "$base_file" 2>/dev/null || echo '' > "$base_file"
+            new_tokens=$(grep -oE '[A-Za-z0-9_]+' "$f" | wc -l | tr -d ' ')
+            old_tokens=$(grep -oE '[A-Za-z0-9_]+' "$base_file" | wc -l | tr -d ' ')
+            delta=$((new_tokens - old_tokens))
+            if [ $delta -gt 0 ]; then total_added=$((total_added + delta)); else total_removed=$((total_removed - delta)); fi
+            echo "$f: old=$old_tokens new=$new_tokens delta=$delta" >> token-deltas.txt
+          done
+          net=$((total_added - total_removed))
+          echo "total_added=$total_added" >> $GITHUB_OUTPUT
+          echo "total_removed=$total_removed" >> $GITHUB_OUTPUT
+          echo "net_delta=$net" >> $GITHUB_OUTPUT
+          echo 'no_token_files=false' >> $GITHUB_OUTPUT
+          cat token-deltas.txt
+      - name: Enforce token growth threshold
+        if: steps.tokens.outputs.no_token_files == 'false'
+        run: |
+          max_net=${MAX_NET_TOKEN_DELTA:-800}
+          max_added=${MAX_ABS_TOKEN_ADDED:-1600}
+          net=${{ steps.tokens.outputs.net_delta }}
+
+          if [ "$net" -gt "$max_net" ]; then
+            echo "::warning title=Token Net Growth::Net token growth $net exceeds soft threshold $max_net. Please justify in Performance section."
+          fi
+          added=${{ steps.tokens.outputs.total_added }}
+          if [ "$added" -gt "$max_added" ]; then
+            echo "::error title=Token Additions Too Large::Added tokens $added exceed limit $max_added. Consider splitting or optimizing."
+            exit 1
+          fi
+          # If there was notable token growth, ensure explanation text exists
+          if [ "$net" -gt "$max_net" ]; then
+            if ! grep -qi 'token' pr_body.txt && ! grep -qi 'bundle' pr_body.txt; then
+              echo '::warning title=Missing Token Growth Rationale::Significant token growth detected but no rationale mentioning tokens or bundle impact.'
+            fi
+          fi
+      - name: Perf heuristic summary comment
+        if: always()
+        run: |
+          {
+            echo '### PR Validation Summary';
+            echo '';
+            echo '* Blueprint alignment: ${{ steps.blueprint.outputs.blueprint_ok }}';
+            echo '* Perf-affecting changes: ${{ steps.perfFiles.outputs.perf_changed }}';
+            if [ "${{ steps.perfFiles.outputs.perf_changed }}" = 'true' ] && [ "${{ steps.tokens.outputs.no_token_files }}" != 'true' ]; then
+              echo '* Token delta: net=${{ steps.tokens.outputs.net_delta }} added=${{ steps.tokens.outputs.total_added }} removed=${{ steps.tokens.outputs.total_removed }}';
+            fi
+          } > pr-validate-summary.md
+      - name: Post summary comment
+        if: always()
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: pr-validate-summary.md
+      - name: Validate performance section when needed
+        if: steps.perfFiles.outputs.perf_changed == 'true'
+        run: |
+          if ! grep -qi '^## Performance / Lighthouse' pr_body.txt; then
+            echo '::error title=Performance Section Missing::Perf-affecting changes detected; fill out Performance / Lighthouse section.'
+            exit 1
+          fi
+      - name: Fail if blueprint alignment missing
+        if: steps.blueprint.outputs.blueprint_ok == 'false'
+        run: exit 1
+      - name: Summary
+        run: echo 'PR validation completed.'
