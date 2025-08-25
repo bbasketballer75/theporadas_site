@@ -1,0 +1,83 @@
+name: Bug Report
+description: Report a defect with expected vs actual behavior
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please ensure this aligns with the project blueprint (`.github/project_instructions.md`).
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: Concise description of the bug
+      placeholder: e.g. Skip link not focusing main container in Safari
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      placeholder: What should happen?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      placeholder: What actually happens?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction Steps
+      description: Provide minimal steps/code to reproduce
+      placeholder: |
+        1. Go to ...
+        2. Click ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: Affected Browsers
+      multiple: true
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Other
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      placeholder: OS, Node version, screen reader, etc.
+  - type: textarea
+    id: accessibility
+    attributes:
+      label: Accessibility Impact
+      description: Describe any user impact (keyboard, screen reader, motion, contrast)
+  - type: textarea
+    id: performance
+    attributes:
+      label: Performance Impact
+      description: If performance regression, include metrics or Lighthouse scores
+  - type: checkboxes
+    id: blueprint
+    attributes:
+      label: Blueprint Alignment
+      description: Confirm alignment with `.github/project_instructions.md`.
+      options:
+        - label: This issue aligns with the project blueprint
+          required: true
+  - type: checkboxes
+    id: validations
+    attributes:
+      label: Pre-Submission Checks
+      options:
+        - label: Searched existing issues
+        - label: Reproduced on latest `main`
+        - label: Added logs or screenshots if helpful

@@ -1,0 +1,42 @@
+name: Task
+description: Track a scoped piece of implementation or refactor work
+labels: [task]
+body:
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      placeholder: e.g. Refactor focus ring token usage
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      placeholder: Link related issues / PRs / blueprint sections.
+  - type: textarea
+    id: plan
+    attributes:
+      label: Plan
+      placeholder: Stepwise outline (bullets)
+  - type: textarea
+    id: testing
+    attributes:
+      label: Testing Strategy
+      placeholder: Unit, a11y, perf checks.
+  - type: checkboxes
+    id: blueprint
+    attributes:
+      label: Blueprint Alignment
+      options:
+        - label: Task aligns with project blueprint
+          required: true
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: Docs update (if needed)
+        - label: Tests added/updated
+        - label: No secrets in code
+        - label: Accessibility considered
