@@ -40,8 +40,9 @@ export function HeroVideo({ qualitySources, poster, caption, children }: HeroVid
   return (
     <div
       className="hero-video-shell"
-      aria-label={effectiveCaption || 'Hero video'}
       ref={videoWrapperRef}
+      role="region"
+      aria-label={effectiveCaption}
     >
       <LazyVideoPlayer
         qualitySources={ladder}

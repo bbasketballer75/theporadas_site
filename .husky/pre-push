@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
-# Fast checks before pushing
-npm run verify
+# Husky v9+ simplified pre-push (removed deprecated sourcing)
+set -e
+echo "Running verify (lint, typecheck, test) before push..."
+exec npm run verify

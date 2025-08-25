@@ -45,7 +45,6 @@ export function LazyVideoPlayer(props: LazyVideoPlayerProps) {
         aspectRatio,
         display: 'block',
       }}
-      aria-label={rest.caption || rest.placeholderLabel || 'video placeholder'}
     >
       {visible ? (
         <VideoPlayer {...rest} />

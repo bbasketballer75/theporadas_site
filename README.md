@@ -4,13 +4,18 @@
 ![TypeScript](https://github.com/bbasketballer75/theporadas_site/actions/workflows/ci-typecheck.yml/badge.svg)
 ![Coverage](./.github/badges/coverage.svg)
 
-> If the local badge has not yet been generated (first clone or before CI runs), view the latest workflow artifacts in **Actions → CI - Tests**. Optionally use a placeholder badge until the generated file exists: `![Coverage (placeholder)](https://img.shields.io/badge/coverage-pending-lightgrey)`.
+> If the local badge has not yet been generated (first clone or before CI runs),
+> view the latest workflow artifacts in **Actions → CI - Tests**.
+> Optionally use a placeholder badge until the generated file exists:
+> `![Coverage (placeholder)](https://img.shields.io/badge/coverage-pending-lightgrey)`.
 
 Idempotent setup scripts + VS Code tasks prevent accidental global reinstalls and tool drift.
 
 ## Project Blueprint (Source of Truth)
 
-See `.github/project_instructions.md` for architecture, scope, standards, and success criteria. If this README conflicts with it, defer to the blueprint and open a PR to reconcile.
+See `.github/project_instructions.md` for architecture, scope, standards, and success
+criteria. If this README conflicts with it, defer to the blueprint and open a PR
+to reconcile.
 
 ---
 
@@ -261,12 +266,27 @@ cd lighthouse
 yarn build-devtools
 ```
 
+Convenience root scripts:
+
+```powershell
+# Shimmed (default smaller bundle)
+npm run lh:build
+
+# Full (disable shims to include original zlib paths for parity testing)
+npm run lh:build:full
+
+# Compare sizes (raw + gzip) and emit lighthouse_bundle_sizes.json artifact
+npm run lh:compare
+```
+
 Adjustments:
 
 - Path normalization for i18n and injected `import.meta.url` (avoids escaped backslash syntax errors)
 - Zlib polyfill shims (`__zlib-lib/*`) stub out heavy inflate/deflate code
 - Import ignore list for unused Node-specific modules
-- Optional: disable shims via `LH_DISABLE_ZLIB_SHIMS=1` to restore original zlib code (larger bundle, for upstream parity tests; default when unset is shims ENABLED)
+- Optional: disable shims via `LH_DISABLE_ZLIB_SHIMS=1` to restore original zlib
+  code (larger bundle, for upstream parity tests; default when unset is shims
+  ENABLED)
 
 Result: build succeeds with only benign `import.meta` IIFE warnings.
 

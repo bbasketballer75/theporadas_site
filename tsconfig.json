@@ -15,5 +15,5 @@
     "types": ["vitest", "react", "react-dom"]
   },
   "include": ["**/*.{ts,tsx,js,jsx}", "**/*.d.ts"],
-  "exclude": ["dist", "build", "node_modules"]
+  "exclude": ["dist", "build", "node_modules", "lighthouse", "coverage"]
 }
