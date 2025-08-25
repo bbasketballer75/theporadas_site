@@ -3,6 +3,8 @@ name: visual-regression
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -32,6 +34,12 @@ jobs:
         run: npx wait-on http://localhost:5173
       - name: Run visual tests
         run: npx playwright test
+      - name: Upload snapshots (main branch)
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-snapshots
+          path: pw-tests/__snapshots__
       - name: Upload traces (on failure)
         if: failure()
         uses: actions/upload-artifact@v4

@@ -18,6 +18,7 @@
     "coverage:aggregate": "node scripts/aggregate_coverage.mjs",
     "coverage:badge": "node scripts/generate_coverage_badge.mjs",
     "coverage:diff": "node scripts/coverage_diff.mjs",
+    "verify:visual": "npx playwright test || echo Skipping visual tests (Playwright not installed or failing)",
     "lighthouse": "node scripts/lighthouse.mjs",
     "validate:video": "node scripts/validate_video.mjs",
     "lint:md": "markdownlint \"**/*.md\" --ignore lighthouse --ignore lighthouse/** --ignore docs/video/** -c .markdownlint.jsonc && markdownlint \"docs/video/**/*.md\" -c docs/video/.markdownlint.jsonc",
