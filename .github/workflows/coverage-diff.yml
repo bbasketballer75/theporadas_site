@@ -33,3 +33,19 @@ jobs:
         with:
           recreate: true
           path: coverage-diff.md
+      - name: Upload coverage diff artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-diff-artifacts
+          path: |
+            coverage-diff.md
+            coverage-diff.json
+      - name: Job summary
+        if: always()
+        run: |
+          echo '## Coverage Diff Summary' >> $GITHUB_STEP_SUMMARY
+          if [ -f coverage-diff.md ]; then
+            cat coverage-diff.md >> $GITHUB_STEP_SUMMARY
+          else
+            echo 'coverage-diff.md missing' >> $GITHUB_STEP_SUMMARY
+          fi
