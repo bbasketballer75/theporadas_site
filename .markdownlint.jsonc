@@ -1,0 +1,15 @@
+{
+    // Enforce consistent heading style, no duplicate headings, fenced code spacing, tables.
+    "default": true,
+    "MD013": {
+        "line_length": 140
+    },
+    "MD024": true,
+    "MD033": false, // allow inline HTML if needed
+    "MD041": {
+        "level": 1
+    },
+    "MD046": {
+        "style": "fenced"
+    }
+}
