@@ -12,7 +12,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": ["vitest", "react", "react-dom"]
+    "types": ["vitest", "react", "react-dom", "@playwright/test"]
   },
   "include": ["**/*.{ts,tsx,js,jsx}", "**/*.d.ts"],
   "exclude": ["dist", "build", "node_modules", "lighthouse", "coverage"]

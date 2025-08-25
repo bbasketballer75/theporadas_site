@@ -356,6 +356,78 @@ Commit the updated badge if numbers change meaningfully. For PRs, ensure new
 logic is accompanied by targeted tests (avoid accidental uncovered branches).
 Prefer focused tests over broad snapshotting.
 
+### Pull Request Coverage Diff
+
+CI workflow `coverage-diff` runs on PRs, generating a markdown table comparing
+base (main) vs current coverage. Allowed drops (env overridable):
+
+| Metric     | Max Drop |
+| ---------- | -------- |
+| Statements | 0.5%     |
+| Branches   | 1.0%     |
+| Functions  | 0.5%     |
+| Lines      | 0.5%     |
+
+Failing thresholds exit non‑zero and block merge. See script `scripts/coverage_diff.mjs`.
+
+---
+
+## Lighthouse Budgets (PR Enforcement)
+
+Workflow `lighthouse-budgets` builds the production bundle, serves it, and runs
+Lighthouse with `lighthouse-budgets.json`. Exceeding any resource size or timing
+budget fails the job. Summary metrics (FCP, LCP, TBT, CLS, Speed Index) are
+commented to the PR for quick inspection.
+
+Adjust budgets in `lighthouse-budgets.json` (sizes in KB, timings ms except CLS).
+
+---
+
+## Lighthouse DevTools Bundle Size Gate
+
+Workflow `bundle-size` builds the shimmed & full DevTools bundles (vendored
+`lighthouse/`) and enforces minimum positive deltas (ensuring shim still
+meaningfully reduces size). Artifact `lighthouse_bundle_sizes.json` is uploaded;
+PR comment includes JSON for diff visibility.
+
+Threshold env vars (tune in workflow file):
+
+| Var                       | Meaning                           | Default |
+| ------------------------- | --------------------------------- | ------- |
+| `LH_MIN_GZIP_DELTA_BYTES` | Min gzip byte delta (full - shim) | 1       |
+| `LH_MIN_GZIP_DELTA_PCT`   | Min gzip % delta                  | 0.01    |
+| `LH_MIN_RAW_DELTA_BYTES`  | Min raw byte delta                | 1       |
+| `LH_MIN_RAW_DELTA_PCT`    | Min raw % delta                   | 0.01    |
+
+---
+
+## Visual Regression Testing
+
+Playwright harness (`playwright.config.ts`, tests under `pw-tests/`) performs basic
+cross‑browser visual assertions. On first run missing snapshots are generated
+locally with:
+
+```powershell
+npx playwright test --update-snapshots
+```
+
+CI `visual-regression` workflow installs browsers, builds site, starts preview,
+and runs tests across Chromium, Firefox, WebKit. Failures upload traces & diffs.
+
+To add a new snapshot test:
+
+```ts
+import { test, expect } from '@playwright/test';
+test('header renders', async ({ page }) => {
+  await page.goto('/');
+  const header = page.locator('header');
+  await expect(header).toHaveScreenshot('header.png');
+});
+```
+
+Use smaller scoping locators to reduce flake risk; prefer deterministic states
+(await animations to settle or set `prefers-reduced-motion` if needed).
+
 ---
 
 ## Lighthouse Sync Script

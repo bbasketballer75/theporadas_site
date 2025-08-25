@@ -1,0 +1,38 @@
+name: lighthouse-budgets
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  lh-budgets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install deps
+        run: npm ci
+      - name: Build + Preview + Lighthouse (with budgets)
+        run: |
+          npm run build
+          npx serve dist -l 4173 &
+          npx wait-on http://localhost:4173
+          npx lighthouse http://localhost:4173 --preset=desktop --budgets-path=lighthouse-budgets.json --output=json --output-path=lh-report.json --quiet
+      - name: Parse budgets & comment
+        run: node scripts/lh_budget_comment.mjs
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: lh-report.json

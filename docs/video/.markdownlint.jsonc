@@ -1,9 +1,9 @@
 {
-  // Video docs may include long command lines or tables; relax MD013 here.
-  "MD013": {
-    "line_length": 210,
-    "code_blocks": false,
-    "tables": false,
-    "headings": false
-  }
+    // Video docs may include long command lines or tables; relax MD013 here.
+    "MD013": {
+        "line_length": 210,
+        "code_blocks": false,
+        "tables": false,
+        "headings": false
+    }
 }

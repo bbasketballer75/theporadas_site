@@ -22,6 +22,10 @@ This project adheres to [Conventional Commits](https://www.conventionalcommits.o
 - Added coverage-badge workflow status badge to `README.md` alongside local SVG badge.
 - Added workflow concurrency (cancel in-progress) for coverage badge runs.
 - Added caching of Vitest and Vite build artifacts in coverage badge workflow to speed runs.
+- Added PR coverage diff workflow (`coverage-diff`) with threshold enforcement.
+- Introduced Lighthouse budgets enforcement workflow (`lighthouse-budgets`) using `lighthouse-budgets.json`.
+- Added DevTools bundle size gate workflow (`bundle-size`) commenting size deltas.
+- Implemented Playwright visual regression workflow (`visual-regression`) with multi-browser snapshots.
 
 ---
 
