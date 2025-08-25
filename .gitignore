@@ -20,3 +20,14 @@ coverage/
 
 # Local ESLint cache
 .eslintcache
+
+# Build output
+dist/
+
+# Lighthouse generated artifacts
+lighthouse-report.report.html
+lighthouse-report.report.json
+lighthouse_bundle_sizes.json
+
+# Temporary comparison outputs
+*.lh-cache
