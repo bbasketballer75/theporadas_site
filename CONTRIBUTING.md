@@ -205,3 +205,19 @@ The repository includes additional automation to keep quality gates enforceable:
 When adding new performance-impacting areas (e.g. large new asset pipelines),
 extend the change detection heuristics in `pr-validate.yml` to ensure the
 performance section remains mandatory.
+
+## PR Self-Review Checklist
+
+Before marking a pull request ready for review (or merging if self-approved),
+walk through `docs/self_review_checklist.md` and ensure each applicable item is
+checked off locally. This reduces reviewer churn and catches:
+
+- Missing performance / Lighthouse section when token heuristic warns
+- Coverage drops (add tests before requesting review)
+- Accessibility regressions (skip link, focus management, motion preference)
+- Oversized diffs that should be split into smaller PRs
+
+If three or more items remain unchecked after first pass, pause and resolve
+them rather than relying on reviewers to flag them. Document conscious
+exceptions (with rationale) in the PR description under an `## Deviations`
+section so reviewers can acknowledge and proceed.
