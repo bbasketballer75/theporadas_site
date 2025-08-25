@@ -15,6 +15,10 @@ This project adheres to [Conventional Commits](https://www.conventionalcommits.o
   tables and command snippets.
 - Added coverage badge aggregation (matrix) and commit step in `ci-test` workflow; planning
   dedicated badge workflow if separation becomes beneficial.
+- Decoupled coverage badge generation into standalone `coverage-badge` workflow and simplified
+  core `ci-test` workflow.
+- Enhanced markdown lint script to apply nested config for `docs/video` directory (separate
+  invocation with dedicated config).
 
 ---
 
