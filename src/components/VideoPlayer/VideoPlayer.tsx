@@ -230,9 +230,8 @@ export function VideoPlayer(props: VideoPlayerProps) {
     [chapters, emit],
   );
 
-  const sectionLabel = caption || 'video player';
   return (
-    <section aria-label={sectionLabel} style={{ maxWidth: 640 }}>
+    <section style={{ maxWidth: 640 }}>
       {resolvedSources ? (
         <figure>
           <video

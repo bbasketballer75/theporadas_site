@@ -4,6 +4,7 @@ import { HeroVideo } from './components/HeroVideo';
 import { MotionToggle } from './components/MotionToggle';
 import { ThemeToggle } from './components/ThemeToggle';
 import { VideoPlayer } from './components/VideoPlayer/VideoPlayer';
+import { listVideos } from './video/registry';
 import './designSystem.css';
 
 export default function App() {
@@ -34,11 +35,17 @@ export default function App() {
       <section className="snap-section" aria-label="Video Feature">
         <div className="card stack">
           <h2>Feature Video</h2>
-          <VideoPlayer
-            src=""
-            caption="Feature Video (placeholder)"
-            placeholderLabel="placeholder"
-          />
+          {(() => {
+            const [hero] = listVideos();
+            if (!hero) return <p>No video available.</p>;
+            return (
+              <VideoPlayer
+                qualitySources={hero.quality}
+                caption={hero.caption}
+                placeholderLabel={hero.placeholderLabel}
+              />
+            );
+          })()}
         </div>
       </section>
     </div>

@@ -1,4 +1,7 @@
 #!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
-npx commitlint --edit "$1"
+# Husky v9+ simplified hook (deprecated _/husky.sh sourcing removed)
+command -v npx >/dev/null 2>&1 || {
+	echo "npx not found; cannot run commitlint" >&2
+	exit 1
+}
+exec npx commitlint --edit "$1"
