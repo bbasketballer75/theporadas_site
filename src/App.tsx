@@ -2,12 +2,17 @@ import React from 'react';
 
 import { HeroVideo } from './components/HeroVideo';
 import { MotionToggle } from './components/MotionToggle';
+import { SiteNav } from './components/SiteNav';
 import { ThemeToggle } from './components/ThemeToggle';
 import { VideoPlayer } from './components/VideoPlayer/VideoPlayer';
+import { getNonHeroSections } from './content/loader';
+import { useHashNavigation } from './hooks/useHashNavigation';
 import { listVideos } from './video/registry';
 import './designSystem.css';
 
 export default function App() {
+  const sections = getNonHeroSections();
+  const { hash } = useHashNavigation();
   return (
     <div id="appShell" role="main" tabIndex={-1}>
       <section className="snap-section hero" aria-label="Welcome">
@@ -21,9 +26,7 @@ export default function App() {
               appear here as they are completed.
             </p>
             <div className="stack" style={{ alignItems: 'center' }}>
-              <button className="btn btn-primary" type="button">
-                Enter Story
-              </button>
+              <SiteNav active={hash} />
               <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                 <MotionToggle />
                 <ThemeToggle />
@@ -48,6 +51,22 @@ export default function App() {
           })()}
         </div>
       </section>
+      {sections.map((s) => {
+        const headingId = `${s.frontmatter.slug}-heading`;
+        // Inject id into first h2 occurrence for aria-labelledby reference
+        const html = s.html.replace('<h2', `<h2 id="${headingId}"`);
+        return (
+          <section
+            key={s.frontmatter.slug}
+            id={s.frontmatter.slug}
+            className="snap-section"
+            role="region"
+            aria-labelledby={headingId}
+          >
+            <div className="card stack" dangerouslySetInnerHTML={{ __html: html }} />
+          </section>
+        );
+      })}
     </div>
   );
 }

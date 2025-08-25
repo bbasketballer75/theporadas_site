@@ -2,42 +2,86 @@
 
 ## Summary
 
-- What does this PR change and why?
+Describe what this PR changes and why (problem → solution). Keep concise.
 
 ## Linked Issues
 
 - Closes #
-- Related to #
+- Related #
+
+## Motivation / Context
+
+What user need, performance / accessibility gap, or blueprint objective does this address?
 
 ## Changes
 
--
--
+- Bullet each notable code / structural change (keep scannable)
+- Mention any refactors separated from feature logic
 
-## Testing
+## Screens / Media (optional)
 
-- Steps to verify locally:
+| Before | After |
+| ------ | ----- |
+| (img)  | (img) |
+
+## Testing Matrix
+
+Local verification steps:
 
 ```bash
-# add any relevant commands
+# key commands you ran (lint, build, coverage, story/dev server, lighthouse)
+npm test
+npm run coverage
 ```
 
-- Screenshots or logs (if helpful)
+| Area                  | Evidence / Notes                                   |
+| --------------------- | -------------------------------------------------- |
+| Unit tests            | ✅ added / n/a / updated                           |
+| Accessibility (axe)   | ✅ passes (include new rule if added)              |
+| Keyboard / Focus      | ✅ tab order / skip link / focus ring checked      |
+| Motion preference     | ✅ reduce-motion path verified                     |
+| Performance (LH)      | Scores within budgets (attach diff if perf-impact) |
+| Cross-browser (if UI) | Chrome / Firefox / Safari (list any caveats)       |
+
+## Accessibility Impact
+
+- Landmarks / headings: (any changes?)
+- Color contrast: (new tokens audited?)
+- Focus management: (describe if custom logic)
+- Media (video/animation): (autoplay, captions, reduced motion)
+
+## Performance / Lighthouse
+
+- Affected bundles? (yes/no) If yes: size delta table.
+- Budgets status: (pass / attach `lighthouse-report.report.html` diff)
+- Notable perf trade-offs & rationale.
+
+## Breaking Changes
+
+- Does this introduce a breaking change? If yes: describe migration.
 
 ## Risk & Rollout
 
-- Risk level: Low / Medium / High
-- Rollout plan:
-- Rollback plan:
+- Risk: Low / Medium / High (justify)
+- Rollout plan: (merge → deploy steps, feature flag?)
+- Rollback plan: (revert commit hash, disable flag)
+
+## Changelog Entry (proposed)
+
+`feat|fix|chore(scope): short description`
 
 ## Checklist
 
-- [ ] Blueprint alignment: This change aligns with the project blueprint in `.github/project_instructions.md` (scope, architecture, standards). If divergence is intentional, rationale is documented below.
-- [ ] Docs updated (README or relevant docs)
-- [ ] Tasks/scripts idempotent and verified
-- [ ] Security/privacy considerations addressed
-- [ ] Accessibility considered (if UI)
+- [ ] Blueprint alignment (`.github/project_instructions.md`)
+- [ ] Conventional commits style in title (if meaningful)
+- [ ] Tests added / updated & coverage meets thresholds
+- [ ] Accessibility reviewed (axe + manual focus / keyboard)
+- [ ] Performance budgets respected (no regressions)
+- [ ] Security & privacy reviewed (no secrets, safe inputs)
+- [ ] Docs / README / relevant md updated
+- [ ] Scripts remain idempotent
+- [ ] Changelog entry prepared (if user-visible change)
 
-### Notes on any deviations from the blueprint
+### Blueprint Deviations (if any)
 
--
+Explain rationale for any divergence from the project blueprint.

@@ -2,11 +2,15 @@
 import fs from 'fs';
 import { execSync } from 'child_process';
 
-// Configurable thresholds via env
+// Configurable thresholds via env (percentages)
 const MAX_STATEMENT_DROP = parseFloat(process.env.MAX_STATEMENT_DROP || '0.5');
 const MAX_BRANCH_DROP = parseFloat(process.env.MAX_BRANCH_DROP || '1.0');
 const MAX_FUNCTION_DROP = parseFloat(process.env.MAX_FUNCTION_DROP || '0.5');
 const MAX_LINE_DROP = parseFloat(process.env.MAX_LINE_DROP || '0.5');
+// Per-file warning (does not fail) when statement % drops more than this value
+const PER_FILE_WARN_DROP = parseFloat(process.env.PER_FILE_WARN_DROP || '2.0');
+// Maximum allowed per-file statement drop that will fail build (optional)
+const PER_FILE_FAIL_DROP = parseFloat(process.env.PER_FILE_FAIL_DROP || '9999');
 
 function run(cmd) {
   return execSync(cmd, { stdio: 'pipe', encoding: 'utf8' }).trim();
@@ -33,8 +37,17 @@ function findSummaryFile(baseDir) {
 
 function extractTotals(summary) {
   if (summary.total) return summary.total; // Istanbul format
-  // Fallback: assume the JSON itself is the total metrics
-  return summary;
+  return summary; // Fallback
+}
+
+function collectFileEntries(summary) {
+  const entries = [];
+  for (const [file, metrics] of Object.entries(summary)) {
+    if (file === 'total') continue;
+    if (!metrics.statements) continue;
+    entries.push({ file, statements: metrics.statements.pct });
+  }
+  return entries;
 }
 
 function fmt(num) {
@@ -55,7 +68,14 @@ function main() {
     baseContent = run(`git show ${baseRef}:${baseFilePath}`);
   } catch (e) {
     console.warn('Base coverage summary missing on base ref, treating as 0s.');
-    baseContent = JSON.stringify({ total: { statements: { pct: 0 }, branches: { pct: 0 }, functions: { pct: 0 }, lines: { pct: 0 } } });
+    baseContent = JSON.stringify({
+      total: {
+        statements: { pct: 0 },
+        branches: { pct: 0 },
+        functions: { pct: 0 },
+        lines: { pct: 0 },
+      },
+    });
   }
   fs.writeFileSync(`${tmpDir}/coverage-summary.json`, baseContent);
 
@@ -81,7 +101,9 @@ function main() {
     const drop = -deltas[key];
     const ok = drop <= maxDrop + 1e-9; // tolerate float noise
     const res = ok ? '✅' : '❌';
-    lines.push(`| ${key} | ${fmt(baseTotals[key].pct)} | ${fmt(curTotals[key].pct)} | ${deltas[key] >= 0 ? '+' : ''}${deltas[key].toFixed(2)} | -${maxDrop}% | ${res} |`);
+    lines.push(
+      `| ${key} | ${fmt(baseTotals[key].pct)} | ${fmt(curTotals[key].pct)} | ${deltas[key] >= 0 ? '+' : ''}${deltas[key].toFixed(2)} | -${maxDrop}% | ${res} |`,
+    );
     return ok;
   }
 
@@ -92,13 +114,71 @@ function main() {
     assess('lines', MAX_LINE_DROP),
   ].every(Boolean);
 
-  const summary = `Coverage Diff (base: ${baseRef})\n\n` + lines.join('\n');
-  fs.writeFileSync('coverage-diff.md', summary);
-  console.log(summary);
+  // Per-file analysis
+  let perFileSection = '';
+  try {
+    const baseEntries = collectFileEntries(baseSummary);
+    const curEntries = collectFileEntries(currentSummary);
+    const baseMap = Object.fromEntries(baseEntries.map((e) => [e.file, e.statements]));
+    const drops = [];
+    for (const cur of curEntries) {
+      const basePct = baseMap[cur.file];
+      if (typeof basePct !== 'number') continue; // new file
+      const delta = cur.statements - basePct;
+      if (delta < 0) {
+        drops.push({ file: cur.file, base: basePct, current: cur.statements, delta });
+      }
+    }
+    drops.sort((a, b) => a.delta - b.delta); // most negative first
+    const topDrops = drops.slice(0, 5);
+    if (topDrops.length) {
+      perFileSection += '\n\n#### Top File Statement Coverage Drops (base vs current)\n\n';
+      perFileSection += '| File | Base | Current | Delta | Warn>|\n';
+      perFileSection += '|------|------|---------|-------|------|\n';
+      for (const d of topDrops) {
+        const warn = d.delta <= -PER_FILE_WARN_DROP ? '⚠️' : '';
+        perFileSection += `| ${d.file} | ${fmt(d.base)} | ${fmt(d.current)} | ${d.delta.toFixed(2)} | ${warn} |\n`;
+      }
+    }
+    // Evaluate per-file fail condition
+    const worstDrop = drops.length ? Math.min(...drops.map((d) => d.delta)) : 0;
+    const perFileFail = worstDrop < -PER_FILE_FAIL_DROP;
 
-  if (!okAll) {
-    console.error('Coverage regression exceeds allowed thresholds.');
-    process.exit(2);
+    const summary = `### Coverage Diff (base: ${baseRef})\n\n` + lines.join('\n') + perFileSection;
+    fs.writeFileSync('coverage-diff.md', summary);
+    console.log(summary);
+
+    // JSON artifact for tooling
+    const jsonOut = {
+      baseRef,
+      totals: { base: baseTotals, current: curTotals, deltas },
+      thresholds: {
+        statements: MAX_STATEMENT_DROP,
+        branches: MAX_BRANCH_DROP,
+        functions: MAX_FUNCTION_DROP,
+        lines: MAX_LINE_DROP,
+        perFileWarn: PER_FILE_WARN_DROP,
+        perFileFail: PER_FILE_FAIL_DROP,
+      },
+      files: drops, // only negative deltas
+      okTotals: okAll,
+      worstFileDrop: worstDrop,
+    };
+    fs.writeFileSync('coverage-diff.json', JSON.stringify(jsonOut, null, 2));
+
+    if (!okAll) {
+      console.error('Coverage regression exceeds allowed thresholds.');
+      process.exit(2);
+    }
+    if (worstDrop < -PER_FILE_FAIL_DROP) {
+      console.error('Per-file coverage drop exceeds fail threshold.');
+      process.exit(3);
+    }
+  } catch (e) {
+    console.warn('Per-file coverage analysis skipped:', e.message);
+    const summary = `### Coverage Diff (base: ${baseRef})\n\n` + lines.join('\n');
+    fs.writeFileSync('coverage-diff.md', summary);
+    if (!okAll) process.exit(2);
   }
 }
 

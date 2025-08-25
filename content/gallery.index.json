@@ -1,0 +1,11 @@
+[
+  {
+    "id": "sample-1",
+    "type": "image",
+    "src": "/media/encoded/sample1.jpg",
+    "thumb": "/media/lqip/sample1.jpg",
+    "contributorName": "Guest",
+    "caption": "A joyful moment",
+    "createdAt": "2025-08-25T00:00:00.000Z"
+  }
+]

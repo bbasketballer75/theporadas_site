@@ -487,6 +487,63 @@ auxiliary metric columns. Post-generation script `scripts/fix_coverage_a11y.mjs`
 automatically ensures every `<th>` has descriptive text (axe `empty-table-header`
 rule). This runs as part of `npm run coverage` (no manual action required).
 
+### Coverage Report Accessibility (Recursive Patch & Enforcement)
+
+The post-processing script now recursively scans every `coverage/**/index.html` summary
+table (not just the root) and inserts accessible labels for any empty `<th>` cells with
+these `data-col` values:
+
+| data-col         | Injected Label |
+| ---------------- | -------------- |
+| `pic`            | Coverage Chart |
+| `statements_raw` | Statements Raw |
+| `branches_raw`   | Branches Raw   |
+| `functions_raw`  | Functions Raw  |
+| `lines_raw`      | Lines Raw      |
+
+Environment variables controlling behavior:
+
+| Var                    | Effect                                                                    | Default |
+| ---------------------- | ------------------------------------------------------------------------- | ------- |
+| `COVERAGE_A11Y_STRICT` | When `1/true`, script exits non-zero if any targeted header remains empty | off     |
+| `COVERAGE_A11Y_SILENT` | When `1/true`, suppresses informational logs (warnings still on errors)   | off     |
+| `COVERAGE_HTML`        | Override single HTML file path (used in tests)                            | unset   |
+
+Idempotent: Re-running makes no further modifications once labels present. STRICT mode is applied
+in coverage-related CI jobs to prevent regressions.
+
+Note: If you invoke coverage generation directly via `vitest run --coverage` (bypassing
+`npm run coverage`), the post-processing script will not execute and some header cells will appear
+empty. Always prefer `npm run coverage` locally to mirror CI behavior and ensure accessible header
+labels are applied. You can manually fix an already generated report by running:
+
+```powershell
+node scripts/fix_coverage_a11y.mjs
+```
+
+### Axe Scan Workflow
+
+Workflow `coverage-axe-scan.yml` generates coverage (with STRICT header enforcement) then runs an
+`@axe-core/cli` scan against the root coverage summary table:
+
+```bash
+npx axe --exit file://$PWD/coverage/index.html --include 'table.coverage-summary'
+```
+
+`--exit` causes a non-zero exit code on violations, failing the job. This independent scan catches
+any future structural regressions in the static HTML beyond header text (e.g., landmark or contrast
+issues in upstream template updates).
+
+Local on-demand check (optional):
+
+```powershell
+npm run coverage
+npx @axe-core/cli --exit file://$PWD/coverage/index.html --include 'table.coverage-summary'
+```
+
+If adding new Istanbul versions or altering coverage generation, verify headers remain labeled and
+axe scan stays green before merging.
+
 Commit the updated badge if numbers change meaningfully. For PRs, ensure new
 logic is accompanied by targeted tests (avoid accidental uncovered branches).
 Prefer focused tests over broad snapshotting.

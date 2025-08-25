@@ -265,8 +265,13 @@ button,
 
 /* Focus */
 :focus-visible {
-  outline: 2px solid var(--c-focus);
+  outline: 2px solid var(--color-int-focus-ring);
   outline-offset: 3px;
+  /* Layered ring for improved contrast on mixed backgrounds */
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-int-focus-ring) 35%, transparent);
+  transition:
+    outline-color var(--dur-short) var(--ease-standard),
+    box-shadow var(--dur-short) var(--ease-standard);
 }
 
 /* Card */

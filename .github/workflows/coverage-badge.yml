@@ -36,8 +36,10 @@ jobs:
           key: vitest-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             vitest-${{ runner.os }}-${{ matrix.node-version }}-
-      - name: Run tests with coverage
+      - name: Run tests with coverage (STRICT a11y headers)
         run: npm run coverage
+        env:
+          COVERAGE_A11Y_STRICT: '1'
       - name: Upload coverage directory
         uses: actions/upload-artifact@v4
         with:
