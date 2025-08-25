@@ -32,6 +32,30 @@ jobs:
         run: npm run preview &
       - name: Wait for server
         run: npx wait-on http://localhost:5173
+      - name: Download baseline snapshots (from main)
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "Attempting to download baseline snapshots artifact from latest main run";
+          latest_run_id=$(gh run list --branch main --workflow "visual-regression" --limit 1 --json databaseId --jq '.[0].databaseId') || true
+          if [ -n "$latest_run_id" ]; then
+            echo "Found run id $latest_run_id; listing artifacts";
+            artifact_id=$(gh run artifacts $latest_run_id --json artifacts --jq '.artifacts[] | select(.name=="playwright-snapshots") | .id') || true
+            if [ -n "$artifact_id" ]; then
+              echo "Downloading artifact id $artifact_id";
+              gh run download $latest_run_id -n playwright-snapshots --dir baseline || true
+              if [ -d baseline/playwright-snapshots ]; then
+                mkdir -p pw-tests/__snapshots__
+                cp -R baseline/playwright-snapshots/* pw-tests/__snapshots__/ || true
+                echo "Baseline snapshots restored.";
+              else
+                echo "Artifact directory missing; proceeding without baselines.";
+              fi
+            else
+              echo "No playwright-snapshots artifact found in latest main run.";
+            fi
+          else
+            echo "No prior main run found for visual-regression workflow.";
+          fi
       - name: Run visual tests
         run: npx playwright test
       - name: Upload snapshots (main branch)

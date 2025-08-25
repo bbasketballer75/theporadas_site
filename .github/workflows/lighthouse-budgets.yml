@@ -14,42 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - name: Run Lighthouse budgets composite
+        uses: ./.github/actions/lighthouse-budgets
         with:
-          node-version: 20
-          cache: npm
-      - name: Install deps
-        run: npm ci
-      - name: Build + Preview + Lighthouse (with budgets)
-        run: |
-          npm run build
-          npx serve dist -l 4173 &
-          npx wait-on http://localhost:4173
-          npx lighthouse http://localhost:4173 --preset=desktop --budgets-path=lighthouse-budgets.json --output=json --output-path=lh-report.json --quiet
-      - name: Parse budgets & comment
-        run: node scripts/lh_budget_comment.mjs
-      - name: PR comment
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          recreate: true
-          path: lighthouse-summary.md
-      - name: Annotate budget overages
-        if: always()
-        run: |
-          if [ -f lighthouse-budget-overages.txt ] && [ -s lighthouse-budget-overages.txt ]; then
-            echo "Budget overages detected; emitting annotations";
-            while IFS= read -r line; do
-              echo "::error title=Lighthouse Budget Overages::${line}";
-            done < lighthouse-budget-overages.txt
-            exit 1
-          else
-            echo "No lighthouse budget overages.";
-          fi
-      - name: Upload report artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: lighthouse-report
-          path: lh-report.json
+          url: http://localhost:4173
+          budgetsPath: lighthouse-budgets.json

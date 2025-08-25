@@ -26,6 +26,11 @@ This project adheres to [Conventional Commits](https://www.conventionalcommits.o
 - Introduced Lighthouse budgets enforcement workflow (`lighthouse-budgets`) using `lighthouse-budgets.json`.
 - Added DevTools bundle size gate workflow (`bundle-size`) commenting size deltas.
 - Implemented Playwright visual regression workflow (`visual-regression`) with multi-browser snapshots.
+- Added restoration of baseline Playwright snapshots from latest `main` artifact for PR visual tests.
+- Introduced readable markdown bundle size table comment (replacing raw JSON) via `bundle_size_table.mjs`.
+- Added optional `verify:visual` script to run Playwright outside the core `verify` chain.
+- Refactored Lighthouse budgets workflow to use internal composite action
+  (`./.github/actions/lighthouse-budgets`) with annotations on budget overages.
 
 ---
 
