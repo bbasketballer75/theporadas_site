@@ -1,7 +1,7 @@
 {
   "name": "theporadas-site",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "scripts": {
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --cache --cache-location .eslintcache --max-warnings=0",
@@ -19,12 +19,15 @@
     "coverage:badge": "node scripts/generate_coverage_badge.mjs",
     "lighthouse": "node scripts/lighthouse.mjs",
     "validate:video": "node scripts/validate_video.mjs",
-    "lint:md": "markdownlint '**/*.md' -c .markdownlint.jsonc",
+    "lint:md": "markdownlint \"**/*.md\" --ignore lighthouse --ignore lighthouse/** -c .markdownlint.jsonc",
     "lh:build": "cd lighthouse && yarn build-devtools",
     "lh:build:full": "cd lighthouse && cross-env LH_DISABLE_ZLIB_SHIMS=1 yarn build-devtools",
     "lh:compare": "node scripts/compare_lighthouse_bundles.mjs",
     "lh:verify-bundles": "node scripts/compare_lighthouse_bundles.mjs",
     "verify": "npm run lint && npm run typecheck && npm run test",
+    "changelog:unreleased": "conventional-changelog -p angular -u -o CHANGELOG.md",
+    "changelog:release": "conventional-changelog -p angular -r 0 -o CHANGELOG.md && git add CHANGELOG.md",
+    "changelog:print": "conventional-changelog -p angular -r 0",
     "prepare": "husky install"
   },
   "devDependencies": {
@@ -43,6 +46,7 @@
     "@vitest/eslint-plugin": "^1.3.4",
     "axe-core": "^4.10.0",
     "chrome-launcher": "^1.1.0",
+    "conventional-changelog-cli": "^4.0.0",
     "cross-env": "^7.0.3",
     "eslint": "^9.9.0",
     "eslint-config-prettier": "^9.1.0",
