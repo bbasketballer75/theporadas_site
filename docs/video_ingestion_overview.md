@@ -1,6 +1,7 @@
 # Video Ingestion Overview (Phase 1.5)
 
-This document expands on the Phase 1.5 plan: introducing real wedding video assets while preserving established accessibility and performance baselines.
+This document expands on the Phase 1.5 plan: introducing real wedding video assets while
+preserving established accessibility and performance baselines.
 
 ## Objectives
 
@@ -42,10 +43,12 @@ Executed inside `VideoPlayer` when `qualitySources` provided:
    - else 480
 3. If `navigator.connection.saveData` is `true`, clamp target to ≤480.
 4. Filter to sources with `height <= target` (fallback to smallest if none).
-5. If `navigator.connection.downlink` present, compute Mbps budget: `downlink * (saveData ? 0.6 : 0.85)` and drop candidates whose `bitrateKbps/1000` exceeds budget.
+5. If `navigator.connection.downlink` present, compute Mbps budget: `downlink * (saveData ? 0.6 :
+0.85)` and drop candidates whose `bitrateKbps/1000` exceeds budget.
 6. Choose highest remaining resolution; render as a single `<video src>` (no multiple `<source>` tags) to avoid redundant network negotiation.
 
-Future enhancements may incorporate dynamic switching / `effectiveType`, but static selection keeps implementation lean while meeting performance goals.
+Future enhancements may incorporate dynamic switching / `effectiveType`, but static selection keeps
+implementation lean while meeting performance goals.
 
 ## Accessibility Guarantees
 

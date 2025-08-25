@@ -10,6 +10,11 @@ This project adheres to [Conventional Commits](https://www.conventionalcommits.o
 
 - Re-enabled markdown line-length rule (MD013) with relaxed 140-char limit; added `.markdownlintignore` to exclude vendored & build artifacts.
 - Enforced explicit Vitest coverage thresholds (branches/statements/lines/functions ≥85%) and documented in `CONTRIBUTING.md`.
+- Wrapped long documentation lines to satisfy MD013 (general docs) and introduced per-path
+  override (`docs/video/.markdownlint.jsonc`) with extended limit (200) for video-specific
+  tables and command snippets.
+- Added coverage badge aggregation (matrix) and commit step in `ci-test` workflow; planning
+  dedicated badge workflow if separation becomes beneficial.
 
 ---
 
