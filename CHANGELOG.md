@@ -6,7 +6,10 @@ This project adheres to [Conventional Commits](https://www.conventionalcommits.o
 
 ## [Unreleased]
 
-_No unreleased changes yet._
+### Changed (Unreleased)
+
+- Re-enabled markdown line-length rule (MD013) with relaxed 140-char limit; added `.markdownlintignore` to exclude vendored & build artifacts.
+- Enforced explicit Vitest coverage thresholds (branches/statements/lines/functions ≥85%) and documented in `CONTRIBUTING.md`.
 
 ---
 

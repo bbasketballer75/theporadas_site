@@ -1,3 +1,8 @@
+lighthouse/
+coverage/
+node_modules/
+dist/
+build/
 node_modules
 lighthouse/node_modules
 coverage
