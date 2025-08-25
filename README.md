@@ -1,16 +1,136 @@
-﻿# Project Setup and Tooling
+﻿# theporadas.com — Post‑Wedding Narrative & Video Site
 
-![CI](https://github.com/bbasketballer75/theporadas_site/actions/workflows/ci-lint.yml/badge.svg)
+Post‑wedding narrative & video experience. Primary hero video followed by curated
+story sections in enforced order: Story → Rings → Wedding Party → additional
+informational sections. Lightweight markdown-driven content pipeline + hash-based
+in‑page navigation (no heavyweight SPA router) chosen for simplicity,
+accessibility, and minimal bundle growth. Performance and governance are enforced
+through custom token growth heuristic, Lighthouse budgets, bundle size
+comparisons, and coverage diff gating.
+
+## Project Setup and Tooling
+
+![CI Lint](https://github.com/bbasketballer75/theporadas_site/actions/workflows/ci-lint.yml/badge.svg)
 ![TypeScript](https://github.com/bbasketballer75/theporadas_site/actions/workflows/ci-typecheck.yml/badge.svg)
-![Coverage Workflow](https://github.com/bbasketballer75/theporadas_site/actions/workflows/coverage-badge.yml/badge.svg)
+![Tests](https://github.com/bbasketballer75/theporadas_site/actions/workflows/ci-test.yml/badge.svg)
+![Coverage Badge Job](https://github.com/bbasketballer75/theporadas_site/actions/workflows/coverage-badge.yml/badge.svg)
 ![Coverage](./.github/badges/coverage.svg)
+![Coverage Diff](https://github.com/bbasketballer75/theporadas_site/actions/workflows/coverage-diff.yml/badge.svg)
+![Lighthouse Budgets](https://github.com/bbasketballer75/theporadas_site/actions/workflows/lighthouse-budgets.yml/badge.svg)
+![Bundle Size](https://github.com/bbasketballer75/theporadas_site/actions/workflows/bundle-size.yml/badge.svg)
 
 > If the local badge has not yet been generated (first clone or before CI runs),
 > view the latest workflow artifacts in **Actions → CI - Tests**.
 > Optionally use a placeholder badge until the generated file exists:
 > `![Coverage (placeholder)](https://img.shields.io/badge/coverage-pending-lightgrey)`.
 
-Idempotent setup scripts + VS Code tasks prevent accidental global reinstalls and tool drift.
+Idempotent setup scripts + VS Code tasks prevent accidental global reinstalls and
+tool drift.
+
+## Content Model & Loader
+
+Markdown files in `content/` define site sections via simple frontmatter +
+limited markdown subset (only `##` headings and paragraphs). This constraint
+keeps rendering deterministic and safe without a large markdown parser
+dependency.
+
+Frontmatter example:
+
+```md
+---
+slug: story
+title: Our Story
+order: 10
+hero: true
+---
+
+## How We Met
+
+It started with...
+```
+
+Fields:
+
+- `slug` (unique id, required)
+- `title` (required)
+- `order` (numeric ordering after core enforced trio: story, rings, wedding-party)
+- `hero` (boolean, optional, only one section should set true)
+
+Loader (`src/content/loader.ts`) pipeline:
+
+1. `import.meta.glob` eager raw import of all `content/*.md`.
+2. Regex splits frontmatter, parses `key: value` lines (no nested objects).
+3. Escapes HTML and converts allowed markdown patterns (`##` → `<h2>` with injected id, blank-line paragraph grouping).
+4. Caches parsed array for subsequent calls.
+5. Enforces ordering: predefined required order for the first three narrative sections, then ascending numeric `order`.
+
+APIs:
+
+- `getAllContent()` → full ordered list
+- `getContentBySlug(slug)`
+- `getNonHeroSections()`
+
+Adding a section:
+
+1. Create `content/<slug>.md` with frontmatter.
+2. Choose an `order` not colliding (tests will flag structural regressions).
+3. Run `npm test` to confirm ordering + accessibility expectations.
+4. If large text increases token counts, include rationale in PR Performance section.
+
+## Hash Navigation & Accessibility
+
+Navigation uses plain hash anchors (e.g. `#story`). The `useHashNavigation`
+hook:
+
+1. Detects initial hash and later `hashchange` events.
+2. Queries the element, adds temporary `tabIndex="-1"` if needed.
+3. Focuses and smooth-scrolls (unless reduced motion preference / toggle).
+4. Removes temporary tabindex.
+
+Sections render with `role="region"` and `aria-labelledby` referencing their
+injected heading ID, improving assistive tech landmark navigation and
+contextual announcements.
+
+Skip link targets the main container and programmatically sets focus for
+consistent keyboard user experience.
+
+Reduced motion preference is applied globally via `data-motion` attribute to
+suppress non-essential animation and smooth scrolling where appropriate.
+
+## Performance Token Heuristic
+
+Workflow `pr-validate.yml` marks perf-affecting changes when files in `src/`,
+Lighthouse configs, or bundle scripts change. On such PRs it:
+
+- Counts alphanumeric tokens pre vs post for changed JS/TS files.
+- Outputs `total_added`, `total_removed`, `net_delta`.
+- Warns if `net_delta > MAX_NET_TOKEN_DELTA` (default 800).
+- Fails if `total_added > MAX_ABS_TOKEN_ADDED` (default 1600).
+- Requires `## Performance / Lighthouse` section in PR body (error if omitted).
+- Posts sticky summary comment with token delta metrics.
+
+Environment overrides: `MAX_NET_TOKEN_DELTA`, `MAX_ABS_TOKEN_ADDED`.
+
+Rationale: Cheap static signal to spotlight bundle risk early before deeper
+Lighthouse / bundle-size workflows run.
+
+## Coverage Diff Environment Variables
+
+`scripts/coverage_diff.mjs` compares current coverage versus base (default
+`origin/main`). Adjustable percentages (allowed drop magnitudes):
+
+- `MAX_STATEMENT_DROP` (default 0.5)
+- `MAX_BRANCH_DROP` (default 1.0)
+- `MAX_FUNCTION_DROP` (default 0.5)
+- `MAX_LINE_DROP` (default 0.5)
+- `PER_FILE_WARN_DROP` (default 2.0) – warn icon when file statement % drops
+  beyond this
+- `PER_FILE_FAIL_DROP` (default 9999) – set lower to enforce hard per-file
+  guard
+
+Artifacts: `coverage-diff.md` (markdown) and `coverage-diff.json` (machine
+readable). Exit codes: 2 for totals regression, 3 for per-file exceeding fail
+threshold.
 
 ## Project Blueprint (Source of Truth)
 
@@ -228,11 +348,21 @@ Tests shim `IntersectionObserver` for synchronous render (see `vitest.setup.ts`)
 
 ## Accessibility & Performance Foundations
 
-- Skip link in `index.html` → `#appShell`
-- Reduced Motion toggle updates `data-motion`
-- Automated accessibility test (`axe-core`) in `test/accessibility.test.tsx`
-- Performance budgets (`lighthouserc.json`): LCP < 2000ms, CLS < 0.02, TBT < 200ms, script gz < 90KB, stylesheet < 12KB, hero image < 180KB
-- Lighthouse CI GitHub Action enforces budgets
+- Skip link: First interactive element in `index.html`
+  (`<a class="skip-link" href="#appShell">`). It is visually hidden
+  (off‑canvas via `transform`) until focused; on focus it slides into view
+  with a high‑contrast background per WCAG 2.4.1 (Bypass Blocks) best
+  practice. Styles live in `designSystem.css`.
+- Focus management: Helper (`src/skipLinkFocus.ts`) listens for `hashchange`
+  and skip‑link clicks to programmatically focus `#appShell` (role="main",
+  `tabIndex="-1"`) ensuring keyboard / assistive tech users land inside the
+  main region even in browsers that only scroll without moving focus.
+- Reduced Motion toggle updates `data-motion` on `<html>` and is respected by components & scroll snapping (disabled under reduce preference).
+- Automated accessibility test (`axe-core`) in
+  `test/accessibility.test.tsx` validates zero violations and includes a
+  skip‑link focus visibility assertion.
+- Performance budgets (`lighthouserc.json`): LCP < 2000ms, CLS < 0.02, TBT < 200ms, script gz < 90KB, stylesheet < 12KB, hero image < 180KB.
+- Lighthouse CI GitHub Action enforces budgets on PRs.
 
 ---
 
@@ -351,6 +481,11 @@ Badge generation:
 npm run coverage         # produces ./coverage/* including coverage-summary.json
 npm run coverage:badge   # reads summary -> .github/badges/coverage.svg
 ```
+
+Accessibility: Upstream Istanbul occasionally emits empty header cells for
+auxiliary metric columns. Post-generation script `scripts/fix_coverage_a11y.mjs`
+automatically ensures every `<th>` has descriptive text (axe `empty-table-header`
+rule). This runs as part of `npm run coverage` (no manual action required).
 
 Commit the updated badge if numbers change meaningfully. For PRs, ensure new
 logic is accompanied by targeted tests (avoid accidental uncovered branches).
