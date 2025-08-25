@@ -19,6 +19,9 @@ This project adheres to [Conventional Commits](https://www.conventionalcommits.o
   core `ci-test` workflow.
 - Enhanced markdown lint script to apply nested config for `docs/video` directory (separate
   invocation with dedicated config).
+- Added coverage-badge workflow status badge to `README.md` alongside local SVG badge.
+- Added workflow concurrency (cancel in-progress) for coverage badge runs.
+- Added caching of Vitest and Vite build artifacts in coverage badge workflow to speed runs.
 
 ---
 

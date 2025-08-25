@@ -2,6 +2,7 @@
 
 ![CI](https://github.com/bbasketballer75/theporadas_site/actions/workflows/ci-lint.yml/badge.svg)
 ![TypeScript](https://github.com/bbasketballer75/theporadas_site/actions/workflows/ci-typecheck.yml/badge.svg)
+![Coverage Workflow](https://github.com/bbasketballer75/theporadas_site/actions/workflows/coverage-badge.yml/badge.svg)
 ![Coverage](./.github/badges/coverage.svg)
 
 > If the local badge has not yet been generated (first clone or before CI runs),
@@ -87,6 +88,9 @@ npm run format
 npm run coverage
 npm run lighthouse      # Local desktop Lighthouse run
 npm run validate:video  # ffprobe validation
+changelog:unreleased    # regenerate unreleased section in CHANGELOG.md
+changelog:release       # finalize changelog for current version (run at tag)
+changelog:print         # print full conventional log to stdout
 ```
 
 ---
@@ -289,6 +293,122 @@ Adjustments:
   ENABLED)
 
 Result: build succeeds with only benign `import.meta` IIFE warnings.
+
+---
+
+## Release & Changelog Workflow
+
+Changelog automation uses Conventional Commits parsing (Angular preset).
+
+Typical flow:
+
+```powershell
+# 1. Ensure working tree clean and on main
+git switch main
+git pull --ff-only
+
+# 2. Update unreleased notes (rewrites CHANGELOG.md in-place)
+npm run changelog:unreleased
+
+# 3. Review / optionally edit prose (keep style consistent)
+
+# 4. Bump version in package.json if needed (patch/minor)
+vim package.json  # or editor UI
+
+# 5. Commit changelog + version bump
+git add CHANGELOG.md package.json
+git commit -m "chore(release): v0.1.1"
+
+# 6. Create annotated tag (triggers release workflow)
+git tag -a v0.1.1 -m "v0.1.1"
+git push origin main --follow-tags
+git push origin v0.1.1
+```
+
+GitHub Action `.github/workflows/release.yml` runs on tag push:
+
+- Re-runs `changelog:release` to ensure final section formatting
+- Generates GitHub Release notes
+- Publishes the release
+
+If the workflow updates `CHANGELOG.md` (e.g., slight formatting), it commits back to main.
+
+### Unreleased Section Hygiene
+
+Run `npm run changelog:unreleased` frequently to avoid large diffs. Squash commits are acceptable if their message retains the conventional prefix.
+
+---
+
+## Coverage Targets & Badge
+
+Branch coverage target: ≥85% (current >86%). CI enforces no regression by
+failing if below threshold (enforced in test assertions; future can add
+Vitest threshold config when desired).
+
+Badge generation:
+
+```powershell
+npm run coverage         # produces ./coverage/* including coverage-summary.json
+npm run coverage:badge   # reads summary -> .github/badges/coverage.svg
+```
+
+Commit the updated badge if numbers change meaningfully. For PRs, ensure new
+logic is accompanied by targeted tests (avoid accidental uncovered branches).
+Prefer focused tests over broad snapshotting.
+
+---
+
+## Lighthouse Sync Script
+
+Script: `scripts/sync_lighthouse.mjs`
+
+Purpose: Refresh selected upstream Lighthouse directories while preserving local patches (Windows build shims, custom reset-link script, etc.).
+
+Usage examples:
+
+```powershell
+# Dry run against latest release tag
+node scripts/sync_lighthouse.mjs --dry-run
+
+# Sync a specific tag preserving local build script and docs
+node scripts/sync_lighthouse.mjs --ref v12.3.0 --preserve build/reset-link.js --preserve 'docs/**'
+
+# Sync a branch (e.g., main) actually writing files
+node scripts/sync_lighthouse.mjs --ref main
+```
+
+Flags:
+
+- `--ref <git-ref>`: tag / commit / branch. Special value `latest` (default)
+  resolves latest release tag via remote refs.
+- `--dry-run`: lists copy plan, no writes.
+- `--preserve <glob>`: minimatch pattern relative to `lighthouse/` to skip.
+  Repeatable.
+
+Writes `lighthouse/SYNC_METADATA.json` with `{ref,date}` on real sync.
+
+Preconditions: git available, clean working tree (warns if dirty), outbound network permitted.
+
+Review the diff after syncing and re-apply any required patch adjustments (especially around zlib shim gating) before committing.
+
+---
+
+## Reset-Link Script Fallback
+
+`lighthouse/build/reset-link.js` now detects yarn. If absent and environment
+variable `USE_NPM_LINK` is set (non-empty), it falls back to `npm link`
+semantics. Use when contributors lack yarn globally.
+
+Example:
+
+```powershell
+SET USE_NPM_LINK=1
+node lighthouse/build/reset-link.js
+```
+
+Logs are prefixed with `[reset-link]` and clearly show which package manager path was taken.
+
+---
 
 ---
 
