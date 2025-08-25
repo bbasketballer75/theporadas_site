@@ -2,11 +2,11 @@
 import js from '@eslint/js';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
+import vitestPlugin from '@vitest/eslint-plugin';
 import importPlugin from 'eslint-plugin-import';
 import prettier from 'eslint-plugin-prettier';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
-import vitestPlugin from 'eslint-plugin-vitest';
 import globals from 'globals';
 
 export default [
@@ -20,6 +20,7 @@ export default [
       '**/dist/**',
       '**/build/**',
       'coverage/**',
+      'lighthouse/**',
       '**/.vscode/**',
       '**/scripts/**',
     ],
