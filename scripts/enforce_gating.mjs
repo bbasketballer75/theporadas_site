@@ -63,9 +63,21 @@ const METRIC_DELTA_ENV = {
   tbt: 'GATE_LH_METRIC_MAX_TBT_DELTA_MS',
   inp: 'GATE_LH_METRIC_MAX_INP_DELTA_MS',
 };
+// Bundle delta environment variables (KB). Support gzip/raw & warn/fail tiers.
 const BUNDLE_LIMIT_VARS = {
-  total: 'GATE_BUNDLE_MAX_TOTAL_DELTA_KB',
-  file: 'GATE_BUNDLE_MAX_FILE_DELTA_KB',
+  // Hard fail (preferred specific forms)
+  maxTotalGzip: 'GATE_BUNDLE_MAX_TOTAL_GZIP_DELTA_KB',
+  maxFileGzip: 'GATE_BUNDLE_MAX_FILE_GZIP_DELTA_KB',
+  maxTotalRaw: 'GATE_BUNDLE_MAX_TOTAL_RAW_DELTA_KB',
+  maxFileRaw: 'GATE_BUNDLE_MAX_FILE_RAW_DELTA_KB',
+  // Warn-only
+  warnTotalGzip: 'GATE_BUNDLE_WARN_TOTAL_GZIP_DELTA_KB',
+  warnFileGzip: 'GATE_BUNDLE_WARN_FILE_GZIP_DELTA_KB',
+  warnTotalRaw: 'GATE_BUNDLE_WARN_TOTAL_RAW_DELTA_KB',
+  warnFileRaw: 'GATE_BUNDLE_WARN_FILE_RAW_DELTA_KB',
+  // Legacy (gzip hard fail fallback)
+  legacyTotal: 'GATE_BUNDLE_MAX_TOTAL_DELTA_KB',
+  legacyFile: 'GATE_BUNDLE_MAX_FILE_DELTA_KB',
 };
 
 async function loadCoverageSummary() {
@@ -306,43 +318,75 @@ function formatKb(bytes) {
   return (bytes / 1024).toFixed(2) + 'KB';
 }
 
-function checkBundleSizes(prev, curr) {
+function bundleDeltaMessages(prev, curr) {
   if (!curr) return [{ level: 'warn', message: 'No bundle size artifact; skipping bundle gate.' }];
   if (!prev)
     return [{ level: 'warn', message: 'Previous bundle sizes missing; skipping delta gate.' }];
-  const totalLimit = process.env[BUNDLE_LIMIT_VARS.total]
-    ? +process.env[BUNDLE_LIMIT_VARS.total]
-    : null;
-  const fileLimit = process.env[BUNDLE_LIMIT_VARS.file]
-    ? +process.env[BUNDLE_LIMIT_VARS.file]
-    : null;
-  if (!totalLimit && !fileLimit)
+
+  const get = (v) => (process.env[v] ? +process.env[v] : null);
+  // Hard limits
+  let maxTotalGzip = get(BUNDLE_LIMIT_VARS.maxTotalGzip) || get(BUNDLE_LIMIT_VARS.legacyTotal);
+  let maxFileGzip = get(BUNDLE_LIMIT_VARS.maxFileGzip) || get(BUNDLE_LIMIT_VARS.legacyFile);
+  const maxTotalRaw = get(BUNDLE_LIMIT_VARS.maxTotalRaw);
+  const maxFileRaw = get(BUNDLE_LIMIT_VARS.maxFileRaw);
+  // Warn limits
+  const warnTotalGzip = get(BUNDLE_LIMIT_VARS.warnTotalGzip);
+  const warnFileGzip = get(BUNDLE_LIMIT_VARS.warnFileGzip);
+  const warnTotalRaw = get(BUNDLE_LIMIT_VARS.warnTotalRaw);
+  const warnFileRaw = get(BUNDLE_LIMIT_VARS.warnFileRaw);
+
+  if (
+    !maxTotalGzip &&
+    !maxFileGzip &&
+    !maxTotalRaw &&
+    !maxFileRaw &&
+    !warnTotalGzip &&
+    !warnFileGzip &&
+    !warnTotalRaw &&
+    !warnFileRaw
+  )
     return [{ level: 'warn', message: 'No bundle size limits set; reporting only.' }];
+
   const issues = [];
-  const prevGzip = prev.total?.gzip || 0;
-  const currGzip = curr.total?.gzip || 0;
-  const totalDeltaKb = (currGzip - prevGzip) / 1024;
-  if (totalLimit && totalDeltaKb > totalLimit + 1e-6) {
-    issues.push({
-      level: 'error',
-      message: `Total gzip size increased ${totalDeltaKb.toFixed(2)}KB > limit ${totalLimit}KB`,
-    });
-  }
-  if (fileLimit) {
-    const prevFiles = Object.fromEntries((prev.files || []).map((f) => [f.path, f]));
-    for (const f of curr.files || []) {
-      const prevF = prevFiles[f.path];
-      if (!prevF) continue;
-      const deltaKb = ((f.gzip || 0) - (prevF.gzip || 0)) / 1024;
-      if (deltaKb > fileLimit + 1e-6) {
-        issues.push({
-          level: 'error',
-          message: `File ${f.path} gzip +${deltaKb.toFixed(2)}KB > limit ${fileLimit}KB`,
-        });
-      }
+  const prevTotals = prev.total || {};
+  const currTotals = curr.total || {};
+  const delta = (field) => (currTotals[field] || 0) - (prevTotals[field] || 0);
+  const deltaGzipKb = delta('gzip') / 1024;
+  const deltaRawKb = delta('raw') / 1024;
+
+  function evalThreshold(kind, value, warnLimit, failLimit) {
+    if (failLimit != null && value > failLimit + 1e-6) {
+      issues.push({ level: 'error', message: `${kind} +${value.toFixed(2)}KB > fail ${failLimit}KB` });
+    } else if (warnLimit != null && value > warnLimit + 1e-6) {
+      issues.push({ level: 'warn', message: `${kind} +${value.toFixed(2)}KB > warn ${warnLimit}KB` });
     }
   }
-  return issues.length ? issues : [{ level: 'ok', message: 'Bundle size deltas within limits.' }];
+
+  evalThreshold('Total gzip delta', deltaGzipKb, warnTotalGzip, maxTotalGzip);
+  evalThreshold('Total raw delta', deltaRawKb, warnTotalRaw, maxTotalRaw);
+
+  const prevFiles = Object.fromEntries((prev.files || []).map((f) => [f.path, f]));
+  for (const f of curr.files || []) {
+    const pf = prevFiles[f.path];
+    if (!pf) continue;
+    const dGzipKb = ((f.gzip || 0) - (pf.gzip || 0)) / 1024;
+    const dRawKb = ((f.raw || 0) - (pf.raw || 0)) / 1024;
+    // Per-file thresholds
+    const fileFailGzip = maxFileGzip;
+    const fileWarnGzip = warnFileGzip;
+    const fileFailRaw = maxFileRaw;
+    const fileWarnRaw = warnFileRaw;
+    if (fileFailGzip != null || fileWarnGzip != null) {
+      evalThreshold(`File gzip delta (${f.path})`, dGzipKb, fileWarnGzip, fileFailGzip);
+    }
+    if (fileFailRaw != null || fileWarnRaw != null) {
+      evalThreshold(`File raw delta (${f.path})`, dRawKb, fileWarnRaw, fileFailRaw);
+    }
+  }
+
+  return issues.length
+    ? issues
+    : [{ level: 'ok', message: 'Bundle size deltas within limits (or no deltas exceeded thresholds).' }];
 }
 
 (async function run() {
@@ -359,7 +403,7 @@ function checkBundleSizes(prev, curr) {
   const tokenResults = checkTokenGrowth(tokenDeltas);
   const prevBundle = await loadBundleSizes(true);
   const currBundle = await loadBundleSizes(false);
-  const bundleResults = checkBundleSizes(prevBundle, currBundle);
+  const bundleResults = bundleDeltaMessages(prevBundle, currBundle);
 
   const all = [
     ...coverageResults,
