@@ -1,4 +1,4 @@
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { render, fireEvent, waitFor, act } from '@testing-library/react';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -207,18 +207,35 @@ describe('VideoPlayer chapters & timestamps', () => {
     expect(lastTime?.chapterIndex).toBe(1);
   });
 
-  it('chapter button click seeks and emits seeking event', () => {
+  it('chapter button click seeks and emits seeking event', async () => {
     const events: VideoPlayerEventPayload[] = [];
     const onEvent = (p: VideoPlayerEventPayload) => events.push(p);
     const { container } = render(
       <VideoPlayer src="video.mp4" chapters={chapters} onEvent={onEvent} />,
     );
     const video = container.querySelector('video') as HTMLVideoElement;
-    Object.defineProperty(video, 'duration', { value: 300, configurable: true });
-    dispatch(video, 'loadedmetadata');
+    await act(async () => {
+      Object.defineProperty(video, 'duration', { value: 300, configurable: true });
+      dispatch(video, 'loadedmetadata');
+    });
     const buttons = container.querySelectorAll('nav[aria-label="Chapters"] button');
-    fireEvent.click(buttons[2]);
+    await act(async () => {
+      fireEvent.click(buttons[2]);
+    });
     expect(events.find((e) => e.name === 'seeking')).toBeTruthy();
     expect((video as unknown as { currentTime: number }).currentTime).toBe(130);
+  });
+
+  it('warns when using deprecated srclang prop in non-production mode', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const tracks = [
+      { kind: 'subtitles', src: 'subs.vtt', srclang: 'en', label: 'English', default: true },
+    ];
+    render(<VideoPlayer src="video.mp4" tracks={tracks as unknown as VideoTrackDef[]} />);
+    // Trigger effect: add a dummy metadata event so track mapping already executed; mapping happens on initial render
+    expect(warnSpy).toHaveBeenCalledWith(
+      "[VideoPlayer] 'srclang' prop is deprecated; use 'srcLang' instead.",
+    );
+    warnSpy.mockRestore();
   });
 });
