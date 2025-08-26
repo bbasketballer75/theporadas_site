@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -6,6 +6,7 @@ import {
   VideoPlayer,
   QualitySource,
   VideoTrackDef,
+  VideoPlayerEventPayload,
 } from '../src/components/VideoPlayer/VideoPlayer';
 
 // Minimal typing for the NetworkInformation subset we need.
@@ -153,5 +154,71 @@ describe('VideoPlayer quality heuristics', () => {
     render(<VideoPlayer qualitySources={qs} />);
     const chosen = document.querySelector('video')?.getAttribute('src') || '';
     expect(chosen).toContain('giant');
+  });
+});
+
+// Chapter & timestamp behavior coverage
+describe('VideoPlayer chapters & timestamps', () => {
+  const chapters = [
+    { start: 0, title: 'Intro' },
+    { start: 65, title: 'Middle' },
+    { start: 130, title: 'End' },
+  ];
+
+  function dispatch(el: HTMLVideoElement, name: string) {
+    el.dispatchEvent(new Event(name));
+  }
+
+  it('renders no chapter timestamps before metadata, then shows and updates chapter index', async () => {
+    const events: VideoPlayerEventPayload[] = [];
+    const onEvent = (p: VideoPlayerEventPayload) => events.push(p);
+    const { container } = render(
+      <VideoPlayer src="video.mp4" chapters={chapters} onEvent={onEvent} />,
+    );
+    const video = container.querySelector('video') as HTMLVideoElement;
+    expect(container.querySelectorAll('nav[aria-label="Chapters"] span').length).toBe(0);
+    Object.defineProperty(video, 'duration', {
+      configurable: true,
+      get: () => 300,
+    });
+    fireEvent(video, new Event('loadedmetadata'));
+    await waitFor(() => {
+      const spans = container.querySelectorAll('nav[aria-label="Chapters"] span');
+      expect(spans.length).toBe(chapters.length);
+      expect(spans[1].textContent).toBe('01:05');
+    });
+    let ct = 0;
+    Object.defineProperty(video, 'currentTime', {
+      configurable: true,
+      get: () => ct,
+      set: (v) => {
+        ct = v;
+      },
+    });
+    video.currentTime = 70;
+    fireEvent(video, new Event('timeupdate'));
+    await waitFor(() => {
+      const buttons = container.querySelectorAll('nav[aria-label="Chapters"] button');
+      expect(buttons[1].getAttribute('aria-current')).toBe('true');
+    });
+    // Fire a second timeupdate so the listener bound after re-render emits with updated chapterIndex
+    fireEvent(video, new Event('timeupdate'));
+    const lastTime = events.filter((e) => e.name === 'timeupdate').pop();
+    expect(lastTime?.chapterIndex).toBe(1);
+  });
+
+  it('chapter button click seeks and emits seeking event', () => {
+    const events: VideoPlayerEventPayload[] = [];
+    const onEvent = (p: VideoPlayerEventPayload) => events.push(p);
+    const { container } = render(
+      <VideoPlayer src="video.mp4" chapters={chapters} onEvent={onEvent} />,
+    );
+    const video = container.querySelector('video') as HTMLVideoElement;
+    Object.defineProperty(video, 'duration', { value: 300, configurable: true });
+    dispatch(video, 'loadedmetadata');
+    const buttons = container.querySelectorAll('nav[aria-label="Chapters"] button');
+    fireEvent.click(buttons[2]);
+    expect(events.find((e) => e.name === 'seeking')).toBeTruthy();
+    expect((video as unknown as { currentTime: number }).currentTime).toBe(130);
   });
 });
