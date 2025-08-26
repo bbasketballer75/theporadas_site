@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Minimal placeholder MCP-style server for Mem0 (stub)
 // Real implementation would use the Mem0 SDK when available.
+import './load_env.mjs';
 
 import { out, fail } from './mcp_util.mjs';
 
