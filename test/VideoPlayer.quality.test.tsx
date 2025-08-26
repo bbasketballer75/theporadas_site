@@ -89,4 +89,69 @@ describe('VideoPlayer quality heuristics', () => {
     expect(warn).toHaveBeenCalled();
     warn.mockRestore();
   });
+
+  it('retains candidates when all exceed bitrate budget (empty filter result)', () => {
+    // downlink very small so budget ~0.85 * 0.5 = 0.425 Mbps; all bitrates above
+    setupConnection({ downlink: 0.5 });
+    const qs: QualitySource[] = [
+      { src: 'low.mp4', height: 144, bitrateKbps: 600 },
+      { src: 'med.mp4', height: 360, bitrateKbps: 800 },
+    ];
+    render(<VideoPlayer qualitySources={qs} />);
+    const chosen = document.querySelector('video')?.getAttribute('src') || '';
+    // Should pick highest height (360) despite over-budget bitrates.
+    expect(chosen).toContain('med');
+  });
+
+  it('preferHighestQuality ignores saveData and slow downlink', () => {
+    setupConnection({ saveData: true, downlink: 0.3 });
+    const qs: QualitySource[] = [
+      { src: 'hi.mp4', height: 1080, bitrateKbps: 8000 },
+      { src: 'mid.mp4', height: 720, bitrateKbps: 2500 },
+    ];
+    render(<VideoPlayer qualitySources={qs} preferHighestQuality />);
+    const chosen = document.querySelector('video')?.getAttribute('src') || '';
+    expect(chosen).toContain('hi');
+  });
+
+  it('does not warn in production mode when srclang present', () => {
+    (globalThis as unknown as { __VIDEOPLAYER_MODE__?: string }).__VIDEOPLAYER_MODE__ =
+      'production';
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const tracks: VideoTrackDef[] = [
+      { kind: 'subtitles', src: 'subs.vtt', srclang: 'en', label: 'English' },
+    ];
+    render(<VideoPlayer src="only.mp4" tracks={tracks} />);
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+    delete (globalThis as unknown as { __VIDEOPLAYER_MODE__?: string }).__VIDEOPLAYER_MODE__;
+  });
+
+  it('renders multiple <source> elements when given sources array (no qualitySources)', () => {
+    const sources: QualitySource[] = [
+      { src: 'a.mp4', height: 480 },
+      { src: 'b.webm', height: 480, type: 'video/webm' },
+    ];
+    // Use the regular sources prop, not qualitySources, to trigger <source> rendering.
+    render(<VideoPlayer sources={sources.map((s) => ({ src: s.src, type: s.type }))} />);
+    const video = document.querySelector('video');
+    expect(video?.getAttribute('src')).toBeNull(); // using <source> children instead
+    const srcEls = document.querySelectorAll('source');
+    expect(srcEls.length).toBe(2);
+  });
+
+  it('renders placeholder when no src/sources/qualitySources provided', () => {
+    render(<VideoPlayer />);
+    expect(document.querySelector('video')).toBeNull();
+    const placeholder = document.querySelector('[aria-label="Sample (placeholder)"]');
+    expect(placeholder).not.toBeNull();
+  });
+
+  it('single oversized quality source still selected via fallback path', () => {
+    Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true }); // target 720
+    const qs: QualitySource[] = [{ src: 'giant.mp4', height: 4000, bitrateKbps: 12000 }];
+    render(<VideoPlayer qualitySources={qs} />);
+    const chosen = document.querySelector('video')?.getAttribute('src') || '';
+    expect(chosen).toContain('giant');
+  });
 });
