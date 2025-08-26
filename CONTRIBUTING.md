@@ -134,13 +134,13 @@ node scripts/sync_lighthouse.mjs --ref v12.3.0 --preserve build/reset-link.js
 Flags: `--ref <git-ref>` (default `latest`), `--dry-run`, repeatable
 `--preserve <glob>` (minimatch) to skip overwriting local patches.
 
-Post-sync checklist:
+Post-sync validation steps:
 
-- [ ] Review `git diff` for unintended deletions
-- [ ] Confirm `SYNC_METADATA.json` added/updated
-- [ ] Re-apply zlib shim gating if upstream changed build scripts
-- [ ] Run `npm run lh:build` (and optionally `lh:build:full`)
-- [ ] Run root verification `npm run verify`
+1. Review `git diff` for unintended deletions.
+2. Confirm `SYNC_METADATA.json` added/updated.
+3. Re-apply zlib shim gating if upstream changed build scripts.
+4. Run `npm run lh:build` (optionally `lh:build:full`).
+5. Run root verification `npm run verify`.
 
 ### Zlib Shim Gating Reference
 
@@ -267,3 +267,10 @@ If three or more items remain unchecked after first pass, pause and resolve
 them rather than relying on reviewers to flag them. Document conscious
 exceptions (with rationale) in the PR description under an `## Deviations`
 section so reviewers can acknowledge and proceed.
+
+> Note: Repository tooling excludes this file, the PR template, issue
+> templates, and `project_instructions.md` from automated TODO/checkbox
+> scanning (configured in `.vscode/settings.json`) to prevent process
+> checklists from surfacing as unresolved development TODOs. Do not convert
+> these procedural checklists to plain lists; they are intentionally
+> interactive.
