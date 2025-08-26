@@ -46,7 +46,8 @@ const videos: Record<string, VideoMeta> = {
     id: 'hero',
     title: 'Poradas Wedding Feature',
     caption: 'Poradas Wedding Feature',
-    poster: '/media/posters/hero.jpg', // TODO: supply actual poster asset
+    // Poster currently a placeholder frame; replace with final exported still when available.
+    poster: '/media/posters/hero.jpg',
     placeholderLabel: 'Loading hero video',
     quality: heroQuality,
     tracks: [

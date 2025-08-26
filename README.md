@@ -264,7 +264,83 @@ interface ChapterDef {
 }
 ```
 
+Reopen terminals afterwards.
+
 ### Sources & Quality Sources
+
+### Local SQL Server (Development Only)
+
+The project includes optional local SQL Server support for experimentation /
+future dynamic features.
+
+Docker service: `docker-compose.yml` defines an `mssql` container (Developer
+edition) exposed on host port `14333` (mapped to container `1433`). Data
+persists in the named volume `mssql_data`.
+
+Scripts:
+
+```powershell
+# Start / stop database
+npm run db:up      # docker compose up -d mssql
+npm run db:down    # docker compose down -v (removes volume)
+
+# Seed (idempotent) – creates minimal Guest table & sample rows if empty
+npm run db:seed
+```
+
+Environment:
+
+Set `SQLSERVER_CONNECTION_STRING` in your `.env` (or shell) before seeding /
+querying, e.g.:
+
+```bash
+SQLSERVER_CONNECTION_STRING=Server=localhost,14333;Database=theporadas;User Id=sa;Password=LocalStrong!Passw0rd;Encrypt=true;TrustServerCertificate=true
+```
+
+> The compose file sets only `MSSQL_SA_PASSWORD`. You still need to create the
+> target database (`theporadas` above) if it does not yet exist. Extend the seed
+> script to auto-create with:
+>
+> ```sql
+> IF DB_ID('theporadas') IS NULL CREATE DATABASE theporadas;
+> ```
+
+### Resilient Query Client
+
+`SqlRetryClient` (`src/db/retryClient.ts`) wraps `mssql` with transient error
+retry (exponential backoff + jitter). Transient codes covered include: 40613,
+40197, 40501, 4060, 49918, 49919, 49920, 11001 plus message heuristics for
+timeouts / deadlocks / connection issues.
+
+Usage example:
+
+```ts
+import { createClientFromEnv } from './src/db/retryClient.js';
+
+const client = createClientFromEnv();
+const guests = await client.query<{ Id: number; Name: string }>('SELECT Id, Name FROM Guest');
+await client.close();
+```
+
+Retry Defaults: max 5 attempts, base delay 250ms, factor 2, max delay 8s, full
+jitter (half-range distribution). Adjust by constructing:
+
+```ts
+new SqlRetryClient(config, { maxRetries: 3, baseDelayMs: 100 });
+```
+
+Seed Script: `scripts/db/seed.ts` uses the retry client and is safe to re-run (skips inserting sample rows if already present).
+
+Production Note: For Azure SQL serverless, keep `Encrypt=true` (default) and
+consider lowering `maxRetries` once cold start frequency is measured.
+Centralize connection string management in deployment secrets, not committed
+files.
+
+Security: Do not check real credentials into `.env.example`. Use strong `sa`
+password locally; rotate / disable default accounts in any non-dev
+environment.
+
+To remove all local SQL artifacts: run `npm run db:down` (this drops the volume) then delete any `.mdf` you created outside the container.
 
 ```ts
 interface VideoSource {
