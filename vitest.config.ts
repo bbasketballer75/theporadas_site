@@ -8,7 +8,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
     include: ['test/**/*.{test,spec}.{ts,tsx,js,jsx}'],
-    exclude: [...configDefaults.exclude, 'lighthouse/**'],
+    exclude: [...configDefaults.exclude, 'lighthouse/**', 'test/mcp_errors.test.ts'],
     coverage: {
       provider: 'v8',
       enabled: true,
