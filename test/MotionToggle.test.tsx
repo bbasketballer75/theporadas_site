@@ -1,6 +1,6 @@
 import { render, fireEvent } from '@testing-library/react';
 import React from 'react';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { MotionToggle } from '../src/components/MotionToggle';
 
@@ -8,7 +8,6 @@ describe('MotionToggle', () => {
   const originalMatchMedia = window.matchMedia;
 
   function setSystemPref(reduced: boolean) {
-    // @ts-expect-error override
     window.matchMedia = (query: string) => ({
       matches: reduced && query.includes('prefers-reduced-motion'),
       media: query,
@@ -45,5 +44,27 @@ describe('MotionToggle', () => {
     expect(btn).toHaveTextContent('Full');
     fireEvent.click(btn); // sets null (system again)
     expect(btn).toHaveTextContent('System');
+  });
+
+  it('sets data-motion attribute and tolerates localStorage errors', () => {
+    setSystemPref(false);
+    const setItem = vi.spyOn(window.localStorage.__proto__, 'setItem').mockImplementation(() => {
+      throw new Error('fail');
+    });
+    const removeItem = vi
+      .spyOn(window.localStorage.__proto__, 'removeItem')
+      .mockImplementation(() => {
+        throw new Error('fail');
+      });
+    const { getByRole } = render(<MotionToggle />);
+    const btn = getByRole('button');
+    fireEvent.click(btn); // reduce
+    expect(document.documentElement.dataset.motion).toBe('reduce');
+    fireEvent.click(btn); // no-preference
+    expect(document.documentElement.dataset.motion).toBe('no-preference');
+    fireEvent.click(btn); // system (null)
+    expect(document.documentElement.getAttribute('data-motion')).toBeNull();
+    setItem.mockRestore();
+    removeItem.mockRestore();
   });
 });

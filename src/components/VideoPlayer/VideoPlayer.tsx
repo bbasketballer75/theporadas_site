@@ -257,7 +257,12 @@ export function VideoPlayer(props: VideoPlayerProps) {
                 const meta = import.meta as unknown as {
                   env?: { MODE?: string };
                 };
-                const mode = meta.env?.MODE;
+                const overrideMode = (
+                  globalThis as unknown as {
+                    __VIDEOPLAYER_MODE__?: string;
+                  }
+                ).__VIDEOPLAYER_MODE__;
+                const mode = overrideMode || meta.env?.MODE;
                 if (mode !== 'production' && t.srclang) {
                   console.warn(
                     "[VideoPlayer] 'srclang' prop is deprecated; use 'srcLang' instead.",

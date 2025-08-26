@@ -3,6 +3,9 @@ name: coverage-axe-scan
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch: {}
 
 permissions:
