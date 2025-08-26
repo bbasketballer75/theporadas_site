@@ -23,6 +23,7 @@
     "**/CHANGELOG.md",
     "**/coverage/**",
     "**/CONTRIBUTING.md", // treat as process doc; actionable dev TODOs should live in code comments
-    "**/lighthouse/**" // vendored upstream; upstream TODOs tracked externally
+    "**/lighthouse/**", // vendored upstream; upstream TODOs tracked externally
+    "**/docs/accessibility_performance_plan.md" // plan tasks now tracked as GitHub issues #8-#15
   ]
 }

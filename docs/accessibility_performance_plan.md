@@ -130,14 +130,14 @@
 
 ## 19. Open Tasks to Operationalize Plan
 
-- [ ] Add Lighthouse CI workflow
-- [ ] Add axe accessibility test harness
-- [ ] Add bundle size budget check script
-- [ ] Create performance budget doc in README
-- [ ] Implement skip link & section focus management
-- [ ] Add reduced-motion preference toggle
-- [ ] Implement dynamic section prefetch hook
-- [ ] Add media pipeline scripts scaffolds
+1. Add Lighthouse CI workflow (issue #8)
+2. Add axe accessibility test harness (issue #9)
+3. Add bundle size budget check script (issue #10)
+4. Create performance budget doc in README (issue #11)
+5. Implement skip link & section focus management (issue #12)
+6. Add reduced-motion preference toggle (issue #13)
+7. Implement dynamic section prefetch hook (issue #14)
+8. Add media pipeline scripts scaffolds (issue #15)
 
 ---
 
