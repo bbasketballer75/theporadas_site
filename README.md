@@ -211,6 +211,8 @@ npm run validate:video  # ffprobe validation
 changelog:unreleased    # regenerate unreleased section in CHANGELOG.md
 changelog:release       # finalize changelog for current version (run at tag)
 changelog:print         # print full conventional log to stdout
+test:a11y:best          # Observational axe best-practice subset (writes JSON artifact)
+a11y:best:enforce       # Reads artifact; set A11Y_BEST_ENFORCE=1 to fail on thresholds
 ```
 
 ---
@@ -650,6 +652,69 @@ emit GitHub error annotations for rapid triage. Implementation lives in a
 reusable composite action at `./.github/actions/lighthouse-budgets`.
 
 Adjust budgets in `lighthouse-budgets.json` (sizes in KB, timings ms except CLS).
+
+### Lighthouse Snapshot & Diff (Schema v2)
+
+Two helper scripts manage lightweight Lighthouse state for PR review:
+
+| Script                      | Purpose                                                                          |
+| --------------------------- | -------------------------------------------------------------------------------- |
+| `scripts/lhci_snapshot.mjs` | Generate JSON snapshot of key category scores, selected audits, and core metrics |
+| `scripts/lhci_diff.mjs`     | Compare two snapshots; emit markdown with collapsible sections & schema notice   |
+
+Schema v2 shape:
+
+```jsonc
+{
+  "schemaVersion": 2,
+  "categories": { "performance": 0.97, "accessibility": 1, ... },
+  "audits": { "unused-css-rules": { "score": 0, "numericValue": 1234 }, ... },
+  "metrics": {
+    "LCP": { "numericValue": 2123, "score": 0.92 },
+    "FCP": { "numericValue": 812, "score": 0.99 },
+    "CLS": { "numericValue": 0.01, "score": 1 },
+    "TBT": { "numericValue": 55, "score": 1 },
+    "SI": { "numericValue": 1350, "score": 0.98 }
+  },
+  "meta": { /* run metadata (url, fetchTime, etc.) */ }
+}
+```
+
+Notes:
+
+- Metrics subset focuses on core UX indicators; not all Lighthouse metrics are persisted to keep snapshot diff concise.
+- `audits` currently retains selective failing / non-perfect audits (scope may narrow later to reduce churn).
+- Adding new fields triggers a schema bump; diff output prints a banner
+  when versions differ but remains backward tolerant (only a notice, no
+  failure).
+
+Diff Markdown Structure (example headings):
+
+```md
+### Lighthouse Assertions Diff
+
+⚠️ Schema changed (1 → 2): new metrics section added
+
+<details open><summary><strong>Category Score Changes</strong></summary>
+...table...
+</details>
+<details open><summary><strong>Key Metrics</strong></summary>
+...table with numeric & score deltas + emojis...
+</details>
+<details><summary><strong>Changed / Added / Removed Audits</strong></summary>
+...lists...
+</details>
+```
+
+Emoji semantics:
+
+| Symbol | Meaning                                                |
+| ------ | ------------------------------------------------------ |
+| ⬆️     | Improvement (positive delta good or lower time metric) |
+| ⬇️     | Regression                                             |
+| ➖     | No material change                                     |
+
+Future roadmap (tracked in decision log): threshold-based failure on metric regressions, multi-run variance smoothing, historical sparklines.
 
 ---
 
