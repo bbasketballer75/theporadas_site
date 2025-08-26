@@ -7,6 +7,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: read
 
 jobs:
   enable-auto-merge:
@@ -19,6 +20,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          submodules: false
       - name: Diagnostic env dump (sanitized)
         if: ${{ always() }}
         run: |
@@ -44,6 +46,7 @@ jobs:
         run: node scripts/compute_bundle_sizes.mjs || echo 'bundle size script failed'
       - name: Download previous coverage (if available)
         if: ${{ always() }}
+        continue-on-error: true
         uses: dawidd6/action-download-artifact@v3
         with:
           name: prev-coverage-summary
@@ -51,6 +54,7 @@ jobs:
           if_no_artifact_found: ignore
       - name: Download previous bundle sizes (if available)
         if: ${{ always() }}
+        continue-on-error: true
         uses: dawidd6/action-download-artifact@v3
         with:
           name: prev-bundle-sizes
@@ -67,11 +71,27 @@ jobs:
           fi
       - name: Download Lighthouse artifacts (if produced by separate workflow)
         if: ${{ always() }}
+        continue-on-error: true
         uses: dawidd6/action-download-artifact@v3
         with:
           name: lighthouse-assertions
           path: artifacts
           if_no_artifact_found: ignore
+      - name: Summarize retrieved artifacts
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          echo "Artifacts directory listing:" || true
+          ls -al artifacts || true
+          # Create harmless placeholder prev artifacts if genuinely absent to simplify diff logic
+          if [ ! -f artifacts/prev-coverage-summary.json ] && [ -f coverage/coverage-summary.json ]; then
+            cp coverage/coverage-summary.json artifacts/prev-coverage-summary.json || true
+            echo 'Created placeholder prev-coverage-summary.json'
+          fi
+          if [ ! -f artifacts/prev-bundle-sizes.json ] && [ -f artifacts/bundle-sizes.json ]; then
+            cp artifacts/bundle-sizes.json artifacts/prev-bundle-sizes.json || true
+            echo 'Created placeholder prev-bundle-sizes.json'
+          fi
       - name: Upload token deltas
         if: ${{ always() && hashFiles('artifacts/token-deltas.json') != '' }}
         uses: actions/upload-artifact@v4
@@ -100,11 +120,13 @@ jobs:
           # GATE_MAX_COVERAGE_DROP_BRANCHES: 1
           # GATE_MAX_COVERAGE_DROP_FUNCTIONS: 1
           # GATE_MAX_COVERAGE_DROP_LINES: 1
+          # (Analyzer will output suggested lines like: # GATE_MAX_COVERAGE_DROP_STATEMENTS: <value>)
           # Optional Lighthouse metric regression guards
           # GATE_LH_METRIC_MAX_LCP_DELTA_MS: 200
           # GATE_LH_METRIC_MAX_CLS_DELTA: 0.02
           # GATE_LH_METRIC_MAX_TBT_DELTA_MS: 50
           # GATE_LH_METRIC_MAX_INP_DELTA_MS: 100
+          # Analyzer will suggest: # GATE_LH_METRIC_MAX_LCP_DELTA_MS=<failThreshold> etc.
           # Future Lighthouse metric regression guards (not yet enforced by script)
           # GATE_LH_METRIC_MAX_FCP_DELTA_MS: 150
           # GATE_LH_METRIC_MAX_SI_DELTA_MS: 200
@@ -127,6 +149,7 @@ jobs:
           # Warn-only thresholds (non-fatal) - raw
           # GATE_BUNDLE_WARN_TOTAL_RAW_DELTA_KB: 40
           # GATE_BUNDLE_WARN_FILE_RAW_DELTA_KB: 10
+          # TODO (post ≥10 samples & analyzer suggestions): Uncomment appropriate warn thresholds above, observe stability, then enable fail thresholds.
           # (Enable thresholds progressively after history collected & variability understood.)
       - name: Append quality history record
         if: ${{ always() }}
