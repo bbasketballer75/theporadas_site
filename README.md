@@ -8,6 +8,8 @@ accessibility, and minimal bundle growth. Performance and governance are enforce
 through custom token growth heuristic, Lighthouse budgets, bundle size
 comparisons, and coverage diff gating.
 
+> Validation PR: This line added to confirm baseline artifacts integration & sticky summary comment operation.
+
 ## Project Setup and Tooling
 
 ![CI Lint](https://github.com/bbasketballer75/theporadas_site/actions/workflows/ci-lint.yml/badge.svg)

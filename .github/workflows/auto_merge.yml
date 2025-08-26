@@ -97,12 +97,32 @@ jobs:
           # GATE_LH_METRIC_MAX_CLS_DELTA: 0.02
           # GATE_LH_METRIC_MAX_TBT_DELTA_MS: 50
           # GATE_LH_METRIC_MAX_INP_DELTA_MS: 100
+          # Future Lighthouse metric regression guards (not yet enforced by script)
+          # GATE_LH_METRIC_MAX_FCP_DELTA_MS: 150
+          # GATE_LH_METRIC_MAX_SI_DELTA_MS: 200
           # Token growth limits (soft/hard)
           GATE_TOKEN_MAX_NET: 800
           # GATE_TOKEN_MAX_ADDED: 1600
-          # Bundle size limits (gzip KB increases)
+          # Bundle size delta limits (KB increases) - gzip (preferred) & raw; warn vs fail tiers
+          # Hard fail thresholds (gzip)
+          # GATE_BUNDLE_MAX_TOTAL_GZIP_DELTA_KB: 30
+          # GATE_BUNDLE_MAX_FILE_GZIP_DELTA_KB: 10
+          # Hard fail thresholds (raw)
+          # GATE_BUNDLE_MAX_TOTAL_RAW_DELTA_KB: 60
+          # GATE_BUNDLE_MAX_FILE_RAW_DELTA_KB: 20
+          # Back-compat (legacy names, treated as gzip fail thresholds if above not set)
           # GATE_BUNDLE_MAX_TOTAL_DELTA_KB: 30
           # GATE_BUNDLE_MAX_FILE_DELTA_KB: 10
+          # Warn-only thresholds (non-fatal) - gzip
+          # GATE_BUNDLE_WARN_TOTAL_GZIP_DELTA_KB: 20
+          # GATE_BUNDLE_WARN_FILE_GZIP_DELTA_KB: 5
+          # Warn-only thresholds (non-fatal) - raw
+          # GATE_BUNDLE_WARN_TOTAL_RAW_DELTA_KB: 40
+          # GATE_BUNDLE_WARN_FILE_RAW_DELTA_KB: 10
+          # (Enable thresholds progressively after history collected & variability understood.)
+      - name: Append quality history record
+        if: ${{ always() }}
+        run: node scripts/append_quality_history.mjs || echo 'history append failed'
       - name: Post / update quality summary comment
         if: ${{ always() && github.event.pull_request.number }}
         uses: actions/github-script@v7

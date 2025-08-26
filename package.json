@@ -50,7 +50,8 @@
     "mcp:python": "node scripts/mcp_python.mjs",
     "mcp:memory-bank": "node scripts/mcp_memory_bank.mjs",
     "mcp:kg": "node scripts/mcp_kg_memory.mjs",
-    "mcp:smoke": "node scripts/mcp_smoke_test.mjs"
+    "mcp:smoke": "node scripts/mcp_smoke_test.mjs",
+    "analyze:quality": "node scripts/analyze_quality_history.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
