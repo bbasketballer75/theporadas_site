@@ -185,3 +185,30 @@ Details:
     - Missing artifacts: handled as non-fatal with explicit warning channel.
     - Flaky performance metrics: guarded by requiring explicit env to enforce; future median sampling planned.
     - Token false positives from generated code: consider path-based exclusion or weighting in future iteration.
+
+- 2025-08-26: Introduce quality history log & bundle delta env scaffolding.
+  - Rationale: Enable longitudinal tracking (coverage, bundle size, tokens,
+    Lighthouse metrics) to empirically derive variability bands and support
+    incremental ratcheting before activating strict gates.
+  - Implementation:
+    - Added `scripts/append_quality_history.mjs` producing
+      `artifacts/quality-history.jsonl` with one JSON line per run (sparse
+      schema tolerant).
+    - Workflow `auto_merge.yml` invokes history append step post metric
+      computation, pre summary comment.
+    - Expanded env var scaffolding (commented) for bundle delta thresholds:
+      gzip/raw, total/per-file, warn vs fail tiers plus legacy fallback names;
+      future Lighthouse metric guards (FCP, SI) placeholders added.
+    - Extended `scripts/enforce_gating.mjs` to parse new bundle delta
+      variables: distinguishes warn-only vs hard-fail, supports legacy names,
+      aggregates per-file messages, leaves raw size un-enforced unless
+      explicitly configured.
+  - Rollout Strategy: Keep all new vars commented until several data points
+    gathered; tune warn tiers near p75 variance, fail tiers near p90
+    initially, then ratchet downward toward p50 as stability confirmed.
+  - Future: Add summarizer to compute rolling medians & propose updated
+    thresholds; integrate history into quality summary (sparkline / last N
+    deltas) and expose JSONL artifact as downloadable trend dataset.
+  - Risk: JSONL growth over time; mitigation plan includes periodic
+    compaction (derive aggregates, prune old) once file exceeds size budget
+    (e.g., 5MB).
