@@ -24,6 +24,102 @@ Decisions:
     while preventing noisy, non-actionable TODO surfacing in editor extensions.
     Implemented via `todo-tree.filtering.excludeGlobs` for `**/lighthouse/**`
     plus documentation in `CONTRIBUTING.md`.
+- 2025-08-25: Lighthouse assertions diff V1 scope accepted.
+  - Rationale: Initial diff limits to category deltas and audit add/remove/change for simplicity.
+  - Backlog: Consider deeper audit field comparisons (numeric regressions, details size changes) once baseline noise evaluated.
+- 2025-08-25: Axe best-practice enforcement phased rollout plan recorded.
+  - Rationale: Mitigate risk of immediate CI failures; gather baseline before gating.
+  - Plan: 3–5 PR observational, then enable thresholds = baseline, then weekly ratchet to 0.
+  - Future: Expand rule set (color contrast best-practice variants) after zero state stabilized.
+    <<<<<<< HEAD
+- 2025-08-25: Automate Lighthouse diff PR commenting.
+  - Rationale: Surface performance/accessibility/category regressions inline
+    without manual artifact download, encouraging early remediation.
+  - Implementation: GitHub Actions step using `actions/github-script@v7`
+    updates/creates a single comment marked with
+    `<!-- lighthouse-assertions-diff -->` for idempotency; permissions set
+    (pull-requests: write).
+  - Future: Enhance formatting (emoji indicators for regressions/improvements,
+    collapsible sections, link to full HTML report) and optionally summarize
+    numeric metric deltas once deeper diff implemented.
+- 2025-08-26: Lighthouse snapshot schema v2 (add key metrics + schemaVersion)
+  & enriched diff formatting.
+  - Rationale: Provide stable contract for downstream tooling and enable
+    concise regression detection on core UX metrics (LCP, FCP, CLS, TBT,
+    Speed Index) beyond coarse category scores.
+- 2025-08-26: MCP error code taxonomy proposed.
+  - Rationale: Standardize application-level failure semantics for automation,
+    retries, and observability beyond generic -32000 errors.
+  - Action: Added `docs/mcp_error_codes.md` with positive code ranges and
+    migration plan (harness extension pending implementation).
+  - Future: Integrate `appError` helper & extend readiness sentinel with
+    schema marker.
+- 2025-08-26: KG & Memory Bank persistence plan drafted.
+  - Rationale: Ensure KG data durability across sessions; prepare for future
+    writable Memory Bank operations.
+  - Decision: Adopt snapshot + WAL strategy (Option B) for KG; defer Memory
+    Bank write RPCs until concrete use case.
+  - Artifacts: `docs/mcp_persistence_plan.md` outlines env vars & migration.
+
+  - Changes: `scripts/lhci_snapshot.mjs` now emits `{ schemaVersion: 2,
+categories, audits, metrics, meta }`; metrics map includes both
+    `numericValue` & `score` for each selected audit id.
+  - Diff Enhancements: Added `diffMetrics` (numeric + score delta), schema
+    version change notice, emoji deltas (⬆️/⬇️/➖), and collapsible
+    `<details>` sections for categories, metrics, and audits to reduce PR
+    comment noise.
+  - Testing: New `test/lhci_diff.test.ts` covers category diff, audit
+    classification, metrics diff, and markdown structure presence (schema
+    notice & section headers).
+  - Migration: Schema mismatch currently only annotates comment
+    (non-breaking). Future v3 may remove deprecated fields or add thresholds;
+    decision deferred until sufficient history gathered.
+  - Future: Add configurable regression guards (env-based thresholds), track
+    percentile variability (run multiple samples), and optionally store
+    historical trend data for sparkline rendering in diff.
+
+- 2025-08-26: MCP structured error implementation completed.
+  - Rationale: Move from unstructured '-32000' generic errors to positive,
+    domain-scoped codes enabling deterministic client handling, retry
+    heuristics, and observability.
+  - Implementation: Added `appError()` helper & extended `safeError` in
+    `scripts/mcp_rpc_base.mjs` to surface
+    `{ code, message, data:{ domain, symbol, retryable, details } }` plus
+    readiness sentinel schema marker `{ schema:{ errorCodes:1 } }`.
+  - Migration: Updated Python, Playwright, Puppeteer, Memory Bank, KG server
+    scripts to replace generic throws with `appError` (codes: 1000–1006
+    global, 2000/2300/2400 domain examples). Removed stray undefined call,
+    normalized error details.
+  - Testing: New `test/mcp_errors.test.js` asserts three representative
+    failures (oversize input 1005, missing file 2300, KG full 2400). Legacy
+    TS duplicate test neutralized (skipped placeholder) to avoid symbol
+    collisions.
+  - Backwards Compatibility: Protocol (-32700, -32601, -32602 reserved,
+    -32000 fallback) unchanged; clients can feature-detect via readiness
+    schema.
+  - Future: Add metrics instrumentation (error counters by domain/symbol),
+    expand filesystem & upcoming service domains, optional verbose stack
+    inclusion via env flag, and persist KG/MB errors post-persistence
+    implementation.
+
+- 2025-08-26: MCP error metrics & verbose stack flags implemented.
+  - Rationale: Provide lightweight, opt-in observability (frequency &
+    classification) and controlled diagnostic depth without always exposing
+    full stacks.
+  - Implementation: Added in-memory counters (total, byCode, byDomain,
+    bySymbol) gated by `MCP_ERROR_METRICS`; conditional RPC
+    `sys/errorStats` returns snapshot. Added `MCP_ERRORS_VERBOSE` env (N or
+    `full`) to include truncated or full sanitized stack in `error.data.stack`.
+    Harness increments counters inside `safeError` only for positive
+    application codes.
+  - Testing: New `test/mcp_error_metrics.test.js` spawns Python server with
+    both env vars set, triggers oversize input (1005) then queries
+    `sys/errorStats`; asserts counters & stack presence.
+  - Documentation: `docs/mcp_error_codes.md` expanded with Metrics & Env
+    Flags section (variables table, RPC example, future rate limiting plan).
+  - Future: Add sampling / rate limiting (`MCP_ERROR_METRICS_SAMPLE` or
+    token bucket) to bound overhead under error storms; consider durable
+    export on graceful shutdown if longitudinal analytics needed.
 
 Details:
 
