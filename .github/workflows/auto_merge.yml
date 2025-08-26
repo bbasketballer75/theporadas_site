@@ -19,6 +19,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Diagnostic env dump (sanitized)
+        if: ${{ always() }}
+        run: |
+          echo '--- Environment Variable Keys (sanitized) ---'
+          # List keys only to avoid leaking secrets
+          printenv | sed 's/=.*//' | sort | uniq
+          echo '--- Potential python-related vars ---'
+          printenv | grep -i python || true
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
