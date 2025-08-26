@@ -20,6 +20,9 @@
     "coverage:diff": "node scripts/coverage_diff.mjs",
     "verify:visual": "npx playwright test || echo Skipping visual tests (Playwright not installed or failing)",
     "lighthouse": "node scripts/lighthouse.mjs",
+    "lighthouse:ci": "lhci autorun --config=lighthouserc.json",
+    "lighthouse:snapshot": "npm run lighthouse:ci && node scripts/lhci_snapshot.mjs",
+    "lighthouse:diff": "node scripts/lhci_diff.mjs",
     "validate:video": "node scripts/validate_video.mjs",
     "lint:md": "markdownlint \"**/*.md\" --ignore lighthouse --ignore lighthouse/** --ignore docs/video/** -c .markdownlint.jsonc && markdownlint \"docs/video/**/*.md\" -c docs/video/.markdownlint.jsonc",
     "lh:build": "cd lighthouse && yarn build-devtools",
@@ -34,7 +37,20 @@
     "prepare": "husky install",
     "db:up": "docker compose up -d mssql",
     "db:down": "docker compose down -v",
-    "db:seed": "node --loader ts-node/esm scripts/db/seed.ts"
+    "db:seed": "node --loader ts-node/esm scripts/db/seed.ts",
+    "test:a11y:best": "cross-env A11Y_INCLUDE_BEST_PRACTICES=1 A11Y_BEST_OUTPUT=1 vitest run test/KeyboardNav.a11y.test.tsx test/accessibility.test.tsx",
+    "a11y:best:enforce": "node scripts/axe_best_enforce.mjs",
+    "mcp:fs": "node scripts/mcp_filesystem.mjs",
+    "mcp:notion": "node scripts/mcp_notion.mjs",
+    "mcp:tavily": "node scripts/mcp_tavily.mjs",
+    "mcp:mem0": "node scripts/mcp_mem0.mjs",
+    "mcp:sql": "node scripts/mcp_sqlserver.mjs",
+    "mcp:playwright": "node scripts/mcp_playwright.mjs",
+    "mcp:puppeteer": "node scripts/mcp_puppeteer.mjs",
+    "mcp:python": "node scripts/mcp_python.mjs",
+    "mcp:memory-bank": "node scripts/mcp_memory_bank.mjs",
+    "mcp:kg": "node scripts/mcp_kg_memory.mjs",
+    "mcp:smoke": "node scripts/mcp_smoke_test.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
@@ -52,6 +68,7 @@
     "@vitest/coverage-v8": "^3.0.0",
     "@vitest/eslint-plugin": "^1.3.4",
     "axe-core": "^4.10.0",
+    "@lhci/cli": "^0.15.1",
     "chrome-launcher": "^1.1.0",
     "conventional-changelog-cli": "^4.0.0",
     "cross-env": "^7.0.3",
@@ -82,6 +99,18 @@
     "node-fetch": "^3.3.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
+  },
+  "peerDependencies": {
+    "playwright": "*",
+    "puppeteer": "*"
+  },
+  "peerDependenciesMeta": {
+    "playwright": {
+      "optional": true
+    },
+    "puppeteer": {
+      "optional": true
+    }
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
