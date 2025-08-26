@@ -46,7 +46,8 @@ function main() {
   for (const rawLine of diff.split(/\r?\n/)) {
     if (!rawLine) continue;
     // Skip diff metadata lines
-    if (rawLine.startsWith('+++') || rawLine.startsWith('---') || rawLine.startsWith('@@')) continue;
+    if (rawLine.startsWith('+++') || rawLine.startsWith('---') || rawLine.startsWith('@@'))
+      continue;
     if (rawLine.startsWith('+')) {
       addedLines.push(rawLine.substring(1));
     } else if (rawLine.startsWith('-')) {
