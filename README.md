@@ -1,4 +1,4 @@
-﻿# theporadas.com — Post‑Wedding Narrative & Video Site
+# theporadas.com — Post‑Wedding Narrative & Video Site
 
 Post‑wedding narrative & video experience. Primary hero video followed by curated
 story sections in enforced order: Story → Rings → Wedding Party → additional
@@ -321,7 +321,7 @@ Usage example:
 ```ts
 import { createClientFromEnv } from './src/db/retryClient.js';
 
-const client = createClientFromEnv();
+const client = await createClientFromEnv();
 const guests = await client.query<{ Id: number; Name: string }>('SELECT Id, Name FROM Guest');
 await client.close();
 ```
@@ -419,7 +419,7 @@ Additional props:
 | Prop          | Type                 | Default | Description                  |
 | ------------- | -------------------- | ------- | ---------------------------- |
 | `rootMargin`  | `string`             | `200px` | Observer margin for prefetch |
-| `threshold`   | `number \| number[]` | `0`     | Intersection threshold(s)    |
+| `threshold`   | `number | number[]` | `0`     | Intersection threshold(s)    |
 | `aspectRatio` | `string`             | `16/9`  | Placeholder layout stability |
 
 Tests shim `IntersectionObserver` for synchronous render (see `vitest.setup.ts`).
@@ -891,3 +891,5 @@ Stripe (secure key prompt):
 ## License
 
 See `LICENSE` (Apache-2.0 for vendored Lighthouse; site code retains existing license choice).
+
+<!-- env-dump-diagnostic-marker:1 -->
