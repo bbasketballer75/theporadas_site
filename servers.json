@@ -1,0 +1,4 @@
+[
+  { "name": "fs", "cmd": "node", "args": ["scripts/mcp_filesystem.mjs"] },
+  { "name": "tavily", "cmd": "node", "args": ["scripts/mcp_tavily.mjs"] }
+]

@@ -108,6 +108,12 @@ async function main() {
 
   const bundleGzip = records.map((r) => r.bundle?.total?.gzip).filter((v) => typeof v === 'number');
   const bundleRaw = records.map((r) => r.bundle?.total?.raw).filter((v) => typeof v === 'number');
+  const bundleGzipDelta = records
+    .map((r) => r.bundleDelta?.total?.gzip)
+    .filter((v) => typeof v === 'number');
+  const bundleRawDelta = records
+    .map((r) => r.bundleDelta?.total?.raw)
+    .filter((v) => typeof v === 'number');
   const coverageStatements = records
     .map((r) => r.coverage?.statements)
     .filter((v) => typeof v === 'number');
@@ -115,13 +121,74 @@ async function main() {
     .map((r) => r.coverage?.branches)
     .filter((v) => typeof v === 'number');
   const tokenAdded = records.map((r) => r.tokens?.added).filter((v) => typeof v === 'number');
+  const tokenNet = records.map((r) => r.tokens?.net).filter((v) => typeof v === 'number');
+
+  // Coverage drop (previous - current) reconstructed from sequential records where both present
+  const coverageDrops = { statements: [], branches: [], functions: [], lines: [] };
+  for (let i = 1; i < records.length; i++) {
+    const prev = records[i - 1].coverage;
+    const curr = records[i].coverage;
+    if (prev && curr) {
+      for (const k of Object.keys(coverageDrops)) {
+        const a = prev[k];
+        const b = curr[k];
+        if (typeof a === 'number' && typeof b === 'number') {
+          const drop = a - b; // positive means regression
+          if (drop > 0) coverageDrops[k].push(drop);
+        }
+      }
+    }
+  }
+
+  // Lighthouse metric deltas (current - previous) and category drops (previous - current)
+  const lhMetricDeltas = { lcp: [], cls: [], tbt: [], inp: [] };
+  const lhCategoryDrops = {}; // dynamic keys; collect positive drops (prev - curr > 0)
+  for (let i = 1; i < records.length; i++) {
+    const prev = records[i - 1].lighthouse;
+    const curr = records[i].lighthouse;
+    if (prev?.metrics && curr?.metrics) {
+      for (const k of Object.keys(lhMetricDeltas)) {
+        const a = prev.metrics[k];
+        const b = curr.metrics[k];
+        if (typeof a === 'number' && typeof b === 'number') {
+          const delta = b - a; // positive worse for these metrics
+          if (delta > 0) lhMetricDeltas[k].push(delta);
+        }
+      }
+    }
+    if (prev?.categories && curr?.categories) {
+      for (const [cat, prevScore] of Object.entries(prev.categories)) {
+        const currScore = curr.categories[cat];
+        if (typeof prevScore === 'number' && typeof currScore === 'number') {
+          const drop = prevScore - currScore; // positive means score decreased
+          if (drop > 0) {
+            if (!lhCategoryDrops[cat]) lhCategoryDrops[cat] = [];
+            lhCategoryDrops[cat].push(drop);
+          }
+        }
+      }
+    }
+  }
 
   const metrics = [
     { key: 'bundle.total.gzip', values: bundleGzip, direction: 'increase' },
     { key: 'bundle.total.raw', values: bundleRaw, direction: 'increase' },
+    { key: 'bundle.delta.total.gzip', values: bundleGzipDelta, direction: 'increase' },
+    { key: 'bundle.delta.total.raw', values: bundleRawDelta, direction: 'increase' },
     { key: 'coverage.statements', values: coverageStatements, direction: 'decrease' },
     { key: 'coverage.branches', values: coverageBranches, direction: 'decrease' },
     { key: 'tokens.added', values: tokenAdded, direction: 'increase' },
+    { key: 'tokens.net', values: tokenNet, direction: 'increase' },
+    // Coverage drops (treat as increase metrics for threshold suggestion logic on positive drop magnitudes)
+    { key: 'coverage.drop.statements', values: coverageDrops.statements, direction: 'increase' },
+    { key: 'coverage.drop.branches', values: coverageDrops.branches, direction: 'increase' },
+    { key: 'coverage.drop.functions', values: coverageDrops.functions, direction: 'increase' },
+    { key: 'coverage.drop.lines', values: coverageDrops.lines, direction: 'increase' },
+    // Lighthouse metric positive regressions
+    { key: 'lighthouse.delta.lcp', values: lhMetricDeltas.lcp, direction: 'increase' },
+    { key: 'lighthouse.delta.cls', values: lhMetricDeltas.cls, direction: 'increase' },
+    { key: 'lighthouse.delta.tbt', values: lhMetricDeltas.tbt, direction: 'increase' },
+    { key: 'lighthouse.delta.inp', values: lhMetricDeltas.inp, direction: 'increase' },
   ];
 
   const report = [];
@@ -146,11 +213,49 @@ async function main() {
       } else if (m.key === 'bundle.total.raw') {
         envSuggestions.push(`# BUNDLE_RAW_TOTAL_WARN=${Math.round(thresholds.warn)}`);
         envSuggestions.push(`# BUNDLE_RAW_TOTAL_MAX=${Math.round(thresholds.fail)}`);
+      } else if (m.key === 'bundle.delta.total.gzip') {
+        envSuggestions.push(`# BUNDLE_GZIP_TOTAL_DELTA_WARN=${Math.round(thresholds.warn)}`);
+        envSuggestions.push(`# BUNDLE_GZIP_TOTAL_DELTA_MAX=${Math.round(thresholds.fail)}`);
+      } else if (m.key === 'bundle.delta.total.raw') {
+        envSuggestions.push(`# BUNDLE_RAW_TOTAL_DELTA_WARN=${Math.round(thresholds.warn)}`);
+        envSuggestions.push(`# BUNDLE_RAW_TOTAL_DELTA_MAX=${Math.round(thresholds.fail)}`);
       } else if (m.key === 'tokens.added') {
         envSuggestions.push(`# TOKENS_MAX_ADDED_WARN=${Math.round(thresholds.warn)}`);
         envSuggestions.push(`# TOKENS_MAX_ADDED_FAIL=${Math.round(thresholds.fail)}`);
+      } else if (m.key === 'tokens.net') {
+        envSuggestions.push(`# TOKENS_NET_WARN=${Math.round(thresholds.warn)}`);
+        envSuggestions.push(`# TOKENS_NET_FAIL=${Math.round(thresholds.fail)}`);
+      } else if (m.key.startsWith('coverage.drop.')) {
+        const metric = m.key.split('.').pop();
+        envSuggestions.push(
+          `# GATE_MAX_COVERAGE_DROP_${metric.toUpperCase()}=${thresholds.fail.toFixed(2)}`,
+        );
+      } else if (m.key.startsWith('lighthouse.delta.')) {
+        const metric = m.key.split('.').pop();
+        const envMap = {
+          lcp: 'LCP_DELTA_MS',
+          cls: 'CLS_DELTA',
+          tbt: 'TBT_DELTA_MS',
+          inp: 'INP_DELTA_MS',
+        };
+        const suffix = envMap[metric];
+        if (suffix) {
+          envSuggestions.push(`# GATE_LH_METRIC_MAX_${suffix}=${Math.round(thresholds.fail)}`);
+        }
       }
     }
+  }
+
+  // Lighthouse category drops: compute stats separately (they are dynamic per category)
+  const categoryEnvLines = [];
+  for (const [cat, arr] of Object.entries(lhCategoryDrops)) {
+    if (arr.length < 5) continue; // need more samples
+    const stats = basicStats(arr);
+    const warn = Math.max(stats.p90, stats.p50 + 2 * (stats.iqr || 0));
+    const fail = Math.max(stats.p95, warn * 2, 0.01);
+    categoryEnvLines.push(
+      `# GATE_LH_CATEGORY_MIN_${cat.toUpperCase()}=0.9   # current drop p95 ${fail.toFixed(3)} (adjust manually)`,
+    );
   }
 
   console.log('Quality History Analysis');
@@ -179,6 +284,10 @@ async function main() {
   if (envSuggestions.length) {
     console.log('\n--- Suggested env var lines (copy/uncomment as needed) ---');
     console.log(envSuggestions.join('\n'));
+    if (categoryEnvLines.length) {
+      console.log('\n# Lighthouse category minimum placeholders');
+      console.log(categoryEnvLines.join('\n'));
+    }
   } else {
     console.log('\n(No threshold suggestions yet - insufficient data)');
   }

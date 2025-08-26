@@ -63,7 +63,7 @@ export default [
       ...tseslint.configs.recommended.rules,
       // Modern React (17+) does not require React in scope for JSX
       'react/react-in-jsx-scope': 'off',
-      'prettier/prettier': 'warn',
+      'prettier/prettier': ['warn', { endOfLine: 'auto' }],
       'import/order': [
         'warn',
         {
@@ -108,6 +108,7 @@ export default [
       'import/no-self-import': 'error',
       'import/first': 'error',
       'import/no-useless-path-segments': ['warn', { noUselessIndex: true }],
+      'linebreak-style': 'off',
     },
   },
   // Vitest test file overrides enabling globals
