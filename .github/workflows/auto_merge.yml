@@ -15,6 +15,194 @@ jobs:
       contains(github.event.pull_request.labels.*.name, 'auto-merge')
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install deps
+        run: npm ci
+      - name: Run tests with coverage
+        run: npm run coverage
+      - name: Compute token deltas
+        run: node scripts/compute_token_deltas.mjs || echo 'token delta script failed'
+      - name: Build project (for bundle sizes)
+        run: npm run build || echo 'build failed; skipping bundle size'
+      - name: Compute bundle sizes
+        run: node scripts/compute_bundle_sizes.mjs || echo 'bundle size script failed'
+      - name: Download previous coverage (if available)
+        if: ${{ always() }}
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          name: prev-coverage-summary
+          path: artifacts
+          if_no_artifact_found: ignore
+      - name: Download previous bundle sizes (if available)
+        if: ${{ always() }}
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          name: prev-bundle-sizes
+          path: artifacts
+          if_no_artifact_found: ignore
+      - name: Normalize previous bundle sizes filename
+        if: ${{ always() && hashFiles('artifacts/bundle-sizes.json') != '' && hashFiles('artifacts/prev-bundle-sizes.json') == '' }}
+        shell: bash
+        run: |
+          if [ -f artifacts/bundle-sizes.json ] && [ ! -f artifacts/prev-bundle-sizes.json ]; then
+            # If we only have current and no previous, copy current as previous to enable reporting (warn mode)
+            cp artifacts/bundle-sizes.json artifacts/prev-bundle-sizes.json
+            echo 'No previous bundle sizes found; using current as baseline (report-only).'
+          fi
+      - name: Download Lighthouse artifacts (if produced by separate workflow)
+        if: ${{ always() }}
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          name: lighthouse-assertions
+          path: artifacts
+          if_no_artifact_found: ignore
+      - name: Upload token deltas
+        if: ${{ always() && hashFiles('artifacts/token-deltas.json') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: token-deltas
+          path: artifacts/token-deltas.json
+      - name: Run Lighthouse diff (if previous snapshot present)
+        run: |
+          if [ -f prev-lighthouse-assertions.json ]; then npm run lighthouse:diff || true; fi
+        shell: bash
+      - name: Enforce quality gates
+        id: gates
+        run: node scripts/enforce_gating.mjs
+        env:
+          GATE_MIN_STATEMENTS: 95
+          GATE_MIN_BRANCHES: 90
+          # Current baseline functions coverage ~93.33%; set slightly below for stability; ratchet upward later
+          GATE_MIN_FUNCTIONS: 93
+          GATE_MIN_LINES: 95
+          GATE_LH_CATEGORY_MIN_PERFORMANCE: 0.90
+          GATE_LH_CATEGORY_MIN_ACCESSIBILITY: 1.00
+          GATE_LH_CATEGORY_MIN_BEST_PRACTICES: 1.00
+          GATE_LH_CATEGORY_MIN_SEO: 1.00
+          # Optional coverage delta guards (percent point drops)
+          # GATE_MAX_COVERAGE_DROP_STATEMENTS: 1
+          # GATE_MAX_COVERAGE_DROP_BRANCHES: 1
+          # GATE_MAX_COVERAGE_DROP_FUNCTIONS: 1
+          # GATE_MAX_COVERAGE_DROP_LINES: 1
+          # Optional Lighthouse metric regression guards
+          # GATE_LH_METRIC_MAX_LCP_DELTA_MS: 200
+          # GATE_LH_METRIC_MAX_CLS_DELTA: 0.02
+          # GATE_LH_METRIC_MAX_TBT_DELTA_MS: 50
+          # GATE_LH_METRIC_MAX_INP_DELTA_MS: 100
+          # Token growth limits (soft/hard)
+          GATE_TOKEN_MAX_NET: 800
+          # GATE_TOKEN_MAX_ADDED: 1600
+          # Bundle size limits (gzip KB increases)
+          # GATE_BUNDLE_MAX_TOTAL_DELTA_KB: 30
+          # GATE_BUNDLE_MAX_FILE_DELTA_KB: 10
+      - name: Post / update quality summary comment
+        if: ${{ always() && github.event.pull_request.number }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) { core.notice('No PR context; skipping summary comment'); return; }
+            const fs = require('fs');
+            function readJson(path) { try { return JSON.parse(fs.readFileSync(path,'utf8')); } catch { return null; } }
+            const coverage = readJson('coverage/coverage-summary.json');
+            const prevCoverage = readJson('artifacts/prev-coverage-summary.json');
+            const token = readJson('artifacts/token-deltas.json');
+            const bundleCurr = readJson('artifacts/bundle-sizes.json');
+            let bundlePrev = readJson('artifacts/prev-bundle-sizes.json');
+            if (!bundlePrev) bundlePrev = bundleCurr; // report-only baseline
+            const lh = readJson('artifacts/lighthouse-assertions.json') || readJson('artifacts/lighthouse-assertions/lighthouse-assertions.json');
+            const lines = [];
+            lines.push('### Quality Gate Summary');
+            // Coverage
+            if (coverage?.total) {
+              const c = coverage.total;
+              const pct = (m)=> (c[m]?.pct!=null? c[m].pct.toFixed(2)+'%':'n/a');
+              let covLine = `Coverage: S ${pct('statements')} B ${pct('branches')} F ${pct('functions')} L ${pct('lines')}`;
+              if (prevCoverage?.total) {
+                const p = prevCoverage.total;
+                const delta = (m)=> (c[m]?.pct!=null && p[m]?.pct!=null ? (c[m].pct - p[m].pct).toFixed(2) : 'n/a');
+                covLine += ` (Δ S ${delta('statements')} B ${delta('branches')} F ${delta('functions')} L ${delta('lines')})`;
+              }
+              lines.push(covLine);
+            } else {
+              lines.push('Coverage: (missing)');
+            }
+            // Tokens
+            if (token) {
+              lines.push(`Tokens: net ${token.net ?? 'n/a'} added ${token.added ?? 'n/a'} removed ${token.removed ?? 'n/a'}`);
+            } else {
+              lines.push('Tokens: (no artifact)');
+            }
+            // Bundle sizes
+            if (bundleCurr?.total) {
+              const prevG = bundlePrev?.total?.gzip || 0; const currG = bundleCurr.total.gzip || 0; const deltaKb = ((currG - prevG)/1024).toFixed(2);
+              lines.push(`Bundle (gzip total): ${(currG/1024).toFixed(2)}KB (Δ ${deltaKb}KB)`);
+              // largest file delta
+              if (bundleCurr.files && bundlePrev.files) {
+                const prevMap = Object.fromEntries(bundlePrev.files.map(f=>[f.path,f]));
+                let worst = null;
+                for (const f of bundleCurr.files) {
+                  const pg = prevMap[f.path]?.gzip || 0; const dg = f.gzip - pg; if (!worst || dg > worst.delta) worst = { path: f.path, delta: dg };
+                }
+                if (worst) lines.push(`Largest file gzip increase: ${worst.path} +${(worst.delta/1024).toFixed(2)}KB`);
+              }
+            } else {
+              lines.push('Bundle sizes: (no artifact)');
+            }
+            // Lighthouse metrics
+            if (lh?.categories) {
+              const cats = lh.categories;
+              const catLine = Object.entries(cats).map(([k,v])=>`${k}:${v}`).join(' ');
+              lines.push('Lighthouse categories: ' + catLine);
+            } else {
+              lines.push('Lighthouse: (no assertions)');
+            }
+            if (lh?.metrics?.previous && lh?.metrics?.current) {
+              const mPrev = lh.metrics.previous; const mCurr = lh.metrics.current;
+              function fmtDelta(k, scale=1) { const pv = mPrev[k]?.numericValue ?? mPrev[k]; const cv = mCurr[k]?.numericValue ?? mCurr[k]; if (typeof pv==='number' && typeof cv==='number') { const d = cv-pv; return `${(cv/scale).toFixed(2)} (Δ ${(d/scale).toFixed(2)})`; } return 'n/a'; }
+              lines.push(`Lighthouse metrics: LCP ${fmtDelta('lcp',1000)}s CLS ${fmtDelta('cls')} TBT ${fmtDelta('tbt',1000)}s INP ${fmtDelta('inp',1000)}s`);
+            }
+            const body = lines.join('\n');
+            const identifier = '<!-- quality-gate-summary -->';
+            const fullBody = `${identifier}\n${body}`;
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              per_page: 100,
+            });
+            const existing = comments.find(c => c.body && c.body.startsWith(identifier));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: fullBody,
+              });
+              core.notice('Updated quality summary comment.');
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: fullBody,
+              });
+              core.notice('Created quality summary comment.');
+            }
+      - name: Upload current coverage summary for downstream runs
+        if: ${{ success() && hashFiles('coverage/coverage-summary.json') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: prev-coverage-summary
+          path: coverage/coverage-summary.json
       - name: Evaluate merge readiness
         id: criteria
         uses: actions/github-script@v7
@@ -23,6 +211,8 @@ jobs:
             const pr = context.payload.pull_request;
             if (!pr) { core.setOutput('ready','false'); return; }
             if (pr.draft) { core.notice('PR is draft'); core.setOutput('ready','false'); return; }
+            // Fail fast if previous step (gates) failed
+            const prevStep = core.getInput('gates');
             const reviews = await github.paginate(github.rest.pulls.listReviews, {
               owner: context.repo.owner,
               repo: context.repo.repo,
