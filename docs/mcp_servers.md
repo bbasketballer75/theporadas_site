@@ -58,6 +58,118 @@ MCP_MEMORY_BANK_DIR=memory-bank
 MCP_KG_MAX_TRIPLES=5000
 ```
 
+### Environment Variable Loading & Supervisor
+
+The stub servers do NOT automatically load values from `.env` unless you invoke them
+through a wrapper that sources those variables first (e.g. `dotenv -e .env -- node ...` or
+your shell exporting them). The added `mcp_supervisor.mjs` intentionally avoids implicit
+`.env` parsing to keep side effects explicit.
+
+To run the supervisor with selective servers and ensure `TAVILY_API_KEY` is present:
+
+```pwsh
+$env:TAVILY_API_KEY = 'tvly-xxxxxxxx'  # PowerShell session only
+node scripts/mcp_supervisor.mjs --only tavily,fs --max-restarts 5 --backoff-ms 500-8000
+```
+
+Readiness & lifecycle events are emitted as structured JSON lines, e.g.:
+
+```json
+{"type":"supervisor","event":"spawn","server":"tavily","pid":12345}
+{"type":"supervisor","event":"ready","server":"tavily","pid":12345}
+{"type":"supervisor","event":"exit","server":"tavily","code":1,"restarts":0}
+{"type":"supervisor","event":"restart-scheduled","server":"tavily","inMs":742,"attempt":1}
+```
+
+Non‑zero exits trigger a randomized backoff within the configured range until the
+max restarts threshold is reached (default 3). When `--fail-fast` is supplied, the
+supervisor will abort all remaining servers immediately after one server emits a
+`give-up` (exhausted restarts) and then emit a consolidated `summary` event. A
+fail-fast shutdown returns a non‑zero (1) supervisor process exit code.
+
+Additional events introduced:
+
+```json
+{"type":"supervisor","event":"fail-fast-triggered","server":"tavily"}
+{"type":"supervisor","event":"summary","startTime":...,"endTime":...,"durationMs":...,"servers":{"tavily":{"spawns":2,"restarts":1,"exits":2,"lastExitCode":1,"ready":false,"readyLatencyMs":null,"totalUptimeMs":178,"gaveUp":true}}}
+```
+
+`summary` always appears during shutdown (Ctrl+C, signal, fail-fast, or natural completion when
+all short‑lived servers exit). It includes per-server aggregated statistics: spawn counts, restarts,
+exits, last exit code, readiness state & latency, total accumulated uptime, and whether the server
+ultimately gave up.
+
+### Additional Supervisor Flags
+
+| Flag                           | Description                                                                                                                                             |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--fail-fast`                  | Abort all servers immediately after any server gives up; exit code 1.                                                                                   |
+| `--heartbeat-ms <n>`           | Emit a periodic `heartbeat` event every `n` milliseconds containing a lightweight server state snapshot.                                                |
+| `--config <path>`              | Load server definitions from a JSON file instead of (or in addition to) built-ins. JSON must be an array of objects. Supports per-server `maxRestarts`. |
+| `--exit-code-on-giveup <code>` | When any server ultimately gives up (exhausts restarts) and `--fail-fast` is NOT set, use this exit code for the supervisor (default 0).                |
+| `--log-file <path>`            | Write duplicate structured JSON event lines to the specified file (append mode; JSONL).                                                                 |
+| `--max-uptime-ms <n>`          | Force a shutdown after `n` milliseconds total supervisor uptime, emitting `max-uptime-reached` before `summary`.                                        |
+
+Example heartbeat excerpt:
+
+```json
+{
+  "type": "supervisor",
+  "event": "heartbeat",
+  "timestamp": 1730000000000,
+  "servers": {
+    "tavily": {
+      "spawns": 1,
+      "restarts": 0,
+      "exits": 0,
+      "ready": true,
+      "gaveUp": false,
+      "lastExitCode": null
+    }
+  }
+}
+```
+
+Example config file (`servers.json`) with per-server restart overrides:
+
+```json
+[
+  { "name": "fs", "cmd": "node", "args": ["scripts/mcp_filesystem.mjs"], "maxRestarts": 0 },
+  { "name": "tavily", "cmd": "node", "args": ["scripts/mcp_tavily.mjs"], "maxRestarts": 5 }
+]
+```
+
+Run with custom config + heartbeat + log file + max uptime guard:
+
+```pwsh
+node scripts/mcp_supervisor.mjs --config servers.json --heartbeat-ms 5000 --log-file mcp_supervisor.log --max-uptime-ms 600000
+```
+
+Example fail‑fast run (PowerShell with intentionally missing key):
+
+```pwsh
+$env:TAVILY_API_KEY = ''
+node scripts/mcp_supervisor.mjs --only tavily --max-restarts 1 --backoff-ms 50-100 --fail-fast
+```
+
+You will see events ending with `fail-fast-triggered`, `shutdown`, and `summary`.
+
+Example give‑up exit code override (no fail‑fast, forcing exit code 7):
+
+```pwsh
+node scripts/mcp_supervisor.mjs --only tavily --max-restarts 1 --exit-code-on-giveup 7 --log-file mcp_supervisor.log
+```
+
+You'll observe an `exiting` event with `code":7` after `summary`.
+
+Example max uptime guard (forces shutdown even if processes still running):
+
+```pwsh
+node scripts/mcp_supervisor.mjs --config servers.json --max-uptime-ms 300000
+```
+
+Emits `max-uptime-reached` just before normal shutdown sequence.
+
 ## VS Code (Future MCP Integration)
 
 When you upgrade these into real MCP servers, you can add entries similar to:
