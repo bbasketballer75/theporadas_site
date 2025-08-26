@@ -31,7 +31,6 @@ Decisions:
   - Rationale: Mitigate risk of immediate CI failures; gather baseline before gating.
   - Plan: 3–5 PR observational, then enable thresholds = baseline, then weekly ratchet to 0.
   - Future: Expand rule set (color contrast best-practice variants) after zero state stabilized.
-    <<<<<<< HEAD
 - 2025-08-25: Automate Lighthouse diff PR commenting.
   - Rationale: Surface performance/accessibility/category regressions inline
     without manual artifact download, encouraging early remediation.
@@ -127,9 +126,62 @@ categories, audits, metrics, meta }`; metrics map includes both
     change requests, then enables native auto‑merge (rebase) or merges
     immediately when all checks succeed.
   - Future: Extend gating (coverage delta, Lighthouse diff guard) before enabling; add chatops command `/auto-merge`.
+- 2025-08-26: Add coverage & Lighthouse quality gates to auto-merge workflow.
+  - Rationale: Prevent silent performance or quality regressions sneaking in via automatic merges once label applied.
+  - Implementation: Extended `.github/workflows/auto_merge.yml` with steps to
+    run coverage (`npm run coverage`), download Lighthouse assertions artifact,
+    compute diff when prior snapshot present, and execute
+    `scripts/enforce_gating.mjs` for:
+    - Coverage minima (statements 95, branches 90, functions 95, lines 95).
+    - Lighthouse category minima (perf 0.90, a11y 1.00, best_practices 1.00, seo 1.00).
+    - Diff regression detection: negative category deltas beyond 0.01 tolerance fail gate.
+  - Script: New `scripts/enforce_gating.mjs` parses
+    `coverage/coverage-summary.json`, optional `artifacts/lighthouse-assertions.json`
+    and diff markdown.
+  - Future: Incorporate bundle size/token growth enforcement, configurable
+    thresholds via repository secrets/ENV, and per-metric (LCP/FCP/CLS)
+    guardrails using schema v2 metrics map.
+
+- 2025-08-26: Quality summary comment & bundle normalization.
+  - Rationale: Provide consolidated visibility (coverage, tokens, bundle, Lighthouse metrics) and allow early data gathering before strict enforcement.
+  - Implementation: Added sticky comment (`<!-- quality-gate-summary -->`) in
+    `auto_merge.yml`, previous bundle size normalization (copy current to prev
+    if absent), and broadened artifact fallback search in gating script.
+  - Future: Persist historical summaries for trend-based automatic threshold ratcheting.
 
 Details:
 
 - Vitest include narrowed to `test/**/*` and coverage include to `src/**` to avoid Istanbul path issues on Windows.
 - Added `lighthouse/` and `coverage/` to `tsconfig.json` excludes to suppress implicit any warnings from vendored code.
 - Accessibility of generated coverage report improved: empty `<th>` cells now auto-filled post generation (replacing prior decision to ignore).
+
+- 2025-08-26: Expand quality gating (coverage delta, metric regressions, token
+  growth) & ChatOps `/auto-merge` command.
+  - Rationale: Strengthen automated safeguards against silent regressions
+    (performance UX metrics, widening code footprint, declining coverage) while
+    offering low-friction activation via comment trigger.
+  - Implementation:
+    - `scripts/enforce_gating.mjs` extended with:
+      - Coverage delta guard via `GATE_MAX_COVERAGE_DROP_<METRIC>` (pp decrease limit per statements|branches|functions|lines).
+      - Lighthouse key metric regression guards: `GATE_LH_METRIC_MAX_LCP_DELTA_MS`, `GATE_LH_METRIC_MAX_CLS_DELTA`, `GATE_LH_METRIC_MAX_TBT_DELTA_MS`.
+      - Token growth gate parsing `artifacts/token-deltas.json` (soft warn: `GATE_TOKEN_MAX_NET`, hard fail: `GATE_TOKEN_MAX_ADDED`).
+      - Multi-path Lighthouse assertions artifact fallback enabling resilient consumption despite naming variations.
+    - `.github/workflows/auto_merge.yml` now downloads optional artifacts
+      (`prev-coverage-summary.json`, `token-deltas.json`) and exports env
+      placeholders for new thresholds.
+    - New `.github/workflows/chatops_auto_merge.yml` watches issue comments for `/auto-merge` to apply `auto-merge` label (idempotent) & acknowledge.
+  - Defaults / Rollout:
+    - New gates default to passive (warn if missing artifacts) to avoid blocking until historical baselines collected.
+    - Maintainers can tighten by setting env values / repository secrets
+      progressively (ratchet strategy documented in CONTRIBUTING Quality Gates
+      section).
+  - Future:
+    - Automate generation of `prev-coverage-summary` & `token-deltas` in producing workflows (currently consumer-side only).
+    - Extend metric guard set (INP once stable in Lighthouse JSON), add
+      variability smoothing (median over N runs), and incorporate bundle size
+      delta gating.
+    - Persist historical gating results for trend dashboards & adaptive threshold suggestions.
+  - Risks / Mitigations:
+    - Missing artifacts: handled as non-fatal with explicit warning channel.
+    - Flaky performance metrics: guarded by requiring explicit env to enforce; future median sampling planned.
+    - Token false positives from generated code: consider path-based exclusion or weighting in future iteration.
