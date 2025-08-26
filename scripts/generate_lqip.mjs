@@ -13,6 +13,7 @@ import path from 'path';
 const ENCODED_DIR = path.resolve('media/encoded');
 const LQIP_DIR = path.resolve('media/lqip');
 const FORCE = process.argv.includes('--force');
+const CHECK = process.argv.includes('--check');
 const TARGET_WIDTH = 32; // very small for placeholder
 
 async function ensureDir(dir) {
@@ -25,7 +26,10 @@ function lqipName(file) {
 
 async function buildList() {
   const entries = await fs.readdir(ENCODED_DIR, { withFileTypes: true });
-  return entries.filter(e => e.isFile()).map(e => e.name).filter(name => /\.(jpe?g|png|webp|avif)$/i.test(name));
+  return entries
+    .filter((e) => e.isFile())
+    .map((e) => e.name)
+    .filter((name) => /\.(jpe?g|png|webp|avif)$/i.test(name));
 }
 
 async function needProcess(file) {
@@ -62,8 +66,16 @@ async function main() {
     if (await needProcess(f)) toProcess.push(f);
   }
   if (!toProcess.length) {
+    if (CHECK) {
+      console.log('[lqip] CHECK: all placeholders present.');
+      return;
+    }
     console.log('[lqip] All placeholders already present. Use --force to regenerate.');
     return;
+  }
+  if (CHECK) {
+    console.error('[lqip] CHECK FAILED: missing placeholders for files:', toProcess.join(', '));
+    process.exit(1);
   }
   console.log(`[lqip] Generating ${toProcess.length} placeholders...`);
   let ok = 0;
@@ -79,7 +91,7 @@ async function main() {
   console.log(`[lqip] Done. Generated ${ok}/${toProcess.length}.`);
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error('[lqip] Fatal error', err);
   process.exit(1);
 });
