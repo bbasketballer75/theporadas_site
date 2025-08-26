@@ -20,7 +20,8 @@ function Process-ProfileFile([string]$profilePath) {
   $existing = ""
   if (Test-Path $profilePath) {
     $existing = Get-Content -LiteralPath $profilePath -Raw
-  } else {
+  }
+  else {
     Write-Info "Profile file did not exist; creating fresh profile."
   }
 
@@ -40,7 +41,6 @@ function Process-ProfileFile([string]$profilePath) {
   $beastInvokePatterns = @(
     '(?i)^\s*(?:&\s*)?\(?\s*beast-mode\b.*$',
     '(?i)^\s*(?:&\s*)?\(?\s*Invoke-BeastMode\b.*$',
-    '(?i)^\s*(?:&\s*)?\(?\s*beast\b.*$',
     '(?i)^\s*Import-Module\s+BeastMode\b.*$'
   )
 
@@ -52,7 +52,8 @@ function Process-ProfileFile([string]$profilePath) {
     if ($shouldComment -and ($line -notmatch '^\s*#')) {
       $outputLines += "# (guarded) $line"
       $changed = $true
-    } else {
+    }
+    else {
       $outputLines += $line
     }
   }
@@ -78,7 +79,8 @@ if (Get-Command uv -ErrorAction SilentlyContinue) {
     $content = ($outputLines -join [Environment]::NewLine)
     Set-Content -LiteralPath $profilePath -Value $content -Encoding UTF8
     Write-Info "Profile updated with uv guard(s)."
-  } else {
+  }
+  else {
     Write-Info "No changes needed; uv guards already in place."
   }
 }
@@ -93,7 +95,8 @@ if ($AllHosts) {
   $docPS = Join-Path $env:USERPROFILE 'Documents/PowerShell'
   $standardFiles = @('Microsoft.PowerShell_profile.ps1', 'profile.ps1') | ForEach-Object { Join-Path $docPS $_ }
   foreach ($f in $standardFiles) { if (Test-Path $f) { $targets += $f } }
-} else {
+}
+else {
   $targets += $PROFILE
 }
 
