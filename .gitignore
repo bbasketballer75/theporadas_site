@@ -28,6 +28,15 @@ dist/
 lighthouse-report.report.html
 lighthouse-report.report.json
 lighthouse_bundle_sizes.json
+.lighthouseci/
+lhr-*.html
+lhr-*.json
+.lhr-*.html
+.lhr-*.json
+links.json
+
+# Generated analysis artifacts (diffs, snapshots, axe violations)
+artifacts/
 
 # Temporary comparison outputs
 *.lh-cache
