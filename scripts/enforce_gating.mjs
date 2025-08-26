@@ -134,13 +134,21 @@ async function loadLighthouseAssertions() {
 }
 
 async function loadPreviousCoverage() {
-  const path = 'artifacts/prev-coverage-summary.json';
-  if (!existsSync(path)) return null;
-  try {
-    return JSON.parse(await readFile(path, 'utf8')).total || null;
-  } catch {
-    return null;
+  const candidates = [
+    'artifacts/prev-coverage-summary.json',
+    'artifacts/coverage-summary.json', // fallback if workflow downloaded under different name
+    'coverage/coverage-summary.json', // last resort (treat current as previous for report-only scenario)
+  ];
+  for (const p of candidates) {
+    if (!existsSync(p)) continue;
+    try {
+      const data = JSON.parse(await readFile(p, 'utf8'));
+      if (data.total) return data.total;
+    } catch {
+      // continue
+    }
   }
+  return null;
 }
 
 async function loadTokenDeltas() {
@@ -154,13 +162,22 @@ async function loadTokenDeltas() {
 }
 
 async function loadBundleSizes(previous = false) {
-  const path = previous ? 'artifacts/prev-bundle-sizes.json' : 'artifacts/bundle-sizes.json';
-  if (!existsSync(path)) return null;
-  try {
-    return JSON.parse(await readFile(path, 'utf8'));
-  } catch {
-    return null;
+  const paths = previous
+    ? [
+        'artifacts/prev-bundle-sizes.json',
+        'artifacts/bundle-sizes-prev.json',
+        'artifacts/bundle-sizes.json', // allow treating current as previous if no explicit prev present (report-only)
+      ]
+    : ['artifacts/bundle-sizes.json'];
+  for (const p of paths) {
+    if (!existsSync(p)) continue;
+    try {
+      return JSON.parse(await readFile(p, 'utf8'));
+    } catch {
+      // continue
+    }
   }
+  return null;
 }
 
 async function parseLighthouseDiff() {
@@ -269,7 +286,11 @@ function checkTokenGrowth(data) {
       message: `Net token growth ${data.net} exceeds soft limit ${TOKEN_LIMITS.net}`,
     });
   }
-  if (TOKEN_LIMITS.added != null && typeof data.added === 'number' && data.added > TOKEN_LIMITS.added) {
+  if (
+    TOKEN_LIMITS.added != null &&
+    typeof data.added === 'number' &&
+    data.added > TOKEN_LIMITS.added
+  ) {
     issues.push({
       level: 'error',
       message: `Added tokens ${data.added} exceed hard limit ${TOKEN_LIMITS.added}`,
@@ -287,7 +308,8 @@ function formatKb(bytes) {
 
 function checkBundleSizes(prev, curr) {
   if (!curr) return [{ level: 'warn', message: 'No bundle size artifact; skipping bundle gate.' }];
-  if (!prev) return [{ level: 'warn', message: 'Previous bundle sizes missing; skipping delta gate.' }];
+  if (!prev)
+    return [{ level: 'warn', message: 'Previous bundle sizes missing; skipping delta gate.' }];
   const totalLimit = process.env[BUNDLE_LIMIT_VARS.total]
     ? +process.env[BUNDLE_LIMIT_VARS.total]
     : null;
