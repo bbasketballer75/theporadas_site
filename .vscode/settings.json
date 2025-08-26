@@ -22,6 +22,7 @@
     "**/.github/project_instructions.md",
     "**/CHANGELOG.md",
     "**/coverage/**",
-    "**/CONTRIBUTING.md" // treat as process doc; actionable dev TODOs should live in code comments
+    "**/CONTRIBUTING.md", // treat as process doc; actionable dev TODOs should live in code comments
+    "**/lighthouse/**" // vendored upstream; upstream TODOs tracked externally
   ]
 }

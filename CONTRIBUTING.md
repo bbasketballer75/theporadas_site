@@ -103,6 +103,15 @@ We fully vendor the upstream Lighthouse source under `lighthouse/` (embedded git
 
 Trade-off: Manual periodic upstream refresh instead of automatic submodule updates.
 
+> TODO / FIXME Handling: Upstream Lighthouse includes numerous `TODO:` and
+> `FIXME:` markers that are intentionally left intact to simplify future syncs
+> and avoid diverging from upstream context. Our workspace configuration
+> (`.vscode/settings.json`) excludes the entire `lighthouse/` subtree from
+> automated TODO scanning so these upstream markers do not surface as
+> actionable local debt. Do not remove or reword upstream comments unless
+> creating a patch we plan to propose upstream; otherwise the next sync will
+> reintroduce them and generate churn.
+
 ### Updating Vendored Lighthouse
 
 1. (Optional) Create a dedicated branch: `git checkout -b chore/lighthouse-sync-<version>`
