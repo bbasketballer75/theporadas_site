@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Minimal placeholder MCP-style server for Tavily (stub)
+import './load_env.mjs';
 import fetch from 'node-fetch';
 import { out, fail } from './mcp_util.mjs';
 

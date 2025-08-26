@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Minimal placeholder MCP-style server for Notion (stub)
+import './load_env.mjs';
 import { Client } from '@notionhq/client';
 import { out, fail } from './mcp_util.mjs';
 

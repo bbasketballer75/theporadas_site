@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Minimal placeholder MCP-style server for SQL Server queries
+import './load_env.mjs';
 import sql from 'mssql';
 import { out, fail } from './mcp_util.mjs';
 
