@@ -238,7 +238,7 @@ When adding new performance-impacting areas (e.g. large new asset pipelines),
 extend the change detection heuristics in `pr-validate.yml` to ensure the
 performance section remains mandatory.
 
-#### Quality Gates (Coverage, Lighthouse, Tokens)
+#### Quality Gates (Coverage, Lighthouse, Tokens, Bundles)
 
 When the `auto-merge` label is applied the workflow now executes a fast
 verification bundle prior to enabling native auto‑merge:
@@ -256,8 +256,17 @@ verification bundle prior to enabling native auto‑merge:
 
 1. Parses diff markdown; category score negative deltas beyond tolerance (`GATE_LH_CATEGORY_TOLERANCE`, default 0.01) fail.
 1. Token growth gate (if `token-deltas.json` artifact available): soft warn when
-   net > `GATE_TOKEN_MAX_NET` (default 800); hard fail when added >
-   `GATE_TOKEN_MAX_ADDED` (default 1600).
+   net > `GATE_TOKEN_MAX_NET` (default 800). Hard fail when added >
+   `GATE_TOKEN_MAX_ADDED` ONLY if explicitly set (no default now; added tokens
+   produce a warning noting lack of hard limit when unset). This supports data
+   gathering before enforcing a ceiling.
+1. Bundle size gate (if both `prev-bundle-sizes.json` & current `bundle-sizes.json` exist): optional limits
+
+- `GATE_BUNDLE_MAX_TOTAL_DELTA_KB` (gzip KB increase across all files)
+- `GATE_BUNDLE_MAX_FILE_DELTA_KB` (gzip KB increase for any single file)
+
+When unset the script reports a warning (informational) but does not fail.
+
 1. Fails if any error-level gate triggers; warnings are surfaced but non-blocking.
 
 Override thresholds via env vars (examples):
@@ -269,6 +278,13 @@ GATE_LH_CATEGORY_MIN_PERFORMANCE=0.93
 GATE_LH_METRIC_MAX_LCP_DELTA_MS=150
 GATE_LH_METRIC_MAX_CLS_DELTA=0.01
 GATE_TOKEN_MAX_NET=700
+# Uncomment only after baseline established
+# GATE_TOKEN_MAX_ADDED=1500
+# Bundle size (gzip KB) regression limits
+# GATE_BUNDLE_MAX_TOTAL_DELTA_KB=30
+# GATE_BUNDLE_MAX_FILE_DELTA_KB=10
+# Lighthouse Interaction to Next Paint (INP) regression (ms)
+# GATE_LH_METRIC_MAX_INP_DELTA_MS=100
 ```
 
 Raise minima only after sustained stability; document rationale in PR & `decisionLog.md`.
