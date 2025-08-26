@@ -18,14 +18,19 @@ async function fileInfo(filePath, root) {
   if (!st.isFile()) return null;
   const raw = st.size;
   let content;
-  try { content = readFileSync(full); } catch (_) { return null; }
-  let gzip = null, brotli = null;
+  try {
+    content = readFileSync(full);
+  } catch (_) {
+    return null;
+  }
+  let gzip = null,
+    brotli = null;
   // Only compress likely text assets
   if (/\.(js|mjs|cjs|css|html|json|txt)$/i.test(filePath)) {
-  gzip = compressSize(content, 'gzip');
-  brotli = compressSize(content, 'brotli');
+    gzip = compressSize(content, 'gzip');
+    brotli = compressSize(content, 'brotli');
   }
-  return { path: filePath.replace(/\\/g,'/'), raw, gzip, brotli };
+  return { path: filePath.replace(/\\/g, '/'), raw, gzip, brotli };
 }
 
 function walk(dir, base = dir) {
@@ -40,7 +45,12 @@ function walk(dir, base = dir) {
 
 async function main() {
   const distDir = process.env.BUNDLE_DIR || 'dist';
-  try { statSync(distDir); } catch { console.error('[bundle] dist directory missing'); process.exit(0); }
+  try {
+    statSync(distDir);
+  } catch {
+    console.error('[bundle] dist directory missing');
+    process.exit(0);
+  }
   const files = walk(distDir);
   const infos = [];
   for (const f of files) {
