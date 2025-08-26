@@ -11,5 +11,19 @@
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
   "terminal.integrated.cwd": "${workspaceFolder}",
   "terminal.integrated.splitCwd": "workspaceRoot",
-  "powershell.cwd": "${workspaceFolder}"
+  "powershell.cwd": "${workspaceFolder}",
+  "python-envs.defaultEnvManager": "ms-python.python:system",
+  "python-envs.pythonProjects": [],
+  // Exclude procedural markdown checklists (PR/issue templates, self review) from TODO scanners.
+  "todo-tree.filtering.excludeGlobs": [
+    "**/docs/self_review_checklist.md",
+    "**/.github/pull_request_template.md",
+    "**/.github/ISSUE_TEMPLATE/**",
+    "**/.github/project_instructions.md",
+    "**/CHANGELOG.md",
+    "**/coverage/**",
+    "**/CONTRIBUTING.md", // treat as process doc; actionable dev TODOs should live in code comments
+    "**/lighthouse/**", // vendored upstream; upstream TODOs tracked externally
+    "**/docs/accessibility_performance_plan.md" // plan tasks now tracked as GitHub issues #8-#15
+  ]
 }
