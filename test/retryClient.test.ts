@@ -186,6 +186,41 @@ describe('SqlRetryClient', () => {
     expect(delays[1]).toBe(10); // 20 -> half 10 + 0
   });
 
+  it('jitter stays within half..full exponential window for varied random values', async () => {
+    // Sequence of Math.random values we'll feed; verify each produced delay is within [expDelay/2, expDelay]
+    const randomVals = [0, 0.25, 0.5, 0.75];
+    let idx = 0;
+    (
+      Math.random as unknown as {
+        mockRestore?: () => void;
+        mockImplementation: (fn: () => number) => void;
+      }
+    ).mockImplementation?.(() => randomVals[idx++]);
+    const { pool } = createMockPool([
+      { err: { number: 40613, message: 'e1' } },
+      { err: { number: 40613, message: 'e2' } },
+      { err: { number: 40613, message: 'e3' } },
+      { ok: { done: true } },
+    ]);
+    const spy = vi.spyOn(globalThis, 'setTimeout');
+    const client = new SqlRetryClient(
+      {},
+      { poolFactory: async () => pool, baseDelayMs: 8, factor: 2, maxDelayMs: 200, jitter: true },
+    );
+    const p = client.query('Q');
+    await vi.runAllTimersAsync();
+    await p;
+    const delays = spy.mock.calls.map((c: unknown[]) => c[1] as number);
+    // Expected raw exponential (no jitter) delays would be 8,16,32 -> windows [4..8],[8..16],[16..32]
+    const bases = [8, 16, 32];
+    for (let i = 0; i < bases.length; i++) {
+      const min = bases[i] / 2;
+      const max = bases[i];
+      expect(delays[i]).toBeGreaterThanOrEqual(min);
+      expect(delays[i]).toBeLessThanOrEqual(max);
+    }
+  });
+
   it('treats connection open failure message as transient', async () => {
     const { pool } = createMockPool([
       { err: { message: 'Could not open a connection to SQL Server' } },
@@ -256,5 +291,10 @@ describe('parseConnectionString', () => {
     expect(cfg.database).toBe('y');
     expect(cfg.user).toBe('z');
     expect(cfg.password).toBe('q');
+  });
+  it('Encrypt=False alone disables encryption but not trustServerCertificate', () => {
+    const cfg = parseConnectionString('Server=s;Database=d;User Id=u;Password=p;Encrypt=False;');
+    expect(cfg.options?.encrypt).toBe(false);
+    expect(cfg.options?.trustServerCertificate).toBe(false);
   });
 });
