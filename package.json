@@ -51,7 +51,9 @@
     "mcp:memory-bank": "node scripts/mcp_memory_bank.mjs",
     "mcp:kg": "node scripts/mcp_kg_memory.mjs",
     "mcp:smoke": "node scripts/mcp_smoke_test.mjs",
-    "analyze:quality": "node scripts/analyze_quality_history.mjs"
+    "analyze:quality": "node scripts/analyze_quality_history.mjs",
+    "quality:regression-check": "node scripts/quality_regression_check.mjs",
+    "lqip": "node scripts/generate_lqip.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
@@ -90,7 +92,8 @@
     "typescript": "^5.5.4",
     "vite": "^7.1.3",
     "vitest": "^3.0.0",
-    "vitest-axe": "^0.1.0"
+    "vitest-axe": "^0.1.0",
+    "jimp": "^1.6.0"
   },
   "dependencies": {
     "@notionhq/client": "^2.2.15",

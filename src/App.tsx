@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { Gallery } from './components/Gallery';
 import { HeroVideo } from './components/HeroVideo';
 import { MotionToggle } from './components/MotionToggle';
 import { SiteNav } from './components/SiteNav';
@@ -9,9 +10,13 @@ import { getNonHeroSections } from './content/loader';
 import { useHashNavigation } from './hooks/useHashNavigation';
 import { listVideos } from './video/registry';
 import './designSystem.css';
+import './components/gallery.css';
 
 export default function App() {
-  const sections = getNonHeroSections();
+  // Exclude the markdown 'gallery' section because we now have a dedicated
+  // interactive Gallery component. Rendering both creates duplicate
+  // landmarks with the same accessible name triggering axe landmark-unique.
+  const sections = getNonHeroSections().filter((s) => s.frontmatter.slug !== 'gallery');
   const { hash } = useHashNavigation();
   return (
     <div id="appShell" role="main" tabIndex={-1}>
@@ -49,6 +54,12 @@ export default function App() {
               />
             );
           })()}
+        </div>
+      </section>
+      <section className="snap-section" aria-label="Gallery">
+        <div className="card stack">
+          <h2 id="gallery-heading">Gallery</h2>
+          <Gallery headingId="gallery-heading" />
         </div>
       </section>
       {sections.map((s) => {

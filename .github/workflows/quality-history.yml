@@ -1,0 +1,58 @@
+name: Quality History
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Use Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+      - name: Install deps
+        run: npm ci
+      - name: Run tests with coverage
+        run: npm test -- --coverage
+      - name: Run Lighthouse (LHCI)
+        run: npm run lighthouse:snapshot || echo 'Lighthouse snapshot failed (non-blocking)'
+      - name: Lighthouse diff (optional)
+        run: npm run lighthouse:diff || echo 'Lighthouse diff skipped'
+      - name: Export Tavily key (if set)
+        if: secrets.TAVILY_API_KEY != ''
+        run: echo "TAVILY_API_KEY=${{ secrets.TAVILY_API_KEY }}" >> $GITHUB_ENV
+      - name: Append quality history
+        run: node scripts/append_quality_history.mjs
+      - name: Analyze quality history
+        run: node scripts/analyze_quality_history.mjs > artifacts/quality-analysis-latest.txt
+      - name: Regression check (Lighthouse)
+        run: npm run quality:regression-check || echo 'Regression check failed or skipped'
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-artifacts
+          path: |
+            artifacts/
+            quality-history.jsonl
+      - name: Commit updated quality history
+        run: |
+          if git diff --quiet quality-history.jsonl; then
+            echo 'No quality history changes.'
+          else
+            git config user.name 'github-actions'
+            git config user.email 'actions@users.noreply.github.com'
+            git add quality-history.jsonl artifacts/quality-analysis-latest.txt || true
+            git commit -m 'chore(quality): append history [skip ci]' || echo 'Nothing to commit'
+            git push
+          fi
