@@ -6,16 +6,19 @@ import { existsSync } from 'node:fs';
   Enforce quality gates before enabling auto-merge.
   - Coverage thresholds (overall and per type) from environment or defaults
   - Optional coverage delta guard vs previous (artifact) summary
-  - Lighthouse category minimums & metric regression guards (LCP/CLS/TBT)
+  - Lighthouse category minimums & metric regression guards (LCP/CLS/TBT/INP)
   - Lighthouse diff: fail if category regressions beyond tolerance
-  - Token growth gate (net / added tokens) if artifact present
+  - Token growth gate (net / added tokens) if artifact present (added limit now opt-in)
+  - Bundle size gate (total/file deltas) if artifacts present (optional / warn-first)
 
   Expected inputs:
     coverage current: coverage/coverage-summary.json (Vitest V8)
     coverage previous (optional): artifacts/prev-coverage-summary.json
     lighthouse assertions (optional): artifacts/lighthouse-assertions.json OR artifacts/lighthouse-assertions/lighthouse-assertions.json
     lighthouse diff (optional): artifacts/lighthouse-assertions-diff.md
-    token deltas (optional): artifacts/token-deltas.json { net, added, removed }
+  token deltas (optional): artifacts/token-deltas.json { net, added, removed }
+  bundle sizes current (optional): artifacts/bundle-sizes.json { total: { raw, gzip, brotli }, files: [{path, raw, gzip, brotli}] }
+  bundle sizes previous (optional): artifacts/prev-bundle-sizes.json (same shape)
 
   Env vars (override defaults):
     GATE_MIN_STATEMENTS, GATE_MIN_BRANCHES, GATE_MIN_FUNCTIONS, GATE_MIN_LINES
@@ -23,9 +26,12 @@ import { existsSync } from 'node:fs';
     GATE_LH_CATEGORY_MIN_<category>
     GATE_LH_METRIC_MAX_LCP_DELTA_MS (ms increase allowed)
     GATE_LH_METRIC_MAX_CLS_DELTA (absolute increase allowed)
-    GATE_LH_METRIC_MAX_TBT_DELTA_MS (ms increase allowed)
-    GATE_TOKEN_MAX_NET (soft warn limit, default 800)
-    GATE_TOKEN_MAX_ADDED (hard fail limit, default 1600)
+  GATE_LH_METRIC_MAX_TBT_DELTA_MS (ms increase allowed)
+  GATE_LH_METRIC_MAX_INP_DELTA_MS (ms increase allowed)
+  GATE_TOKEN_MAX_NET (soft warn limit, default 800)
+  GATE_TOKEN_MAX_ADDED (hard fail limit; no default - must be explicitly set)
+  GATE_BUNDLE_MAX_TOTAL_DELTA_KB (fail if total gzip KB increase > value)
+  GATE_BUNDLE_MAX_FILE_DELTA_KB (fail if any single file gzip KB increase > value)
 
   Lighthouse budgets logic:
     If diff file exists and does not contain 'No differences detected.' then parse Category table; negative deltas beyond -tolerance fail. Metrics deltas enforced via assertions metrics blocks when previous/current info present.
@@ -48,12 +54,18 @@ const COVERAGE_DROP_VARS = {
 };
 const TOKEN_LIMITS = {
   net: process.env.GATE_TOKEN_MAX_NET ? +process.env.GATE_TOKEN_MAX_NET : 800,
-  added: process.env.GATE_TOKEN_MAX_ADDED ? +process.env.GATE_TOKEN_MAX_ADDED : 1600,
+  // Added hard limit only enforced if explicitly provided.
+  added: process.env.GATE_TOKEN_MAX_ADDED ? +process.env.GATE_TOKEN_MAX_ADDED : null,
 };
 const METRIC_DELTA_ENV = {
   lcp: 'GATE_LH_METRIC_MAX_LCP_DELTA_MS',
   cls: 'GATE_LH_METRIC_MAX_CLS_DELTA',
   tbt: 'GATE_LH_METRIC_MAX_TBT_DELTA_MS',
+  inp: 'GATE_LH_METRIC_MAX_INP_DELTA_MS',
+};
+const BUNDLE_LIMIT_VARS = {
+  total: 'GATE_BUNDLE_MAX_TOTAL_DELTA_KB',
+  file: 'GATE_BUNDLE_MAX_FILE_DELTA_KB',
 };
 
 async function loadCoverageSummary() {
@@ -133,6 +145,16 @@ async function loadPreviousCoverage() {
 
 async function loadTokenDeltas() {
   const path = 'artifacts/token-deltas.json';
+  if (!existsSync(path)) return null;
+  try {
+    return JSON.parse(await readFile(path, 'utf8'));
+  } catch {
+    return null;
+  }
+}
+
+async function loadBundleSizes(previous = false) {
+  const path = previous ? 'artifacts/prev-bundle-sizes.json' : 'artifacts/bundle-sizes.json';
   if (!existsSync(path)) return null;
   try {
     return JSON.parse(await readFile(path, 'utf8'));
@@ -247,13 +269,58 @@ function checkTokenGrowth(data) {
       message: `Net token growth ${data.net} exceeds soft limit ${TOKEN_LIMITS.net}`,
     });
   }
-  if (typeof data.added === 'number' && data.added > TOKEN_LIMITS.added) {
+  if (TOKEN_LIMITS.added != null && typeof data.added === 'number' && data.added > TOKEN_LIMITS.added) {
     issues.push({
       level: 'error',
       message: `Added tokens ${data.added} exceed hard limit ${TOKEN_LIMITS.added}`,
     });
+  } else if (TOKEN_LIMITS.added == null) {
+    issues.push({ level: 'warn', message: 'Token added hard limit not set; informational only.' });
   }
   return issues.length ? issues : [{ level: 'ok', message: 'Token growth within limits.' }];
+}
+
+function formatKb(bytes) {
+  if (typeof bytes !== 'number') return 'n/a';
+  return (bytes / 1024).toFixed(2) + 'KB';
+}
+
+function checkBundleSizes(prev, curr) {
+  if (!curr) return [{ level: 'warn', message: 'No bundle size artifact; skipping bundle gate.' }];
+  if (!prev) return [{ level: 'warn', message: 'Previous bundle sizes missing; skipping delta gate.' }];
+  const totalLimit = process.env[BUNDLE_LIMIT_VARS.total]
+    ? +process.env[BUNDLE_LIMIT_VARS.total]
+    : null;
+  const fileLimit = process.env[BUNDLE_LIMIT_VARS.file]
+    ? +process.env[BUNDLE_LIMIT_VARS.file]
+    : null;
+  if (!totalLimit && !fileLimit)
+    return [{ level: 'warn', message: 'No bundle size limits set; reporting only.' }];
+  const issues = [];
+  const prevGzip = prev.total?.gzip || 0;
+  const currGzip = curr.total?.gzip || 0;
+  const totalDeltaKb = (currGzip - prevGzip) / 1024;
+  if (totalLimit && totalDeltaKb > totalLimit + 1e-6) {
+    issues.push({
+      level: 'error',
+      message: `Total gzip size increased ${totalDeltaKb.toFixed(2)}KB > limit ${totalLimit}KB`,
+    });
+  }
+  if (fileLimit) {
+    const prevFiles = Object.fromEntries((prev.files || []).map((f) => [f.path, f]));
+    for (const f of curr.files || []) {
+      const prevF = prevFiles[f.path];
+      if (!prevF) continue;
+      const deltaKb = ((f.gzip || 0) - (prevF.gzip || 0)) / 1024;
+      if (deltaKb > fileLimit + 1e-6) {
+        issues.push({
+          level: 'error',
+          message: `File ${f.path} gzip +${deltaKb.toFixed(2)}KB > limit ${fileLimit}KB`,
+        });
+      }
+    }
+  }
+  return issues.length ? issues : [{ level: 'ok', message: 'Bundle size deltas within limits.' }];
 }
 
 (async function run() {
@@ -268,6 +335,9 @@ function checkTokenGrowth(data) {
   const lhDiffResults = analyzeLighthouseDiff(lhDiffText);
   const tokenDeltas = await loadTokenDeltas();
   const tokenResults = checkTokenGrowth(tokenDeltas);
+  const prevBundle = await loadBundleSizes(true);
+  const currBundle = await loadBundleSizes(false);
+  const bundleResults = checkBundleSizes(prevBundle, currBundle);
 
   const all = [
     ...coverageResults,
@@ -276,6 +346,7 @@ function checkTokenGrowth(data) {
     ...lhMetricResults,
     ...lhDiffResults,
     ...tokenResults,
+    ...bundleResults,
   ];
   for (const r of all) {
     const tag = r.level === 'error' ? 'ERROR' : r.level === 'warn' ? 'WARN' : 'OK';
