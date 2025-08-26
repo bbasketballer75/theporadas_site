@@ -206,6 +206,52 @@ When adding new performance-impacting areas (e.g. large new asset pipelines),
 extend the change detection heuristics in `pr-validate.yml` to ensure the
 performance section remains mandatory.
 
+## Collaboration & Assistant Workflow
+
+This project encodes an assistant collaboration model so automated agents can
+operate safely:
+
+- Structured Responses: Assistant replies follow stable sections (Answer, Steps, Alternatives, Action Plan) unless brevity warranted.
+- Memory Bank: Architectural context & decisions live in `memory-bank/`.
+  Update `decisionLog.md` for notable trade-offs; add durable patterns to
+  `systemPatterns.md`.
+- Accessibility Enforcement: Coverage HTML a11y fixes are applied
+  post-generation by `scripts/fix_coverage_a11y.mjs`. Do not manually edit
+  generated coverage output; rely on STRICT mode (`COVERAGE_A11Y_STRICT=1`).
+- Coverage Guardrails: Thresholds and per-PR diff budget configured via env
+  vars in `.env.example`. Add focused tests for each new conditional path;
+  prefer narrow unit tests to broad integration for precision.
+- Performance Budgets: Lighthouse budgets + bundle size delta comments gate
+  regressions. Provide rationale when token growth warnings fire.
+- Environment Variables: See `.env.example` for tunables. Never commit real
+  tokens; populate locally or via CI secrets.
+- Deterministic Tests: Avoid time/flaky sources. For intersection observers,
+  use virtual timers & explicit observer callbacks. For scroll/focus, polyfill
+  cautiously without mutating readonly DOM properties.
+- Release Notes: Changelog sections generated & trimmed to current version by
+  release workflow; keep Conventional Commit prefixes for clarity.
+- Autonomy Loop: When assistants add capabilities (scripts, tests, governance
+  rules) they must (1) document rationale in `decisionLog.md`, (2) codify
+  reusable pattern in `systemPatterns.md`, (3) provide minimal diff & tests.
+
+### Adding New Automation
+
+1. Propose intent and success criteria in an issue referencing blueprint goals.
+2. Ship a script or workflow that is idempotent and opt-in via env flags when possible.
+3. Add docs snippet to this section or a dedicated README, plus decision entry.
+4. Provide rollback instructions in PR description.
+
+### Phase-Based Coverage Uplift Strategy
+
+Coverage improvements proceed in small waves targeting highest uncovered branch clusters first (see `coverage/coverage-summary.json`). Each phase:
+
+1. Identify top 2-3 files by uncovered branch percentage.
+2. List specific logical branches (guard clause, fallback, deprecated path) still untested.
+3. Add isolated tests; avoid broad snapshot coupling.
+4. Re-run coverage; if < +0.5% branch delta, regroup before adding more.
+
+Document start/end metrics in PR body for traceability.
+
 ## PR Self-Review Checklist
 
 Before marking a pull request ready for review (or merging if self-approved),

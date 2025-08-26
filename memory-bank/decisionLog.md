@@ -17,6 +17,8 @@ Decisions:
   - Rationale: New `test/fix_coverage_a11y.test.ts` validates header insertion & idempotency using `COVERAGE_HTML` env override to prevent regressions.
 - 2025-08-25: Introduce strict & silent modes for coverage a11y script.
   - Rationale: `COVERAGE_A11Y_STRICT=1` verifies labeled headers post-run; `COVERAGE_A11Y_SILENT=1` suppresses logs for cleaner CI output.
+- 2025-08-25: Adopt structured assistant response protocol (Answer → Steps → Alternatives → Action Plan).
+  - Rationale: Ensures clarity, educative transparency, and actionable guidance for a learner user while keeping outputs concise and skimmable.
 
 Details:
 
