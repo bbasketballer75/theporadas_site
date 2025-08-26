@@ -1,0 +1,44 @@
+name: weekly-audit
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # Mondays 06:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  security-events: read
+
+jobs:
+  audit:
+    name: NPM Audit (Weekly)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies (clean)
+        run: npm ci --ignore-scripts
+
+      - name: Run npm audit (JSON)
+        run: |
+          npm audit --json > audit.json || true
+          echo "Audit exit code captured; guard script will decide pass/fail"
+
+      - name: Run audit guard
+        run: node scripts/ci_audit_guard.mjs --input audit.json --baseline security/audit-baseline.json
+
+      - name: Upload audit artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: npm-audit-json
+          path: audit.json

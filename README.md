@@ -881,10 +881,29 @@ Stripe (secure key prompt):
 
 ---
 
-## Dependency & Update Strategy
+## Security & Dependency Automation
 
-- Weekly Dependabot for npm + GitHub Actions (max 5 open PRs per ecosystem)
-- Prefer minor upgrades individually for easier regression isolation
+Automated supply‑chain & code scanning layers:
+
+- Dependabot: Daily `npm` plus weekly `github-actions` updates (`.github/dependabot.yml`). Grouped minor/patch for npm, max 5 open PRs per ecosystem.
+- CodeQL: Static analysis of JS/TS on push/PR + weekly schedule (`codeql` workflow) with security & quality queries.
+- Weekly Audit: `weekly-audit` workflow runs `npm audit --json` and
+  `scripts/ci_audit_guard.mjs` to fail on new or escalated moderate+
+  production vulns compared to `security/audit-baseline.json`.
+- Audit Guard Script: Filters dev dependencies (unless `AUDIT_ALLOW_DEV=1`),
+  supports threshold override (`AUDIT_FAIL_LEVEL`). Exit code 1 blocks merge
+  when violations found.
+- Documentation: Accepted residual low tooling-only findings & rationale in `SECURITY_NOTES.md`.
+
+Operational guidance:
+
+- Prefer small, focused upgrade PRs (especially major) for clearer review & rollback.
+- If audit guard fails due to newly published advisory, update dependencies or
+  (temporarily) add advisory to baseline only with documented rationale in
+  `SECURITY_NOTES.md`.
+- Treat CodeQL alerts as required triage; open issue linking alert if fix not immediate.
+
+Reference: See `SECURITY_NOTES.md` for current posture, compensating controls, and triggers for expedited remediation.
 
 ---
 
