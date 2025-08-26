@@ -238,6 +238,52 @@ When adding new performance-impacting areas (e.g. large new asset pipelines),
 extend the change detection heuristics in `pr-validate.yml` to ensure the
 performance section remains mandatory.
 
+#### Quality Gates (Coverage, Lighthouse, Tokens)
+
+When the `auto-merge` label is applied the workflow now executes a fast
+verification bundle prior to enabling native auto‑merge:
+
+1. Runs full test suite with coverage (`npm run coverage`).
+1. Downloads artifacts (if present): previous coverage summary, Lighthouse assertions & diff, token deltas.
+1. Enforces coverage minimums (defaults: statements 95, branches 90, functions 95, lines 95).
+1. Optional coverage delta guard: set `GATE_MAX_COVERAGE_DROP_<METRIC>` (percent points) to fail if drop exceeds limit.
+1. Enforces Lighthouse category minimums via `GATE_LH_CATEGORY_MIN_<CATEGORY>` (case-insensitive).
+1. Optional metric regression guards (requires previous/current metrics in assertions):
+
+- `GATE_LH_METRIC_MAX_LCP_DELTA_MS` (ms increase allowed)
+- `GATE_LH_METRIC_MAX_CLS_DELTA` (absolute increase allowed)
+- `GATE_LH_METRIC_MAX_TBT_DELTA_MS` (ms increase allowed)
+
+1. Parses diff markdown; category score negative deltas beyond tolerance (`GATE_LH_CATEGORY_TOLERANCE`, default 0.01) fail.
+1. Token growth gate (if `token-deltas.json` artifact available): soft warn when
+   net > `GATE_TOKEN_MAX_NET` (default 800); hard fail when added >
+   `GATE_TOKEN_MAX_ADDED` (default 1600).
+1. Fails if any error-level gate triggers; warnings are surfaced but non-blocking.
+
+Override thresholds via env vars (examples):
+
+```bash
+GATE_MIN_STATEMENTS=96
+GATE_MAX_COVERAGE_DROP_STATEMENTS=0.5
+GATE_LH_CATEGORY_MIN_PERFORMANCE=0.93
+GATE_LH_METRIC_MAX_LCP_DELTA_MS=150
+GATE_LH_METRIC_MAX_CLS_DELTA=0.01
+GATE_TOKEN_MAX_NET=700
+```
+
+Raise minima only after sustained stability; document rationale in PR & `decisionLog.md`.
+
+If artifacts are missing (e.g. first run, skipped upstream job) the script
+emits warnings and proceeds for that gate (coverage minima still enforced if
+summary exists). Ensure producing workflows publish artifacts with stable
+names: `lighthouse-assertions`, `prev-coverage-summary`, `token-deltas`.
+
+##### ChatOps Command
+
+Comment `/auto-merge` on a pull request to apply the `auto-merge` label via
+ChatOps workflow (`chatops_auto_merge.yml`). Remove the label to cancel. Gates
+re-run on new commits or label events.
+
 ## Collaboration & Assistant Workflow
 
 This project encodes an assistant collaboration model so automated agents can

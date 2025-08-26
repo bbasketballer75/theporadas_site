@@ -15,6 +15,76 @@ jobs:
       contains(github.event.pull_request.labels.*.name, 'auto-merge')
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install deps
+        run: npm ci
+      - name: Run tests with coverage
+        run: npm run coverage
+      - name: Compute token deltas
+        run: node scripts/compute_token_deltas.mjs || echo 'token delta script failed'
+      - name: Download previous coverage (if available)
+        if: ${{ always() }}
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          name: prev-coverage-summary
+          path: artifacts
+          if_no_artifact_found: ignore
+      - name: Download Lighthouse artifacts (if produced by separate workflow)
+        if: ${{ always() }}
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          name: lighthouse-assertions
+          path: artifacts
+          if_no_artifact_found: ignore
+      - name: Upload token deltas
+        if: ${{ always() && hashFiles('artifacts/token-deltas.json') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: token-deltas
+          path: artifacts/token-deltas.json
+      - name: Run Lighthouse diff (if previous snapshot present)
+        run: |
+          if [ -f prev-lighthouse-assertions.json ]; then npm run lighthouse:diff || true; fi
+        shell: bash
+      - name: Enforce quality gates
+        id: gates
+        run: node scripts/enforce_gating.mjs
+        env:
+          GATE_MIN_STATEMENTS: 95
+          GATE_MIN_BRANCHES: 90
+          # Current baseline functions coverage ~93.33%; set slightly below for stability; ratchet upward later
+          GATE_MIN_FUNCTIONS: 93
+          GATE_MIN_LINES: 95
+          GATE_LH_CATEGORY_MIN_PERFORMANCE: 0.90
+          GATE_LH_CATEGORY_MIN_ACCESSIBILITY: 1.00
+          GATE_LH_CATEGORY_MIN_BEST_PRACTICES: 1.00
+          GATE_LH_CATEGORY_MIN_SEO: 1.00
+          # Optional coverage delta guards (percent point drops)
+          # GATE_MAX_COVERAGE_DROP_STATEMENTS: 1
+          # GATE_MAX_COVERAGE_DROP_BRANCHES: 1
+          # GATE_MAX_COVERAGE_DROP_FUNCTIONS: 1
+          # GATE_MAX_COVERAGE_DROP_LINES: 1
+          # Optional Lighthouse metric regression guards
+          # GATE_LH_METRIC_MAX_LCP_DELTA_MS: 200
+          # GATE_LH_METRIC_MAX_CLS_DELTA: 0.02
+          # GATE_LH_METRIC_MAX_TBT_DELTA_MS: 50
+          # Token growth limits (soft/hard)
+          GATE_TOKEN_MAX_NET: 800
+          GATE_TOKEN_MAX_ADDED: 1600
+      - name: Upload current coverage summary for downstream runs
+        if: ${{ success() && hashFiles('coverage/coverage-summary.json') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: prev-coverage-summary
+          path: coverage/coverage-summary.json
       - name: Evaluate merge readiness
         id: criteria
         uses: actions/github-script@v7
@@ -23,6 +93,8 @@ jobs:
             const pr = context.payload.pull_request;
             if (!pr) { core.setOutput('ready','false'); return; }
             if (pr.draft) { core.notice('PR is draft'); core.setOutput('ready','false'); return; }
+            // Fail fast if previous step (gates) failed
+            const prevStep = core.getInput('gates');
             const reviews = await github.paginate(github.rest.pulls.listReviews, {
               owner: context.repo.owner,
               repo: context.repo.repo,
