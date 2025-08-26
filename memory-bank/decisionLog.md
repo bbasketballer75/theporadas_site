@@ -121,6 +121,13 @@ categories, audits, metrics, meta }`; metrics map includes both
     token bucket) to bound overhead under error storms; consider durable
     export on graceful shutdown if longitudinal analytics needed.
 
+- 2025-08-26: Introduce `auto-merge` label workflow.
+  - Rationale: Reduce manual merge toil after approvals while preserving required review & status check protections.
+  - Implementation: `.github/workflows/auto_merge.yml` evaluates approvals and
+    change requests, then enables native auto‑merge (rebase) or merges
+    immediately when all checks succeed.
+  - Future: Extend gating (coverage delta, Lighthouse diff guard) before enabling; add chatops command `/auto-merge`.
+
 Details:
 
 - Vitest include narrowed to `test/**/*` and coverage include to `src/**` to avoid Istanbul path issues on Windows.

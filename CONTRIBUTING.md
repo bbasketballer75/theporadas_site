@@ -211,6 +211,29 @@ The repository includes additional automation to keep quality gates enforceable:
   summarizing DevTools (shim vs full) bundle size deltas.
 - **Lighthouse Budgets**: Composite action posts key metrics & fails on defined budget overages (`lighthouse-budgets.yml`).
 
+### Auto Merge Label Workflow
+
+An `auto-merge` label enables a workflow that:
+
+1. Validates a PR is non-draft, has at least one approval, no outstanding change requests, and is mergeable.
+2. Enables GitHub's native auto‑merge (rebase) or merges immediately if all required status checks are already green.
+
+Usage:
+
+1. Obtain required review approvals.
+2. Apply the `auto-merge` label (remove it to cancel automatic merging).
+3. The workflow re-evaluates on new commits (`synchronize`) or label
+   application. If protections (status checks) are still pending, it enables
+   native auto‑merge; GitHub completes the merge once all pass.
+
+Notes:
+
+- If a reviewer requests changes, auto-merge pauses until the request is dismissed or a new approving review arrives.
+- Rebase strategy keeps a linear history (single squashed commit scenarios stay
+  intact). Adjust via `merge-method` in `.github/workflows/auto_merge.yml` if
+  policy changes.
+- Direct merge fallback runs only when all checks already succeeded; otherwise it relies on GitHub after enabling auto‑merge.
+
 When adding new performance-impacting areas (e.g. large new asset pipelines),
 extend the change detection heuristics in `pr-validate.yml` to ensure the
 performance section remains mandatory.
