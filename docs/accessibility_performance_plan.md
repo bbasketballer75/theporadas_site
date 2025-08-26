@@ -139,6 +139,46 @@
 7. Implement dynamic section prefetch hook (issue #14)
 8. Add media pipeline scripts scaffolds (issue #15)
 
+## 20. Axe Best-Practice Rules (Observational -> Enforcement Phase)
+
+We run a focused subset of axe "best-practice" style rules (currently `heading-order` and
+`region`) in an OBSERVATIONAL phase first so they do not gate merges while we collect
+baseline data.
+
+Instrumentation:
+
+- Observational run command (non-blocking): `npm run test:a11y:best` sets `A11Y_INCLUDE_BEST_PRACTICES=1` and `A11Y_BEST_OUTPUT=1`.
+- Collected violations are written to `artifacts/axe-best-practices-violations.json` (override path via `A11Y_BEST_OUTPUT_PATH`).
+- Historical artifacts can be compared in PRs to monitor trend prior to hard enforcement.
+
+Enforcement Script:
+
+- Script: `scripts/axe_best_enforce.mjs` (invoked via `npm run a11y:best:enforce`).
+- Reads the JSON artifact and summarizes violation counts per rule.
+- Environment toggle: set `A11Y_BEST_ENFORCE=1` to activate failing behavior.
+- Threshold env vars (default 0) allow gradual ratcheting: `A11Y_THRESHOLD_HEADING_ORDER`, `A11Y_THRESHOLD_REGION`.
+  - Example gradual rollout: start with thresholds at current counts; reduce by 1 each week until zero.
+
+Recommended Rollout Steps:
+
+1. Collect baseline for 3–5 PR cycles (keep enforcement disabled).
+2. Add CI step running `npm run test:a11y:best && npm run a11y:best:enforce` with `A11Y_BEST_ENFORCE=1` but thresholds set to baseline counts.
+3. Ratchet thresholds downward on schedule (document in PR / decision log).
+4. When all thresholds reach 0 and pass consistently, expand rule set if desired.
+
+Failure Behavior:
+
+- When enforcement enabled and any rule count > threshold, script exits with code 1 and logs offending rule counts.
+- Missing artifact file is treated as pass (defensive, avoids false negatives when test
+  selection changes) but should be rare—CI should always run observational test first.
+
+Future Enhancements:
+
+- Extend rule set (e.g., color contrast best-practice variants) once core layout semantics are stable.
+- Optionally compute per-node breakdown for trending (currently omitted to keep JSON small).
+
+Document version updated: 2025-08-26 (best-practice enforcement section added)
+
 ---
 
 Document version: 2025-08-23
