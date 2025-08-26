@@ -294,6 +294,25 @@ emits warnings and proceeds for that gate (coverage minima still enforced if
 summary exists). Ensure producing workflows publish artifacts with stable
 names: `lighthouse-assertions`, `prev-coverage-summary`, `token-deltas`.
 
+##### Summary Comment & Artifact Normalization
+
+Each gated PR receives (or updates) a sticky comment labeled `Quality Gate Summary`.
+It consolidates the latest run's key metrics:
+
+- Current & delta coverage (statements, branches, functions, lines)
+- Token deltas (net / added / removed)
+- Bundle total gzip size & delta plus largest single‑file gzip increase
+- Lighthouse category scores and (when available) metric deltas (LCP, CLS, TBT, INP)
+
+Previous artifacts may not exist early in adoption. The workflow normalizes by
+copying the current bundle sizes to `prev-bundle-sizes.json` (report‑only) when
+no explicit previous artifact is found—allowing deltas to surface as `0.00KB`
+instead of omitting data. The gating script also searches multiple candidate
+paths for previous coverage and bundle artifacts so naming drift or initial
+bootstrap gaps do not cause hard failures; missing history results in warnings
+only. This supports a data‑collection phase before enabling stricter delta
+thresholds (coverage drop, bundle growth, INP regression, hard token added).
+
 ##### ChatOps Command
 
 Comment `/auto-merge` on a pull request to apply the `auto-merge` label via
