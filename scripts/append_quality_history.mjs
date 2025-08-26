@@ -18,7 +18,11 @@ import { existsSync } from 'node:fs';
 
 async function safeJson(path) {
   if (!existsSync(path)) return null;
-  try { return JSON.parse(await readFile(path, 'utf8')); } catch { return null; }
+  try {
+    return JSON.parse(await readFile(path, 'utf8'));
+  } catch {
+    return null;
+  }
 }
 
 function extractCoverage(cov) {
@@ -35,7 +39,9 @@ function extractCoverage(cov) {
 
 function extractBundle(b) {
   if (!b?.total) return null;
-  return { total: { raw: b.total.raw ?? null, gzip: b.total.gzip ?? null, brotli: b.total.brotli ?? null } };
+  return {
+    total: { raw: b.total.raw ?? null, gzip: b.total.gzip ?? null, brotli: b.total.brotli ?? null },
+  };
 }
 
 function extractTokens(t) {
@@ -49,7 +55,7 @@ function extractLighthouse(lh) {
   if (lh.categories) out.categories = lh.categories;
   if (lh.metrics?.current) {
     const cur = lh.metrics.current;
-    const val = (k) => (cur[k]?.numericValue ?? cur[k] ?? null);
+    const val = (k) => cur[k]?.numericValue ?? cur[k] ?? null;
     out.metrics = {
       lcp: val('lcp'),
       cls: val('cls'),
@@ -66,7 +72,7 @@ async function main() {
   const tokens = extractTokens(await safeJson('artifacts/token-deltas.json'));
   const lighthouse = extractLighthouse(
     (await safeJson('artifacts/lighthouse-assertions.json')) ||
-      (await safeJson('artifacts/lighthouse-assertions/lighthouse-assertions.json'))
+      (await safeJson('artifacts/lighthouse-assertions/lighthouse-assertions.json')),
   );
 
   const record = {

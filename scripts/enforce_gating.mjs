@@ -356,9 +356,15 @@ function bundleDeltaMessages(prev, curr) {
 
   function evalThreshold(kind, value, warnLimit, failLimit) {
     if (failLimit != null && value > failLimit + 1e-6) {
-      issues.push({ level: 'error', message: `${kind} +${value.toFixed(2)}KB > fail ${failLimit}KB` });
+      issues.push({
+        level: 'error',
+        message: `${kind} +${value.toFixed(2)}KB > fail ${failLimit}KB`,
+      });
     } else if (warnLimit != null && value > warnLimit + 1e-6) {
-      issues.push({ level: 'warn', message: `${kind} +${value.toFixed(2)}KB > warn ${warnLimit}KB` });
+      issues.push({
+        level: 'warn',
+        message: `${kind} +${value.toFixed(2)}KB > warn ${warnLimit}KB`,
+      });
     }
   }
 
@@ -386,7 +392,12 @@ function bundleDeltaMessages(prev, curr) {
 
   return issues.length
     ? issues
-    : [{ level: 'ok', message: 'Bundle size deltas within limits (or no deltas exceeded thresholds).' }];
+    : [
+        {
+          level: 'ok',
+          message: 'Bundle size deltas within limits (or no deltas exceeded thresholds).',
+        },
+      ];
 }
 
 (async function run() {
