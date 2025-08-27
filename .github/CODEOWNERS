@@ -13,3 +13,8 @@
 # Security / Code Scanning workflows
 .github/workflows/codeql.yml          @bbasketballer75
 .github/workflows/codeql-monthly-review.yml @bbasketballer75
+
+# Dependency / vulnerability auditing
+.github/workflows/weekly-audit.yml    @bbasketballer75
+scripts/ci_audit_guard.mjs            @bbasketballer75
+security/                             @bbasketballer75
