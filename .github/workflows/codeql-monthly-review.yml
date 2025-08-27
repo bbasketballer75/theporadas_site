@@ -1,0 +1,93 @@
+name: codeql-monthly-review
+
+on:
+  schedule:
+    # 1st day of month at 14:00 UTC (morning US time)
+    - cron: '0 14 1 * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  security-events: read
+  issues: write
+
+jobs:
+  summarize:
+    if: ${{ !github.event.repository.private || vars.ENABLE_CODEQL == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch CodeQL alerts (paginated)
+        id: fetch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          owner="${GITHUB_REPOSITORY%%/*}"
+          repo="${GITHUB_REPOSITORY#*/}"
+          per_page=100
+          page=1
+          tmp=$(mktemp)
+          echo '[]' > "$tmp"
+          while true; do
+            resp=$(gh api \
+              -H 'Accept: application/vnd.github+json' \
+              "/repos/$owner/$repo/code-scanning/alerts?per_page=$per_page&page=$page" || true)
+            count=$(echo "$resp" | jq 'length')
+            if [ "$count" -eq 0 ]; then
+              break
+            fi
+            # Append
+            jq -s '.[0] + .[1]' "$tmp" <(echo "$resp") > "$tmp.new" && mv "$tmp.new" "$tmp"
+            if [ "$count" -lt "$per_page" ]; then
+              break
+            fi
+            page=$((page+1))
+          done
+          total=$(jq 'length' "$tmp")
+          by_severity=$(jq -r '[.[].rule.severity] | group_by(.) | map({key:.[0], count:length}) | sort_by(.key)')
+          by_state=$(jq -r '[.[].state] | group_by(.) | map({key:.[0], count:length}) | sort_by(.key)')
+          echo "total=$total" >> $GITHUB_OUTPUT
+          echo "by_severity=$(echo "$by_severity" | jq -c .)" >> $GITHUB_OUTPUT
+          echo "by_state=$(echo "$by_state" | jq -c .)" >> $GITHUB_OUTPUT
+          # Produce markdown table
+          md_file=codeql_summary.md
+          {
+            echo "### CodeQL Alert Summary"
+            echo "Generated: $(date -u '+%Y-%m-%d %H:%M UTC')"
+            echo
+            echo "Total open alerts: $total" 
+            echo
+            echo "#### By Severity" 
+            echo
+            echo "| Severity | Count |" 
+            echo "| -------- | ----- |" 
+            echo "$by_severity" | jq -r '.[] | "| \(.key) | \(.count) |"'
+            echo
+            echo "#### By State" 
+            echo
+            echo "| State | Count |" 
+            echo "| ----- | ----- |" 
+            echo "$by_state" | jq -r '.[] | "| \(.key) | \(.count) |"'
+            echo
+            echo "> Reminder: Triage new alerts promptly. Close or mark dismissed with rationale. See SECURITY_NOTES.md for gating removal steps if still active."
+          } > "$md_file"
+          echo "md_path=$md_file" >> $GITHUB_OUTPUT
+
+      - name: Create or update monthly issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          label="security"
+          month_tag=$(date -u '+%Y-%m')
+            
+          title="Monthly CodeQL Review: $month_tag"
+          existing=$(gh issue list --search "$title" --json number,title | jq -r '.[] | select(.title==env.title) | .number' || true)
+          body_content=$(cat codeql_summary.md)
+          if [ -z "$existing" ]; then
+            gh issue create --title "$title" --label "$label" --body "$body_content" >/dev/null
+            echo "Created issue '$title'"
+          else
+            gh issue edit "$existing" --body "$body_content" >/dev/null
+            echo "Updated issue #$existing ($title)"
+          fi
