@@ -24,8 +24,10 @@ permissions:
 
 jobs:
   finalize:
+    # Run on push / manual always; on workflow_run only if triggering workflow succeeded.
+    # Previous expression may have caused evaluation issues leading to zero jobs.
     if: >-
-      ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+      ${{ github.event_name != 'workflow_run' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
