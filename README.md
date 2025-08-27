@@ -30,6 +30,53 @@ comparisons, and coverage diff gating.
 Idempotent setup scripts + VS Code tasks prevent accidental global reinstalls and
 tool drift.
 
+### Node PATH Troubleshooting (Windows)
+
+If VS Code reports `Unable to find 'node' executable` even after running the setup tasks:
+
+1. Run task: `Setup: Refresh Node PATH (session)` (adds concrete Node dir).
+1. Open a new terminal then verify:
+
+```powershell
+where.exe node
+node -v
+```
+
+1. If placeholders like `%NVM_HOME%` / `%NVM_SYMLINK%` appear in PATH and no concrete
+   `C:\Users\<you>\AppData\Local\nodejs` segment is present, prepend it for the session:
+
+```powershell
+$env:PATH = "C:\\Users\\$env:USERNAME\\AppData\\Local\\nodejs;" + $env:PATH
+```
+
+1. (Optional) Persist: Add that directory to your User PATH via System Environment Variables.
+1. Re-run `node -v` then `npx vitest --version` to confirm tooling.
+
+`scripts/preflight.mjs` emits a warning if placeholders remain unexpanded.
+
+#### Refresh Script Dry Run Mode
+
+The helper script `scripts/refresh_node_path.ps1` normalizes PATH entries and, when
+not in dry run, may invoke NVM to install / use a configured Node version. For
+tests and CI we avoid side effects via the `-DryRun` switch which:
+
+- Skips any `nvm install` / `nvm use` operations
+- Still cleans placeholder segments (e.g. `%NVM_HOME%`, `%NVM_SYMLINK%`)
+- Emits the same success / warning messages and adjusted PATH for the session
+
+Examples:
+
+```powershell
+# Preview & normalize without altering installed Node versions
+pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/refresh_node_path.ps1 -DryRun
+
+# Integrate into a one-off terminal session before running tests
+pwsh -File ./scripts/refresh_node_path.ps1 -DryRun; node scripts/preflight.mjs --no-engines
+```
+
+Use DryRun in automated tests to guarantee deterministic behavior without
+network or install latency while still validating placeholder cleanup logic.
+
 ## Content Model & Loader
 
 Markdown files in `content/` define site sections via simple frontmatter +
@@ -140,6 +187,53 @@ threshold.
 See `.github/project_instructions.md` for architecture, scope, standards, and success
 criteria. If this README conflicts with it, defer to the blueprint and open a PR
 to reconcile.
+
+---
+
+## Workflow Governance Verifier
+
+Script: `scripts/verify_workflows.mjs` enforces parity & policy between local
+`.github/workflows` and the remote repository workflows (GitHub REST).
+
+Features:
+
+- Diff key: `--key path|name|both` (default `path`).
+- Required workflows: `--require name1,name2` (names or paths).
+- Ignore dynamic remote-only entries: `--ignore pattern1,pattern2` (exact or glob `*` `?`).
+- Name differences policy: `--name-diff-severity warn|fail|ignore` (when `path` key used; reports differing display names for same file).
+- Fail on path mismatches: `--fail-missing` (otherwise informational).
+- Remote list caching: `--cache-remote --cache-ttl 600` (seconds).
+- Deterministic offline / test mode: `--remote-json file.json` (bypasses repo & network).
+- Artifacts: `workflows-verify.json` + `workflows-verify.md` (default `artifacts/` or `--output dir`).
+- Step summary emission inside GitHub Actions if `GITHUB_STEP_SUMMARY` set.
+
+Exit codes:
+
+| Code | Meaning                                           |
+| ---- | ------------------------------------------------- |
+| 0    | Success (only warnings allowed)                   |
+| 2    | Remote access / auth error                        |
+| 3    | Required workflows missing                        |
+| 4    | Path mismatches with `--fail-missing`             |
+| 5    | Name differences with `--name-diff-severity=fail` |
+
+Optional config file: `.github/workflow-verify.json` (fields: `key`, `ignore`,
+`require`, `outputDir`, `nameDiffSeverity`, `cacheTTL`). CLI flags override.
+
+Examples:
+
+```powershell
+# Governance in CI (warn on name diffs, fail on path mismatches, ignore previews)
+node scripts/verify_workflows.mjs --require "CI Pipeline,Security Scan" --ignore "*preview*" --fail-missing --name-diff-severity warn
+
+# Offline test / simulation (uses fixture instead of API)
+node scripts/verify_workflows.mjs --remote-json test/fixtures/workflows_remote.json --key path
+
+# Enable remote caching (5 min TTL)
+node scripts/verify_workflows.mjs --cache-remote --cache-ttl 300
+```
+
+Tip: Add new workflow files both locally and in the remote repo within the same PR to avoid transient failures when `--fail-missing` is active.
 
 ---
 
