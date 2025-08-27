@@ -111,6 +111,7 @@ jobs:
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HUSKY: 0
         run: |
           set -euo pipefail
           if [ ! -f scripts/codeql_verify_append.mjs ]; then
@@ -129,5 +130,6 @@ jobs:
             echo 'Nothing staged.'
             exit 0
           fi
-            git commit -m 'chore(security): append CodeQL baseline verification section' || true
+          # Disable husky hooks explicitly (in case HUSKY env var not honored in scripts)
+          git -c core.hooksPath=/dev/null commit -m 'chore(security): append CodeQL baseline verification section' || true
           git push || echo 'Push failed (possibly due to branch protection).'
