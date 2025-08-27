@@ -58,8 +58,8 @@ async function fetchAlerts() {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: 'application/vnd.github+json',
-        'User-Agent': 'codeql-verify-append-script'
-      }
+        'User-Agent': 'codeql-verify-append-script',
+      },
     });
     if (res.status === 403 || res.status === 404) {
       console.log(`Code scanning not enabled yet (status ${res.status}); skipping append.`);
@@ -88,7 +88,16 @@ async function fetchAlerts() {
 
 function normalizeSeverity(alert) {
   const sev = alert?.rule?.severity || alert?.rule?.security_severity_level || 'unknown';
-  const map = { critical: 'critical', high: 'high', error: 'high', medium: 'medium', warning: 'low', low: 'low', note: 'low', unknown: 'low' };
+  const map = {
+    critical: 'critical',
+    high: 'high',
+    error: 'high',
+    medium: 'medium',
+    warning: 'low',
+    low: 'low',
+    note: 'low',
+    unknown: 'low',
+  };
   return map[sev] || sev || 'low';
 }
 function aggregate(alerts) {
@@ -98,11 +107,11 @@ function aggregate(alerts) {
     counts[sev] ??= 0;
     counts[sev]++;
   }
-  const total = Object.values(counts).reduce((a,b)=>a+b,0);
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
   return { total, ...counts };
 }
 function buildSection(counts) {
-  const date = new Date().toISOString().slice(0,10);
+  const date = new Date().toISOString().slice(0, 10);
   return `## CodeQL Baseline Verification (First Automated Run ${date})\n\nVerified CodeQL alert ingestion after enabling Code Scanning. Severity counts (security-and-quality query pack):\n\n- Alerts (Total): ${counts.total}\n- Critical: ${counts.critical}\n- High: ${counts.high}\n- Medium: ${counts.medium}\n- Low: ${counts.low}\n\nTriage: High/Medium alerts must have issues opened within 24h (link issues here if any). Accepted Low findings require documented rationale referencing commit hashes.\n\nThis section is immutable; subsequent drift will be tracked in future monthly delta summaries rather than altering baseline figures.\n`;
 }
 
@@ -116,8 +125,14 @@ function buildSection(counts) {
   // Write artifacts
   const artifactsDir = path.join(process.cwd(), 'artifacts');
   if (!fs.existsSync(artifactsDir)) fs.mkdirSync(artifactsDir, { recursive: true });
-  fs.writeFileSync(path.join(artifactsDir, 'codeql-verification-alerts.json'), JSON.stringify(alerts, null, 2));
-  fs.writeFileSync(path.join(artifactsDir, 'codeql-verification-counts.json'), JSON.stringify(counts, null, 2));
+  fs.writeFileSync(
+    path.join(artifactsDir, 'codeql-verification-alerts.json'),
+    JSON.stringify(alerts, null, 2),
+  );
+  fs.writeFileSync(
+    path.join(artifactsDir, 'codeql-verification-counts.json'),
+    JSON.stringify(counts, null, 2),
+  );
   fs.writeFileSync(path.join(artifactsDir, 'codeql-verification-section.md'), section);
 
   // Append to SECURITY_NOTES.md after the pending verification section if present, else at end
