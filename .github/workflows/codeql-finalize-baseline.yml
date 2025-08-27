@@ -29,6 +29,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - name: Debug event payload
+        run: |
+          echo "Event name: ${{ github.event_name }}"
+          echo "Workflow run conclusion (if any): ${{ github.event.workflow_run.conclusion }}"
+          echo 'Event payload snippet:'
+          cat $GITHUB_EVENT_PATH | head -c 4000 || true
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -45,12 +52,13 @@ jobs:
             echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
             echo "run_attempt=${{ github.run_attempt }}" >> $GITHUB_OUTPUT
           fi
+          echo "Using run metadata: id=$(grep run_id $GITHUB_OUTPUT || true) attempt=$(grep run_attempt $GITHUB_OUTPUT || true)" || true
 
       - name: Generate snapshot (with fallback)
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             GITHUB_REPOSITORY: ${{ github.repository }}
-            CODEQL_RUN_NUMBER: ${{ steps.meta.outputs.run_id }}
+            CODEQL_RUN_NUMBER: ${{ steps.meta.outputs.run_id }}-${{ steps.meta.outputs.run_attempt }}
         run: |
           set -euo pipefail
           mkdir -p artifacts
