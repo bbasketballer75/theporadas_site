@@ -105,3 +105,29 @@ jobs:
           fi
           git commit -m 'chore(security): finalize CodeQL baseline (closes #24)' || true
           git push || echo 'Push failed (possibly due to branch protection).'
+
+      - name: Append CodeQL verification section (post-enable)
+        if: github.ref == 'refs/heads/main'
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ ! -f scripts/codeql_verify_append.mjs ]; then
+            echo 'Verification script missing; skipping.'
+            exit 0
+          fi
+          node scripts/codeql_verify_append.mjs || true
+          if git diff --quiet SECURITY_NOTES.md; then
+            echo 'No verification changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions'
+          git config user.email 'github-actions@users.noreply.github.com'
+          git add SECURITY_NOTES.md artifacts/codeql-verification-*.json artifacts/codeql-verification-section.md || true
+          if git diff --cached --quiet; then
+            echo 'Nothing staged.'
+            exit 0
+          fi
+            git commit -m 'chore(security): append CodeQL baseline verification section' || true
+          git push || echo 'Push failed (possibly due to branch protection).'
