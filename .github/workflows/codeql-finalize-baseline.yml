@@ -1,5 +1,12 @@
 name: codeql-finalize-baseline
 
+# DEPRECATION NOTICE (2025-08-27):
+# This workflow is retained only for historical reference. All CodeQL baseline
+# finalization logic was inlined into `.github/workflows/codeql.yml` because this
+# workflow repeatedly executed with zero jobs (GitHub reported total_count=0) and
+# failed to run any steps despite structural validity. Do NOT modify further.
+# Future baseline adjustments should happen directly in `codeql.yml`.
+
 on:
   workflow_dispatch:
   workflow_run:
