@@ -88,7 +88,8 @@ EOF
           set -euo pipefail
           git config user.name 'github-actions'
           git config user.email 'github-actions@users.noreply.github.com'
-          git add SECURITY_NOTES.md artifacts/codeql-baseline-snippet.md || true
+          # Only commit SECURITY_NOTES.md (artifacts/ is gitignored by design)
+          git add SECURITY_NOTES.md || true
           if git diff --cached --quiet; then
             echo 'No changes to commit.'
             exit 0
@@ -113,7 +114,7 @@ EOF
             git checkout $branch
           fi
           # Ensure changes are staged on branch
-          git add SECURITY_NOTES.md artifacts/codeql-baseline-snippet.md || true
+          git add SECURITY_NOTES.md || true
           if git diff --cached --quiet; then
             echo 'No staged changes to create PR.'
             exit 0
