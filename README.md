@@ -13,6 +13,7 @@ comparisons, and coverage diff gating.
 ## Project Setup and Tooling
 
 ![CI Lint](https://github.com/bbasketballer75/theporadas_site/actions/workflows/ci-lint.yml/badge.svg)
+![CodeQL (gated)](https://github.com/bbasketballer75/theporadas_site/actions/workflows/codeql.yml/badge.svg)
 ![TypeScript](https://github.com/bbasketballer75/theporadas_site/actions/workflows/ci-typecheck.yml/badge.svg)
 ![Tests](https://github.com/bbasketballer75/theporadas_site/actions/workflows/ci-test.yml/badge.svg)
 ![Coverage Badge Job](https://github.com/bbasketballer75/theporadas_site/actions/workflows/coverage-badge.yml/badge.svg)
