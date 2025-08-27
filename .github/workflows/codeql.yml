@@ -7,6 +7,7 @@ on:
     branches: [main]
   schedule:
     - cron: '0 7 * * 0' # weekly Sunday 07:00 UTC
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -15,6 +16,9 @@ permissions:
 
 jobs:
   analyze:
+    # Skip automatically on private repositories unless explicitly enabled via repo variable ENABLE_CODEQL.
+    # This prevents hard failures when code scanning is not yet enabled in settings.
+    if: ${{ !github.event.repository.private || vars.ENABLE_CODEQL == 'true' }}
     name: Analyze (CodeQL)
     runs-on: ubuntu-latest
     strategy:
