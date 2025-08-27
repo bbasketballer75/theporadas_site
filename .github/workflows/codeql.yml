@@ -16,9 +16,7 @@ permissions:
 
 jobs:
   analyze:
-    # Skip automatically on private repositories unless explicitly enabled via repo variable ENABLE_CODEQL.
-    # This prevents hard failures when code scanning is not yet enabled in settings.
-    if: ${{ !github.event.repository.private || vars.ENABLE_CODEQL == 'true' }}
+    # Gating condition removed after successful public baseline (repository now public; CodeQL always runs).
     name: Analyze (CodeQL)
     runs-on: ubuntu-latest
     strategy:

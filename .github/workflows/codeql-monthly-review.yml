@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   summarize:
-    if: ${{ !github.event.repository.private || vars.ENABLE_CODEQL == 'true' }}
+    # Gating condition removed (repository public; CodeQL baseline established).
     runs-on: ubuntu-latest
     steps:
       - name: Fetch CodeQL alerts (paginated)
@@ -55,18 +55,18 @@ jobs:
             echo "### CodeQL Alert Summary"
             echo "Generated: $(date -u '+%Y-%m-%d %H:%M UTC')"
             echo
-            echo "Total open alerts: $total" 
+            echo "Total open alerts: $total"
             echo
-            echo "#### By Severity" 
+            echo "#### By Severity"
             echo
-            echo "| Severity | Count |" 
-            echo "| -------- | ----- |" 
+            echo "| Severity | Count |"
+            echo "| -------- | ----- |"
             echo "$by_severity" | jq -r '.[] | "| \(.key) | \(.count) |"'
             echo
-            echo "#### By State" 
+            echo "#### By State"
             echo
-            echo "| State | Count |" 
-            echo "| ----- | ----- |" 
+            echo "| State | Count |"
+            echo "| ----- | ----- |"
             echo "$by_state" | jq -r '.[] | "| \(.key) | \(.count) |"'
             echo
             echo "> Reminder: Triage new alerts promptly. Close or mark dismissed with rationale. See SECURITY_NOTES.md for gating removal steps if still active."
@@ -80,7 +80,7 @@ jobs:
           set -euo pipefail
           label="security"
           month_tag=$(date -u '+%Y-%m')
-            
+
           title="Monthly CodeQL Review: $month_tag"
           existing=$(gh issue list --search "$title" --json number,title | jq -r '.[] | select(.title==env.title) | .number' || true)
           body_content=$(cat codeql_summary.md)
