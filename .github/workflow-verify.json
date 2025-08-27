@@ -1,0 +1,12 @@
+{
+  "key": "path",
+  "ignore": [
+    "dynamic/dependabot/dependabot-updates",
+    "dynamic/github-code-scanning/codeql",
+    "dynamic/pages/pages-build-deployment"
+  ],
+  "require": [],
+  "outputDir": "artifacts",
+  "nameDiffSeverity": "warn",
+  "cacheTTL": 300
+}
