@@ -334,6 +334,75 @@ Contingency (if GHAS enablement delayed):
 
 Status Flag: Gating retained pending successful SARIF upload.
 
+## Secret Rotation Cadence & Procedure
+
+Scope: All long‑lived credentials used in CI, automation scripts, and external
+integrations (e.g., `GITHUB_APP_PRIVATE_KEY`, cloud API keys, third‑party
+service tokens) — excluding ephemeral OIDC exchanges (rotated per run) and
+short‑lived installation tokens.
+
+Rotation Cadence (Baseline Targets):
+
+- High sensitivity (privileged cloud deploy keys, GitHub App private key): 90 days.
+- Medium sensitivity (read‑only analytics / monitoring tokens): 180 days.
+- Low sensitivity (sandbox / non‑prod service tokens): 365 days (or sooner if provider offers automated rotation hooks).
+- Immediate (out‑of‑band): Upon suspected compromise, personnel departure, scope change reducing least privilege, provider breach notification.
+
+Process (Two‑Phase Overlap to Avoid Outage):
+
+1. Preparation:
+   - Identify secret in inventory; confirm usage points (workflows, scripts, env vars, deployment configs).
+   - Verify least privilege; if over‑scoped, reduce before rotating (principle of reducing blast radius first).
+2. Generate New Secret:
+   - Create new credential with identical or narrower permissions.
+   - Label with creation date (if provider supports descriptions / tags).
+3. Dual Deployment Window:
+   - Add new secret alongside old (e.g., `SERVICE_TOKEN_NEW`) in CI secrets store.
+   - Update workflows / scripts to attempt `*_NEW` first, fallback to old, OR
+     deploy in feature branch referencing new name only if zero‑downtime
+     assured.
+4. Validation:
+   - Run targeted dry‑run workflow (workflow_dispatch) referencing new secret.
+   - Check logs for successful auth; ensure no references to deprecated token remain (search repo & Actions logs).
+5. Cutover:
+   - Replace original secret value with new credential (or rename `*_NEW` back to canonical name once validated).
+   - Remove temporary dual secret variable to prevent drift.
+6. Revoke Old Secret:
+   - In provider console revoke/delete old credential. Confirm revocation (attempt auth should fail or provider shows invalidated status).
+7. Record & Audit:
+   - Append rotation entry to internal rotation log (future: dedicated
+     `security/secret-rotation-log.json`). Include: secret name (abstracted if
+     sensitive), date, operator, reason (scheduled/unscheduled), verification
+     run id.
+8. Monitor:
+   - For 24h after cutover, monitor error rates & auth failure logs; rollback path (re‑issue new token) if elevated failures detected.
+
+Emergency Rotation Shortcut:
+
+- Skip dual deployment; immediately revoke suspected compromised secret,
+  generate replacement, update CI, run validation workflow. Accept brief
+  disruption risk in favor of containment.
+
+Tooling / Automation Roadmap:
+
+- Add `scripts/secret_rotation_audit.mjs` (future) to enumerate last rotation
+  timestamps and fail CI if exceeding threshold (except whitelisted
+  ephemeral classes).
+- Adopt provider native automated rotation (e.g., GitHub Actions OIDC for cloud deploys) to reduce manual secrets surface.
+
+Evidence of Compliance:
+
+- Until automation exists, manual attest: run `gh secret list` (or provider
+  equivalent) monthly and compare against rotation schedule; document
+  exceptions here with justification & next rotation date.
+
+Risk if Deferred:
+
+- Prolonged window for credential misuse (esp. GitHub App private key leak enabling unauthorized installations tokens issuance).
+- Harder incident forensics (unclear which credential active when anomaly occurred) and larger impacted time span.
+
+KPIs (to iterate): Mean Rotation Latency (MRL), % Secrets Overdue, Number of Emergency Rotations per Quarter.
+
 ## Fine-Grained PAT Checks / Annotations Limitation
 
 Context (2025-06+): Fine-grained personal access tokens (PATs) cannot currently
@@ -450,17 +519,3 @@ the step invoking the script:
 - Integrate with a security dashboard (e.g., lightweight status badge generated from the JSON summary).
 
 ---
-
-## CodeQL Baseline Verification (First Automated Run 2025-08-27)
-
-Verified CodeQL alert ingestion after enabling Code Scanning. Severity counts (security-and-quality query pack):
-
-- Alerts (Total): 34
-- Critical: 0
-- High: 0
-- Medium: 0
-- Low: 34
-
-Triage: High/Medium alerts must have issues opened within 24h (link issues here if any). Accepted Low findings require documented rationale referencing commit hashes.
-
-This section is immutable; subsequent drift will be tracked in future monthly delta summaries rather than altering baseline figures.
