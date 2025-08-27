@@ -53,7 +53,8 @@
     "mcp:smoke": "node scripts/mcp_smoke_test.mjs",
     "analyze:quality": "node scripts/analyze_quality_history.mjs",
     "quality:regression-check": "node scripts/quality_regression_check.mjs",
-    "lqip": "node scripts/generate_lqip.mjs"
+    "lqip": "node scripts/generate_lqip.mjs",
+    "security:code-scanning:app-fetch": "node scripts/code_scanning_app_fetch.mjs"
   },
   "devDependencies": {
     "dotenv": "^16.4.5",
@@ -102,7 +103,9 @@
     "mssql": "^11.0.1",
     "node-fetch": "^3.3.2",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "@octokit/core": "^6.1.2",
+    "@octokit/auth-app": "^7.1.2"
   },
   "peerDependencies": {
     "playwright": "*",
