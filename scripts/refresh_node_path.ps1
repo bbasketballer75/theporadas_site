@@ -1,17 +1,25 @@
-Param()
+Param(
+    [switch] $DryRun
+)
 $ErrorActionPreference = 'Stop'
 
 Write-Host 'Refreshing Node/NPM/NPX PATH for this terminal...' -ForegroundColor Cyan
 
+# Track any path entries we add (for optional success summary)
+$addedPaths = @()
 # Determine NVM locations
-$nvmHome    = Join-Path $env:LOCALAPPDATA 'nvm'
-$nvmExe     = Join-Path $nvmHome 'nvm.exe'
-$defaultPF  = 'C:\\Program Files\\nodejs'
-$userLink   = Join-Path $env:LOCALAPPDATA 'nodejs'
-$userNpm    = Join-Path $env:APPDATA 'npm'
+$nvmHome = Join-Path $env:LOCALAPPDATA 'nvm'
+$nvmExe = Join-Path $nvmHome 'nvm.exe'
+$defaultPF = 'C:\\Program Files\\nodejs'
+$userLink = Join-Path $env:LOCALAPPDATA 'nodejs'
+$userNpm = Join-Path $env:APPDATA 'npm'
 
 if (-not (Test-Path $nvmExe)) {
-    throw "nvm.exe not found at $nvmExe. Run the setup task to install NVM for Windows."
+    if ($DryRun) {
+        Write-Host "DryRun: nvm.exe not found (expected if tooling not installed in test context)" -ForegroundColor Yellow
+    } else {
+        throw "nvm.exe not found at $nvmExe. Run the setup task to install NVM for Windows."
+    }
 }
 
 # Choose a writable symlink directory for Node (Program Files may need admin)
@@ -22,7 +30,8 @@ try {
     $testFile = Join-Path $nvmSymlink '.__write_test__'
     Set-Content -Path $testFile -Value 'ok' -Force
     Remove-Item -Path $testFile -Force
-} catch { $useUser = $true }
+}
+catch { $useUser = $true }
 if ($useUser) {
     $nvmSymlink = $userLink
 }
@@ -36,7 +45,8 @@ if (Test-Path $nvmSymlink) {
             Remove-Item -Recurse -Force -Path $nvmSymlink
             Write-Host "Removed physical directory at symlink path: $nvmSymlink" -ForegroundColor Yellow
         }
-    } catch {}
+    }
+    catch {}
 }
 
 # Update NVM settings.txt to point to the chosen symlink directory
@@ -46,9 +56,10 @@ if (-not (Test-Path $settings)) {
         "root: $nvmHome",
         "path: $nvmSymlink"
     ) -Force
-} else {
+}
+else {
     $lines = Get-Content $settings -ErrorAction SilentlyContinue
-    $new   = @()
+    $new = @()
     $foundPath = $false
     $foundRoot = $false
     foreach ($l in $lines) {
@@ -65,34 +76,69 @@ if (-not (Test-Path $settings)) {
 }
 
 # Set env vars for current session
-$env:NVM_HOME    = $nvmHome
+$env:NVM_HOME = $nvmHome
 $env:NVM_SYMLINK = $nvmSymlink
 
 # Ensure PATH for current session
 $paths = @($nvmHome, $nvmSymlink, $userNpm)
 foreach ($p in $paths) {
-    if ($p -and (Test-Path $p) -and ($env:PATH -notlike "*$p*")) { $env:PATH = "$env:PATH;$p" }
-}
-
-# Ensure an LTS Node version is installed
-$haveAny = @(Get-ChildItem -Path $nvmHome -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '^v?[0-9]+\.[0-9]+\.[0-9]+$' }).Count -gt 0
-if (-not $haveAny) {
-    Write-Host 'No Node versions found under NVM. Installing latest LTS...' -ForegroundColor Yellow
-    & $nvmExe install lts | Out-Host
-}
-
-# Activate latest LTS
-& $nvmExe use lts | Out-Host
-
-# After activation, ensure PATH includes the symlink & npm user bin
-foreach ($p in @($nvmSymlink, $userNpm)) {
-    if ($p -and ($env:PATH -notlike "*$p*")) {
-        $env:PATH = "$p;$env:PATH"
+    if ($p -and (Test-Path $p)) {
+        # Prepend concrete resolved path if not already present (avoid literal %NVM_HOME% style placeholders)
+        $already = $false
+        foreach ($seg in ($env:PATH -split ';')) { if ($seg.TrimEnd('\') -ieq $p.TrimEnd('\')) { $already = $true; break } }
+        if (-not $already) { $env:PATH = "$p;$env:PATH"; $addedPaths += $p }
     }
 }
 
+if (-not $DryRun) {
+    # Ensure an LTS Node version is installed
+    $haveAny = @(Get-ChildItem -Path $nvmHome -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '^v?[0-9]+\.[0-9]+\.[0-9]+$' }).Count -gt 0
+    if (-not $haveAny -and (Test-Path $nvmExe)) {
+        Write-Host 'No Node versions found under NVM. Installing latest LTS...' -ForegroundColor Yellow
+        & $nvmExe install lts | Out-Host
+    }
+    if (Test-Path $nvmExe) { & $nvmExe use lts | Out-Host }
+} else {
+    Write-Host 'DryRun: skipping NVM install/use operations.' -ForegroundColor Yellow
+}
+
+# After activation, ensure PATH includes the symlink & npm user bin
+foreach ($p in @($nvmSymlink, $userNpm)) {
+    if ($p) {
+        $already = $false
+        foreach ($seg in ($env:PATH -split ';')) { if ($seg.TrimEnd('\') -ieq $p.TrimEnd('\')) { $already = $true; break } }
+        if (-not $already) { $env:PATH = "$p;$env:PATH"; $addedPaths += $p }
+    }
+}
+
+# Placeholder cleanup & final validation
+$pathSegments = @()
+$hadPlaceholders = $false
+foreach ($seg in ($env:PATH -split ';')) {
+    if ($seg -match '%NVM_HOME%') { $hadPlaceholders = $true; if ($env:NVM_HOME) { $seg = $seg -replace '%NVM_HOME%', $env:NVM_HOME } }
+    if ($seg -match '%NVM_SYMLINK%') { $hadPlaceholders = $true; if ($env:NVM_SYMLINK) { $seg = $seg -replace '%NVM_SYMLINK%', $env:NVM_SYMLINK } }
+    $pathSegments += $seg
+}
+if ($hadPlaceholders) { $env:PATH = ($pathSegments -join ';') }
+
+$nodeVersion = $null
+try { $nodeVersion = (node --version) } catch {}
+if (-not $nodeVersion) {
+    Write-Warning 'Node still not resolvable after refresh. Add C:\Users\%USERNAME%\AppData\Local\nodejs to your PATH (User scope) and re-open terminal.'
+    Write-Host 'Current PATH:' -ForegroundColor Yellow
+    Write-Host $env:PATH
+} else {
+    if ($addedPaths.Count -gt 0) { Write-Host ("Added PATH entries: " + ($addedPaths -join ', ')) -ForegroundColor Green }
+    if ($hadPlaceholders) { Write-Host 'Replaced placeholder %NVM_HOME%/%NVM_SYMLINK% entries with concrete paths.' -ForegroundColor Green }
+    Write-Host 'Node PATH refresh successful.' -ForegroundColor Green
+}
+
 # Report versions
-try { Write-Host ("nvm:  " + ((& $nvmExe version) 2>$null)) } catch { Write-Host 'nvm: not found' }
-try { Write-Host ("node: " + ((node --version) 2>$null)) } catch { Write-Host 'node: not found' }
-try { Write-Host ("npm:  " + ((npm --version) 2>$null)) } catch { Write-Host 'npm: not found' }
-try { Write-Host ("npx:  " + ((npx --version) 2>$null)) } catch { Write-Host 'npx: not found' }
+if (-not $DryRun) {
+    try { Write-Host ("nvm:  " + ((& $nvmExe version) 2>$null)) } catch { Write-Host 'nvm: not found' }
+    try { Write-Host ("node: " + ((node --version) 2>$null)) } catch { Write-Host 'node: not found' }
+    try { Write-Host ("npm:  " + ((npm --version) 2>$null)) } catch { Write-Host 'npm: not found' }
+    try { Write-Host ("npx:  " + ((npx --version) 2>$null)) } catch { Write-Host 'npx: not found' }
+} else {
+    Write-Host 'DryRun: skipped version reporting.' -ForegroundColor Yellow
+}
