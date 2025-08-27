@@ -52,6 +52,22 @@ Open an expedited security task if ANY of:
 
 ---
 
+## CodeQL Baseline (Public Repo Transition Placeholder)
+
+Repository was made public to enable CodeQL without Advanced Security licensing (baseline run pending at time of this edit).
+
+Placeholder Metrics (to be replaced after successful run):
+
+- Alerts (Total): <pending>
+- Critical: <pending>
+- High: <pending>
+- Medium: <pending>
+- Low: <pending>
+- Queries Pack: security-and-quality (default)
+- Gating Removal: Workflows updated to always run (awaiting confirmation of first successful SARIF upload before finalizing numbers here).
+
+Next Step: Complete baseline run, fetch counts via API, and replace this block with finalized immutable snapshot stamped with date.
+
 This file documents deliberate risk acceptance to aid future audits.
 
 ---
@@ -177,3 +193,155 @@ coverage. Mitigation: this section plus a calendar reminder / monthly review ite
 
 - Target date to enable & remove gate: <set once GHAS entitlement confirmed>.
 - Owner: Security/Dev Lead.
+
+### 2025-08-27 Baseline Attempt Status
+
+An initial manual dispatch of `codeql.yml` (run id recorded in Actions) executed analysis successfully locally but FAILED on SARIF upload with:
+
+```text
+Code scanning is not enabled for this repository. Please enable code scanning in the repository settings.
+```
+
+Indicators:
+
+- Workflow concluded `failure` only at the SARIF upload step.
+- Repository REST metadata response lacks `security_and_analysis` field (typical when Advanced Security is not available / not enabled for a
+  private repo on the current plan).
+- API PATCH with `security_and_analysis.advanced_security.status="enabled"` returned HTTP 422 (Invalid security_and_analysis payload),
+  confirming plan / entitlement limitation (not syntax).
+
+Implication: Baseline cannot be established until GitHub Advanced Security (Code Scanning) is enabled for this private repository (allocate GHAS
+seat or make repo public temporarily).
+
+Next Actions Required (manual):
+
+1. Upgrade plan or allocate GHAS seat(s) that include Code Scanning for private repositories.
+2. In repository Settings > Code security and analysis, enable Code scanning (Default / CodeQL) and confirm toggle shows enabled.
+3. (Optional) Temporarily make repository public, re-run baseline, then revert to private after licensing obtained.
+4. Re-dispatch `codeql.yml` (workflow_dispatch) and confirm SARIF upload success (run conclusion success; alerts visible under Security > Code
+   scanning alerts).
+5. Resume the Baseline Triage Checklist above, then remove gating line and delete `ENABLE_CODEQL` variable.
+
+Contingency (if GHAS enablement delayed):
+
+- Keep gating condition to avoid recurrent failing runs (prevents CI noise).
+- Optionally run local CodeQL CLI for preliminary insight (results remain local) and manually document any high severity findings.
+
+Status Flag: Gating retained pending successful SARIF upload.
+
+## Fine-Grained PAT Checks / Annotations Limitation
+
+Context (2025-06+): Fine-grained personal access tokens (PATs) cannot currently
+be granted the `Checks` permission despite the REST docs listing it. Attempts
+to query Checks or PR annotations endpoints with a fine-grained PAT yield 403
+("Resource not accessible by personal access token"). GitHub support (community
+discussion #129512) confirmed the permission was disabled and only GitHub Apps
+(or the default `GITHUB_TOKEN` within Actions) can access those APIs. Classic
+PATs still work but are discouraged; prefer a GitHub App for any external
+polling or automation needing Checks or annotations details.
+
+Reference: [GitHub community discussion #129512](https://github.com/orgs/community/discussions/129512)
+
+Implications for this repository:
+
+- All workflow-generated annotations (CodeQL, linters) rely on the built-in
+  `GITHUB_TOKEN` — no additional change required.
+- External tooling should authenticate as a GitHub App (installation token)
+  rather than a fine-grained PAT when needing Checks / annotations.
+- If GitHub restores the fine-grained PAT Checks permission, re-evaluate and
+  potentially retire the App-based polling script.
+
+Added Script: `scripts/code_scanning_app_fetch.mjs` demonstrates retrieving
+Code Scanning alerts via a GitHub App installation token.
+
+## GitHub App Setup (Code Scanning Alert Polling)
+
+Purpose: Provide least-privilege external access (outside Actions) to read Code Scanning
+alerts and (optionally) Checks/annotations without relying on classic PATs.
+
+### Minimal Permissions
+
+Repository permissions (choose only what is needed):
+
+- Code scanning alerts: Read (REQUIRED for alert polling)
+- Metadata: Read (implicit / always granted)
+
+Optional (only if future automation requires them – DO NOT over-grant now):
+
+- Checks: Read (to list check runs / annotations) – currently satisfied by `GITHUB_TOKEN` inside workflows; external polling may add later.
+- Contents: Read (if needing to resolve file blobs beyond alert metadata)
+
+Do NOT grant write scopes (Code scanning alerts: Write, Contents: Write, etc.) unless a specific, reviewed use case (e.g., programmatic dismissal
+with rationale) is approved.
+
+### Creation Steps
+
+- Navigate: GitHub (web) > Settings (user or org) > Developer settings > GitHub Apps > New GitHub App.
+- Basic Info:
+  - Name: `theporadas-security-reader` (or org-wide variant)
+  - Homepage URL: Repository URL.
+  - Webhook: Disabled (not needed for pull-only polling). Leave secret blank.
+- Permissions (Repository): Set only:
+  - Code scanning alerts: Read
+- Skip all other permissions; GitHub auto-adds Metadata.
+- Where can this GitHub App be installed? Choose: Only on this account (default) or organization as appropriate.
+- Create App.
+- Generate Private Key (PEM). Store securely (password manager / secret vault). You can regenerate later; old key invalidates immediately.
+- Install App: Click Install App, select the target repository (`bbasketballer75/theporadas_site`). Record Installation ID from the URL or via
+  API.
+
+### Mapping To Environment Variables
+
+The polling script (`scripts/code_scanning_app_fetch.mjs`) expects:
+
+| Variable                 | Value Source                                                        |
+| ------------------------ | ------------------------------------------------------------------- |
+| `GITHUB_APP_ID`          | Numeric App ID (shown on App page)                                  |
+| `GITHUB_APP_PRIVATE_KEY` | Entire PEM contents (use `\n` escapes in single-line secret stores) |
+| `GITHUB_INSTALLATION_ID` | Numeric Installation ID (URL segment after `/installation/`)        |
+| `GITHUB_REPOSITORY`      | `bbasketballer75/theporadas_site`                                   |
+
+Example (PowerShell, local dev):
+
+```powershell
+$env:GITHUB_APP_ID = '123456'
+$env:GITHUB_INSTALLATION_ID = '987654321'
+$env:GITHUB_REPOSITORY = 'bbasketballer75/theporadas_site'
+$env:GITHUB_APP_PRIVATE_KEY = (Get-Content .\.keys\app_private_key.pem -Raw)
+node scripts/code_scanning_app_fetch.mjs OUTPUT=json > codeql_alerts.json
+```
+
+In GitHub Actions, store each as an Actions Secret (except repository which is implicit) – then export into the job environment only for
+the step invoking the script:
+
+```yaml
+   - name: Fetch Code Scanning alerts via App
+    env:
+      GITHUB_APP_ID: ${{ secrets.APP_ID }}
+      GITHUB_APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+      GITHUB_INSTALLATION_ID: ${{ secrets.APP_INSTALLATION_ID }}
+      GITHUB_REPOSITORY: ${{ github.repository }}
+    run: node scripts/code_scanning_app_fetch.mjs OUTPUT=json > codeql_alerts.json
+```
+
+### Rotating The Private Key
+
+1. Generate new key on the App page.
+2. Update the secret (`APP_PRIVATE_KEY`) promptly.
+3. Remove the old key file locally. Keys are JWT-signed per request; rotation does not invalidate existing installation access tokens immediately
+   (they naturally expire ~1 hour), but future token creation requires the new key.
+
+### Security Considerations
+
+- Principle of least privilege: keep only read access.
+- No webhook reduces external attack surface (script uses pull model).
+- Store private key encrypted at rest; avoid committing any PEM artifacts.
+- Consider a periodic script (CI) to compare live permissions with an expected manifest to detect drift.
+
+### Future Enhancements (Optional)
+
+- Add minimal Checks: Read permission if future external dashboard needs per-alert annotations.
+- Add automation to parse severity counts and push a short markdown summary into `SECURITY_NOTES.md` during monthly review.
+- Integrate with a security dashboard (e.g., lightweight status badge generated from the JSON summary).
+
+---
