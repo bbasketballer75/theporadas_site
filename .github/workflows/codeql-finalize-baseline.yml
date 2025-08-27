@@ -1,8 +1,49 @@
 name: codeql-finalize-baseline
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  security-events: read
+  actions: read
+
 jobs:
-  minimal:
+  finalize:
     runs-on: ubuntu-latest
     steps:
-      - run: echo ok
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run snapshot script
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          CODEQL_RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          node scripts/codeql_baseline_snapshot.mjs || {
+            echo 'Snapshot failed; writing fallback snippet.';
+            mkdir -p artifacts;
+            cat > artifacts/codeql-baseline-snippet.md <<'EOF'
+## CodeQL Baseline (Fallback)
+Unable to enumerate alerts in finalize workflow. Manual verification required.
+EOF
+          }
+      - name: Replace placeholder and commit
+        run: |
+          set -e
+          if ! grep -q '^## CodeQL Baseline (Public Repo Transition Placeholder)' SECURITY_NOTES.md; then
+            echo 'No placeholder found; skipping.'
+            exit 0
+          fi
+          awk '/^## CodeQL Baseline (Public Repo Transition Placeholder)/ {exit} {print}' SECURITY_NOTES.md > SECURITY_NOTES.new
+          echo >> SECURITY_NOTES.new
+          cat artifacts/codeql-baseline-snippet.md >> SECURITY_NOTES.new
+          echo >> SECURITY_NOTES.new
+          mv SECURITY_NOTES.new SECURITY_NOTES.md
+          git config user.name 'github-actions'
+          git config user.email 'github-actions@users.noreply.github.com'
+          git add SECURITY_NOTES.md artifacts/codeql-baseline-snippet.md || true
+          git commit -m 'chore(security): finalize CodeQL baseline (closes #24)' || exit 0
+          git push
