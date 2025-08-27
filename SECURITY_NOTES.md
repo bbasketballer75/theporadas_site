@@ -12,6 +12,15 @@ After recent remediation:
 
 These low severity findings are in tooling only (Lighthouse CI) and never ship to production runtime code. Risk is constrained to local/CI environments.
 
+### 2025-08-27 Audit Recheck
+
+Post upgrade of `@lhci/cli` to latest, residual low severities persist referencing
+transitive `tmp` (GHSA-52f5-9888-hmc6) via `external-editor` / `inquirer`.
+No high/moderate findings. Advisory scope remains dev/CI tooling.
+Will auto-resolve once upstream releases a patched chain (or once `tmp >0.2.3`
+is adopted by dependents). No further action required beyond weekly audit
+monitoring.
+
 ## Rationale For Acceptance
 
 - Scope: Dev/CI only; not bundled into `dist/` build.
