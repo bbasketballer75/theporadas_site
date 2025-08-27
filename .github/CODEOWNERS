@@ -1,0 +1,15 @@
+###############################################################################
+# CODEOWNERS (root)
+#
+# Purpose: Ensure designated reviewers are auto-requested for security-critical
+# workflow changes (CodeQL scanning & monthly review) to maintain governance.
+#
+# Syntax docs: https://docs.github.com/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+###############################################################################
+
+# Default optional: (commented) Add a fallback owner if desired
+# * @your-org/maintainers
+
+# Security / Code Scanning workflows
+.github/workflows/codeql.yml          @bbasketballer75
+.github/workflows/codeql-monthly-review.yml @bbasketballer75
