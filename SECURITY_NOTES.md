@@ -52,6 +52,63 @@ Open an expedited security task if ANY of:
 
 ---
 
+## CodeQL Enablement Quick Checklist (Actionable)
+
+Use this condensed list when you are ready to turn on Code Scanning / CodeQL
+and let the automation append the immutable verification section.
+
+1. Licensing / Visibility: Ensure the repo is public (free CodeQL) OR that
+   GitHub Advanced Security (GHAS) is enabled for the org (Settings > Code
+   security and analysis should show Advanced Security toggles). If private
+   without GHAS, either (a) obtain GHAS entitlement, or (b) make the repo
+   public temporarily to capture baseline.
+1. Avoid Duplication: In Settings > Code security and analysis > Code scanning,
+   either (a) keep ONLY the advanced workflow (`.github/workflows/codeql.yml`)
+   or (b) use default setup – do NOT enable both (duplicate scans & noise). If
+   "Default setup" was enabled inadvertently, click Disable so the workflow
+   remains the single source.
+1. Review Workflow: Open `.github/workflows/codeql.yml` – confirm languages
+   matrix (`javascript-typescript`) and `queries: +security-and-quality` meet
+   expectations. Add additional language entries if future compiled languages
+   are introduced.
+1. (Optional) Build Step: If / when native build steps become necessary (e.g.,
+   multi-language or generated code), insert them between Init and Analyze
+   steps (currently Autobuild is a no-op for pure TS).
+1. Trigger First Run: Dispatch manually (Actions > codeql > Run workflow) or
+   push a trivial commit (e.g., docs). Monitor the run for a successful
+   `github/codeql-action/analyze@v3` step and absence of SARIF upload errors.
+1. Verify Enablement: After run completes, visit Security > Code scanning
+   alerts – expect alert list (possibly zero if clean). API check (PowerShell):
+
+```powershell
+$env:GITHUB_TOKEN = 'ghp_yourPAT_or_actionsToken'
+gh api repos/bbasketballer75/theporadas_site \
+  | jq -r '.security_and_analysis.advanced_security.status'
+gh api repos/bbasketballer75/theporadas_site/code-scanning/alerts --paginate \
+  | jq length
+```
+
+1. Automation Confirmation: The workflow step "Append CodeQL verification
+   section" invokes `scripts/codeql_verify_append.mjs`. On the first successful
+   alert fetch (HTTP 200), it appends the heading
+   `## CodeQL Baseline Verification (First Automated Run YYYY-MM-DD)` to
+   `SECURITY_NOTES.md` and commits it. If feature still disabled (403/404), it
+   no-ops.
+1. Triage Window: Open issues for all High / Medium alerts within 24h. Document
+   rationale for any accepted Low in `SECURITY_NOTES.md` (do not edit the
+   immutable verification section; add rationale elsewhere under Posture
+   Updates).
+1. Follow-On Hardening: Keep Dependabot & weekly audit green, and schedule
+   monthly drift review (new alerts, fix SLAs, closure metrics).
+1. Future Enhancements: (Optional) Extend the script to produce trend deltas or
+   enable PR-only variant of default setup if additional languages are added.
+
+If the Trigger, Verify, and Automation Confirmation steps complete successfully,
+the remaining baseline tasks are fully automated; no manual edits to the
+verification section are necessary or desired.
+
+---
+
 ## CodeQL Baseline (Established Manually 2025-08-27)
 
 Baseline established manually pending successful automated SARIF upload
