@@ -33,10 +33,10 @@ async function fetchAllAlerts() {
     const url = `${base}?page=${page}&per_page=${perPage}`;
     const res = await fetch(url, {
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/vnd.github+json',
-        'User-Agent': 'codeql-baseline-snapshot-script'
-      }
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json',
+        'User-Agent': 'codeql-baseline-snapshot-script',
+      },
     });
     if (res.status === 403) {
       const body = await res.text();
@@ -56,7 +56,8 @@ async function fetchAllAlerts() {
     all.push(...data);
     if (data.length < perPage) break; // last page
     page++;
-    if (page > 10_000) { // sanity guard
+    if (page > 10_000) {
+      // sanity guard
       console.error('Aborting: too many pages (>10k)');
       process.exit(5);
     }
@@ -67,7 +68,16 @@ async function fetchAllAlerts() {
 function normalizeSeverity(alert) {
   // CodeQL REST alert has .rule.severity (one of: critical, high, medium, low, warning, note?)
   const sev = alert?.rule?.severity || alert?.rule?.security_severity_level || 'unknown';
-  const map = { critical: 'critical', high: 'high', error: 'high', medium: 'medium', warning: 'low', low: 'low', note: 'low', unknown: 'low' };
+  const map = {
+    critical: 'critical',
+    high: 'high',
+    error: 'high',
+    medium: 'medium',
+    warning: 'low',
+    low: 'low',
+    note: 'low',
+    unknown: 'low',
+  };
   return map[sev] || sev || 'low';
 }
 
@@ -97,6 +107,9 @@ function generateSnippet(counts, runNumberEnv) {
   const artifactsDir = path.join(process.cwd(), 'artifacts');
   if (!fs.existsSync(artifactsDir)) fs.mkdirSync(artifactsDir, { recursive: true });
   fs.writeFileSync(path.join(artifactsDir, 'codeql-alerts.json'), JSON.stringify(alerts, null, 2));
-  fs.writeFileSync(path.join(artifactsDir, 'codeql-alert-counts.json'), JSON.stringify(counts, null, 2));
+  fs.writeFileSync(
+    path.join(artifactsDir, 'codeql-alert-counts.json'),
+    JSON.stringify(counts, null, 2),
+  );
   fs.writeFileSync(path.join(artifactsDir, 'codeql-baseline-snippet.md'), generateSnippet(counts));
 })();
