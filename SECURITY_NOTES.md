@@ -92,3 +92,88 @@ detection (Dependabot PR timestamp), time to merge remediation, count of
 baseline exceptions.
 
 Review Cadence: Monthly review of baseline + closed alerts to ensure no lingering accepted risks without renewed justification.
+
+## CodeQL Gating Rationale (Temporary Control)
+
+Status: Implemented conditional skip to avoid noisy failing runs while repository Code Scanning is disabled for this private repo.
+
+### What Exists
+
+- Workflow: `.github/workflows/codeql.yml`
+- Job condition:
+
+```yaml
+if: ${{ !github.event.repository.private || vars.ENABLE_CODEQL == 'true' }}
+```
+
+- Result: On a private repo without the repository variable `ENABLE_CODEQL` set to `true`,
+  the `analyze` job is skipped (conclusion = `skipped`).
+
+### Why This Gating Was Added
+
+Initial CodeQL run failed uploading SARIF because Code Scanning (GitHub Advanced
+Security) is not yet enabled for the private repository. Repeated failures would
+create alert noise and reduce signal for genuine security regressions. The gate
+provides an explicit activation point once prerequisites are satisfied.
+
+### How to Enable CodeQL Analysis
+
+1. Enable Code Scanning in repository settings (Security & analysis) – requires GHAS
+   entitlement for private repos.
+2. Add repository variable:
+
+```bash
+gh variable set ENABLE_CODEQL -b true
+```
+
+1. Manually dispatch or push to `main` to trigger workflow.
+2. Confirm run conclusion is `success` and review any CodeQL alerts under
+   Security > Code scanning alerts.
+
+### Baseline Triage Checklist
+
+Upon first successful run:
+
+1. Export list of alerts (CSV/UI) and create issues for each High/Medium.
+2. Document any accepted Low findings here with justification + sunset date.
+3. Add remediation PRs or suppressions (after evaluating true positives) – prefer
+   code fixes over suppressions.
+
+### When To Remove Gating Condition
+
+Remove once: (a) Code Scanning reliably enabled, (b) first successful baseline
+completed, (c) no policy requiring a manual override. Keeping the condition after
+permanent enablement adds unnecessary complexity.
+
+### Patch To Remove Gating
+
+Apply the following diff (or equivalent) to delete only the conditional line
+(retain the rest of the workflow):
+
+```diff
+--- a/.github/workflows/codeql.yml
++++ b/.github/workflows/codeql.yml
+@@
+ jobs:
+   analyze:
+-    if: ${{ !github.event.repository.private || vars.ENABLE_CODEQL == 'true' }}
+     permissions:
+       contents: read
+       security-events: write
+```
+
+After removal also delete the repository variable `ENABLE_CODEQL` (optional cleanup):
+
+```bash
+gh variable delete ENABLE_CODEQL
+```
+
+### Risk Assessment
+
+Risk of leaving gating indefinitely: potential for forgetting to ever enable SAST
+coverage. Mitigation: this section plus a calendar reminder / monthly review item.
+
+### Removal Tracking
+
+- Target date to enable & remove gate: <set once GHAS entitlement confirmed>.
+- Owner: Security/Dev Lead.
