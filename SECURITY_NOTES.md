@@ -528,3 +528,18 @@ the step invoking the script:
 - Integrate with a security dashboard (e.g., lightweight status badge generated from the JSON summary).
 
 ---
+
+## CodeQL Baseline Verification (First Automated Run 2025-08-27)
+
+Verified CodeQL alert ingestion after enabling Code Scanning. Severity counts (security-and-quality query pack):
+
+- Alerts (Total): 43
+- Critical: 0
+- High: 1
+- Medium: 0
+- Low: 42
+
+Triage: High/Medium alerts must have issues opened within 24h (link issues here if any). Accepted Low findings require documented rationale referencing commit hashes.
+
+This section is immutable; subsequent drift will be tracked in future monthly delta summaries rather than altering baseline figures.
+
