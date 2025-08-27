@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   security-events: write
   actions: read
 
@@ -77,3 +77,31 @@ jobs:
             artifacts/codeql-alerts.json
             artifacts/codeql-alert-counts.json
             artifacts/codeql-baseline-snippet.md
+
+      - name: Finalize CodeQL baseline (one-time)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          placeholder='## CodeQL Baseline (Public Repo Transition Placeholder)'
+          if ! grep -q "^$placeholder" SECURITY_NOTES.md; then
+            echo 'Placeholder absent; baseline already finalized.'
+            exit 0
+          fi
+          if [ ! -s artifacts/codeql-baseline-snippet.md ]; then
+            echo 'Baseline snippet missing; aborting.'
+            exit 1
+          fi
+          awk -v p="$placeholder" 'BEGIN{found=0} { if ($0 ~ "^"p) {found=1; exit} print }' SECURITY_NOTES.md > SECURITY_NOTES.new
+          echo >> SECURITY_NOTES.new
+            cat artifacts/codeql-baseline-snippet.md >> SECURITY_NOTES.new
+          echo >> SECURITY_NOTES.new
+          mv SECURITY_NOTES.new SECURITY_NOTES.md
+          git config user.name 'github-actions'
+          git config user.email 'github-actions@users.noreply.github.com'
+          git add SECURITY_NOTES.md || true
+          if git diff --cached --quiet; then
+            echo 'No changes to commit.'
+            exit 0
+          fi
+          git commit -m 'chore(security): finalize CodeQL baseline (closes #24)' || true
+          git push || echo 'Push failed (possibly due to branch protection).'
