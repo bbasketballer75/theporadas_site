@@ -28,6 +28,12 @@ jobs:
       - name: Install dependencies (clean)
         run: npm ci --ignore-scripts
 
+      - name: Verify workflow inventory
+        run: |
+          npm run verify:workflows -- --fail-missing
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Run npm audit (JSON)
         run: |
           npm audit --json > audit.json || true

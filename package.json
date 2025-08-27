@@ -54,7 +54,9 @@
     "analyze:quality": "node scripts/analyze_quality_history.mjs",
     "quality:regression-check": "node scripts/quality_regression_check.mjs",
     "lqip": "node scripts/generate_lqip.mjs",
-    "security:code-scanning:app-fetch": "node scripts/code_scanning_app_fetch.mjs"
+    "security:code-scanning:app-fetch": "node scripts/code_scanning_app_fetch.mjs",
+    "codeql:drift": "node scripts/codeql_drift_delta.mjs",
+    "verify:workflows": "node scripts/verify_workflows.mjs"
   },
   "devDependencies": {
     "dotenv": "^16.4.5",
