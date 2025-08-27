@@ -123,6 +123,11 @@ Added after initial acceptance to reduce mean-time-to-detection (MTTD):
 - CodeQL (`codeql` workflow): Static analysis (security + quality queries) on
   push/PR to `main` and weekly schedule; surfaced alerts require triage & fix
   or documented deferral.
+  - Verification append automation: Once Code Scanning enabled, step
+    `Append CodeQL verification section (post-enable)` runs
+    `scripts/codeql_verify_append.mjs` to add an immutable
+    "First Automated Run" section with concrete counts (idempotent; no change if
+    already appended or feature still disabled).
 - Weekly Audit (`weekly-audit` workflow): Runs `npm audit --json` and
   `scripts/ci_audit_guard.mjs` comparing results to
   `security/audit-baseline.json`. Fails CI on new or escalated moderate+
