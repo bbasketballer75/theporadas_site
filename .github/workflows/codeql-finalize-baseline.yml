@@ -2,13 +2,20 @@ name: codeql-finalize-baseline
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows: ['codeql']
+    types: [completed]
 
 permissions:
   contents: write
   actions: read
+  security-events: read
 
 jobs:
   finalize:
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' ||
+          (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main') }}
     name: Finalize CodeQL Baseline
     runs-on: ubuntu-latest
     steps:
@@ -17,53 +24,47 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download latest CodeQL baseline artifacts
-        uses: actions/download-artifact@v4
+      - name: Install Node (for snapshot script)
+        uses: actions/setup-node@v4
         with:
-          pattern: codeql-baseline-artifacts-*
-          path: tmp-artifacts
-          merge-multiple: true
+          node-version: 20
 
-      - name: Show artifacts
-        run: ls -R tmp-artifacts || true
-
-      - name: Prepare replacement snippet
-        id: prep
+      - name: Run snapshot script (fresh fetch)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          CODEQL_RUN_NUMBER: ${{ github.run_number }}
+          CODEQL_GATING_REMOVAL_SHA: ${{ github.sha }}
         run: |
-          if [ ! -f tmp-artifacts/codeql-baseline-snippet.md ]; then
-            echo 'Missing snippet artifact; aborting.' >&2
-            exit 1
-          fi
-          echo '--- Snippet Preview ---'
-          sed -n '1,40p' tmp-artifacts/codeql-baseline-snippet.md
+          node scripts/codeql_baseline_snapshot.mjs
+          echo '--- Snippet Preview (first 40 lines) ---'
+          sed -n '1,40p' artifacts/codeql-baseline-snippet.md
 
       - name: Replace placeholder in SECURITY_NOTES.md
         run: |
           set -e
-          placeholder_start_line=$(grep -n '^## CodeQL Baseline (Public Repo Transition Placeholder)' SECURITY_NOTES.md | cut -d: -f1 || true)
-          if [ -z "$placeholder_start_line" ]; then
-            echo 'No placeholder header found; aborting to avoid duplicate baseline.' >&2
-            exit 2
+          if ! grep -q '^## CodeQL Baseline (Public Repo Transition Placeholder)' SECURITY_NOTES.md; then
+            echo 'No placeholder baseline section found; skipping replacement.'
+            exit 0
           fi
-          # We'll keep everything before the placeholder, then append the new snippet, then keep the remainder after the placeholder block separator.
-          awk -v pl=$placeholder_start_line 'NR<pl' SECURITY_NOTES.md > SECURITY_NOTES.new
+          # Create temp file with everything before placeholder
+          awk '/^## CodeQL Baseline (Public Repo Transition Placeholder)/ {exit} {print}' SECURITY_NOTES.md > SECURITY_NOTES.new
           echo '' >> SECURITY_NOTES.new
-          cat tmp-artifacts/codeql-baseline-snippet.md >> SECURITY_NOTES.new
+          cat artifacts/codeql-baseline-snippet.md >> SECURITY_NOTES.new
           echo '' >> SECURITY_NOTES.new
-          # Append the remainder AFTER the placeholder section. We detect end of placeholder by finding the next markdown header starting with ## (excluding the placeholder itself) after the placeholder line.
-          # Simpler: skip lines from placeholder header until a line that starts with "## " and is NOT the placeholder header (or end of file) AFTER first.
-          awk -v pl=$placeholder_start_line 'NR<=pl {next} /^## CodeQL Baseline \(Public Repo Transition Placeholder\)/ {next} /^## / {found=1} !found {next} {print}' SECURITY_NOTES.md >> SECURITY_NOTES.new || true
+          # Append remainder after placeholder block: skip until next header after the placeholder line
+          awk 'foundPlaceholder==0 { if ($0 ~ /^## CodeQL Baseline (Public Repo Transition Placeholder)/) {foundPlaceholder=1; next} else {next} } foundPlaceholder==1 { if ($0 ~ /^## /) {start=1} if (start) print }' SECURITY_NOTES.md >> SECURITY_NOTES.new || true
           mv SECURITY_NOTES.new SECURITY_NOTES.md
-          echo 'Replacement complete.'
+          echo 'Baseline placeholder replaced.'
 
       - name: Commit changes
         run: |
           if git diff --quiet SECURITY_NOTES.md; then
-            echo 'No changes to commit (placeholder may have been absent).'
+            echo 'No changes to commit.'
             exit 0
           fi
           git config user.name 'github-actions'
-            git config user.email 'github-actions@users.noreply.github.com'
-          git add SECURITY_NOTES.md
+          git config user.email 'github-actions@users.noreply.github.com'
+          git add SECURITY_NOTES.md artifacts/codeql-alert-counts.json artifacts/codeql-alerts.json artifacts/codeql-baseline-snippet.md
           git commit -m 'chore(security): finalize CodeQL baseline counts (closes #24)'
           git push
