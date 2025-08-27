@@ -56,3 +56,24 @@ jobs:
         uses: github/codeql-action/analyze@v3
         with:
           category: '/language:${{matrix.language}}'
+
+      - name: Generate baseline snapshot (main only)
+        if: github.ref == 'refs/heads/main'
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CODEQL_RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          node scripts/codeql_baseline_snapshot.mjs || {
+            echo 'Snapshot script failed; continuing without failing analysis.';
+          }
+
+      - name: Upload snapshot artifacts
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeql-baseline-artifacts-${{ github.run_id }}
+          path: |
+            artifacts/codeql-alerts.json
+            artifacts/codeql-alert-counts.json
+            artifacts/codeql-baseline-snippet.md
