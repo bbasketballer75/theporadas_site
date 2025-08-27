@@ -89,6 +89,30 @@ Rationale: Provides audit trail even when platform feature gating delays full te
 
 ---
 
+## CodeQL Baseline Verification (Pending Enablement)
+
+Status (2025-08-27): Automated CodeQL workflow runs (`codeql.yml`) execute analysis but
+SARIF upload / alert enumeration returns HTTP 404 (feature not enabled). This confirms
+Code Scanning (GitHub Advanced Security) is still disabled for this repository.
+
+Latest attempt: manually dispatched workflow (see GitHub Actions run list same date).
+
+Next required activation steps (recap):
+
+1. Enable Code Scanning under Settings > Code security and analysis (or make repo public
+   if using public coverage temporarily).
+2. Re-dispatch workflow (`gh workflow run codeql.yml`) and wait for successful upload.
+3. Fetch alerts JSON (gh api .../code-scanning/alerts) and create verification section
+   with concrete counts (this section remains immutable; a new one will be appended).
+
+Planned follow-up section title after success:
+"## CodeQL Baseline Verification (First Automated Run YYYY-MM-DD)".
+
+Until then this pending section records attempted activation and preserves integrity of
+the original manual baseline above.
+
+---
+
 ## Implemented Automation (Posture Update)
 
 Added after initial acceptance to reduce mean-time-to-detection (MTTD):
@@ -128,7 +152,9 @@ Review Cadence: Monthly review of baseline + closed alerts to ensure no lingerin
 
 ## CodeQL Gating Rationale (Temporary Control)
 
-Status: Implemented conditional skip to avoid noisy failing runs while repository Code Scanning is disabled for this private repo.
+Status: Original conditional skip was documented here. The gating line has since been
+removed from `codeql.yml`; current blocker is feature enablement (Code Scanning itself),
+not workflow condition. This historical rationale is retained for audit context.
 
 ### What Exists
 
