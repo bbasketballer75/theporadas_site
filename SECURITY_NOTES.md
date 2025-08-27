@@ -52,23 +52,40 @@ Open an expedited security task if ANY of:
 
 ---
 
-## CodeQL Baseline (Public Repo Transition Placeholder)
+## CodeQL Baseline (Established Manually 2025-08-27)
 
-Repository was made public to enable CodeQL without Advanced Security licensing (baseline run pending at time of this edit).
+Baseline established manually pending successful automated SARIF upload
+(GitHub Advanced Security / Code Scanning currently not enabled for alerts
+retrieval via API with provided token). This snapshot documents the initial
+posture at the time the repository transitioned to public for enabling
+CodeQL workflows.
 
-Placeholder Metrics (to be replaced after successful run):
+Metrics (initial run – counts unavailable due to 403 on alert API; will
+refresh automatically once Code Scanning fully enabled):
 
-- Alerts (Total): <pending>
-- Critical: <pending>
-- High: <pending>
-- Medium: <pending>
-- Low: <pending>
-- Queries Pack: security-and-quality (default)
-- Gating Removal: Workflows updated to always run (awaiting confirmation of first successful SARIF upload before finalizing numbers here).
+- Alerts (Total): N/A (API 403)
+- Critical: N/A
+- High: N/A
+- Medium: N/A
+- Low: N/A
+- Query Suite: security-and-quality (default)
 
-Next Step: Complete baseline run, fetch counts via API, and replace this block with finalized immutable snapshot stamped with date.
+Source: `codeql.yml` workflow executed on commit `d175f8e` (chore(ci): trigger
+CodeQL baseline finalize run).
 
-This file documents deliberate risk acceptance to aid future audits.
+Limitations: SARIF upload / alert enumeration not yet verifiable; numbers
+will be updated (in additive historical section, not mutating this baseline)
+once Code Scanning is enabled and first successful alert ingestion completes.
+This preserves an immutable record of pre-alert visibility state.
+
+Follow-Up Actions:
+
+1. Enable Code Scanning (if private) or confirm public status retains CodeQL.
+2. Re-run `codeql` workflow; verify SARIF upload success.
+3. Append new section "CodeQL Baseline (Verified YYYY-MM-DD)" with concrete counts.
+4. Triage any surfaced High/Medium alerts within 7 days; document accepted Low with rationale.
+
+Rationale: Provides audit trail even when platform feature gating delays full telemetry.
 
 ---
 
