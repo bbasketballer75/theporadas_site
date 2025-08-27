@@ -8,6 +8,10 @@ This project adheres to [Conventional Commits](https://www.conventionalcommits.o
 
 ### Changed (Unreleased)
 
+- Removed deprecated standalone CodeQL finalize workflow
+  (`codeql-finalize-baseline.yml`); logic consolidated into primary `codeql.yml`
+  after resolving baseline insertion.
+
 - Re-enabled markdown line-length rule (MD013) with relaxed 140-char limit; added `.markdownlintignore` to exclude vendored & build artifacts.
 - Enforced explicit Vitest coverage thresholds (branches/statements/lines/functions ≥85%) and documented in `CONTRIBUTING.md`.
 - Wrapped long documentation lines to satisfy MD013 (general docs) and introduced per-path
