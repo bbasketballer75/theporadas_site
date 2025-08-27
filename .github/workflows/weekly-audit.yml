@@ -39,6 +39,11 @@ jobs:
           npm audit --json > audit.json || true
           echo "Audit exit code captured; guard script will decide pass/fail"
 
+      - name: Run npm audit (production only)
+        run: |
+          npm audit --omit=dev --json > audit-prod.json || true
+          echo "Production-only audit complete (dev deps omitted)."
+
       - name: Run audit guard
         run: node scripts/ci_audit_guard.mjs --input audit.json --baseline security/audit-baseline.json
 
@@ -48,3 +53,10 @@ jobs:
         with:
           name: npm-audit-json
           path: audit.json
+
+      - name: Upload prod audit artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: npm-audit-prod-json
+          path: audit-prod.json
