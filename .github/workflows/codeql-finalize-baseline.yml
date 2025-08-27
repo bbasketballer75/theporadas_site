@@ -23,6 +23,11 @@ permissions:
   pull-requests: write
 
 jobs:
+  sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo sanity
+        run: echo 'Sanity job executed.'
   finalize:
     # Run on push / manual always; on workflow_run only if triggering workflow succeeded.
     # Previous expression may have caused evaluation issues leading to zero jobs.
