@@ -191,11 +191,11 @@ export function defineDomain(domain, defs) {
 
 ### Provided Domain Helpers
 
-| Domain        | Range       | Helper    | Example                                   |
-| ------------- | ----------- | --------- | ----------------------------------------- |
-| filesystem    | 2500–2599   | `fsError` | `throw fsError('PATH_ESCAPE', { details })`|
-| memory-bank   | 2300–2399   | `mbError` | `throw mbError('FILE_NOT_FOUND', { details })`|
-| kg-memory     | 2400–2499   | `kgError` | `throw kgError('FULL', { retryable:true })` |
+| Domain      | Range     | Helper    | Example                                        |
+| ----------- | --------- | --------- | ---------------------------------------------- |
+| filesystem  | 2500–2599 | `fsError` | `throw fsError('PATH_ESCAPE', { details })`    |
+| memory-bank | 2300–2399 | `mbError` | `throw mbError('FILE_NOT_FOUND', { details })` |
+| kg-memory   | 2400–2499 | `kgError` | `throw kgError('FULL', { retryable:true })`    |
 
 Each `*Error(symbol, overrides)` merges optional overrides (`message`, `details`,
 `retryable`) while preserving canonical `code` and default `message`.
@@ -230,4 +230,3 @@ shared pattern.
 `test/mcp_errors.test.js` validates representative memory-bank and KG error cases
 post-migration. Additional domains can extend that file or create dedicated domain
 error spec files as helpers are adopted.
-
