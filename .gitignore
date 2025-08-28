@@ -38,5 +38,10 @@ links.json
 # Generated analysis artifacts (diffs, snapshots, axe violations)
 artifacts/
 
+# CodeQL drift transient JSON artifacts (keep markdown summaries tracked)
+codeql-drift-current-alerts.json
+codeql-drift-delta.json
+codeql-drift-baseline.json
+
 # Temporary comparison outputs
 *.lh-cache

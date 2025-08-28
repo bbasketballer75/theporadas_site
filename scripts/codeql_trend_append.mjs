@@ -49,7 +49,12 @@ function fetchAlertsViaGhCli(repo) {
   try {
     const res = spawnSync(
       process.platform === 'win32' ? 'gh.exe' : 'gh',
-      ['api', '-H', 'Accept: application/vnd.github+json', `/repos/${repo}/code-scanning/alerts?per_page=100`],
+      [
+        'api',
+        '-H',
+        'Accept: application/vnd.github+json',
+        `/repos/${repo}/code-scanning/alerts?per_page=100`,
+      ],
       { encoding: 'utf8' },
     );
     if (res.status === 0) {
