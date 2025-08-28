@@ -115,6 +115,13 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
         {items.map((it) => {
           const showFull = loadedIds.has(it.id);
           const imgSrc = showFull ? it.src : it.thumb || it.src;
+          // Derive srcSet from responsive image pipeline if file matches pattern
+          let srcSet: string | undefined;
+          if (it.src.endsWith('.jpg') || it.src.endsWith('.jpeg') || it.src.endsWith('.png')) {
+            const baseName = it.src.replace(/^.*\//, '').replace(/\.(jpg|jpeg|png)$/i, '');
+            const widths = [320, 640, 960, 1280];
+            srcSet = widths.map((w) => `/public_images/${w}/${baseName}.webp ${w}w`).join(', ');
+          }
           return (
             <li key={it.id} className="gallery-grid-item">
               <button
@@ -134,6 +141,9 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
                   alt={it.caption || ''}
                   loading="lazy"
                   className={showFull ? 'loaded' : 'placeholder'}
+                  {...(srcSet
+                    ? { srcSet, sizes: '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw' }
+                    : {})}
                 />
               </button>
             </li>
