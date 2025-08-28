@@ -24,7 +24,8 @@
     "**/coverage/**",
     "**/CONTRIBUTING.md", // treat as process doc; actionable dev TODOs should live in code comments
     "**/lighthouse/**", // vendored upstream; upstream TODOs tracked externally
-    "**/docs/accessibility_performance_plan.md" // plan tasks now tracked as GitHub issues #8-#15
+    "**/docs/accessibility_performance_plan.md", // plan tasks now tracked as GitHub issues #8-#15
+    "**/docs/gallery.md" // contains reusable unchecked template checklist (not actionable backlog)
   ],
   // Ensure VS Code sessions (especially extension host) see concrete Node paths (mitigates %NVM_HOME% unresolved placeholders)
   "terminal.integrated.env.windows": {
@@ -34,5 +35,9 @@
   },
   // Hint vitest extension to use npx invocation (resolves when global node not auto-detected)
   "vitest.commandLine": "npx vitest",
-  "vitest.workspaceConfigPath": "vitest.config.ts"
+  "vitest.workspaceConfigPath": "vitest.config.ts",
+  // Use Docker extension formatter for Dockerfiles; Prettier does not handle them.
+  "[dockerfile]": {
+    "editor.defaultFormatter": "ms-azuretools.vscode-containers"
+  }
 }
