@@ -160,3 +160,74 @@ potential minor performance impact.
   capture every Nth occurrence, or token bucket per symbol) to bound
   overhead in pathological error storms.
 - Persist selected counters for long-running sessions (export on graceful shutdown) if durability becomes necessary.
+
+## Shared Domain Error Factory (Implemented)
+
+To reduce duplication and guarantee consistent `domain` / `symbol` usage, a shared
+factory now lives in `scripts/mcp_error_codes.mjs` and exposes a `defineDomain`
+helper plus per-domain convenience creators.
+
+### Defining a Domain
+
+```js
+// scripts/mcp_error_codes.mjs (excerpt)
+export function defineDomain(domain, defs) {
+  const map = { ...defs };
+  function error(symbol, overrides = {}) {
+    const def = map[symbol];
+    if (!def) throw new Error(`Unknown error symbol ${symbol} for domain ${domain}`);
+    const { code, message, retryable } = def;
+    const e = new Error(overrides.message || message);
+    e.appCode = code;
+    e.symbol = symbol;
+    e.domain = domain;
+    e.retryable = overrides.retryable ?? retryable;
+    if (overrides.details) e.details = overrides.details;
+    return e;
+  }
+  return { defs: map, error };
+}
+```
+
+### Provided Domain Helpers
+
+| Domain        | Range       | Helper    | Example                                   |
+| ------------- | ----------- | --------- | ----------------------------------------- |
+| filesystem    | 2500–2599   | `fsError` | `throw fsError('PATH_ESCAPE', { details })`|
+| memory-bank   | 2300–2399   | `mbError` | `throw mbError('FILE_NOT_FOUND', { details })`|
+| kg-memory     | 2400–2499   | `kgError` | `throw kgError('FULL', { retryable:true })` |
+
+Each `*Error(symbol, overrides)` merges optional overrides (`message`, `details`,
+`retryable`) while preserving canonical `code` and default `message`.
+
+### Migration Guidance
+
+1. Replace manual `appError(code, msg, { domain, symbol, ... })` with domain helper.
+2. If a new symbol is required, add it to the domain's `defs` map with
+   `{ code, message, retryable? }` and export the updated defs (maintain ordering).
+3. Keep ranges contiguous—do not skip ahead unless reserving space for a related
+   cluster; document any reservations inline.
+4. For domains not yet using helpers (e.g., Python, Playwright, Puppeteer), either
+   retain `appError` (acceptable) or introduce a helper when adding new symbols.
+
+### Rationale
+
+Centralizing domain definitions:
+
+- Eliminates drift in symbol naming and retryable semantics.
+- Simplifies bulk updates (e.g., adding `details` to a family of errors).
+- Enables potential future export of a machine-readable registry (e.g., JSON) for
+  client code generation or documentation automation.
+
+### Backwards Compatibility (Factory)
+
+Existing callers using raw `appError` continue to work. The factory is additive;
+`fsError` maintains its original signatures while being reimplemented via the
+shared pattern.
+
+### Testing Notes
+
+`test/mcp_errors.test.js` validates representative memory-bank and KG error cases
+post-migration. Additional domains can extend that file or create dedicated domain
+error spec files as helpers are adopted.
+
