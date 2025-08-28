@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import process from 'node:process';
@@ -61,7 +61,8 @@ describe('mcp_supervisor basic behaviors', () => {
   });
 
   it('writes log file when specified', async () => {
-    const logPath = join(tmpdir(), `mcp_sup_${Date.now()}.log`);
+    const tmpBase = mkdtempSync(join(tmpdir(), 'mcp_sup_'));
+    const logPath = join(tmpBase, 'supervisor.log');
     const { events } = await runSupervisor([
       '--only',
       'tavily',
@@ -79,7 +80,8 @@ describe('mcp_supervisor basic behaviors', () => {
   });
 
   it('honors per-server maxRestarts override from config', async () => {
-    const cfgPath = join(tmpdir(), `servers_${Date.now()}.json`);
+    const tmpBase = mkdtempSync(join(tmpdir(), 'mcp_cfg_'));
+    const cfgPath = join(tmpBase, 'servers.json');
     writeFileSync(
       cfgPath,
       JSON.stringify([
