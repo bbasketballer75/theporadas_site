@@ -29,7 +29,11 @@ export const FS_ERRORS = {
   PATH_ESCAPE: { code: 2500, symbol: 'E_FS_PATH_ESCAPE', message: 'Path escapes root' },
   DENIED: { code: 2501, symbol: 'E_FS_DENIED', message: 'Operation denied by policy' },
   NOT_FOUND: { code: 2502, symbol: 'E_FS_NOT_FOUND', message: 'File or directory not found' },
-  WRITE_TOO_LARGE: { code: 2503, symbol: 'E_FS_WRITE_TOO_LARGE', message: 'Write exceeds size limit' },
+  WRITE_TOO_LARGE: {
+    code: 2503,
+    symbol: 'E_FS_WRITE_TOO_LARGE',
+    message: 'Write exceeds size limit',
+  },
   INVALID_PARAMS: { code: 1000, symbol: 'E_INVALID_PARAMS', message: 'Invalid parameters' },
 };
 const FS_DOMAIN = defineDomain('filesystem', FS_ERRORS);
@@ -58,4 +62,3 @@ export function kgError(kind, extra = {}) {
 }
 
 // Future domains (python, playwright, puppeteer, sql, etc.) can adopt helper via defineDomain.
-
