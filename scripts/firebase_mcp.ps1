@@ -54,7 +54,8 @@ if ($Dir) {
     try {
         $absDir = if ([System.IO.Path]::IsPathRooted($Dir)) { $Dir } else { (Resolve-Path -Path $Dir).Path }
         $cmdArgs += @('--dir', $absDir)
-    } catch { $cmdArgs += @('--dir', $Dir) }
+    }
+    catch { $cmdArgs += @('--dir', $Dir) }
 }
 
 Write-Host '[firebase-mcp] Starting Firebase MCP...' -ForegroundColor Cyan
