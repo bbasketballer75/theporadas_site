@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFile, appendFile, mkdir, writeFile } from 'node:fs/promises';
+import { readFile, appendFile, mkdir } from 'node:fs/promises';
 import { existsSync, openSync, closeSync } from 'node:fs';
 
 /*
