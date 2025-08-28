@@ -651,3 +651,13 @@ Ownership:
 Amendment Procedure:
 
 - Lifecycle changes proposed via PR modifying this section; require at least 1 reviewer with `security` label permission.
+
+### CodeQL Trend Delta (2025-08-28)
+
+| Metric          | Baseline | Current | Delta |
+| --------------- | -------- | ------- | ----- |
+| Total Alerts    | 43       | 45      | +2    |
+| High Alerts     | 1        | 8       | +7    |
+| Low/Note Alerts | 42       | 37      | -5    |
+
+_Delta: positive = increase vs immutable baseline; negative = reduction._
