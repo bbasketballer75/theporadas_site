@@ -3,6 +3,7 @@
 import { readdirSync, readFileSync } from 'fs';
 import { resolve } from 'path';
 import { register, createServer, appError } from './mcp_rpc_base.mjs';
+import { mbError } from './mcp_error_codes.mjs';
 
 const dir = resolve(process.env.MCP_MEMORY_BANK_DIR || 'memory-bank');
 
@@ -31,11 +32,7 @@ createServer(() => {
     if (!params?.file)
       throw appError(1000, 'file required', { domain: 'memory-bank', symbol: 'E_INVALID_PARAMS' });
     if (typeof params.file !== 'string' || params.file.includes('..'))
-      throw appError(2300, 'invalid file', {
-        domain: 'memory-bank',
-        symbol: 'E_MB_FILE_NOT_FOUND',
-        details: String(params.file),
-      });
+      throw mbError('FILE_NOT_FOUND', { details: String(params.file) });
     return { content: readFile(params.file).slice(0, 20000) };
   });
   register('mb/search', (params) => {
