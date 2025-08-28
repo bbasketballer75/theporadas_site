@@ -6,18 +6,18 @@ CLI/JSON interface you can wrap later.
 
 ## Scripts
 
-| Service     | Script                        | Env Vars                                                    | Description                                                                            |
-| ----------- | ----------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| Notion      | `scripts/mcp_notion.mjs`      | `NOTION_API_KEY`                                            | Validates key and prints placeholder notice. Extend to expose search/query later.      |
-| Tavily      | `scripts/mcp_tavily.mjs`      | `TAVILY_API_KEY`                                            | Runs a search query (POST /search) and returns JSON result. Arg string becomes query.  |
-| Mem0        | `scripts/mcp_mem0.mjs`        | `MEM0_API_KEY`                                              | In-memory mock add/list memory commands (placeholder until real SDK).                  |
-| Filesystem  | `scripts/mcp_filesystem.mjs`  | `MCP_FS_ROOT` (optional)                                    | Safe scoped list/read/write inside root (defaults to repo root). Prevents path escape. |
-| SQL Server  | `scripts/mcp_sqlserver.mjs`   | `SQLSERVER_CONNECTION_STRING`                               | Executes a single query (default `SELECT 1 AS ok`). Returns recordset JSON.            |
-| Playwright  | `scripts/mcp_playwright.mjs`  | `MCP_PW_SESSION_LIMIT` (opt), `MCP_PW_NAV_TIMEOUT_MS` (opt) | Headless browser sessions: launch, goto, extract text, close, list.                    |
-| Puppeteer   | `scripts/mcp_puppeteer.mjs`   | `MCP_PT_SESSION_LIMIT` (opt), `MCP_PT_NAV_TIMEOUT_MS` (opt) | Alternative headless browser automation (same operations as Playwright).               |
-| Python Exec | `scripts/mcp_python.mjs`      | `MCP_PYTHON_BIN` (opt), `MCP_PY_TIMEOUT_MS` (opt)           | Executes short Python snippets with timeout & output truncation.                       |
-| Memory Bank | `scripts/mcp_memory_bank.mjs` | `MCP_MEMORY_BANK_DIR` (opt)                                 | Lists / reads / searches local markdown knowledge files (capped lengths).              |
-| KG Memory   | `scripts/mcp_kg_memory.mjs`   | `MCP_KG_MAX_TRIPLES` (opt)                                  | Simple in-memory triple store add/query/subjects (bounded).                            |
+| Service     | Script                        | Env Vars                                                                 | Description                                                                                                                                     |
+| ----------- | ----------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Notion      | `scripts/mcp_notion.mjs`      | `NOTION_API_KEY`                                                         | Validates key and prints placeholder notice. Extend to expose search/query later.                                                               |
+| Tavily      | `scripts/mcp_tavily.mjs`      | `TAVILY_API_KEY`                                                         | Runs a search query (POST /search) and returns JSON result. Arg string becomes query.                                                           |
+| Mem0        | `scripts/mcp_mem0.mjs`        | `MEM0_API_KEY`                                                           | In-memory mock add/list memory commands (placeholder until real SDK).                                                                           |
+| Filesystem  | `scripts/mcp_filesystem.mjs`  | `MCP_FS_ROOT` (optional), `MCP_FS_MAX_BYTES`, `MCP_FS_ALLOW_WRITE_GLOBS` | Safe scoped list/read/write/mkdir/delete/stat inside root (defaults to repo root). Prevents path escape; supports size limit & write allowlist. |
+| SQL Server  | `scripts/mcp_sqlserver.mjs`   | `SQLSERVER_CONNECTION_STRING`                                            | Executes a single query (default `SELECT 1 AS ok`). Returns recordset JSON.                                                                     |
+| Playwright  | `scripts/mcp_playwright.mjs`  | `MCP_PW_SESSION_LIMIT` (opt), `MCP_PW_NAV_TIMEOUT_MS` (opt)              | Headless browser sessions: launch, goto, extract text, close, list.                                                                             |
+| Puppeteer   | `scripts/mcp_puppeteer.mjs`   | `MCP_PT_SESSION_LIMIT` (opt), `MCP_PT_NAV_TIMEOUT_MS` (opt)              | Alternative headless browser automation (same operations as Playwright).                                                                        |
+| Python Exec | `scripts/mcp_python.mjs`      | `MCP_PYTHON_BIN` (opt), `MCP_PY_TIMEOUT_MS` (opt)                        | Executes short Python snippets with timeout & output truncation.                                                                                |
+| Memory Bank | `scripts/mcp_memory_bank.mjs` | `MCP_MEMORY_BANK_DIR` (opt)                                              | Lists / reads / searches local markdown knowledge files (capped lengths).                                                                       |
+| KG Memory   | `scripts/mcp_kg_memory.mjs`   | `MCP_KG_MAX_TRIPLES` (opt)                                               | Simple in-memory triple store add/query/subjects (bounded).                                                                                     |
 
 ## Usage Examples
 
