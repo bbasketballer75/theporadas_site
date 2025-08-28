@@ -1,0 +1,75 @@
+name: codeql-drift
+
+on:
+  workflow_dispatch:
+    inputs:
+      enforce_gate:
+        description: 'Fail workflow if new High/Medium alert delta > 0'
+        required: false
+        default: 'true'
+      skip_low_details:
+        description: 'Set true to skip printing new Low alert summaries'
+        required: false
+        default: 'false'
+  schedule:
+    - cron: '0 6 * * 1'
+
+permissions:
+  contents: read
+  security-events: read
+
+concurrency:
+  group: codeql-drift
+  cancel-in-progress: false
+
+jobs:
+  drift:
+    name: Drift Delta
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install minimal deps (if lockfile present)
+        if: ${{ hashFiles('package-lock.json','npm-shrinkwrap.json') != '' }}
+        run: npm ci --omit=dev || npm install --omit=dev
+
+      - name: Run drift delta script
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          node scripts/codeql_drift_delta.mjs
+          echo 'Drift script completed.'
+
+      - name: Show drift summary
+        run: |
+          echo 'Delta JSON:'
+          cat artifacts/codeql-drift-delta.json || true
+          echo 'Report:'
+          sed -n '1,120p' artifacts/codeql-drift-report.md || true
+
+      - name: Gate on High/Medium deltas
+        if: ${{ inputs.enforce_gate == 'true' }}
+        run: |
+          node -e "const fs=require('fs');const d=JSON.parse(fs.readFileSync('artifacts/codeql-drift-delta.json','utf8'));if(d.high>0||d.medium>0){console.error(`Drift gate failed: +${d.high} high +${d.medium} medium`);process.exit(1);}console.log('Drift gate passed: no new High/Medium alerts.');"
+
+      - name: List new Low alerts (best-effort)
+        if: ${{ inputs.skip_low_details != 'true' }}
+        run: |
+          node -e "const fs=require('fs');const cur=JSON.parse(fs.readFileSync('artifacts/codeql-drift-current-alerts.json','utf8'));let base=[];try{base=JSON.parse(fs.readFileSync('codeql_alerts.json','utf8'));}catch{};const key=a=>[a.rule.id,a.most_recent_instance?.location?.file_path,a.most_recent_instance?.location?.start_line].join('|');const baseSet=new Set(base.filter(a=>a.rule?.security_severity_level!=='error').map(key));const lows=cur.filter(a=>a.rule?.security_severity_level!=='error');const newLows=lows.filter(a=>!baseSet.has(key(a)));if(!newLows.length){console.log('No new Low alerts beyond baseline.');process.exit(0);}console.log('Potential new Low alerts (showing up to 10):');newLows.slice(0,10).forEach(a=>{console.log(`• ${a.rule.id} ${a.most_recent_instance?.location?.file_path}:${a.most_recent_instance?.location?.start_line} - ${a.message?.text}`);});"
+
+      - name: Upload drift artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeql-drift-artifacts
+          path: |
+            artifacts/codeql-drift-*.json
+            artifacts/codeql-drift-report.md
+          if-no-files-found: warn
