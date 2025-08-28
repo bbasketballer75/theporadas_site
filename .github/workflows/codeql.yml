@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   security-events: write
   actions: read
 
@@ -132,4 +132,42 @@ jobs:
           fi
           # Disable husky hooks explicitly (in case HUSKY env var not honored in scripts)
           git -c core.hooksPath=/dev/null commit -m 'chore(security): append CodeQL baseline verification section' || true
+          git push || echo 'Push failed (possibly due to branch protection).'
+
+      - name: Append CodeQL trend delta (daily)
+        if: github.ref == 'refs/heads/main'
+        env:
+          HUSKY: 0
+        run: |
+          set -euo pipefail
+          if [ ! -f scripts/codeql_trend_append.mjs ]; then
+            echo 'Trend script missing; skipping.'
+            exit 0
+          fi
+          # Use existing artifacts if present, else attempt API via gh
+          ALERTS_JSON=artifacts/codeql-alerts.json
+          if [ ! -f "$ALERTS_JSON" ]; then
+            echo 'Alert JSON artifact absent; attempting gh api fetch.'
+            if command -v gh >/dev/null 2>&1; then
+              gh api -H "Accept: application/vnd.github+json" \
+                repos/${GITHUB_REPOSITORY}/code-scanning/alerts?per_page=100 > codeql_alerts.json || true
+              ALERTS_JSON=codeql_alerts.json
+            else
+              echo 'gh not available; skipping trend append.'
+              exit 0
+            fi
+          fi
+          node scripts/codeql_trend_append.mjs --alerts "$ALERTS_JSON" --write || true
+          if git diff --quiet SECURITY_NOTES.md; then
+            echo 'No trend changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions'
+          git config user.email 'github-actions@users.noreply.github.com'
+          git add SECURITY_NOTES.md || true
+          if git diff --cached --quiet; then
+            echo 'Nothing staged.'
+            exit 0
+          fi
+            git -c core.hooksPath=/dev/null commit -m 'chore(security): append CodeQL trend delta' || true
           git push || echo 'Push failed (possibly due to branch protection).'

@@ -1,0 +1,70 @@
+{
+  "counts": {
+    "high": 8,
+    "medium": 19,
+    "low": 0,
+    "note": 15
+  },
+  "total": 43,
+  "distinct_rules": 8,
+  "rules": {
+    "js/http-to-file-access": 7,
+    "js/file-system-race": 6,
+    "js/regex-injection": 1,
+    "js/useless-assignment-to-local": 1,
+    "js/unused-local-variable": 15,
+    "actions/missing-workflow-permissions": 9,
+    "js/insecure-temporary-file": 1,
+    "js/indirect-command-line-injection": 3
+  },
+  "high_details": [
+    {
+      "number": 38,
+      "rule": "js/file-system-race",
+      "path": "scripts/verify_workflows.mjs",
+      "line": 457
+    },
+    {
+      "number": 37,
+      "rule": "js/file-system-race",
+      "path": "scripts/verify_workflows.mjs",
+      "line": 445
+    },
+    {
+      "number": 36,
+      "rule": "js/file-system-race",
+      "path": "scripts/verify_workflows.mjs",
+      "line": 359
+    },
+    {
+      "number": 35,
+      "rule": "js/regex-injection",
+      "path": "scripts/verify_workflows.mjs",
+      "line": 507
+    },
+    {
+      "number": 7,
+      "rule": "js/insecure-temporary-file",
+      "path": "test/mcp_supervisor.spec.ts",
+      "line": 84
+    },
+    {
+      "number": 3,
+      "rule": "js/file-system-race",
+      "path": "scripts/compute_bundle_sizes.mjs",
+      "line": 22
+    },
+    {
+      "number": 2,
+      "rule": "js/file-system-race",
+      "path": "scripts/append_quality_history.mjs",
+      "line": 94
+    },
+    {
+      "number": 1,
+      "rule": "js/file-system-race",
+      "path": "scripts/append_quality_history.mjs",
+      "line": 93
+    }
+  ]
+}
