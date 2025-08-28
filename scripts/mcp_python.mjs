@@ -30,7 +30,8 @@ function execPy(code, timeoutMs) {
 createServer(() => {
   register('py/exec', async (params) => {
     if (!params?.code) throw pyError('INVALID_PARAMS', { details: 'code required' });
-    if (typeof params.code !== 'string') throw pyError('INVALID_PARAMS', { details: 'code must be string' });
+    if (typeof params.code !== 'string')
+      throw pyError('INVALID_PARAMS', { details: 'code must be string' });
     if (params.code.length > 2000)
       throw appError(1005, 'code too large', { domain: 'python', symbol: 'E_INPUT_TOO_LARGE' });
     const timeoutMs = parseInt(process.env.MCP_PY_TIMEOUT_MS || '3000', 10);

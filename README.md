@@ -30,6 +30,56 @@ comparisons, and coverage diff gating.
 Idempotent setup scripts + VS Code tasks prevent accidental global reinstalls and
 tool drift.
 
+### Toolchain Lock (Node / npm)
+
+The repository pins the active Node.js runtime via `.nvmrc` for local + CI parity.
+
+| Component | Version / Range       | Rationale                                                                             |
+| --------- | --------------------- | ------------------------------------------------------------------------------------- |
+| Node.js   | 22.18.0               | Matches CI matrix latest LTS + validated against tests & coverage                     |
+| npm       | >=11 (current 11.5.2) | Resolves prior broken wrapper (missing `npm-prefix.js`); npm 11 doctor recommendation |
+
+Quick usage:
+
+```powershell
+# Ensure correct version after cloning
+nvm use
+node -v   # expect v22.18.0
+npm -v    # expect 11.x
+```
+
+If npm wrapper corruption recurs (e.g. MODULE_NOT_FOUND for `npm-prefix.js`):
+
+1. Kill stray Node processes:
+
+```powershell
+taskkill /IM node.exe /F
+```
+
+1. Uninstall & reinstall Node version:
+
+```powershell
+nvm uninstall 22.18.0
+nvm install 22.18.0
+nvm use 22.18.0
+```
+
+1. (Optional) Upgrade npm to latest 11.x:
+
+```powershell
+npm install -g npm@latest
+```
+
+1. Re-verify:
+
+```powershell
+node -v
+npm -v
+npm run lint && npm test
+```
+
+Do not manually place files inside the NVM symlink target (`%LOCALAPPDATA%\nodejs`); let `nvm` manage its contents.
+
 ### Node PATH Troubleshooting (Windows)
 
 If VS Code reports `Unable to find 'node' executable` even after running the setup tasks:
@@ -318,7 +368,7 @@ a11y:best:enforce       # Reads artifact; set A11Y_BEST_ENFORCE=1 to fail on thr
 
 Higher-level wrapper over `<video>` adding multi-source logic, chapters, tracks, adaptive heuristic, and instrumentation.
 
-### Basic Usage
+### MCP Basic Usage
 
 ```tsx
 import { VideoPlayer } from './src/components/VideoPlayer/VideoPlayer';
@@ -511,11 +561,11 @@ import { LazyVideoPlayer } from './src/components/VideoPlayer/LazyVideoPlayer';
 
 Additional props:
 
-| Prop          | Type                 | Default | Description                  |
-| ------------- | -------------------- | ------- | ---------------------------- |
-| `rootMargin`  | `string`             | `200px` | Observer margin for prefetch |
-| `threshold`   | `number | number[]` | `0`     | Intersection threshold(s)    |
-| `aspectRatio` | `string`             | `16/9`  | Placeholder layout stability |
+| Prop          | Type     | Default   | Description                  |
+| ------------- | -------- | --------- | ---------------------------- | ------------------------- |
+| `rootMargin`  | `string` | `200px`   | Observer margin for prefetch |
+| `threshold`   | `number  | number[]` | `0`                          | Intersection threshold(s) |
+| `aspectRatio` | `string` | `16/9`    | Placeholder layout stability |
 
 Tests shim `IntersectionObserver` for synchronous render (see `vitest.setup.ts`).
 
@@ -967,14 +1017,124 @@ Stripe (secure key prompt):
 
 ---
 
+## Dockerized MCP Services
+
+The repository provides containerized Model Context Protocol (MCP) servers for
+local development and experimentation. All services are defined in
+`docker-compose.yml` and built from either `Dockerfile.mcp` (Node-only) or
+`Dockerfile.mcp-python` (adds Python runtime).
+
+### MCP Service Inventory
+
+| Service     | Container         | Script                        | Purpose                             | Key Env Vars                        |
+| ----------- | ----------------- | ----------------------------- | ----------------------------------- | ----------------------------------- |
+| Tavily API  | `mcp-tavily`      | `scripts/mcp_tavily.mjs`      | Web search                          | `TAVILY_API_KEY`                    |
+| Notion API  | `mcp-notion`      | `scripts/mcp_notion.mjs`      | Notion content access               | `NOTION_API_KEY`                    |
+| Mem0        | `mcp-mem0`        | `scripts/mcp_mem0.mjs`        | External memory API                 | `MEM0_API_KEY`                      |
+| SQL Server  | `mcp-sqlserver`   | `scripts/mcp_sqlserver.mjs`   | Query local MSSQL (`mssql` service) | `SQLSERVER_HOST/PORT/USER/PASSWORD` |
+| Filesystem  | `mcp-fs`          | `scripts/mcp_filesystem.mjs`  | Read/write sandboxed FS             | `MCP_FS_ROOT` (mapped volume)       |
+| Memory Bank | `mcp-memory-bank` | `scripts/mcp_memory_bank.mjs` | Simple file-backed memory           | `MCP_MEMORY_BANK_DIR`               |
+| KG Memory   | `mcp-kg`          | `scripts/mcp_kg_memory.mjs`   | In-memory knowledge graph           | `MCP_KG_MAX_TRIPLES`                |
+| Python Exec | `mcp-python`      | `scripts/mcp_python.mjs`      | Sandboxed short Python code runs    | `MCP_PY_TIMEOUT_MS`                 |
+| Supervisor  | `mcp-supervisor`  | `scripts/mcp_supervisor.mjs`  | Multi-server aggregator (subset)    | `SUPERVISED_SERVERS`                |
+
+### Basic Usage
+
+Build everything:
+
+```powershell
+docker compose build
+```
+
+Start (detached):
+
+```powershell
+docker compose up -d
+```
+
+Status & logs:
+
+```powershell
+docker compose ps
+docker compose logs -f mcp_filesystem
+```
+
+Rebuild a single service after code changes:
+
+```powershell
+docker compose build mcp_filesystem && docker compose up -d mcp_filesystem
+```
+
+### Healthchecks
+
+Local MCP services now use a slightly stronger liveness probe: script file
+exists AND PID 1 is the `node` process. For deeper readiness (e.g., initial
+warmup) you can later swap to a JSON-RPC ping wrapper.
+
+### Profiles
+
+Compose profile `mcp-local` gates purely local experimental MCP containers
+(`mcp_filesystem`, `mcp_memory_bank`, `mcp_kg_memory`, `mcp_python`). Start only
+core remote/API backed services:
+
+```powershell
+docker compose up -d mcp_tavily mcp_notion mcp_mem0 mcp_sqlserver
+```
+
+Start all MCP services including local experimental ones:
+
+```powershell
+docker compose --profile mcp-local up -d
+```
+
+### Configuration
+
+Place secrets in a `.env` file (not committed) or export inline:
+
+```env
+TAVILY_API_KEY=your-key
+NOTION_API_KEY=secret
+MEM0_API_KEY=secret
+```
+
+Optional tuning:
+
+```env
+MCP_KG_MAX_TRIPLES=10000
+MCP_PY_TIMEOUT_MS=5000
+```
+
+### Filesystem Sandbox
+
+`mcp_filesystem` mounts `./mcp_fs_sandbox` to `/data/fs` (`MCP_FS_ROOT`). Editing locally reflects instantly inside the container.
+
+### Supervisor Notes
+
+`mcp_supervisor` currently supervises: `tavily,notion,mem0,sqlserver`.
+Local-only experimental services (filesystem, memory bank, kg, python) run
+independently for isolation. Extend `SUPERVISED_SERVERS` if you prefer
+aggregation.
+
+### Troubleshooting
+
+- Restart loop: check `docker compose logs <service>`; ensure keep-alive code present (already included in images).
+- Auth errors: confirm environment variables loaded; re-run `docker compose up -d` after adding `.env`.
+- Code not updating: you likely forgot to rebuild (`docker compose build <service>`).
+
+### Future Enhancements (Optional)
+
+- Compose profiles for selective startup
+- Active healthchecks (JSON-RPC ping)
+- Persistent backing store for knowledge graph
+
+---
+
 ## Contributing
 
 1. Branch from `main`
 2. Keep PRs focused and small
 3. Ensure: lint (0 warnings) + tests + typecheck + coverage unchanged/non-regressive
 4. For Windows-specific fixes include rationale and cross-platform notes
-
----
 
 ## Security & Dependency Automation
 
