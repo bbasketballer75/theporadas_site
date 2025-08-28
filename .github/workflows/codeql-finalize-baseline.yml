@@ -78,10 +78,10 @@ jobs:
           mkdir -p artifacts
           if ! node scripts/codeql_baseline_snapshot.mjs; then
             echo 'Snapshot script failed; writing fallback snippet.'
-            cat > artifacts/codeql-baseline-snippet.md <<'EOF'
-## CodeQL Baseline (Fallback)
-Unable to enumerate alerts in finalize workflow. Manual verification required.
-EOF
+            printf '%s\n' \
+              '## CodeQL Baseline (Fallback)' \
+              'Unable to enumerate alerts in finalize workflow. Manual verification required.' \
+              > artifacts/codeql-baseline-snippet.md
           fi
           test -s artifacts/codeql-baseline-snippet.md || { echo 'Missing snippet file'; exit 1; }
 
