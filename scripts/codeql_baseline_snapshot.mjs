@@ -10,6 +10,7 @@
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { safeFetchJson } from './lib/safe_fetch.mjs';
 
 const repo = process.env.GITHUB_REPOSITORY; // owner/repo
 if (!repo) {
@@ -31,33 +32,28 @@ async function fetchAllAlerts() {
   const all = [];
   while (true) {
     const url = `${base}?page=${page}&per_page=${perPage}`;
-    const res = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.github+json',
-        'User-Agent': 'codeql-baseline-snapshot-script',
-      },
-    });
-    if (res.status === 403) {
-      const body = await res.text();
-      console.error('403 fetching alerts:', body);
-      process.exit(2);
-    }
-    if (!res.ok) {
-      const body = await res.text();
-      console.error('Failed fetching alerts', res.status, body);
+    let data;
+    try {
+      data = await safeFetchJson(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github+json',
+          'User-Agent': 'codeql-baseline-snapshot-script',
+        },
+        maxBytes: 2_000_000,
+      });
+    } catch (e) {
+      console.error('Error fetching alerts page', page, e.message);
       process.exit(3);
     }
-    const data = await res.json();
     if (!Array.isArray(data)) {
       console.error('Unexpected response (not array)', data);
       process.exit(4);
     }
     all.push(...data);
-    if (data.length < perPage) break; // last page
+    if (data.length < perPage) break;
     page++;
     if (page > 10_000) {
-      // sanity guard
       console.error('Aborting: too many pages (>10k)');
       process.exit(5);
     }

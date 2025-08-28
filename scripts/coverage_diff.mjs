@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import fs from 'fs';
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 
 // Configurable thresholds via env (percentages)
 const MAX_STATEMENT_DROP = parseFloat(process.env.MAX_STATEMENT_DROP || '0.5');
@@ -12,8 +12,10 @@ const PER_FILE_WARN_DROP = parseFloat(process.env.PER_FILE_WARN_DROP || '2.0');
 // Maximum allowed per-file statement drop that will fail build (optional)
 const PER_FILE_FAIL_DROP = parseFloat(process.env.PER_FILE_FAIL_DROP || '9999');
 
-function run(cmd) {
-  return execSync(cmd, { stdio: 'pipe', encoding: 'utf8' }).trim();
+function runGit(args) {
+  const res = spawnSync('git', args, { stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8' });
+  if (res.status !== 0) throw new Error(res.stderr || res.stdout || 'git command failed');
+  return res.stdout.trim();
 }
 
 function parseSummary(txt) {
@@ -57,6 +59,9 @@ function fmt(num) {
 function main() {
   // Get base branch (default main)
   const baseRef = process.env.GITHUB_BASE_REF || process.env.BASE_REF || 'origin/main';
+  if (!/^[A-Za-z0-9._\-\/]+$/.test(baseRef)) {
+    throw new Error('Invalid base ref characters');
+  }
   // Ensure base coverage file from base ref
   // We checkout only coverage summary file from base for comparison to avoid full workspace mutation.
   const tmpDir = '.tmp_coverage_base';
@@ -65,7 +70,7 @@ function main() {
   const baseFilePath = 'coverage/coverage-summary.json';
   let baseContent;
   try {
-    baseContent = run(`git show ${baseRef}:${baseFilePath}`);
+    baseContent = runGit(['show', `${baseRef}:${baseFilePath}`]);
   } catch (e) {
     console.warn('Base coverage summary missing on base ref, treating as 0s.');
     baseContent = JSON.stringify({

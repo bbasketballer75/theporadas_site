@@ -11,7 +11,7 @@ const args = [
   'api',
   '-H',
   'Accept: application/vnd.github+json',
-  `repos/${owner}/${repo}/code-scanning/alerts?per_page=${perPage}`
+  `repos/${owner}/${repo}/code-scanning/alerts?per_page=${perPage}`,
 ];
 
 execFile('gh', args, { maxBuffer: 5 * 1024 * 1024 }, (err, stdout, stderr) => {
