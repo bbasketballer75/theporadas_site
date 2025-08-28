@@ -204,6 +204,9 @@ function handleRequest(msg) {
 
 function runJsonRpc() {
   let buffer = '';
+  if (!global.__fsKeepAlive) {
+    global.__fsKeepAlive = setInterval(() => {}, 60_000);
+  }
   process.stdin.setEncoding('utf8');
   process.stdin.on('data', (chunk) => {
     buffer += chunk;
@@ -223,6 +226,12 @@ function runJsonRpc() {
       } catch (e) {
         out({ jsonrpc: '2.0', error: { message: 'Parse error: ' + e.message } });
       }
+    }
+  });
+  // Keep alive even if stdin closes (Docker may detach stdio)
+  process.stdin.on('close', () => {
+    if (!global.__fsKeepAlive) {
+      global.__fsKeepAlive = setInterval(() => {}, 60_000);
     }
   });
   out({ jsonrpc: '2.0', method: 'fs/ready', params: { root } });

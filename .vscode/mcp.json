@@ -25,8 +25,14 @@
     },
     "firebase": {
       "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "firebase-tools@latest", "experimental:mcp"],
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/scripts/firebase_mcp.ps1"
+      ],
       "env": {
         "PATH": "${env:LOCALAPPDATA}\\nodejs;${env:APPDATA}\\npm;${env:PATH}"
       }

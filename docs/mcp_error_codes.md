@@ -28,18 +28,15 @@ integer codes namespaced by range.
 
 ## Domain Ranges
 
-| Range     | Domain        | Examples                                 |
-| --------- | ------------- | ---------------------------------------- |
-| 2000–2099 | Python Exec   | 2000 E_PY_EXEC_FAIL, 2001 E_PY_SECURITY  |
-| 2100–2199 | Playwright    | 2100 E_PW_NAV, 2101 E_PW_LAUNCH          |
-| 2200–2299 | Puppeteer     | 2200 E_PT_NAV, 2201 E_PT_LAUNCH          |
-| 2300–2399 | Memory Bank   | 2300 E_MB_FILE_NOT_FOUND, 2301 E_MB_READ |
-| 2400–2499 | KG Memory     | 2400 E_KG_FULL, 2401 E_KG_INVALID_TRIPLE |
-| 2500–2599 | Filesystem    | 2500 E_FS_PATH_ESCAPE, 2501 E_FS_DENIED  |
-| 2600–2699 | SQL Server    | 2600 E_SQL_CONN, 2601 E_SQL_QUERY        |
-| 2700–2799 | Notion        | 2700 E_NOTION_AUTH, 2701 E_NOTION_RATE   |
-| 2800–2899 | Tavily        | 2800 E_TAVILY_HTTP, 2801 E_TAVILY_RATE   |
-| 2900–2999 | Future / Misc | Reserved                                 |
+| Range     | Domain      | Examples / Current Usage                          |
+| --------- | ----------- | ------------------------------------------------- |
+| 2300–2399 | Memory Bank | 2300 E_MB_FILE_NOT_FOUND, 2301 E_MB_READ          |
+| 2400–2499 | KG Memory   | 2400 E_KG_FULL, 2401 E_KG_INVALID_TRIPLE          |
+| 2500–2599 | Filesystem  | 2500 E_FS_PATH_ESCAPE, 2501 E_FS_DENIED           |
+| 2600–2699 | Python Exec | 2600 E_PY_SCRIPT_NOT_FOUND, 2601 E_PY_EXEC_FAILED |
+| 2700–2799 | Playwright  | 2700 E_PW_BROWSER_LAUNCH, 2701 E_PW_NAVIGATION    |
+| 2800–2899 | Puppeteer   | 2800 E_PT_BROWSER_LAUNCH, 2801 E_PT_NAVIGATION    |
+| 2900–2999 | Reserved    | Future (SQL, Notion, Tavily, etc.)                |
 
 ## Error Object Shape
 
@@ -191,11 +188,14 @@ export function defineDomain(domain, defs) {
 
 ### Provided Domain Helpers
 
-| Domain      | Range     | Helper    | Example                                        |
-| ----------- | --------- | --------- | ---------------------------------------------- |
-| filesystem  | 2500–2599 | `fsError` | `throw fsError('PATH_ESCAPE', { details })`    |
-| memory-bank | 2300–2399 | `mbError` | `throw mbError('FILE_NOT_FOUND', { details })` |
-| kg-memory   | 2400–2499 | `kgError` | `throw kgError('FULL', { retryable:true })`    |
+| Domain      | Range     | Helper    | Example                                                    |
+| ----------- | --------- | --------- | ---------------------------------------------------------- |
+| filesystem  | 2500–2599 | `fsError` | `throw fsError('PATH_ESCAPE', { details })`                |
+| memory-bank | 2300–2399 | `mbError` | `throw mbError('FILE_NOT_FOUND', { details })`             |
+| kg          | 2400–2499 | `kgError` | `throw kgError('FULL', { retryable:true })`                |
+| python      | 2600–2699 | `pyError` | `throw pyError('EXEC_FAILED', { details })`                |
+| playwright  | 2700–2799 | `pwError` | `throw pwError('NAVIGATION', { details, retryable:true })` |
+| puppeteer   | 2800–2899 | `ptError` | `throw ptError('NAVIGATION', { details })`                 |
 
 Each `*Error(symbol, overrides)` merges optional overrides (`message`, `details`,
 `retryable`) while preserving canonical `code` and default `message`.
@@ -207,8 +207,8 @@ Each `*Error(symbol, overrides)` merges optional overrides (`message`, `details`
    `{ code, message, retryable? }` and export the updated defs (maintain ordering).
 3. Keep ranges contiguous—do not skip ahead unless reserving space for a related
    cluster; document any reservations inline.
-4. For domains not yet using helpers (e.g., Python, Playwright, Puppeteer), either
-   retain `appError` (acceptable) or introduce a helper when adding new symbols.
+4. For future domains not yet using helpers (e.g., SQL, Notion, Tavily), either
+   retain `appError` temporarily or introduce a helper when adding domain symbols.
 
 ### Rationale
 
@@ -228,5 +228,14 @@ shared pattern.
 ### Testing Notes
 
 `test/mcp_errors.test.js` validates representative memory-bank and KG error cases
-post-migration. Additional domains can extend that file or create dedicated domain
-error spec files as helpers are adopted.
+post-migration. Additional domains (python, playwright, puppeteer) should add targeted
+cases to ensure symbol/code integrity as needed.
+
+### Error Factory Adoption Status
+
+All persistent JSON-RPC style servers now leverage the shared domain error factory:
+
+- Adopted: Filesystem, Memory Bank, KG Memory, Python Exec, Playwright, Puppeteer
+- Pending (future): SQL Server, Notion, Tavily, Mem0 (simple stubs today)
+
+Rationale: Uniform `domain` / `symbol` / `code` semantics simplify client logic & metrics.
