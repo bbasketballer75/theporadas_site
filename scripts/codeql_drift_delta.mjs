@@ -233,6 +233,31 @@ function buildReport(baselineCounts, currentCounts, delta, unavailable) {
   }
   const currentCounts = aggregate(alerts);
   const delta = computeDelta(currentCounts, baseline);
+  // Attempt to enrich delta with new alert numbers vs baseline raw snapshot
+  let newAlertNumbers = null;
+  try {
+    const baselineRawPath = path.join(process.cwd(), 'codeql_alerts.json');
+    if (fs.existsSync(baselineRawPath)) {
+      const baselineRaw = JSON.parse(fs.readFileSync(baselineRawPath, 'utf8'));
+      const baselineNumbers = new Set(
+        Array.isArray(baselineRaw)
+          ? baselineRaw.map((a) => a.number).filter((n) => typeof n === 'number')
+          : [],
+      );
+      const added = alerts.filter((a) => !baselineNumbers.has(a.number));
+      if (added.length) {
+        const bucket = { critical: [], high: [], medium: [], low: [] };
+        for (const a of added) {
+          const sev = normalizeSeverity(a);
+          if (!bucket[sev]) bucket[sev] = [];
+          bucket[sev].push(a.number);
+        }
+        newAlertNumbers = bucket;
+      }
+    }
+  } catch (e) {
+    // Non-fatal; ignore enrichment errors
+  }
   const report = buildReport(baseline, currentCounts, delta, null);
   fs.writeFileSync(
     path.join(artifactsDir, 'codeql-drift-current-alerts.json'),
@@ -244,8 +269,17 @@ function buildReport(baselineCounts, currentCounts, delta, unavailable) {
   );
   fs.writeFileSync(
     path.join(artifactsDir, 'codeql-drift-delta.json'),
-    JSON.stringify(delta, null, 2),
+    JSON.stringify(newAlertNumbers ? { ...delta, newAlertNumbers } : delta, null, 2),
   );
   fs.writeFileSync(path.join(artifactsDir, 'codeql-drift-report.md'), report);
-  if (!process.env.QUIET) console.log(JSON.stringify({ baseline, currentCounts, delta }, null, 2));
+  if (!process.env.QUIET)
+    console.log(
+      JSON.stringify(
+        newAlertNumbers
+          ? { baseline, currentCounts, delta, newAlertNumbers }
+          : { baseline, currentCounts, delta },
+        null,
+        2,
+      ),
+    );
 })();
