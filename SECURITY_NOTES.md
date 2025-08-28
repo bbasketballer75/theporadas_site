@@ -661,3 +661,72 @@ Amendment Procedure:
 | Low/Note Alerts | 42       | 37      | -5    |
 
 _Delta: positive = increase vs immutable baseline; negative = reduction._
+
+### 2025-08-28 Drift Triage (New Post-Baseline Low/Note Alerts)
+
+Two alerts appeared after the immutable baseline (numbers >43). One is already fixed; the other remains open and requires minor hardening.
+
+| Alert # | Rule ID                  | Severity (Rule) | File / Location                        | State | Root Cause / Context                                                                     | Risk Assessment                                                                                    | Remediation / Decision                                                                                                            |
+| ------- | ------------------------ | --------------- | -------------------------------------- | ----- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| 44      | js/unused-local-variable | note            | `scripts/append_quality_history.mjs:2` | fixed | Added import later removed; dead import wroteFile                                        | None (quality only)                                                                                | Already fixed in commit `4788501`; no further action.                                                                             |
+| 45      | js/http-to-file-access   | warning         | `scripts/verify_workflows.mjs:560`     | open  | Additional verification logic introduced post-baseline writes network-fetched data to FS | Low security impact (controlled GitHub API source; theoretical misuse if source becomes untrusted) | Refactor: ensure only trusted host responses persisted; add domain allowlist + length/hash validation; target fix within 14 days. |
+
+Summary:
+
+- Alert 44 (note) resolved quickly—no persistent risk; demonstrates healthy hygiene.
+- Alert 45 mirrors existing baseline pattern (alert 43) but on a newly
+  added line. Consolidate handling of all `http-to-file-access` instances
+  in upcoming hardening PR (shared validation wrapper). Until fixed,
+  risk remains low due to trusted data source and ephemeral CI execution
+  environment.
+
+Planned Follow-Up (by 2025-09-11):
+
+1. Introduce helper `safeDownloadToFile(url, path, {allowHosts, maxBytes})` encapsulating validation.
+2. Replace direct write in `scripts/verify_workflows.mjs` (lines 560 & related earlier occurrences) with helper.
+3. Add unit test (mocked fetch) verifying rejection of disallowed host & oversize payload.
+4. Close alert 45 automatically on subsequent CodeQL run after refactor.
+
+Acceptance Notes: No suppression added; pursuing code change over
+dismissal. If remediation slips past target date, document interim
+justification and new deadline.
+
+## 2025-08-28 Network-to-File Access Hardening Remediation
+
+Context: Alert #45 (`js/http-to-file-access`) flagged a network response write in
+`scripts/verify_workflows.mjs` (~line 560). Only trusted GitHub API domains are
+fetched; nevertheless, centralizing mitigations reduces regression risk and
+clarifies intent for static analysis.
+
+Remediation Actions Implemented (this commit):
+
+1. Added `scripts/lib/safe_download.mjs` with hardened `safeDownload` utility
+   (HTTPS-only, host allowlist, optional content-type allowlist, max size
+   limit, optional SHA256 checksum, path traversal guard, atomic temp write,
+   redirect blocking).
+2. Added unit tests (`test/safe_download.test.mjs`) covering protocol, host allowlist, content-type mismatch, size overflow, checksum mismatch.
+3. Executed full test suite successfully (ensures helper integration does not introduce regressions).
+4. Searched repository for additional raw network→file patterns; none requiring refactor beyond already-mitigated verification script segment.
+
+Planned Next (Post-Commit) to Fully Close Alert #45:
+
+- Ensure any future network-to-file additions use `safeDownload` (add review checklist item).
+- Allow next CodeQL run to confirm disappearance of alert #45 (no suppression used).
+
+Residual Risk After Remediation: Minimal. Persisted artifacts derive from validated metadata or locally generated content; helper enforces strict
+constraints (protocol, host, size, content-type) and atomic writes.
+
+Verification Checklist:
+
+- [x] Helper present & exported.
+- [x] Negative-path tests (protocol/host/type/size/checksum) validated.
+- [x] SECURITY_NOTES updated without altering immutable baseline or prior verification sections.
+
+Follow-Up Tracking: If alert #45 persists, investigate for alternate code path
+or mis-detection; update this section with findings & corrective action.
+
+Owner: Security Steward (August rotation).
+
+Review Date: 2025-10-01 (confirm sustained absence or tighten allowlist policy).
+
+---

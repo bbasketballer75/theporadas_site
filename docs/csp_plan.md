@@ -40,7 +40,9 @@ Completed phases:
 
 Remaining / future considerations:
 
-1. Introduce `report-to` (Reporting API) structure alongside legacy `report-uri` for richer grouping.
+1. (In progress) Introduce `report-to` (Reporting API) structure alongside legacy
+   `report-uri` for richer grouping. Initial `Report-To` and `Reporting-Endpoints`
+   headers added; evaluate client support telemetry before relying solely on them.
 1. Consider adding `script-src` nonces / hashes only if inline scripts ever required (avoidance remains strategy).
    Potential future `strict-dynamic` if adopting nonces.
 1. Evaluate need for additional directives if external domains are added:
@@ -88,8 +90,8 @@ If a deliberate inline script becomes necessary (e.g., micro bootstrap for FCP),
 - [x] Add explicit `object-src 'none'`.
 - [x] Add `upgrade-insecure-requests`.
 - [x] Add reporting endpoint + `report-uri`.
-- [ ] Add `report-to` / `Reporting-Endpoints` (future).
-- [ ] Add automated CSP diff guard in CI.
+- [x] Add `report-to` / `Reporting-Endpoints` headers (monitor adoption; keep legacy `report-uri`).
+- [x] Add automated CSP diff guard script (`scripts/verify_csp_diff.mjs`) + baseline snapshot (`security/csp_baseline.json`).
 - [ ] Formalize hash injection path if intentional inline needed.
 
 ## Rollback / Safety Plan
