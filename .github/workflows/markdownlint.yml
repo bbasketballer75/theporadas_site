@@ -11,6 +11,9 @@ on:
       - '**/*.md'
       - '.markdownlint.*'
 
+permissions:
+  contents: read
+
 jobs:
   markdownlint:
     runs-on: ubuntu-latest

@@ -11,6 +11,9 @@ on:
       - 'media/encoded/**'
       - 'scripts/generate_lqip.mjs'
 
+permissions:
+  contents: read
+
 jobs:
   lqip:
     runs-on: ubuntu-latest

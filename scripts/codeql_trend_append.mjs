@@ -15,7 +15,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import cp from 'node:child_process';
+import { spawnSync } from 'node:child_process';
+import { safeFetchJson } from './lib/safe_fetch.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -44,22 +45,46 @@ function readJSON(p) {
   return JSON.parse(fs.readFileSync(p, 'utf8'));
 }
 
-function fetchAlertsViaGh() {
+function fetchAlertsViaGhCli(repo) {
   try {
-    const out = cp.execSync(
-      'gh api -H "Accept: application/vnd.github+json" /repos/${{ github.repository }}/code-scanning/alerts?per_page=100',
+    const res = spawnSync(
+      process.platform === 'win32' ? 'gh.exe' : 'gh',
+      ['api', '-H', 'Accept: application/vnd.github+json', `/repos/${repo}/code-scanning/alerts?per_page=100`],
       { encoding: 'utf8' },
     );
-    return JSON.parse(out);
-  } catch (e) {
+    if (res.status === 0) {
+      return JSON.parse(res.stdout);
+    }
+  } catch (_) {
+    // ignore
+  }
+  return null;
+}
+
+async function fetchAlertsViaApi(repo, token) {
+  if (!token) return null;
+  const url = `https://api.github.com/repos/${repo}/code-scanning/alerts?per_page=100`;
+  try {
+    return await safeFetchJson(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json',
+        'User-Agent': 'codeql-trend-append',
+      },
+      maxBytes: 2_000_000,
+    });
+  } catch (_) {
     return null;
   }
 }
 
-function loadAlerts(alertsPath) {
+async function loadAlerts(alertsPath, repo) {
   if (fs.existsSync(alertsPath)) return readJSON(alertsPath);
-  const viaGh = fetchAlertsViaGh();
-  if (viaGh) return viaGh;
+  const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
+  const viaApi = await fetchAlertsViaApi(repo, token);
+  if (viaApi) return viaApi;
+  const viaCli = fetchAlertsViaGhCli(repo);
+  if (viaCli) return viaCli;
   throw new Error('No alerts JSON available');
 }
 
@@ -152,7 +177,8 @@ function appendBlock(filePath, block) {
 
 (async function main() {
   const opts = parseArgs();
-  const alerts = loadAlerts(opts.alerts);
+  const repo = process.env.GITHUB_REPOSITORY;
+  const alerts = await loadAlerts(opts.alerts, repo);
   const securityNotesPath = path.join(__dirname, '..', 'SECURITY_NOTES.md');
   const notes = fs.readFileSync(securityNotesPath, 'utf8');
   const baseline = extractBaseline(notes);
