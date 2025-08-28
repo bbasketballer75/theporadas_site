@@ -35,6 +35,15 @@ This project adheres to [Conventional Commits](https://www.conventionalcommits.o
 - Added optional `verify:visual` script to run Playwright outside the core `verify` chain.
 - Refactored Lighthouse budgets workflow to use internal composite action
   (`./.github/actions/lighthouse-budgets`) with annotations on budget overages.
+- Introduced shared MCP domain error factory (`scripts/mcp_error_codes.mjs`) providing
+  `defineDomain` and per-domain helpers (`fsError`, `mbError`, `kgError`) to enforce
+  consistent code/symbol/domain semantics across servers.
+- Migrated Memory Bank & KG memory servers to new helpers; preserved existing filesystem
+  helper for backwards compatibility.
+- Added error factory adoption status section to `docs/mcp_servers.md` and extended
+  `docs/mcp_error_codes.md` with factory usage, migration guidance, and rationale.
+- Normalized long documentation lines and table wrapping to satisfy MD013 after new
+  sections were added.
 
 ---
 

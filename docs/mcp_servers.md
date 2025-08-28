@@ -23,10 +23,17 @@ We retain both the custom filesystem server (`scripts/mcp_filesystem.mjs`) and t
   policy hooks & error shaping, we will deprecate the custom version; otherwise
   we may upstream selected features.
 
-| SQL Server | `scripts/mcp_sqlserver.mjs` | `SQLSERVER_CONNECTION_STRING` | Executes a single query (default `SELECT 1 AS ok`). Returns recordset JSON. |
-| Playwright | `scripts/mcp_playwright.mjs` | `MCP_PW_SESSION_LIMIT` (opt), `MCP_PW_NAV_TIMEOUT_MS` (opt) | Headless browser sessions: launch, goto, extract text, close, list. |
-| Puppeteer | `scripts/mcp_puppeteer.mjs` | `MCP_PT_SESSION_LIMIT` (opt), `MCP_PT_NAV_TIMEOUT_MS` (opt) | Alternative headless browser automation (same operations as Playwright). |
-| Python Exec | `scripts/mcp_python.mjs` | `MCP_PYTHON_BIN` (opt), `MCP_PY_TIMEOUT_MS` (opt) | Executes short Python snippets with timeout & output truncation. |
+| SQL Server | `scripts/mcp_sqlserver.mjs` | `SQLSERVER_CONNECTION_STRING` | Executes a single query (default `SELECT 1 AS ok`).
+Returns recordset JSON. |
+| Playwright | `scripts/mcp_playwright.mjs` | `MCP_PW_SESSION_LIMIT` (opt),
+`MCP_PW_NAV_TIMEOUT_MS` (opt) | Headless browser sessions: launch, goto,
+extract text, close, list. |
+| Puppeteer | `scripts/mcp_puppeteer.mjs` | `MCP_PT_SESSION_LIMIT` (opt),
+`MCP_PT_NAV_TIMEOUT_MS` (opt) | Alternative headless browser automation
+(same operations as Playwright). |
+| Python Exec | `scripts/mcp_python.mjs` | `MCP_PYTHON_BIN` (opt),
+`MCP_PY_TIMEOUT_MS` (opt) | Executes short Python snippets with timeout &
+output truncation. |
 | Memory Bank | `scripts/mcp_memory_bank.mjs` | `MCP_MEMORY_BANK_DIR` (opt) | List/read/search markdown knowledge files (capped). |
 | KG Memory | `scripts/mcp_kg_memory.mjs` | `MCP_KG_MAX_TRIPLES` (opt) | In-memory triple store add/query/subjects (bounded). |
 
@@ -322,3 +329,16 @@ or framing bugs.
 6. Sandboxed Python (pyodide / WASM) option for untrusted code.
 7. Implement KG persistence (snapshot + WAL) per `docs/mcp_persistence_plan.md`.
 8. Telemetry hooks & metrics for error/domain counts.
+
+### Error Factory Adoption Status
+
+The shared domain error factory (`scripts/mcp_error_codes.mjs`) now provides
+`fsError`, `mbError`, and `kgError` helpers. Current adoption plan:
+
+- Adopted: Filesystem (existing `fsError` preserved), Memory Bank (`mbError`), KG Memory (`kgError`).
+- Pending / Consider: Python, Playwright, Puppeteer – still using direct `appError` calls; will migrate if adding new symbols or complexity increases.
+- Out-of-scope (one-off CLI style): Tavily, Notion, Mem0, SQL Server stubs currently
+  emit minimal errors; migration deferred until they become persistent servers.
+
+Rationale: Focus adoption where multiple distinct symbols already exist to maximize
+deduplication and consistency; defer elsewhere to avoid premature abstraction.
