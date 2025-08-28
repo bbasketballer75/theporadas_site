@@ -45,10 +45,15 @@ function walk(dir, base = dir) {
 
 async function main() {
   const distDir = process.env.BUNDLE_DIR || 'dist';
+  let distStat;
   try {
-    statSync(distDir);
+    distStat = statSync(distDir);
   } catch {
     console.error('[bundle] dist directory missing');
+    process.exit(0);
+  }
+  if (!distStat.isDirectory()) {
+    console.error('[bundle] dist path is not a directory');
     process.exit(0);
   }
   const files = walk(distDir);

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { readFile, appendFile, mkdir, writeFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { existsSync, openSync, closeSync } from 'node:fs';
 
 /*
   Append a single JSON line of quality metrics to artifacts/quality-history.jsonl
@@ -90,7 +90,13 @@ async function main() {
   if (!existsSync('artifacts')) await mkdir('artifacts', { recursive: true });
   const line = JSON.stringify(record) + '\n';
   const historyPath = 'artifacts/quality-history.jsonl';
-  if (!existsSync(historyPath)) await writeFile(historyPath, '');
+  // Create file exclusively if it does not exist to avoid race between existence check and creation
+  try {
+    const fd = openSync(historyPath, 'wx');
+    closeSync(fd);
+  } catch {
+    // already exists or cannot create; continue
+  }
   await appendFile(historyPath, line, 'utf8');
   console.log('Appended quality history record.');
 }
