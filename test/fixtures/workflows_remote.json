@@ -1,0 +1,8 @@
+{
+  "workflows": [
+    { "name": "CI Pipeline", "path": ".github/workflows/ci.yml" },
+    { "name": "Deployment Pipeline", "path": ".github/workflows/deploy.yml" },
+    { "name": "Preview Deploy", "path": ".github/workflows/dynamic_preview.yml" },
+    { "name": "Security Scan", "path": ".github/workflows/security.yml" }
+  ]
+}
