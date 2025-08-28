@@ -59,13 +59,15 @@
     "codeql:drift": "node scripts/codeql_drift_delta.mjs",
     "verify:workflows": "node scripts/verify_workflows.mjs",
     "csp:audit": "node scripts/audit_csp_inlines.mjs",
-    "csp:verify": "node scripts/verify_csp_diff.mjs"
+    "csp:verify": "node scripts/verify_csp_diff.mjs",
+    "db:test": "node scripts/db/test_connection.mjs",
+    "db:test:env": "node -r dotenv/config scripts/db/test_connection.mjs"
   },
   "devDependencies": {
-    "dotenv": "^16.4.5",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@eslint/js": "^9.33.0",
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.48.2",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
@@ -78,10 +80,10 @@
     "@vitest/coverage-v8": "^3.0.0",
     "@vitest/eslint-plugin": "^1.3.4",
     "axe-core": "^4.10.0",
-    "@lhci/cli": "^0.15.1",
     "chrome-launcher": "^1.1.0",
     "conventional-changelog-cli": "^4.0.0",
     "cross-env": "^7.0.3",
+    "dotenv": "^16.4.5",
     "eslint": "^9.9.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^4.4.4",
@@ -91,26 +93,27 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "globals": "^16.3.0",
     "husky": "^9.1.7",
+    "jimp": "^1.6.0",
     "jsdom": "^24.0.0",
     "lighthouse": "^12.0.0",
     "lint-staged": "^15.2.10",
     "markdownlint-cli": "^0.45.0",
     "prettier": "^3.3.3",
+    "ts-node": "^10.9.2",
     "typescript": "^5.5.4",
     "vite": "^7.1.3",
     "vitest": "^3.0.0",
-    "vitest-axe": "^0.1.0",
-    "jimp": "^1.6.0"
+    "vitest-axe": "^0.1.0"
   },
   "dependencies": {
     "@notionhq/client": "^2.2.15",
+    "@octokit/auth-app": "^7.1.2",
+    "@octokit/core": "^6.1.2",
     "@tavily/core": "^0.5.11",
     "mssql": "^11.0.1",
     "node-fetch": "^3.3.2",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "@octokit/core": "^6.1.2",
-    "@octokit/auth-app": "^7.1.2"
+    "react-dom": "^19.1.0"
   },
   "peerDependencies": {
     "playwright": "*",

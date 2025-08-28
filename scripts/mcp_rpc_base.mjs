@@ -11,6 +11,15 @@
 const methods = new Map();
 // Optional in-memory error metrics (enabled via MCP_ERROR_METRICS=1)
 const errorMetricsEnabled = process.env.MCP_ERROR_METRICS === '1';
+const promMetricsEnabled = process.env.MCP_PROM_METRICS === '1';
+// Per-method invocation metrics (counts + errors) piggyback on same flag
+const methodStats = new Map(); // name -> { calls, errors }
+
+function incMethod(name, field) {
+  if (!errorMetricsEnabled) return;
+  if (!methodStats.has(name)) methodStats.set(name, { calls: 0, errors: 0 });
+  methodStats.get(name)[field] += 1;
+}
 const errorCounters = {
   byCode: new Map(), // code -> count
   byDomain: new Map(), // domain -> count
@@ -130,11 +139,35 @@ async function handleMessage(msg) {
     emit({ jsonrpc: '2.0', id, error: safeError({ message: 'Method not found', code: -32601 }) });
     return;
   }
+  // Optional rate limiting (coarse global or per-method) gated by MCP_RATE_LIMIT
+  if (process.env.MCP_RATE_LIMIT === '1') {
+    try {
+      const { consume } = await import('./mcp_rate_limit.mjs');
+      // Lazy import of error codes to avoid circular if other modules import harness early
+      const { rlError } = await import('./mcp_error_codes.mjs');
+      const keyMode = process.env.MCP_RATE_LIMIT_MODE || 'global'; // 'global' | 'method'
+      const key = keyMode === 'method' ? `method:${method}` : 'global';
+      const decision = consume(key, 1);
+      if (!decision.allowed) {
+        emit({
+          jsonrpc: '2.0',
+          id,
+          error: safeError(rlError('EXCEEDED', { details: 'try later' })),
+        });
+        return;
+      }
+    } catch (e) {
+      // If rate limit module fails, proceed without blocking but log stderr
+      console.error('[mcp:harness] rate limit module error', e.message);
+    }
+  }
   const handler = methods.get(method);
+  incMethod(method, 'calls');
   try {
     const result = await handler(params);
     emit({ jsonrpc: '2.0', id, result });
   } catch (err) {
+    incMethod(method, 'errors');
     emit({ jsonrpc: '2.0', id, error: safeError(err) });
   }
 }
@@ -144,7 +177,13 @@ export function start() {
   process.stdin.on('data', processLines);
   process.stdin.on('error', () => {});
   process.stdin.resume();
-  emit({ type: 'ready', methods: listMethods(), schema: { errorCodes: 1 } });
+  // Keep the event loop alive even if stdin closes (common in detached Docker)
+  if (!global.__mcpKeepAlive) {
+    global.__mcpKeepAlive = setInterval(() => {}, 60_000);
+  }
+  const ready = { type: 'ready', methods: listMethods(), schema: { errorCodes: 1 } };
+  if (process.env.MCP_SERVER_NAME) ready.server = process.env.MCP_SERVER_NAME;
+  emit(ready);
 }
 
 // Convenience to build a server quickly
@@ -160,6 +199,46 @@ export function createServer(registrar) {
         byDomain: objFromMap(errorCounters.byDomain),
         bySymbol: objFromMap(errorCounters.bySymbol),
       };
+    });
+    register('sys/metrics', () => {
+      const perMethod = {};
+      for (const [k, v] of methodStats.entries())
+        perMethod[k] = { calls: v.calls, errors: v.errors };
+      return { methods: perMethod };
+    });
+  }
+  if (promMetricsEnabled) {
+    register('sys/promMetrics', () => {
+      const lines = [];
+      const esc = (v) => String(v).replace(/\\/g, '\\\\').replace(/\n/g, '');
+      lines.push('# HELP mcp_errors_total Total application errors captured');
+      lines.push('# TYPE mcp_errors_total counter');
+      lines.push(`mcp_errors_total ${errorCounters.total}`);
+      // Errors by domain
+      lines.push('# HELP mcp_errors_by_domain_total Errors partitioned by domain');
+      lines.push('# TYPE mcp_errors_by_domain_total counter');
+      for (const [dom, count] of errorCounters.byDomain.entries())
+        lines.push(`mcp_errors_by_domain_total{domain="${esc(dom)}"} ${count}`);
+      // Errors by symbol
+      lines.push('# HELP mcp_errors_by_symbol_total Errors partitioned by symbol');
+      lines.push('# TYPE mcp_errors_by_symbol_total counter');
+      for (const [sym, count] of errorCounters.bySymbol.entries())
+        lines.push(`mcp_errors_by_symbol_total{symbol="${esc(sym)}"} ${count}`);
+      // Errors by code
+      lines.push('# HELP mcp_errors_by_code_total Errors partitioned by code');
+      lines.push('# TYPE mcp_errors_by_code_total counter');
+      for (const [code, count] of errorCounters.byCode.entries())
+        lines.push(`mcp_errors_by_code_total{code="${code}"} ${count}`);
+      // Method call / error gauges
+      lines.push('# HELP mcp_method_calls_total Method invocation counts');
+      lines.push('# TYPE mcp_method_calls_total counter');
+      lines.push('# HELP mcp_method_errors_total Method error counts');
+      lines.push('# TYPE mcp_method_errors_total counter');
+      for (const [name, stats] of methodStats.entries()) {
+        lines.push(`mcp_method_calls_total{method="${esc(name)}"} ${stats.calls}`);
+        lines.push(`mcp_method_errors_total{method="${esc(name)}"} ${stats.errors}`);
+      }
+      return { contentType: 'text/plain; version=0.0.4', body: lines.join('\n') + '\n' };
     });
   }
   start();

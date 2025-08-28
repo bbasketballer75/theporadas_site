@@ -74,6 +74,10 @@ MCP_PYTHON_BIN=python
 MCP_PY_TIMEOUT_MS=3000
 MCP_MEMORY_BANK_DIR=memory-bank
 MCP_KG_MAX_TRIPLES=5000
+MCP_ERROR_METRICS=0
+MCP_ERRORS_VERBOSE=
+MCP_MAX_LINE_LEN=200000
+FIREBASE_MCP_CHECK_TIMEOUT_MS=8000
 ```
 
 ### Environment Variable Loading & Supervisor
@@ -332,16 +336,14 @@ or framing bugs.
 
 ### Error Factory Adoption Status
 
-The shared domain error factory (`scripts/mcp_error_codes.mjs`) now provides
-`fsError`, `mbError`, and `kgError` helpers. Current adoption plan:
+The shared domain error factory (`scripts/mcp_error_codes.mjs`) now provides helpers
+for all persistent servers:
 
-- Adopted: Filesystem (existing `fsError` preserved), Memory Bank (`mbError`), KG Memory (`kgError`).
-- Pending / Consider: Python, Playwright, Puppeteer – still using direct `appError` calls; will migrate if adding new symbols or complexity increases.
-- Out-of-scope (one-off CLI style): Tavily, Notion, Mem0, SQL Server stubs currently
-  emit minimal errors; migration deferred until they become persistent servers.
+- Adopted: Filesystem, Memory Bank, KG Memory, Python Exec, Playwright, Puppeteer
+- Pending: SQL Server, Notion, Tavily, Mem0 (light stubs today)
 
-Rationale: Focus adoption where multiple distinct symbols already exist to maximize
-deduplication and consistency; defer elsewhere to avoid premature abstraction.
+Outcome: Consistent structured errors (code, domain, symbol, details, retryable) across
+automation & knowledge domains enabling unified client handling and metrics.
 
 ### Firebase MCP Launch (Direct Invocation Fallback)
 
@@ -372,3 +374,92 @@ Benefits:
 If/when the Node toolchain is fully repaired you may optionally restore the leaner `npx` form
 by reverting the script to attempt a healthy `npx` first; for now the forced direct path reduces
 operational friction.
+
+## Containerization (Docker)
+
+`Dockerfile.mcp` provides a lightweight multi-stage image for all MCP servers. `docker-compose.yml` now includes
+service entries: `mcp_tavily`, `mcp_notion`, `mcp_mem0`, `mcp_sqlserver`, and `mcp_supervisor` alongside `mssql`.
+
+Build & run (PowerShell):
+
+```pwsh
+docker compose build mcp_tavily mcp_notion mcp_mem0 mcp_sqlserver mcp_supervisor
+docker compose up -d mssql
+# ensure .env or exported vars contain required API keys before starting API-dependent services
+docker compose up -d mcp_tavily mcp_notion mcp_mem0 mcp_sqlserver
+```
+
+Each service overrides the container `CMD` with the target script. Keeping them as discrete containers (rather than one
+monolithic supervisor container) simplifies per-service scaling and health isolation. The `mcp_supervisor` container is
+available for experimentation if process supervision inside a single container is preferred.
+
+### Healthchecks (Planned)
+
+Future improvement: small wrapper exposing an HTTP `/healthz` returning 200 after readiness sentinel observed, or a
+`HEALTHCHECK` using a script that tails stdout for the `"type":"ready"` JSON line.
+
+## Secrets & Environment Management
+
+Primary secrets (see `.env.example` for exhaustive template):
+
+| Variable                                                | Needed For     | Notes                                      |
+| ------------------------------------------------------- | -------------- | ------------------------------------------ |
+| `TAVILY_API_KEY`                                        | Tavily search  | Fails fast with exit code 12 if missing.   |
+| `NOTION_API_KEY`                                        | Notion API     | Integration token (starts with `secret_`). |
+| `MEM0_API_KEY`                                          | Mem0 memory    | Placeholder until full API integration.    |
+| `SQLSERVER_CONNECTION_STRING` or discrete `SQLSERVER_*` | SQL server MCP | Use least-priv privilege user in prod.     |
+
+Local dev: copy `.env.example` → `.env` and populate. Compose auto-loads root `.env`.
+
+Production guidance:
+
+- Inject via orchestrator secret store (Docker/Swarm secrets, Kubernetes Secrets + SealedSecrets, Vault). Avoid baking into images.
+- Rotate regularly; segregate per environment.
+- For SQL, never ship `sa`; create a scoped login with only required permissions.
+- Audit environment on startup (fail fast if critical keys missing, as Tavily already does).
+
+Adding a new secret:
+
+1. Add placeholder + comment to `.env.example`.
+2. Reference `process.env.MY_SECRET` in script.
+3. Document here.
+4. Add to compose service environment block.
+
+## VS Code Extensions
+
+Recommended extensions for working with these MCP servers:
+
+| Extension           | ID                             | Why                                        |
+| ------------------- | ------------------------------ | ------------------------------------------ |
+| ESLint              | `dbaeumer.vscode-eslint`       | Enforces repository lint rules.            |
+| Docker              | `ms-azuretools.vscode-docker`  | Container build/run management.            |
+| SQL Server          | `ms-mssql.mssql`               | Query & manage local `mssql` dev instance. |
+| GitHub Actions      | `github.vscode-github-actions` | CI workflow visibility.                    |
+| Markdown All in One | `yzhang.markdown-all-in-one`   | Faster docs editing.                       |
+| Prettier (optional) | `esbenp.prettier-vscode`       | Formatting consistency if desired.         |
+
+### Connecting the SQL Extension
+
+1. Command Palette → `MS SQL: Connect`.
+2. Server: `localhost,14333`
+3. Auth: SQL Login; User: `sa` (dev only) / Password: `DevLocalStr0ng!Pass`
+4. Encrypt = true; Trust server certificate = true (dev convenience)
+5. Test with `SELECT @@VERSION;`
+
+Later: create non-admin dev user and update compose + docs.
+
+## Operational Flags Recap
+
+- `MCP_RATE_LIMIT=1` enables token bucket in harness (codes domain RL 3000+).
+- `MCP_PROM_METRICS=1` enables `sys/promMetrics` Prometheus text exposition method.
+- `MCP_ERROR_METRICS=1` expands structured error counters.
+
+## Troubleshooting
+
+| Issue                          | Possible Cause                      | Resolution                                                           |
+| ------------------------------ | ----------------------------------- | -------------------------------------------------------------------- |
+| Tavily container exits code 12 | Missing `TAVILY_API_KEY`            | Provide key and restart service.                                     |
+| SQL MCP cannot connect         | `mssql` not healthy yet             | `docker compose logs -f mssql`; wait for healthcheck pass.           |
+| Missing module in container    | Dev dep not installed in prod layer | Move to `dependencies` or adjust Dockerfile to include dev install.  |
+| High restart churn             | Script error or missing env         | Inspect `docker compose logs <svc>`; run locally with extra logging. |
+| Supervisor container idle      | No child processes defined          | Adjust `SUPERVISED_SERVERS` or compose command.                      |
