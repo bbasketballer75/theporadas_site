@@ -1,2 +1,1 @@
 # Ignore problematic finalize workflow until formatting issue resolved
-.github/workflows/codeql-finalize-baseline.yml

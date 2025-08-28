@@ -8,7 +8,7 @@ This project adheres to [Conventional Commits](https://www.conventionalcommits.o
 
 ### Changed (Unreleased)
 
-- Removed deprecated standalone CodeQL finalize workflow
+- Removed deprecated standalone CodeQL finalize workflow (file deleted)
   (`codeql-finalize-baseline.yml`); logic consolidated into primary `codeql.yml`
   after resolving baseline insertion.
 
