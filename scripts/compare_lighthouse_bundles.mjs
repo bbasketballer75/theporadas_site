@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import zlib from 'zlib';
@@ -20,8 +20,16 @@ function fmt(bytes) {
   return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 }
 
-function run(cmd, env = {}) {
-  execSync(cmd, { stdio: 'inherit', env: { ...process.env, ...env } });
+function runScript(scriptName, extraEnv = {}) {
+  const isWin = process.platform === 'win32';
+  const cmd = isWin ? 'npm.cmd' : 'npm';
+  const res = spawnSync(cmd, ['run', scriptName], {
+    stdio: 'inherit',
+    env: { ...process.env, ...extraEnv },
+  });
+  if (res.status !== 0) {
+    throw new Error(`Script ${scriptName} failed with code ${res.status}`);
+  }
 }
 
 function ensureDist() {
@@ -31,13 +39,13 @@ function ensureDist() {
 }
 
 console.log('Building shimmed bundle (default) ...');
-run('npm run lh:build');
+runScript('lh:build');
 ensureDist();
 const shimCode = fs.readFileSync(distFile, 'utf8');
 const shimSizes = sizeInfo(distFile);
 
 console.log('Building full bundle (zlib included) ...');
-run('npm run lh:build:full');
+runScript('lh:build:full');
 ensureDist();
 const fullCode = fs.readFileSync(distFile, 'utf8');
 const fullSizes = sizeInfo(distFile);

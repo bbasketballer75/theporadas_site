@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { execSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -16,8 +16,10 @@ import { resolve } from 'node:path';
   signal for content / code growth that can be tightened later (e.g., true model tokenization).
 */
 
-function safeExec(cmd) {
-  return execSync(cmd, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+function safeGit(args) {
+  const res = spawnSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  if (res.status !== 0) throw new Error(res.stderr || `git ${args.join(' ')} failed`);
+  return res.stdout;
 }
 
 function countTokens(lines) {
@@ -34,7 +36,8 @@ function main() {
   let diff = '';
   try {
     // Use three-dot to diff against merge base.
-    diff = safeExec(`git diff --unified=0 --no-color origin/${baseRef}...HEAD`);
+    // Use argument array form to avoid shell interpretation
+    diff = safeGit(['diff', '--unified=0', '--no-color', `origin/${baseRef}...HEAD`]);
   } catch (e) {
     console.error('[token-deltas] Failed to obtain diff:', e.message);
   }

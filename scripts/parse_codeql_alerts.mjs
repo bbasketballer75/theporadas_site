@@ -39,10 +39,16 @@ for (const a of alerts) {
       number: a.number,
       rule: ruleId,
       path: a.most_recent_instance?.location?.path,
-      line: a.most_recent_instance?.location?.start_line
+      line: a.most_recent_instance?.location?.start_line,
     });
   }
 }
 
-const summary = { counts: sevMap, total: alerts.length, distinct_rules: Object.keys(byRule).length, rules: byRule, high_details: highDetails };
+const summary = {
+  counts: sevMap,
+  total: alerts.length,
+  distinct_rules: Object.keys(byRule).length,
+  rules: byRule,
+  high_details: highDetails,
+};
 console.log(JSON.stringify(summary, null, 2));

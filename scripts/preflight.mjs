@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import { writeFileSync } from 'fs';
 import process from 'node:process';
 
@@ -21,28 +21,27 @@ console.log('Preflight Validation Report');
 
 const steps = lightMode
   ? [
-      { name: 'Lint', cmd: 'echo (light) lint skipped' },
-      { name: 'TypeCheck', cmd: 'echo (light) typecheck skipped' },
-      { name: 'Unit Tests', cmd: 'echo (light) tests skipped' },
+      { name: 'Lint', cmd: ['echo', '(light) lint skipped'] },
+      { name: 'TypeCheck', cmd: ['echo', '(light) typecheck skipped'] },
+      { name: 'Unit Tests', cmd: ['echo', '(light) tests skipped'] },
     ]
   : [
-      { name: 'Lint', cmd: 'npm run lint' },
-      { name: 'TypeCheck', cmd: 'npm run typecheck' },
-      { name: 'Unit Tests', cmd: 'npm run test' },
-      { name: 'Coverage Diff', cmd: 'npm run coverage:diff || true' },
-      {
-        name: 'Bundle Heuristic (if relevant)',
-        cmd: 'npm run lh:verify-bundles || echo skip bundle',
-      },
+      { name: 'Lint', cmd: ['npm', 'run', 'lint'] },
+      { name: 'TypeCheck', cmd: ['npm', 'run', 'typecheck'] },
+      { name: 'Unit Tests', cmd: ['npm', 'run', 'test'] },
+      { name: 'Coverage Diff', cmd: ['npm', 'run', 'coverage:diff'] },
+      { name: 'Bundle Heuristic (if relevant)', cmd: ['npm', 'run', 'lh:verify-bundles'] },
     ];
 
 let ok = true;
 for (const s of steps) {
   console.log(`\n--- ${s.name} ---`);
   try {
-    execSync(s.cmd, { stdio: 'inherit', env: process.env });
-  } catch {
-    console.error(`${s.name} failed`);
+    const [cmd, ...cmdArgs] = s.cmd;
+    const res = spawnSync(cmd, cmdArgs, { stdio: 'inherit', env: process.env, shell: false });
+    if (res.status !== 0) throw new Error(`${cmd} exited ${res.status}`);
+  } catch (e) {
+    console.error(`${s.name} failed: ${e.message || e}`);
     ok = false;
   }
 }
@@ -52,7 +51,9 @@ const diagnostics = {
   nodePathDiagnostics: {
     hasConcreteNode: (() => {
       try {
-        const v = execSync('node --version', { stdio: 'pipe' }).toString().trim();
+        const vRes = spawnSync('node', ['--version'], { stdio: 'pipe' });
+        if (vRes.status !== 0) return false;
+        const v = vRes.stdout.toString().trim();
         return /^v?\d+\.\d+\.\d+/.test(v);
       } catch {
         return false;
