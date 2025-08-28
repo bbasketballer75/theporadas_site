@@ -1,4 +1,3 @@
-version: '3.9'
 services:
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -15,12 +14,138 @@ services:
       test:
         [
           'CMD-SHELL',
-          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'DevLocalStr0ng!Pass' -Q 'SELECT 1' || exit 1",
+          "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P 'DevLocalStr0ng!Pass' -Q 'SELECT 1' || exit 1",
         ]
       interval: 10s
       timeout: 5s
       retries: 10
     restart: unless-stopped
+  mcp_tavily:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-tavily
+    environment:
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-changeme}
+      NODE_ENV: production
+    command: ['scripts/mcp_tavily.mjs']
+    restart: unless-stopped
+  mcp_notion:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-notion
+    environment:
+      NOTION_API_KEY: ${NOTION_API_KEY:-changeme}
+      NODE_ENV: production
+    command: ['scripts/mcp_notion.mjs']
+    restart: unless-stopped
+  mcp_mem0:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-mem0
+    environment:
+      MEM0_API_KEY: ${MEM0_API_KEY:-changeme}
+      NODE_ENV: production
+    command: ['scripts/mcp_mem0.mjs']
+    restart: unless-stopped
+  mcp_sqlserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-sqlserver
+    depends_on:
+      - mssql
+    environment:
+      SQLSERVER_HOST: mssql
+      SQLSERVER_PORT: 1433
+      SQLSERVER_USER: sa
+      SQLSERVER_PASSWORD: DevLocalStr0ng!Pass
+      NODE_ENV: production
+    command: ['scripts/mcp_sqlserver.mjs']
+    restart: unless-stopped
+  mcp_supervisor:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-supervisor
+    environment:
+      SUPERVISED_SERVERS: tavily,notion,mem0,sqlserver
+      NODE_ENV: production
+    command: ['scripts/mcp_supervisor.mjs']
+    restart: unless-stopped
+  mcp_filesystem:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-fs
+    profiles: [mcp-local]
+    environment:
+      MCP_FS_ROOT: /data/fs
+      NODE_ENV: production
+    volumes:
+      - ./mcp_fs_sandbox:/data/fs
+    entrypoint: ['node']
+    command: ['scripts/mcp_filesystem.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'test -f scripts/mcp_filesystem.mjs && ps -p 1 -o comm= | grep -q node']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  mcp_memory_bank:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-memory-bank
+    profiles: [mcp-local]
+    environment:
+      MCP_MEMORY_BANK_DIR: /app/memory-bank
+      NODE_ENV: production
+    command: ['scripts/mcp_memory_bank.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'test -f scripts/mcp_memory_bank.mjs && ps -p 1 -o comm= | grep -q node']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  mcp_kg_memory:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-kg
+    profiles: [mcp-local]
+    environment:
+      MCP_KG_MAX_TRIPLES: 5000
+      NODE_ENV: production
+    command: ['scripts/mcp_kg_memory.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'test -f scripts/mcp_kg_memory.mjs && ps -p 1 -o comm= | grep -q node']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  mcp_python:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp-python
+    container_name: mcp-python
+    profiles: [mcp-local]
+    environment:
+      MCP_PY_TIMEOUT_MS: 3000
+      NODE_ENV: production
+    command: ['scripts/mcp_python.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'test -f scripts/mcp_python.mjs && ps -p 1 -o comm= | grep -q node']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 volumes:
   mssql_data:
     driver: local

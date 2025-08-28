@@ -144,7 +144,10 @@ function logJson(obj) {
 
 function spawnOne(s) {
   const stats = state.servers[s.name];
-  const child = spawn(s.cmd, s.args, { stdio: ['ignore', 'pipe', 'pipe'] });
+  const child = spawn(s.cmd, s.args, {
+    stdio: ['ignore', 'pipe', 'pipe'],
+    env: { ...process.env, MCP_SERVER_NAME: s.name },
+  });
   const meta = { child, ready: false, startedAt: Date.now() };
   processes.set(s.name, meta);
   s.spawns++;

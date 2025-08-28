@@ -17,7 +17,8 @@ $userNpm = Join-Path $env:APPDATA 'npm'
 if (-not (Test-Path $nvmExe)) {
     if ($DryRun) {
         Write-Host "DryRun: nvm.exe not found (expected if tooling not installed in test context)" -ForegroundColor Yellow
-    } else {
+    }
+    else {
         throw "nvm.exe not found at $nvmExe. Run the setup task to install NVM for Windows."
     }
 }
@@ -91,6 +92,37 @@ foreach ($p in $paths) {
 }
 
 if (-not $DryRun) {
+    # Recreate stable junction/symlink if missing (prevents husky path drift)
+    try {
+        $targetVersion = (& $nvmExe list | Select-String -Pattern '>' | Select-Object -First 1).ToString().Split() | Where-Object { $_ -match 'v[0-9]+\.[0-9]+\.[0-9]+' } | Select-Object -First 1
+        if ($targetVersion) {
+            $targetDir = Join-Path $nvmHome $targetVersion.Trim()
+            if (Test-Path $targetDir) {
+                $needsLink = $true
+                if (Test-Path $nvmSymlink) {
+                    $item = Get-Item $nvmSymlink -Force
+                    $isLink = ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0
+                    if ($isLink) {
+                        # Resolve existing link target (best effort)
+                        try {
+                            $resolved = (Get-Item (Join-Path $nvmSymlink 'node.exe') -ErrorAction SilentlyContinue).Directory.Parent.FullName
+                            if ($resolved -and ($resolved -ieq $targetDir)) { $needsLink = $false }
+                        }
+                        catch {}
+                    }
+                    elseif (-not $isLink) {
+                        Remove-Item -Recurse -Force $nvmSymlink -ErrorAction SilentlyContinue
+                    }
+                }
+                if ($needsLink) {
+                    try { Remove-Item -Recurse -Force $nvmSymlink -ErrorAction SilentlyContinue } catch {}
+                    New-Item -ItemType Junction -Path $nvmSymlink -Target $targetDir -Force | Out-Null
+                    Write-Host "Refreshed Node junction: $nvmSymlink -> $targetDir" -ForegroundColor Green
+                }
+            }
+        }
+    }
+    catch { Write-Host "Junction refresh skipped: $($_.Exception.Message)" -ForegroundColor Yellow }
     # Ensure an LTS Node version is installed
     $haveAny = @(Get-ChildItem -Path $nvmHome -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '^v?[0-9]+\.[0-9]+\.[0-9]+$' }).Count -gt 0
     if (-not $haveAny -and (Test-Path $nvmExe)) {
@@ -98,7 +130,8 @@ if (-not $DryRun) {
         & $nvmExe install lts | Out-Host
     }
     if (Test-Path $nvmExe) { & $nvmExe use lts | Out-Host }
-} else {
+}
+else {
     Write-Host 'DryRun: skipping NVM install/use operations.' -ForegroundColor Yellow
 }
 
@@ -127,11 +160,17 @@ if (-not $nodeVersion) {
     Write-Warning 'Node still not resolvable after refresh. Add C:\Users\%USERNAME%\AppData\Local\nodejs to your PATH (User scope) and re-open terminal.'
     Write-Host 'Current PATH:' -ForegroundColor Yellow
     Write-Host $env:PATH
-} else {
+}
+else {
     if ($addedPaths.Count -gt 0) { Write-Host ("Added PATH entries: " + ($addedPaths -join ', ')) -ForegroundColor Green }
     if ($hadPlaceholders) { Write-Host 'Replaced placeholder %NVM_HOME%/%NVM_SYMLINK% entries with concrete paths.' -ForegroundColor Green }
     Write-Host 'Node PATH refresh successful.' -ForegroundColor Green
 }
+
+# Husky / Git hook note:
+# Hooks sometimes capture an outdated absolute path to node.exe when the junction changes.
+# This script recreates the junction early in a session; run it before committing if Node was upgraded
+# to ensure hooks resolve the correct engine.
 
 # Report versions
 if (-not $DryRun) {
@@ -139,6 +178,7 @@ if (-not $DryRun) {
     try { Write-Host ("node: " + ((node --version) 2>$null)) } catch { Write-Host 'node: not found' }
     try { Write-Host ("npm:  " + ((npm --version) 2>$null)) } catch { Write-Host 'npm: not found' }
     try { Write-Host ("npx:  " + ((npx --version) 2>$null)) } catch { Write-Host 'npx: not found' }
-} else {
+}
+else {
     Write-Host 'DryRun: skipped version reporting.' -ForegroundColor Yellow
 }

@@ -44,6 +44,16 @@ This project adheres to [Conventional Commits](https://www.conventionalcommits.o
   `docs/mcp_error_codes.md` with factory usage, migration guidance, and rationale.
 - Normalized long documentation lines and table wrapping to satisfy MD013 after new
   sections were added.
+- Added new domain error helper definitions for Python, Playwright, and Puppeteer
+  (`pyError`, `pwError`, `ptError`) in `scripts/mcp_error_codes.mjs` with allocated code ranges.
+- Refactored `mcp_python.mjs`, `mcp_playwright.mjs`, and `mcp_puppeteer.mjs` to use
+  domain helpers (standardized structured error responses across all persistent MCP
+  servers).
+- Implemented direct invocation fallback for Firebase experimental MCP server
+  (`scripts/firebase_mcp.ps1`) bypassing broken global `npx`; documented strategy in
+  `docs/mcp_servers.md`.
+- Added health check script `scripts/check_firebase_mcp.mjs` to validate Firebase MCP readiness (banner detection with timeout).
+- Enhanced `scripts/refresh_node_path.ps1` to recreate stable Node junction (mitigates husky path drift) and added guidance comments.
 
 ---
 
