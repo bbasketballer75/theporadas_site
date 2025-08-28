@@ -12,7 +12,7 @@
  * (e.g. flow-report assets / core bundles). Full fidelity cloning is out-of-scope.
  */
 
-import { execSync, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync, cpSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
@@ -78,10 +78,13 @@ function ensureCleanGit() {
 
 function getLatestTag() {
   try {
-    const out = execSync('git ls-remote --tags https://github.com/GoogleChrome/lighthouse.git', {
-      encoding: 'utf8',
-    });
-    // Tags look like: refs/tags/v11.7.0
+    const res = spawnSync(
+      'git',
+      ['ls-remote', '--tags', 'https://github.com/GoogleChrome/lighthouse.git'],
+      { encoding: 'utf8' },
+    );
+    if (res.status !== 0) throw new Error(res.stderr || 'ls-remote failed');
+    const out = res.stdout;
     const tags = out
       .split(/\n/)
       .map((l) => l.trim())
@@ -149,22 +152,30 @@ async function main() {
 
   const tmp = mkdtempSync(join(tmpdir(), 'lh-sync-'));
   log(`Cloning into temp ${tmp}`);
-  const cloneCmd = `git clone --depth 1 --branch ${ref} https://github.com/GoogleChrome/lighthouse.git ${tmp}`;
-  try {
-    execSync(cloneCmd, { stdio: 'ignore' });
-  } catch (e) {
-    fail(`Clone failed for ref ${ref}: ${e.message}`);
-  }
+  // Basic validation of ref to avoid injection into args (only allow typical git ref charset)
+  if (!/^[-\w./]+$/.test(ref)) fail('Ref contains unexpected characters');
+  const clone = spawnSync(
+    'git',
+    [
+      'clone',
+      '--depth',
+      '1',
+      '--branch',
+      ref,
+      'https://github.com/GoogleChrome/lighthouse.git',
+      tmp,
+    ],
+    { stdio: 'ignore' },
+  );
+  if (clone.status !== 0) fail(`Clone failed for ref ${ref}`);
 
   const srcRoot = join(tmp, 'lighthouse');
   const destRoot = join(process.cwd(), 'lighthouse');
-  let destExists = true;
   try {
-    execSync(`test -d "${destRoot}" || echo missing`, { stdio: 'pipe' });
+    readFileSync(join(destRoot, 'package.json'), 'utf8');
   } catch {
-    destExists = false;
+    fail('Expected local lighthouse/ directory with package.json');
   }
-  if (!destExists) fail('Expected local lighthouse/ directory');
 
   await copySubset(srcRoot, destRoot, opts.preserve, opts.dryRun);
 

@@ -489,27 +489,28 @@ async function main() {
     for (const raw of args.ignore) {
       const val = raw.trim();
       if (!val) continue;
-      if (
-        /[.*+^${}()|[\]\\]/.test(val.replace(/[.*+^${}()|[\]\\]/g, '')) ||
-        val.includes('*') ||
-        val.includes('?')
-      ) {
-        // Treat * and ? as glob tokens only; escape others
-        let regexStr = val
-          .split('')
-          .map((ch) => {
-            if (ch === '*') return '.*';
-            if (ch === '?') return '.';
-            return /[\\^$+.()|{}\[\]]/.test(ch) ? `\\${ch}` : ch;
-          })
-          .join('');
-        try {
-          patterns.push(new RegExp('^' + regexStr + '$', 'i'));
-        } catch (e) {
-          console.warn('Invalid ignore pattern skipped:', val, e.message);
-        }
-      } else {
+      // Classify as glob if it contains * or ?; otherwise treat as exact (case-insensitive)
+      const isGlob = /[*?]/.test(val);
+      if (!isGlob) {
         exact.add(val.toLowerCase());
+        continue;
+      }
+      // Allow only a safe subset: letters, numbers, '-', '_', '.', '/', '*', '?'
+      if (!/^[A-Za-z0-9._\-/*?]+$/.test(val)) {
+        console.warn('Ignoring potentially unsafe pattern (disallowed chars):', val);
+        continue;
+      }
+      let regexStr = '';
+      for (const ch of val) {
+        if (ch === '*') regexStr += '.*';
+        else if (ch === '?') regexStr += '.';
+        else if (/[.\\+^$()|{}\[\]]/.test(ch)) regexStr += `\\${ch}`;
+        else regexStr += ch;
+      }
+      try {
+        patterns.push(new RegExp('^' + regexStr + '$', 'i'));
+      } catch (e) {
+        console.warn('Invalid ignore pattern skipped:', val, e.message);
       }
     }
     const kept = [];
@@ -549,8 +550,24 @@ async function main() {
   await fs.mkdir(outDir, { recursive: true });
   const jsonOut = path.join(outDir, 'workflows-verify.json');
   const mdOut = path.join(outDir, 'workflows-verify.md');
-  await fs.writeFile(jsonOut, JSON.stringify(summary, null, 2));
-  await fs.writeFile(mdOut, buildMarkdown(summary));
+  // Atomic-ish write: write to temp file then rename to final destination to avoid races
+  async function atomicWrite(finalPath, data) {
+    const dir = path.dirname(finalPath);
+    const tempName = `.tmp_${path.basename(finalPath)}_${Date.now()}_${Math.random()
+      .toString(36)
+      .slice(2)}`;
+    const tempPath = path.join(dir, tempName);
+    await fs.writeFile(tempPath, data, { flag: 'wx' }).catch(async (e) => {
+      if (e.code === 'EEXIST') {
+        // Rare collision; recurse with new temp name
+        return atomicWrite(finalPath, data);
+      }
+      throw e;
+    });
+    await fs.rename(tempPath, finalPath);
+  }
+  await atomicWrite(jsonOut, JSON.stringify(summary, null, 2));
+  await atomicWrite(mdOut, buildMarkdown(summary));
 
   // GitHub Actions Step Summary emission if supported
   if (process.env.GITHUB_STEP_SUMMARY) {

@@ -33,6 +33,7 @@
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { safeFetchJson } from './lib/safe_fetch.mjs';
 
 const repo = process.env.GITHUB_REPOSITORY;
 if (!repo) {
@@ -114,22 +115,24 @@ async function fetchAlerts() {
   const perPage = 100;
   while (true) {
     const url = `${base}?page=${page}&per_page=${perPage}`;
-    const res = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.github+json',
-        'User-Agent': 'codeql-drift-delta-script',
-      },
-    });
-    if (res.status === 403 || res.status === 404) {
-      return { alerts: null, status: res.status };
-    }
-    if (!res.ok) {
-      const body = await res.text();
-      console.error('Failed fetching alerts', res.status, body);
+    let data;
+    try {
+      data = await safeFetchJson(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github+json',
+          'User-Agent': 'codeql-drift-delta-script',
+        },
+        maxBytes: 2_000_000,
+      });
+    } catch (e) {
+      if (/Fetch failed 40[34]/.test(e.message)) {
+        const code = Number(e.message.match(/40([34])/)?.[0]) || 403;
+        return { alerts: null, status: code };
+      }
+      console.error('Failed fetching alerts', e.message);
       process.exit(3);
     }
-    const data = await res.json();
     if (!Array.isArray(data)) {
       console.error('Unexpected response (not array)');
       process.exit(4);
