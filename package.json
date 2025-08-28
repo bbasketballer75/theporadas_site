@@ -10,7 +10,8 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "dev": "vite",
-    "build": "vite build",
+    "images:generate": "node scripts/generate_responsive_images.mjs",
+    "build": "npm run images:generate && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -29,7 +30,7 @@
     "lh:build:full": "cd lighthouse && cross-env LH_DISABLE_ZLIB_SHIMS=1 yarn build-devtools",
     "lh:compare": "node scripts/compare_lighthouse_bundles.mjs",
     "lh:verify-bundles": "node scripts/compare_lighthouse_bundles.mjs",
-    "verify": "npm run lint && npm run typecheck && npm run test",
+    "verify": "npm run lint && npm run typecheck && npm run csp:verify && npm run test",
     "preflight": "node scripts/preflight.mjs",
     "changelog:unreleased": "conventional-changelog -p angular -u -o CHANGELOG.md",
     "changelog:release": "conventional-changelog -p angular -r 0 -o CHANGELOG.md && git add CHANGELOG.md",
@@ -56,7 +57,9 @@
     "lqip": "node scripts/generate_lqip.mjs",
     "security:code-scanning:app-fetch": "node scripts/code_scanning_app_fetch.mjs",
     "codeql:drift": "node scripts/codeql_drift_delta.mjs",
-    "verify:workflows": "node scripts/verify_workflows.mjs"
+    "verify:workflows": "node scripts/verify_workflows.mjs",
+    "csp:audit": "node scripts/audit_csp_inlines.mjs",
+    "csp:verify": "node scripts/verify_csp_diff.mjs"
   },
   "devDependencies": {
     "dotenv": "^16.4.5",
