@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Knowledge Graph Memory MCP server using shared harness
 import { register, createServer, appError } from './mcp_rpc_base.mjs';
+import { kgError } from './mcp_error_codes.mjs';
 
 const triples = [];
 const MAX_TRIPLES = parseInt(process.env.MCP_KG_MAX_TRIPLES || '5000', 10);
@@ -23,12 +24,7 @@ createServer(() => {
       });
     const norm = (v) => String(v).slice(0, 200);
     if (triples.length >= MAX_TRIPLES)
-      throw appError(2400, 'triple store full', {
-        domain: 'kg',
-        symbol: 'E_KG_FULL',
-        retryable: true,
-        details: String(MAX_TRIPLES),
-      });
+      throw kgError('FULL', { retryable: true, details: String(MAX_TRIPLES) });
     triples.push({
       subject: norm(subject),
       predicate: norm(predicate),
