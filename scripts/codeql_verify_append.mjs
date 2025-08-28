@@ -24,6 +24,7 @@
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { safeFetchJson } from './lib/safe_fetch.mjs';
 
 const repo = process.env.GITHUB_REPOSITORY;
 if (!repo) {
@@ -54,23 +55,24 @@ async function fetchAlerts() {
   const perPage = 100;
   while (true) {
     const url = `${base}?page=${page}&per_page=${perPage}`;
-    const res = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.github+json',
-        'User-Agent': 'codeql-verify-append-script',
-      },
-    });
-    if (res.status === 403 || res.status === 404) {
-      console.log(`Code scanning not enabled yet (status ${res.status}); skipping append.`);
-      return null; // treat as no-op
-    }
-    if (!res.ok) {
-      const body = await res.text();
-      console.error('Failed fetching alerts', res.status, body);
+    let data;
+    try {
+      data = await safeFetchJson(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github+json',
+          'User-Agent': 'codeql-verify-append-script',
+        },
+        maxBytes: 2_000_000,
+      });
+    } catch (e) {
+      if (/Fetch failed 40[34]/.test(e.message)) {
+        console.log(`Code scanning not enabled yet (${e.message}); skipping append.`);
+        return null;
+      }
+      console.error('Failed fetching alerts', e.message);
       process.exit(2);
     }
-    const data = await res.json();
     if (!Array.isArray(data)) {
       console.error('Unexpected response (not array)');
       process.exit(3);
