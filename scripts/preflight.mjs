@@ -30,7 +30,10 @@ const steps = lightMode
       { name: 'TypeCheck', cmd: 'npm run typecheck' },
       { name: 'Unit Tests', cmd: 'npm run test' },
       { name: 'Coverage Diff', cmd: 'npm run coverage:diff || true' },
-      { name: 'Bundle Heuristic (if relevant)', cmd: 'npm run lh:verify-bundles || echo skip bundle' },
+      {
+        name: 'Bundle Heuristic (if relevant)',
+        cmd: 'npm run lh:verify-bundles || echo skip bundle',
+      },
     ];
 
 let ok = true;
