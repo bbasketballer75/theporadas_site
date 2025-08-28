@@ -543,3 +543,111 @@ Triage: High/Medium alerts must have issues opened within 24h (link issues here 
 
 This section is immutable; subsequent drift will be tracked in future monthly delta summaries rather than altering baseline figures.
 
+---
+
+## CodeQL Low / Note Severity Grouped Rationale (2025-08-27)
+
+Purpose: Provide consolidation of the numerous Low (warning) and Note findings surfaced in the first
+automated run, reduce alert fatigue, and record remediation or acceptance decisions with review dates.
+
+### Summary by Rule (Low/Note Only)
+
+| Rule ID                            | Severity                              | Count | Thematic Category                                       | Disposition                  |
+| ---------------------------------- | ------------------------------------- | ----- | ------------------------------------------------------- | ---------------------------- |
+| js/unused-local-variable           | note                                  | 30+   | Unused identifiers / imports in build & utility scripts | Batch cleanup (planned)      |
+| js/insecure-temporary-file         | warning                               | 1     | Insecure temp file usage in test                        | Fix (short-term)             |
+| js/file-system-race                | warning                               | 5     | TOCTOU file existence -> write patterns in scripts      | Fix (short-term)             |
+| js/indirect-command-line-injection | warning                               | 3     | Env / argv forwarded into shell commands                | Harden (sanitize / execFile) |
+| js/http-to-file-access             | warning                               | 1     | Network data written to file (baseline snapshot script) | Review (likely acceptable)   |
+| js/regex-injection                 | error (mapped high security severity) | 1     | Dynamic regex with potential unescaped input            | Covered in High alert issue  |
+
+Note: Counts approximate; authoritative enumeration retained in alert export (`codeql_alerts.json`).
+High alert(s) are tracked separately and excluded from disposition acceptance.
+
+### Disposition Details
+
+1. Unused Locals / Imports (js/unused-local-variable)
+   - Impact: Maintainability / minor quality; no direct security impact.
+   - Plan: Single refactor PR to remove unused imports/vars across scripts (`scripts/` folder) to reduce future diff noise.
+   - SLA: < 30 days (low priority but quick win).
+2. Insecure Temporary File (js/insecure-temporary-file)
+   - Location: `test/mcp_supervisor.spec.ts:84`.
+   - Plan: Replace manual `path.join(os.tmpdir(), ...)` with `fs.mkdtempSync` directory + scoped file
+     OR adopt `tmp` library (already transient dependency) with unsafe cleanup disabled.
+   - SLA: 7 days (part of High alert issue grouping for consistency).
+3. File System Race (js/file-system-race)
+   - Locations: Multiple in workflow verification & quality scripts.
+   - Plan: Introduce helper `secureOpenExclusive(path, mode=0o600)` performing `openSync(O_CREAT|O_EXCL)`; rewrite patterns using existence checks.
+   - SLA: 7 days.
+4. Indirect Command Line Injection (js/indirect-command-line-injection)
+   - Locations: `scripts/create_sample_pr.mjs`, `scripts/coverage_diff.mjs`, `scripts/sync_lighthouse.mjs`.
+   - Plan: Migrate from `execSync("node ... ${args.join(' ')}")` style to
+     `execFileSync('node', [script, ...args])`; sanitize environment expansions or explicitly whitelist
+     allowed variables; add unit tests mocking child_process.
+   - SLA: 14 days.
+5. Network Data Written to File (js/http-to-file-access)
+   - Location: `scripts/codeql_baseline_snapshot.mjs` writing downloaded baseline snapshot.
+   - Context: Intended controlled environment (GitHub Actions) retrieving trusted GitHub API content; low risk of arbitrary remote content misuse.
+   - Decision: Accept temporarily; re-evaluate if script begins handling untrusted user input sources.
+   - Review Date: 2025-10-01.
+
+### Tracking & Review Cadence
+
+- This section is mutable; update rows upon remediation (mark Fixed with commit hash) or if acceptance expires.
+- Monthly security review should verify no Low accepted items aged past their review date without action.
+- Trend script (planned) will append delta blocks; cross-reference to ensure Low counts decline over time.
+
+### Next Immediate Actions
+
+1. Implement secure temp file + TOCTOU fixes (shared helper) – ties into High alert remediation issue.
+2. Prepare batch unused variable cleanup PR (mechanical; minimal risk).
+3. Refactor command invocation scripts to `execFileSync` pattern.
+4. Add minimal test coverage for new helper and sanitized command wrapper.
+
+---
+
+## CodeQL Triage & Remediation Lifecycle
+
+| Severity Level  | Creation Mechanism | SLA (Target Fix or Justification)     | Interim Mitigation                                     | Review Cadence      | Auto-Issue Template     |
+| --------------- | ------------------ | ------------------------------------- | ------------------------------------------------------ | ------------------- | ----------------------- |
+| Critical / High | Auto (workflow)    | 7 days                                | Disable vulnerable path, feature flag, or hotfix patch | Weekly until closed | `CodeQL Alert Triage`   |
+| Medium          | Manual / Batch     | 30 days                               | Guard input, add validation                            | Monthly             | `CodeQL Alert Triage`   |
+| Low / Note      | Grouped Rationale  | 90 days (cleanup / acceptance review) | None (documented)                                      | Quarterly           | Optional (on promotion) |
+
+Policy Notes:
+
+- Suppressions require: evidence + justification + ≤90 day review date.
+- Trend deltas must show non-increasing High counts month over month; sustained increase triggers ad‑hoc review.
+- Accepted Low findings re-evaluated if related code touched or on scheduled quarterly review (whichever first).
+- If SLA at risk (≤2 days remaining) bot/automation enhancement (future) may escalate via label or notification.
+
+Process Flow:
+
+1. Detection: Workflow run generates or updates alert set.
+2. Auto Triage: High alerts cause (or update) aggregated issue; Medium optionally batched monthly.
+3. Assignment: Owner + secondary reviewer set; SLA date entered in issue.
+4. Remediation: Patch + tests; if false positive, propose suppression with evidence.
+5. Verification: CodeQL re-run shows reduction; trend block appended automatically next main push.
+6. Closure: Issue closed referencing commit(s); SECURITY_NOTES updated if acceptance recorded.
+7. Review: Monthly (High/Medium), Quarterly (Low) audits ensure no SLA drift.
+
+Escalation Triggers:
+
+- High alert open >7 days without remediation PR → label `security-sla-risk`.
+- Any increase of High count > +2 vs baseline in a single week → immediate investigation.
+- Repeated re-introduction (same rule/path) within 30 days → initiate root cause analysis (RCA) doc (future template).
+
+Metrics Tracked (future automation candidates):
+
+- Mean Time To Remediate (MTTR) High & Medium.
+- Open High alert aged buckets (<3d, 3-7d, >7d).
+- False positive rate (suppression count / total alerts) per quarter.
+
+Ownership:
+
+- Security Steward (rotating) curates monthly trend summary; rotates every calendar month.
+- Any contributor may submit proactive cleanup PRs for grouped Low findings (no issue required if mechanical).
+
+Amendment Procedure:
+
+- Lifecycle changes proposed via PR modifying this section; require at least 1 reviewer with `security` label permission.
