@@ -342,3 +342,33 @@ The shared domain error factory (`scripts/mcp_error_codes.mjs`) now provides
 
 Rationale: Focus adoption where multiple distinct symbols already exist to maximize
 deduplication and consistency; defer elsewhere to avoid premature abstraction.
+
+### Firebase MCP Launch (Direct Invocation Fallback)
+
+The Firebase experimental MCP server normally runs via:
+
+```bash
+npx -y firebase-tools@latest -- experimental:mcp --dir <project>
+```
+
+However, the local environment experienced a broken global `npx` (missing internal
+`npx-cli.js` / `npm-prefix.js`), producing `spawn npx ENOENT` or `EUNSUPPORTEDPROTOCOL` errors
+when parsing the `experimental:mcp` subcommand.
+
+To ensure reliability the VS Code configuration points the `firebase` MCP server at
+`scripts/firebase_mcp.ps1`, which now:
+
+1. Skips all `npx` usage (treating it as unreliable by default).
+2. Creates a cached directory at `%LOCALAPPDATA%/firebase-mcp-cache`.
+3. Performs a one-time local install: `npm install firebase-tools@latest` (reused on subsequent runs).
+4. Invokes the CLI directly: `node <cache>/node_modules/firebase-tools/lib/bin/firebase.js experimental:mcp [--dir <path>]`.
+
+Benefits:
+
+- Deterministic startup independent of global `npm`/`npx` integrity.
+- Cached install avoids repeated network fetches.
+- Clear place to purge (`firebase-mcp-cache`) if upgrade or reset needed.
+
+If/when the Node toolchain is fully repaired you may optionally restore the leaner `npx` form
+by reverting the script to attempt a healthy `npx` first; for now the forced direct path reduces
+operational friction.
