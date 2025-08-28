@@ -2,7 +2,9 @@
 // Python execution MCP server using shared harness.
 // Method: py/exec { code } -> { stdout, stderr, exitCode, timeout }
 import { spawn } from 'child_process';
-import { register, createServer, appError } from './mcp_rpc_base.mjs';
+import { register, createServer } from './mcp_rpc_base.mjs';
+import { pyError } from './mcp_error_codes.mjs';
+import { appError } from './mcp_rpc_base.mjs';
 
 function execPy(code, timeoutMs) {
   return new Promise((resolve) => {
@@ -27,14 +29,10 @@ function execPy(code, timeoutMs) {
 
 createServer(() => {
   register('py/exec', async (params) => {
-    if (!params?.code)
-      throw appError(1000, 'code required', { domain: 'python', symbol: 'E_INVALID_PARAMS' });
-    if (typeof params.code !== 'string' || params.code.length > 2000)
-      throw appError(1005, 'code too large', {
-        domain: 'python',
-        symbol: 'E_INPUT_TOO_LARGE',
-        details: String(params.code.length),
-      });
+    if (!params?.code) throw pyError('INVALID_PARAMS', { details: 'code required' });
+    if (typeof params.code !== 'string') throw pyError('INVALID_PARAMS', { details: 'code must be string' });
+    if (params.code.length > 2000)
+      throw appError(1005, 'code too large', { domain: 'python', symbol: 'E_INPUT_TOO_LARGE' });
     const timeoutMs = parseInt(process.env.MCP_PY_TIMEOUT_MS || '3000', 10);
     return await execPy(params.code, timeoutMs);
   });
