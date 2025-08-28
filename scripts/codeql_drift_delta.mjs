@@ -34,15 +34,44 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { safeFetchJson } from './lib/safe_fetch.mjs';
+import { spawnSync } from 'child_process';
 
-const repo = process.env.GITHUB_REPOSITORY;
+let repo = process.env.GITHUB_REPOSITORY;
 if (!repo) {
-  console.error('GITHUB_REPOSITORY not set');
+  try {
+    const gitUrl = spawnSync('git', ['remote', 'get-url', 'origin'], { encoding: 'utf8' });
+    if (gitUrl.status === 0) {
+      const raw = gitUrl.stdout.trim();
+      // Support https and ssh forms
+      // https://github.com/owner/repo.git
+      // git@github.com:owner/repo.git
+      const match = raw.match(/github.com[/:]([^/]+)\/([^/.]+)(?:\.git)?$/);
+      if (match) {
+        repo = `${match[1]}/${match[2]}`;
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+}
+if (!repo) {
+  console.error('GITHUB_REPOSITORY not set and could not derive from git remote');
   process.exit(1);
 }
-const token = process.env.GITHUB_TOKEN || process.env.GITHUB_APP_INSTALLATION_TOKEN;
+let token = process.env.GITHUB_TOKEN || process.env.GITHUB_APP_INSTALLATION_TOKEN;
 if (!token) {
-  console.error('No token provided in GITHUB_TOKEN or GITHUB_APP_INSTALLATION_TOKEN');
+  try {
+    const gh = spawnSync('gh', ['auth', 'token'], { encoding: 'utf8' });
+    if (gh.status === 0) {
+      const out = gh.stdout.trim();
+      if (out) token = out;
+    }
+  } catch (e) {
+    // ignore, fallback handled below
+  }
+}
+if (!token) {
+  console.error('No token available: set GITHUB_TOKEN or authenticate via gh CLI');
   process.exit(1);
 }
 
