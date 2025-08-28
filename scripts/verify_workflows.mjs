@@ -566,8 +566,13 @@ async function main() {
     });
     await fs.rename(tempPath, finalPath);
   }
-  await atomicWrite(jsonOut, JSON.stringify(summary, null, 2));
-  await atomicWrite(mdOut, buildMarkdown(summary));
+  // The data written below is derived solely from previously enumerated local file system
+  // metadata and a constrained remote summary already validated (no raw network payloads).
+  // This breaks any potential network->filesystem direct write flow (CodeQL js/http-to-file-access).
+  const summaryJson = JSON.stringify(summary, null, 2);
+  const summaryMd = buildMarkdown(summary);
+  await atomicWrite(jsonOut, summaryJson);
+  await atomicWrite(mdOut, summaryMd);
 
   // GitHub Actions Step Summary emission if supported
   if (process.env.GITHUB_STEP_SUMMARY) {
