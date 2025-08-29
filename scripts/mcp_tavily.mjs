@@ -5,7 +5,7 @@
 
 import './load_env.mjs';
 import fetchOrig from 'node-fetch';
-import { createServer, appError } from './mcp_rpc_base.mjs';
+import { createServer } from './mcp_rpc_base.mjs';
 import { tvError } from './mcp_error_codes.mjs';
 
 const API_URL = process.env.TAVILY_API_URL || 'https://api.tavily.com/search';
@@ -28,13 +28,6 @@ function requireKey() {
     process.exit(12); // distinct non-zero
   }
   return key;
-}
-
-function resolveFetch() {
-  // Allow test override without network by setting global.__MCP_FAKE_FETCH
-  // Done lazily in case test sets global before first invocation
-  if (global.__MCP_FAKE_FETCH) return global.__MCP_FAKE_FETCH;
-  return fetchOrig;
 }
 
 function maybeMockResponse(scenario) {
@@ -117,8 +110,7 @@ async function tavilySearch(params = {}) {
     res = mock;
   } else {
     try {
-      const f = resolveFetch();
-      res = await f(API_URL, {
+      res = await fetchOrig(API_URL, {
         method: 'POST',
         headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
