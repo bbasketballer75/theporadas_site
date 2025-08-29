@@ -234,7 +234,24 @@ function runJsonRpc() {
       global.__fsKeepAlive = setInterval(() => {}, 60_000);
     }
   });
+  // Emit legacy custom readiness plus standard readiness envelope.
   out({ jsonrpc: '2.0', method: 'fs/ready', params: { root } });
+  process.stdout.write(
+    JSON.stringify({
+      type: 'ready',
+      methods: [
+        'fs/list',
+        'fs/read',
+        'fs/write',
+        'fs/mkdir',
+        'fs/delete',
+        'fs/stat',
+        'fs/capabilities',
+        'fs/root',
+      ],
+      schema: { service: 'filesystem', version: 1 },
+    }) + '\n',
+  );
 }
 
 if (process.argv.length > 2 && process.stdin.isTTY) {

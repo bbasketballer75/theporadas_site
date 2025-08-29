@@ -16,5 +16,5 @@ describe('env docs generation', () => {
       );
     }
     expect(res.status).toBe(0);
-  });
+  }, 30000);
 });

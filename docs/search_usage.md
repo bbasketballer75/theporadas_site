@@ -25,20 +25,20 @@ npm run search:build:all
 
 Individual builds:
 
-````sh
+```sh
 npm run search:build:content
 npm run search:build:code
-```text
+```
 
 Run an ad‑hoc query (pass any terms after the script name):
 
 ```sh
 npm run search:query -- video player component
-````
+```
 
 The output lists ranked entries, e.g.:
 
-```
+```text
 (1) [content] content/home.md#p3 score=0.8123
 Video player component enables ...
 
