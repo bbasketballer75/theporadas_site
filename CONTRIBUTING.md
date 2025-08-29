@@ -64,6 +64,62 @@ same PR. Do not raise thresholds unless agreed with maintainers.
 - Keep commit messages Conventional where it clarifies intent (`feat:`, `fix:`,
   `chore:`, `docs:`, `refactor:`). This feeds automated changelog generation.
 
+### Commit Message Rules
+
+The repository enforces explicit length limits via commitlint:
+
+- Header (first line / subject) max 100 characters
+- Body lines max 100 characters (hard fail if exceeded)
+
+General guidance:
+
+1. Use a Conventional Commit type when it adds clarity: `feat:`, `fix:`, `test:`, `chore:`, `docs:`, `refactor:`, `perf:`, `build:`, `ci:`.
+2. Scope (optional) in parentheses for concentrated areas: `feat(search):`, `test(firebase):`.
+3. Subject: imperative mood, no trailing period, describe what the change does (not what it did). Example: `fix(auth): handle token refresh race`.
+4. Separate subject from body with a blank line.
+5. Wrap body at 100 chars hard (match lint). Prefer semantic paragraphs over bullet noise.
+6. Body should explain intent + rationale + any trade‑offs or follow‑ups; avoid restating diff.
+7. Reference issues using `Closes #NN` (or `Refs #NN`) on a separate line near the end.
+8. If change is large, list high‑level sections with prefixed hyphens (still wrapped ≤100 chars).
+9. Do not include secrets, tokens, or internal URLs.
+10. Use additional commits instead of amending once a review has started unless explicitly requested to squash.
+
+Examples:
+
+```text
+feat(search): add incremental index rebuild command
+
+Adds `scripts/reindex_incremental.mjs` which replays recent content changes into the
+on-disk search index without a full rebuild. This keeps CI rebuild times under 2 minutes
+for typical content edits. Falls back to full rebuild on schema hash mismatch.
+
+Closes #142.
+```
+
+```text
+test(firebase): add integration test & guard on missing token
+
+Introduces `firebase.integration.test.mjs` validating the always-available `firebase/ping` method.
+When `FIREBASE_TOKEN` is present it also exercises `firebase/projects` and `firebase/apps` to
+ensure conditional method exposure remains stable. Removes unstable upstream filesystem wrapper
+entry from `servers.json` to eliminate recurring smoke failure.
+```
+
+Common failure: body line >100 chars. If you encounter `body-max-line-length` errors, reflow the
+paragraph rather than inserting arbitrary manual breaks mid‑phrase; keep each logical sentence or
+clause <=100 chars. Editors: enable a 100‑column ruler. In VS Code settings JSON:
+
+```json
+"editor.rulers": [100]
+```
+
+Amending vs squash: For WIP on an unreviewed branch, feel free to amend / force-push to maintain a
+clean history. After review comments, prefer additive commits so reviewers can see deltas; squash
+only during merge if policy desires a single logical commit.
+
+Changelog impact: Only `feat:` and `fix:` (and occasionally `perf:`) are considered for user-facing
+release notes; others are grouped or omitted. Use these types judiciously.
+
 ## Docs
 
 - Update README or add docs alongside code.

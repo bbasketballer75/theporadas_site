@@ -235,8 +235,10 @@ threshold.
 ## Project Blueprint (Source of Truth)
 
 See `.github/project_instructions.md` for architecture, scope, standards, and success
-criteria. If this README conflicts with it, defer to the blueprint and open a PR
-to reconcile.
+criteria. For detailed full-text & facet search design and indexing workflow, consult
+`docs/search_architecture.md` (includes data model, tokenizer choices, index update
+strategies, and testing patterns). If this README conflicts with the blueprint or
+search doc, defer to the blueprint first, then open a PR to reconcile.
 
 ---
 
