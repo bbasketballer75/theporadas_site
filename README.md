@@ -22,6 +22,15 @@ comparisons, and coverage diff gating.
 ![Lighthouse Budgets](https://github.com/bbasketballer75/theporadas_site/actions/workflows/lighthouse-budgets.yml/badge.svg)
 ![Bundle Size](https://github.com/bbasketballer75/theporadas_site/actions/workflows/bundle-size.yml/badge.svg)
 
+![CI Verify](https://github.com/bbasketballer75/theporadas_site/actions/workflows/ci.yml/badge.svg)
+![Uptime (prod) Placeholder](https://img.shields.io/badge/uptime-configuring-lightgrey)
+
+> Replace the uptime placeholder after creating an UptimeRobot monitor:
+>
+> 1. Create HTTP(s) monitor pointed at production URL (once live).
+> 2. Copy the status badge markdown UptimeRobot provides and paste here.
+> 3. Use a 5‑minute interval; enable SSL expiry + response time alerts.
+
 > If the local badge has not yet been generated (first clone or before CI runs),
 > view the latest workflow artifacts in **Actions → CI - Tests**.
 > Optionally use a placeholder badge until the generated file exists:
