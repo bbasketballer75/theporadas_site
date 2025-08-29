@@ -398,7 +398,18 @@ GET /healthz -> 200 { "status":"ok", "server":"mcp-server", "methods": <count>, 
 ```
 
 This is served inside the container only (ports are not published externally by default) and powers Docker healthchecks via `curl`.
-Returned `server` will default to `mcp-server` unless `MCP_SERVER_NAME` is supplied (now set per-service in `docker-compose.yml`).
+Returned `server` will default to `mcp-server` unless `MCP_SERVER_NAME` is supplied (now set per-service in `docker-compose.yml`). When
+`MCP_PROM_METRICS=1` is enabled an additional HTTP `GET /metrics` endpoint (same port) is exposed returning Prometheus text format
+metrics parallel to the `sys/promMetrics` RPC method. Example snippet:
+
+```text
+# HELP mcp_errors_total Total application errors captured
+# TYPE mcp_errors_total counter
+mcp_errors_total 0
+# HELP mcp_method_calls_total Method invocation counts
+# TYPE mcp_method_calls_total counter
+mcp_method_calls_total{method="pw/launch"} 1
+```
 
 ### Health Port Allocation
 
@@ -455,8 +466,8 @@ available for experimentation if process supervision inside a single container i
 Future enhancements may include:
 
 - Distinct liveness vs readiness differentiation (e.g. readiness after initial warm actions, liveness on periodic no-op RPC).
-- Optional Prometheus metrics HTTP endpoint (already available via `sys/promMetrics` RPC) exposed on a separate port.
-- Per-service custom `server` name override (now supported via `MCP_SERVER_NAME`).
+- Prometheus metrics HTTP endpoint (now available at `/metrics` on the health port when `MCP_PROM_METRICS=1`).
+- Per-service custom `server` name override (supported via `MCP_SERVER_NAME`).
 
 ## Secrets & Environment Management
 
