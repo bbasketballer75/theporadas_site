@@ -1,3 +1,4 @@
+// Consolidated comprehensive tests for SqlRetryClient (duplicate initial block removed)
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { SqlRetryClient, parseConnectionString, createClientFromEnv } from '../src/db/retryClient';
@@ -264,6 +265,145 @@ describe('SqlRetryClient', () => {
     await p;
     const delays = spy.mock.calls.map((c: unknown[]) => c[1] as number);
     expect(delays.slice(0, 5)).toEqual([10, 20, 40, 80, 100]);
+  });
+
+  it('treats semaphore timeout as transient', async () => {
+    const { pool } = createMockPool([
+      { err: { message: 'The semaphore timeout period has expired' } },
+      { ok: { ok: 1 } },
+    ]);
+    const client = new SqlRetryClient(
+      {},
+      { poolFactory: async () => pool, baseDelayMs: 5, maxDelayMs: 10 },
+    );
+    const p = client.query('Q');
+    await vi.runAllTimersAsync();
+    const rows = await p;
+    expect(rows[0]).toEqual({ ok: 1 });
+  });
+
+  it('treats error.code fallback as transient code path', async () => {
+    const { pool } = createMockPool([
+      { err: { code: 40613, message: 'code-only transient' } },
+      { ok: { ok: 2 } },
+    ]);
+    const client = new SqlRetryClient(
+      {},
+      { poolFactory: async () => pool, baseDelayMs: 5, maxDelayMs: 10 },
+    );
+    const p = client.query('Q');
+    await vi.runAllTimersAsync();
+    const rows = await p;
+    expect(rows[0]).toEqual({ ok: 2 });
+  });
+
+  it('close() resets pool so subsequent query creates new pool', async () => {
+    let created = 0;
+    const poolFactory = async () => {
+      created += 1;
+      return {
+        request() {
+          return {
+            input() {},
+            async query() {
+              return { recordset: [{ v: created }] };
+            },
+          };
+        },
+        async close() {},
+      } as unknown as {
+        request: () => {
+          input: () => void;
+          query: () => Promise<{ recordset: Array<{ v: number }> }>;
+        };
+        close: () => Promise<void>;
+      };
+    };
+    const client = new SqlRetryClient({}, { poolFactory });
+    const first = await client.query('Q');
+    await client.close();
+    const second = await client.query('Q');
+    expect(first[0]).toEqual({ v: 1 });
+    expect(second[0]).toEqual({ v: 2 });
+  });
+
+  it('createClientFromEnv returns client when env present', async () => {
+    const g = globalThis as unknown as { process?: { env: Record<string, string | undefined> } };
+    if (!g.process) {
+      (globalThis as unknown as { process: { env: Record<string, string | undefined> } }).process =
+        {
+          env: {},
+        };
+    }
+    const prev = g.process!.env.SQLSERVER_CONNECTION_STRING;
+    g.process!.env.SQLSERVER_CONNECTION_STRING =
+      'Server=localhost;Database=db;User Id=u;Password=p;';
+    const client = createClientFromEnv();
+    expect(client).toBeInstanceOf(SqlRetryClient);
+    // restore
+    if (prev) {
+      g.process!.env.SQLSERVER_CONNECTION_STRING = prev;
+    } else {
+      delete g.process!.env.SQLSERVER_CONNECTION_STRING;
+    }
+  });
+
+  it('passes params via input and returns empty array when no recordset', async () => {
+    const captured: Record<string, unknown> = {};
+    const pool = {
+      request() {
+        return {
+          input(n: string, v: unknown) {
+            captured[n] = v;
+          },
+          async query() {
+            return {}; // no recordset property triggers empty array path
+          },
+        };
+      },
+      async close() {},
+    };
+    const client = new SqlRetryClient({}, { poolFactory: async () => pool });
+    const rows = await client.query('SELECT', { a: 1, b: 'x' });
+    expect(rows).toEqual([]);
+    expect(captured).toEqual({ a: 1, b: 'x' });
+  });
+
+  it('treats unknown empty error object as non-transient (final return false path)', async () => {
+    const { pool } = createMockPool([{ err: {} }]);
+    const spy = vi.spyOn(globalThis, 'setTimeout');
+    const client = new SqlRetryClient({}, { poolFactory: async () => pool });
+    const p = client.query('Q');
+    p.catch(() => {});
+    await expect(p).rejects.toEqual({});
+    // ensure no retries scheduled
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  it('treats null error as non-transient early return', async () => {
+    const pool = {
+      request() {
+        return {
+          input() {},
+          async query() {
+            // simulate driver throwing a null error
+            // we return after throwing so type still satisfies signature though unreachable
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            throw null as any; // early !e branch in isTransient
+          },
+        };
+      },
+      async close() {},
+    } as unknown as {
+      request: () => { input: () => void; query: () => Promise<{ recordset?: unknown[] }> };
+      close: () => Promise<void>;
+    };
+    const spy = vi.spyOn(globalThis, 'setTimeout');
+    const client = new SqlRetryClient({}, { poolFactory: async () => pool });
+    const p = client.query('Q');
+    p.catch(() => {});
+    await expect(p).rejects.toBeNull();
+    expect(spy).not.toHaveBeenCalled();
   });
 });
 
