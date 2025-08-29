@@ -539,7 +539,8 @@ Verified CodeQL alert ingestion after enabling Code Scanning. Severity counts (s
 - Medium: 0
 - Low: 42
 
-Triage: High/Medium alerts must have issues opened within 24h (link issues here if any). Accepted Low findings require documented rationale referencing commit hashes.
+Triage: High/Medium alerts must have issues opened within 24h (link issues here if any).
+Accepted Low findings require documented rationale referencing commit hashes.
 
 This section is immutable; subsequent drift will be tracked in future monthly delta summaries rather than altering baseline figures.
 

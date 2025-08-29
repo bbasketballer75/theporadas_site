@@ -1,4 +1,6 @@
-### Coverage Diff (base: origin/main)
+# Coverage Summary Diff
+
+## Coverage Diff (base: origin/main)
 
 | Metric     | Base  | Current | Delta  | Limit | Result |
 | ---------- | ----- | ------- | ------ | ----- | ------ |

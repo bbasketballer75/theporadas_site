@@ -1,0 +1,18 @@
+# Reduce build context size and avoid copying dev/test assets
+node_modules
+lighthouse/node_modules
+coverage
+artifacts
+.git
+.gitignore
+Dockerfile*
+**/*.log
+npm-debug.log*
+yarn-error.log*
+.vscode
+.mcp_cache
+# Exclude large media/raw assets if not needed
+media
+public_images
+# Keep scripts and package.json (explicitly included by COPY . .) but exclude temp files
+**/*.tmp
