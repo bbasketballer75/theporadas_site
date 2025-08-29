@@ -47,19 +47,21 @@ jobs:
       - name: Download previous coverage (if available)
         if: ${{ always() }}
         continue-on-error: true
-        uses: dawidd6/action-download-artifact@v3
+        uses: dawidd6/action-download-artifact@v6
         with:
           name: prev-coverage-summary
           path: artifacts
           if_no_artifact_found: ignore
+          allow_forks: false
       - name: Download previous bundle sizes (if available)
         if: ${{ always() }}
         continue-on-error: true
-        uses: dawidd6/action-download-artifact@v3
+        uses: dawidd6/action-download-artifact@v6
         with:
           name: prev-bundle-sizes
           path: artifacts
           if_no_artifact_found: ignore
+          allow_forks: false
       - name: Normalize previous bundle sizes filename
         if: ${{ always() && hashFiles('artifacts/bundle-sizes.json') != '' && hashFiles('artifacts/prev-bundle-sizes.json') == '' }}
         shell: bash
@@ -72,11 +74,12 @@ jobs:
       - name: Download Lighthouse artifacts (if produced by separate workflow)
         if: ${{ always() }}
         continue-on-error: true
-        uses: dawidd6/action-download-artifact@v3
+        uses: dawidd6/action-download-artifact@v6
         with:
           name: lighthouse-assertions
           path: artifacts
           if_no_artifact_found: ignore
+          allow_forks: false
       - name: Summarize retrieved artifacts
         if: ${{ always() }}
         shell: bash
