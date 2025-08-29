@@ -28,8 +28,16 @@ services:
     environment:
       TAVILY_API_KEY: ${TAVILY_API_KEY:-changeme}
       NODE_ENV: production
+      MCP_HEALTH_PORT: 3010
+      MCP_SERVER_NAME: tavily
     command: ['scripts/mcp_tavily.mjs']
     restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3010/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
   mcp_notion:
     build:
       context: .
@@ -38,8 +46,16 @@ services:
     environment:
       NOTION_API_KEY: ${NOTION_API_KEY:-changeme}
       NODE_ENV: production
+      MCP_HEALTH_PORT: 3011
+      MCP_SERVER_NAME: notion
     command: ['scripts/mcp_notion.mjs']
     restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3011/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
   mcp_mem0:
     build:
       context: .
@@ -48,8 +64,16 @@ services:
     environment:
       MEM0_API_KEY: ${MEM0_API_KEY:-changeme}
       NODE_ENV: production
+      MCP_HEALTH_PORT: 3012
+      MCP_SERVER_NAME: mem0
     command: ['scripts/mcp_mem0.mjs']
     restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3012/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
   mcp_sqlserver:
     build:
       context: .
@@ -63,8 +87,16 @@ services:
       SQLSERVER_USER: sa
       SQLSERVER_PASSWORD: DevLocalStr0ng!Pass
       NODE_ENV: production
+      MCP_HEALTH_PORT: 3013
+      MCP_SERVER_NAME: sqlserver
     command: ['scripts/mcp_sqlserver.mjs']
     restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3013/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
   mcp_supervisor:
     build:
       context: .
@@ -73,8 +105,16 @@ services:
     environment:
       SUPERVISED_SERVERS: tavily,notion,mem0,sqlserver
       NODE_ENV: production
+      MCP_HEALTH_PORT: 3014
+      MCP_SERVER_NAME: supervisor
     command: ['scripts/mcp_supervisor.mjs']
     restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3014/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
   mcp_filesystem:
     build:
       context: .
@@ -84,13 +124,15 @@ services:
     environment:
       MCP_FS_ROOT: /data/fs
       NODE_ENV: production
+      MCP_HEALTH_PORT: 3015
+      MCP_SERVER_NAME: filesystem
     volumes:
       - ./mcp_fs_sandbox:/data/fs
     entrypoint: ['node']
     command: ['scripts/mcp_filesystem.mjs']
     restart: unless-stopped
     healthcheck:
-      test: ['CMD-SHELL', 'test -f scripts/mcp_filesystem.mjs && ps -p 1 -o comm= | grep -q node']
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3015/healthz || exit 1']
       interval: 30s
       timeout: 5s
       retries: 3
@@ -104,10 +146,12 @@ services:
     environment:
       MCP_MEMORY_BANK_DIR: /app/memory-bank
       NODE_ENV: production
+      MCP_HEALTH_PORT: 3016
+      MCP_SERVER_NAME: memory_bank
     command: ['scripts/mcp_memory_bank.mjs']
     restart: unless-stopped
     healthcheck:
-      test: ['CMD-SHELL', 'test -f scripts/mcp_memory_bank.mjs && ps -p 1 -o comm= | grep -q node']
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3016/healthz || exit 1']
       interval: 30s
       timeout: 5s
       retries: 3
@@ -121,10 +165,12 @@ services:
     environment:
       MCP_KG_MAX_TRIPLES: 5000
       NODE_ENV: production
+      MCP_HEALTH_PORT: 3017
+      MCP_SERVER_NAME: kg_memory
     command: ['scripts/mcp_kg_memory.mjs']
     restart: unless-stopped
     healthcheck:
-      test: ['CMD-SHELL', 'test -f scripts/mcp_kg_memory.mjs && ps -p 1 -o comm= | grep -q node']
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3017/healthz || exit 1']
       interval: 30s
       timeout: 5s
       retries: 3
@@ -138,10 +184,71 @@ services:
     environment:
       MCP_PY_TIMEOUT_MS: 3000
       NODE_ENV: production
+      MCP_HEALTH_PORT: 3018
+      MCP_SERVER_NAME: python_exec
     command: ['scripts/mcp_python.mjs']
     restart: unless-stopped
     healthcheck:
-      test: ['CMD-SHELL', 'test -f scripts/mcp_python.mjs && ps -p 1 -o comm= | grep -q node']
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3018/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  mcp_playwright:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp-browsers
+    container_name: mcp-playwright
+    profiles: [mcp-local]
+    environment:
+      MCP_PW_SESSION_LIMIT: 5
+      MCP_PW_NAV_TIMEOUT_MS: 15000
+      MCP_HEALTH_PORT: 3001
+      NODE_ENV: production
+      MCP_SERVER_NAME: playwright
+    command: ['scripts/mcp_playwright.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3001/healthz || exit 1']
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  mcp_puppeteer:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp-browsers
+    container_name: mcp-puppeteer
+    profiles: [mcp-local]
+    environment:
+      MCP_PT_SESSION_LIMIT: 5
+      MCP_PT_NAV_TIMEOUT_MS: 15000
+      MCP_HEALTH_PORT: 3001
+      NODE_ENV: production
+      MCP_SERVER_NAME: puppeteer
+    command: ['scripts/mcp_puppeteer.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3001/healthz || exit 1']
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  mcp_pieces:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-pieces
+    profiles: [mcp-local]
+    environment:
+      PIECES_API_KEY: ${PIECES_API_KEY:-changeme}
+      NODE_ENV: production
+      MCP_HEALTH_PORT: 3019
+      MCP_SERVER_NAME: pieces
+    command: ['scripts/mcp_pieces.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3019/healthz || exit 1']
       interval: 30s
       timeout: 5s
       retries: 3

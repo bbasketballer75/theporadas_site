@@ -36,6 +36,7 @@ extract text, close, list. |
 output truncation. |
 | Memory Bank | `scripts/mcp_memory_bank.mjs` | `MCP_MEMORY_BANK_DIR` (opt) | List/read/search markdown knowledge files (capped). |
 | KG Memory | `scripts/mcp_kg_memory.mjs` | `MCP_KG_MAX_TRIPLES` (opt) | In-memory triple store add/query/subjects (bounded). |
+| Pieces | `scripts/mcp_pieces.mjs` | `PIECES_API_KEY` (opt) | Placeholder integration: key presence probe, ping, and key-required method. |
 
 ## Usage Examples
 
@@ -81,6 +82,7 @@ DISABLE_MCP_KEEPALIVE=
 TAVILY_MOCK_SCENARIO=
 TAVILY_FORCE_CRASH=
 FIREBASE_MCP_CHECK_TIMEOUT_MS=8000
+MCP_SERVER_NAME=custom-name # (optional) override health JSON 'server' field
 ```
 
 ### Environment Variable Loading & Supervisor
@@ -380,26 +382,81 @@ operational friction.
 
 ## Containerization (Docker)
 
-`Dockerfile.mcp` provides a lightweight multi-stage image for all MCP servers. `docker-compose.yml` now includes
-service entries: `mcp_tavily`, `mcp_notion`, `mcp_mem0`, `mcp_sqlserver`, and `mcp_supervisor` alongside `mssql`.
+`Dockerfile.mcp` provides a lightweight multi-stage image for general MCP servers and `Dockerfile.mcp-python` adds Python.
+`Dockerfile.mcp-browsers` adds browser automation support (installs `playwright`, `puppeteer` and Playwright browsers with system deps).
+
+`docker-compose.yml` now includes service entries: `mcp_tavily`, `mcp_notion`, `mcp_mem0`, `mcp_sqlserver`, `mcp_supervisor`, `mcp_filesystem`,
+`mcp_memory_bank`, `mcp_kg_memory`, `mcp_python`, plus new browser automation services `mcp_playwright` and `mcp_puppeteer` (profile `mcp-local`).
+`mcp_pieces` has been added (profile `mcp-local`) providing a scaffold for future Pieces API expansion.
+
+### Unified HTTP Health Endpoints
+
+All persistent MCP services now expose an optional lightweight readiness endpoint when `MCP_HEALTH_PORT` is set:
+
+```text
+GET /healthz -> 200 { "status":"ok", "server":"mcp-server", "methods": <count>, "uptimeMs": <number> }
+```
+
+This is served inside the container only (ports are not published externally by default) and powers Docker healthchecks via `curl`.
+Returned `server` will default to `mcp-server` unless `MCP_SERVER_NAME` is supplied (now set per-service in `docker-compose.yml`).
+
+### Health Port Allocation
+
+| Service           | MCP_HEALTH_PORT |
+| ----------------- | --------------- |
+| mcp_tavily        | 3010            |
+| mcp_notion        | 3011            |
+| mcp_mem0          | 3012            |
+| mcp_sqlserver     | 3013            |
+| mcp_supervisor    | 3014            |
+| mcp_filesystem\*  | 3015            |
+| mcp_memory_bank\* | 3016            |
+| mcp_kg_memory\*   | 3017            |
+| mcp_python\*      | 3018            |
+| mcp_pieces\*      | 3019            |
+| mcp_playwright\*  | 3001            |
+| mcp_puppeteer\*   | 3001            |
+
+`*` denotes services gated behind the `mcp-local` profile.
+The two browser automation services intentionally reuse `3001` in separate
+container namespaces (isolation by container network makes this safe).
 
 Build & run (PowerShell):
 
-```pwsh
-docker compose build mcp_tavily mcp_notion mcp_mem0 mcp_sqlserver mcp_supervisor
+````pwsh
+docker compose build mcp_tavily mcp_notion mcp_mem0 mcp_sqlserver mcp_supervisor mcp_playwright mcp_puppeteer
 docker compose up -d mssql
 # ensure .env or exported vars contain required API keys before starting API-dependent services
-docker compose up -d mcp_tavily mcp_notion mcp_mem0 mcp_sqlserver
-```
+docker compose up -d mcp_tavily mcp_notion mcp_mem0 mcp_sqlserver mcp_playwright mcp_puppeteer
+
+Browser services are gated behind the `mcp-local` profile. To include them:
+
+```pwsh
+docker compose --profile mcp-local up -d mcp_playwright mcp_puppeteer
+````
+
+Environment knobs for browsers:
+
+| Service    | Env Var                 | Default | Purpose                         |
+| ---------- | ----------------------- | ------- | ------------------------------- |
+| Playwright | `MCP_PW_SESSION_LIMIT`  | 5       | Max concurrent browser sessions |
+| Playwright | `MCP_PW_NAV_TIMEOUT_MS` | 15000   | Navigation timeout (ms)         |
+| Puppeteer  | `MCP_PT_SESSION_LIMIT`  | 5       | Max concurrent browser sessions |
+| Puppeteer  | `MCP_PT_NAV_TIMEOUT_MS` | 15000   | Navigation timeout (ms)         |
+
+Healthchecks now use the unified HTTP `/healthz` readiness endpoint (see section above).
 
 Each service overrides the container `CMD` with the target script. Keeping them as discrete containers (rather than one
 monolithic supervisor container) simplifies per-service scaling and health isolation. The `mcp_supervisor` container is
 available for experimentation if process supervision inside a single container is preferred.
 
-### Healthchecks (Planned)
+### Healthchecks (Planned Enhancements)
 
-Future improvement: small wrapper exposing an HTTP `/healthz` returning 200 after readiness sentinel observed, or a
-`HEALTHCHECK` using a script that tails stdout for the `"type":"ready"` JSON line.
+Future enhancements may include:
+
+- Distinct liveness vs readiness differentiation (e.g. readiness after initial warm actions, liveness on periodic no-op RPC).
+- Optional Prometheus metrics HTTP endpoint (already available via `sys/promMetrics` RPC) exposed on a separate port.
+- Per-service custom `server` name override (now supported via `MCP_SERVER_NAME`).
 
 ## Secrets & Environment Management
 
