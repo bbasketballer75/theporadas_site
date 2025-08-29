@@ -6,6 +6,30 @@ This project adheres to [Conventional Commits](https://www.conventionalcommits.o
 
 ## [Unreleased]
 
+### Added (Unreleased)
+
+- Search subsystem foundation: deterministic/local + optional OpenAI embeddings abstraction
+  (`src/search/embeddings.ts`) with pluggable provider selection and cosine similarity.
+- Markdown content indexer (`src/search/content_index.ts`) with paragraph chunking
+  (min 300 / max 600 chars), stable SHA-256 chunk hashing for incremental rebuild reuse,
+  and JSON persistence (`search_index/content.json`).
+- TypeScript code indexer (`src/search/code_index.ts`) extracting exported symbols,
+  associated JSDoc, trimmed snippets, and hashing for incremental updates
+  (`search_index/code.json`).
+- Unified retrieval module (`src/search/retrieval.ts`) providing ranked mixed (content + code)
+  search results with naive synthesis output; exported `synthesize` for downstream
+  formatting/tests.
+- CLI scripts (package scripts) to build indices individually or together and execute
+  ad‑hoc queries.
+- Advanced search coverage tests exercising empty-index path, synthesis formatting,
+  incremental change reuse, OpenAI provider fallback (missing key), deterministic
+  embeddings stability, and diverse symbol kinds.
+- Search usage documentation (`docs/search_usage.md`) detailing commands, environment
+  configuration, incremental hashing behavior, deterministic embeddings, and test
+  coverage scope.
+- Targeted tests for OpenAI success path (mocked response) and tie-score / k-slice
+  retrieval behavior increasing coverage of ranking & provider branches.
+
 ### Changed (Unreleased)
 
 - Removed deprecated standalone CodeQL finalize workflow (file deleted)
