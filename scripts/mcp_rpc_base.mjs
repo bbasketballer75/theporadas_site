@@ -249,9 +249,9 @@ export function start() {
         }
         if (promMetricsEnabled && req.url === '/metrics') {
           const { contentType, body } = buildPromMetrics();
-            res.statusCode = 200;
-            res.setHeader('Content-Type', contentType);
-            res.end(body);
+          res.statusCode = 200;
+          res.setHeader('Content-Type', contentType);
+          res.end(body);
           return;
         }
         res.statusCode = 404;
@@ -286,9 +286,9 @@ export function start() {
             }
             if (promMetricsEnabled && req.url === '/metrics') {
               const { contentType, body } = buildPromMetrics();
-                res.statusCode = 200;
-                res.setHeader('Content-Type', contentType);
-                res.end(body);
+              res.statusCode = 200;
+              res.setHeader('Content-Type', contentType);
+              res.end(body);
               return;
             }
             res.statusCode = 404;
