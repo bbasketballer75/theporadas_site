@@ -731,3 +731,55 @@ Owner: Security Steward (August rotation).
 Review Date: 2025-10-01 (confirm sustained absence or tighten allowlist policy).
 
 ---
+
+## 2025-08-29 Supply Chain Remediation (Artifact Download Action & tmp Transitive)
+
+Context: Two advisories surfaced via repository security dashboard / Dependabot:
+
+- High severity: Artifact poisoning / improper trust boundary in `dawidd6/action-download-artifact` versions < 6 (untrusted fork artifact risk).
+- Low severity: Symlink traversal / insecure file handling in `tmp <0.2.4`
+  (transitive via dev tooling: `external-editor` -> `tmp`, also reachable under
+  `@lhci/cli`).
+
+Actions Taken (Commit 52a80b2):
+
+1. Upgraded all occurrences of `dawidd6/action-download-artifact@v3` to `@v6` inside `.github/workflows/auto_merge.yml`.
+2. Added explicit `allow_forks: false` to each artifact download step to harden provenance even on the patched major.
+3. Introduced npm `overrides` forcing `"tmp": "^0.2.4"` in `package.json` ensuring all transitive resolutions meet patched floor.
+4. Executed full verification pipeline (lint, typecheck, 174 tests, coverage) – all green post-change (coverage unchanged at >98%).
+
+Rationale & Risk Assessment:
+
+- The GitHub Action vulnerability could allow a malicious actor in a fork PR
+  context to poison artifacts retrieved by subsequent workflow steps.
+  Upgrading to v6 (which includes upstream mitigation) plus disallowing fork
+  artifacts eliminates this vector in our auto-merge quality gate workflow.
+- The `tmp` issue impacts only CI/dev tooling paths; no production bundle
+  includes `tmp`. Override is low-risk (semver-compatible patch range) and
+  avoids waiting for upstream dependency chain updates.
+
+Verification Checklist:
+
+- [x] Grep shows zero remaining `dawidd6/action-download-artifact@v3` references.
+- [x] Workflow syntax validated implicitly by successful run of local tests (YAML parse errors would fail `verify_workflows` test).
+- [x] `package.json` contains top-level `overrides` block; no other override conflicts.
+- [x] Future `npm install` will resolve `tmp@>=0.2.4`; CI lockfile refresh (if any) will not downgrade due to override precedence.
+
+Follow-Up / Monitoring:
+
+- Dependabot will surface any subsequent high-severity advisories for updated action or `tmp` again (unlikely given patch adoption).
+- Re-audit monthly to determine if override can be removed once all upstream chains natively require `>=0.2.4` (clean lockfile diff).
+- If future workflows require fork artifact access (e.g., testing PR
+  artifacts), create a separate, restricted workflow rather than relaxing
+  `allow_forks` in auto-merge gating.
+
+Sunset Criteria:
+
+- Remove `tmp` override when `npm ls tmp` shows only versions `>=0.2.4` without override forcing (document removal in SECURITY_NOTES with rationale).
+
+No suppressions were used; all mitigations are version and configuration based.
+
+Owner: Security Steward (August rotation)
+Review Date: 2025-10-01 (evaluate removal of override and confirm no regression in action references).
+
+---
