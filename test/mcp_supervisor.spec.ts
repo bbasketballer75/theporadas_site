@@ -19,7 +19,7 @@ function runSupervisor(
   return new Promise((resolve) => {
     const baseEnv = process.env;
     const child = spawn('node', ['scripts/mcp_supervisor.mjs', ...args], {
-      env: { ...baseEnv, ...env },
+      env: { ...baseEnv, DISABLE_MCP_KEEPALIVE: '1', TAVILY_FORCE_CRASH: '1', ...env },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     const events: SupEvent[] = [];
