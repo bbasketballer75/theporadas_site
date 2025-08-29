@@ -1,0 +1,49 @@
+name: CI Verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies (clean)
+        run: npm ci
+
+      - name: Lint / Typecheck / Tests / CSP / Build
+        run: |
+          npm run verify
+          npm run build
+
+      - name: Upload build artifact (optional)
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          if-no-files-found: ignore
+          retention-days: 3
+
+      - name: Summary
+        if: ${{ always() }}
+        run: |
+          echo "## CI Summary" >> $GITHUB_STEP_SUMMARY
+          echo "Build folder size:" >> $GITHUB_STEP_SUMMARY
+          du -sh dist || true >> $GITHUB_STEP_SUMMARY
+          echo "Node version: $(node -v)" >> $GITHUB_STEP_SUMMARY
