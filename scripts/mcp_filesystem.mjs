@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Minimal placeholder MCP-style server for constrained filesystem ops
+import './mcp_logging.mjs';
 import { readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, rmSync } from 'fs';
 import { resolve, relative } from 'path';
 import { out, fail } from './mcp_util.mjs';
@@ -250,6 +251,8 @@ function runJsonRpc() {
         'fs/root',
       ],
       schema: { service: 'filesystem', version: 1 },
+      // Include server name so supervisor readiness parser (expects type==="ready" && server) registers this server.
+      server: process.env.MCP_SERVER_NAME || 'fs',
     }) + '\n',
   );
 }
