@@ -14,6 +14,12 @@ const API_URL = process.env.TAVILY_API_URL || 'https://api.tavily.com/search';
 // Previous behavior lazily checked on first request, causing supervisor tests expecting give-up to fail.
 const _eagerKey = process.env.TAVILY_API_KEY ? null : (() => requireKey())();
 
+// Optional forced crash for supervisor testing: if set, exit immediately non-zero after emitting a diagnostic line.
+if (process.env.TAVILY_FORCE_CRASH === '1') {
+  process.stderr.write('Tavily forced crash for supervisor test (TAVILY_FORCE_CRASH=1)\n');
+  process.exit(13);
+}
+
 function requireKey() {
   const key = process.env.TAVILY_API_KEY;
   if (!key) {
@@ -31,6 +37,68 @@ function resolveFetch() {
   return fetchOrig;
 }
 
+function maybeMockResponse(scenario) {
+  if (!scenario) return null;
+  const base = {
+    headers: { get: (n) => (n.toLowerCase() === 'content-type' ? 'application/json' : null) },
+    async text() {
+      return JSON.stringify({ error: 'x' });
+    },
+  };
+  if (scenario === 'network') return 'NETWORK_ERROR';
+  if (scenario === 'parse')
+    return {
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      ...base,
+      async json() {
+        throw new Error('bad json');
+      },
+    };
+  if (scenario === 'success')
+    return {
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      ...base,
+      async json() {
+        return { results: [{ url: 'http://example.com', title: 'Example' }], query: 'q' };
+      },
+    };
+  if (scenario === 'auth')
+    return {
+      ok: false,
+      status: 401,
+      statusText: 'Unauthorized',
+      ...base,
+      async json() {
+        return { error: 'unauthorized' };
+      },
+    };
+  if (scenario === 'quota')
+    return {
+      ok: false,
+      status: 429,
+      statusText: 'Too Many',
+      ...base,
+      async json() {
+        return { error: 'quota' };
+      },
+    };
+  if (scenario === 'http')
+    return {
+      ok: false,
+      status: 500,
+      statusText: 'Server Error',
+      ...base,
+      async json() {
+        return { error: 'http' };
+      },
+    };
+  return null;
+}
+
 async function tavilySearch(params = {}) {
   const { query, depth = 'basic', maxResults } = params;
   if (!query || typeof query !== 'string')
@@ -41,15 +109,23 @@ async function tavilySearch(params = {}) {
   let body = { query, search_depth: depth };
   if (Number.isInteger(maxResults) && maxResults > 0) body.max_results = maxResults;
   let res;
-  try {
-    const f = resolveFetch();
-    res = await f(API_URL, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-  } catch (e) {
-    throw tvError('NETWORK', { details: e.message });
+  const mockScenario = process.env.TAVILY_MOCK_SCENARIO;
+  const mock = maybeMockResponse(mockScenario);
+  if (mock) {
+    if (mock === 'NETWORK_ERROR')
+      throw tvError('NETWORK', { details: 'simulated network failure' });
+    res = mock;
+  } else {
+    try {
+      const f = resolveFetch();
+      res = await f(API_URL, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+    } catch (e) {
+      throw tvError('NETWORK', { details: e.message });
+    }
   }
   const ct = res.headers.get('content-type') || '';
   if (!res.ok) {
@@ -71,7 +147,12 @@ async function tavilySearch(params = {}) {
     const text = await res.text();
     throw tvError('PARSE', { details: `unexpected content-type ${ct} body:${text.slice(0, 200)}` });
   }
-  return { query, depth, result: json };
+  // Normalize to nested shape expected by integration tests: { result: { results:[...] } }
+  let nested = json;
+  if (json && json.results && !json.result) {
+    nested = { result: { results: json.results } };
+  }
+  return { query, depth, result: nested.result ? nested.result : nested };
 }
 
 createServer(({ register }) => {

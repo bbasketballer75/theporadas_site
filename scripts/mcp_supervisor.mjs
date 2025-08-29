@@ -148,7 +148,7 @@ function spawnOne(s) {
     stdio: ['ignore', 'pipe', 'pipe'],
     env: { ...process.env, MCP_SERVER_NAME: s.name },
   });
-  const meta = { child, ready: false, startedAt: Date.now() };
+  const meta = { child, ready: false, startedAt: Date.now(), running: true };
   processes.set(s.name, meta);
   s.spawns++;
   stats.spawns++;
@@ -174,6 +174,7 @@ function spawnOne(s) {
   });
   child.on('exit', (code) => {
     const end = Date.now();
+    meta.running = false;
     stats.lastExitCode = code;
     stats.exits++;
     stats.lastExitAt = end;
@@ -216,13 +217,10 @@ function triggerFailFast(server) {
 }
 
 function checkAllExited() {
-  // If every tracked server has no running process, initiate shutdown (natural end)
-  for (const [name, meta] of processes) {
-    if (!meta.child.exitCode && meta.child.exitCode !== 0) {
-      return; // still running
-    }
+  // Natural completion when all meta.running flags are false and no restarts pending
+  for (const [, meta] of processes) {
+    if (meta.running) return;
   }
-  // All have exit codes
   shutdown();
 }
 
@@ -314,7 +312,9 @@ function shutdown() {
     emitSummary();
     let code = state.failFastTriggered ? 1 : 0;
     if (!state.failFastTriggered && exitCodeOnGiveUp != null) {
-      const anyGiveUp = Object.values(state.servers).some((s) => s.gaveUp);
+      const anyGiveUp = Object.values(state.servers).some(
+        (s) => s.gaveUp || (s.lastExitCode && s.lastExitCode !== 0 && maxRestarts === 0),
+      );
       if (anyGiveUp) code = exitCodeOnGiveUp;
     }
     logJson({ type: 'supervisor', event: 'exiting', code });
