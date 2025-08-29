@@ -30,6 +30,8 @@ services:
       NODE_ENV: production
       MCP_HEALTH_PORT: 3010
       MCP_SERVER_NAME: tavily
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
     command: ['scripts/mcp_tavily.mjs']
     restart: unless-stopped
     healthcheck:
@@ -48,6 +50,8 @@ services:
       NODE_ENV: production
       MCP_HEALTH_PORT: 3011
       MCP_SERVER_NAME: notion
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
     command: ['scripts/mcp_notion.mjs']
     restart: unless-stopped
     healthcheck:
@@ -66,6 +70,8 @@ services:
       NODE_ENV: production
       MCP_HEALTH_PORT: 3012
       MCP_SERVER_NAME: mem0
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
     command: ['scripts/mcp_mem0.mjs']
     restart: unless-stopped
     healthcheck:
@@ -89,6 +95,8 @@ services:
       NODE_ENV: production
       MCP_HEALTH_PORT: 3013
       MCP_SERVER_NAME: sqlserver
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
     command: ['scripts/mcp_sqlserver.mjs']
     restart: unless-stopped
     healthcheck:
@@ -107,6 +115,8 @@ services:
       NODE_ENV: production
       MCP_HEALTH_PORT: 3014
       MCP_SERVER_NAME: supervisor
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
     command: ['scripts/mcp_supervisor.mjs']
     restart: unless-stopped
     healthcheck:
@@ -126,6 +136,8 @@ services:
       NODE_ENV: production
       MCP_HEALTH_PORT: 3015
       MCP_SERVER_NAME: filesystem
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
     volumes:
       - ./mcp_fs_sandbox:/data/fs
     entrypoint: ['node']
@@ -147,7 +159,9 @@ services:
       MCP_MEMORY_BANK_DIR: /app/memory-bank
       NODE_ENV: production
       MCP_HEALTH_PORT: 3016
-      MCP_SERVER_NAME: memory_bank
+      MCP_SERVER_NAME: memory-bank
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
     command: ['scripts/mcp_memory_bank.mjs']
     restart: unless-stopped
     healthcheck:
@@ -166,7 +180,9 @@ services:
       MCP_KG_MAX_TRIPLES: 5000
       NODE_ENV: production
       MCP_HEALTH_PORT: 3017
-      MCP_SERVER_NAME: kg_memory
+      MCP_SERVER_NAME: kg-memory
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
     command: ['scripts/mcp_kg_memory.mjs']
     restart: unless-stopped
     healthcheck:
@@ -185,7 +201,9 @@ services:
       MCP_PY_TIMEOUT_MS: 3000
       NODE_ENV: production
       MCP_HEALTH_PORT: 3018
-      MCP_SERVER_NAME: python_exec
+      MCP_SERVER_NAME: python-exec
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
     command: ['scripts/mcp_python.mjs']
     restart: unless-stopped
     healthcheck:
@@ -206,6 +224,8 @@ services:
       MCP_HEALTH_PORT: 3001
       NODE_ENV: production
       MCP_SERVER_NAME: playwright
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
     command: ['scripts/mcp_playwright.mjs']
     restart: unless-stopped
     healthcheck:
@@ -226,6 +246,8 @@ services:
       MCP_HEALTH_PORT: 3001
       NODE_ENV: production
       MCP_SERVER_NAME: puppeteer
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
     command: ['scripts/mcp_puppeteer.mjs']
     restart: unless-stopped
     healthcheck:
@@ -245,6 +267,8 @@ services:
       NODE_ENV: production
       MCP_HEALTH_PORT: 3019
       MCP_SERVER_NAME: pieces
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
     command: ['scripts/mcp_pieces.mjs']
     restart: unless-stopped
     healthcheck:
