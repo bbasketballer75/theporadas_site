@@ -1,38 +1,63 @@
 #!/usr/bin/env node
-// Minimal placeholder MCP-style server for Mem0 (stub)
-// Real implementation would use the Mem0 SDK when available.
+// Persistent minimal MCP server for Mem0-like memory store
 import './load_env.mjs';
 
-import { out, fail } from './mcp_util.mjs';
+if (!process.env.MEM0_API_KEY) {
+  process.stdout.write(JSON.stringify({ type: 'error', error: 'MEM0_API_KEY not set' }) + '\n');
+  process.exit(1);
+}
 
-const key = process.env.MEM0_API_KEY;
-if (!key) fail('MEM0_API_KEY not set');
-
-// In-memory fallback store for stub behavior
 const store = [];
+const methods = ['mem0/add', 'mem0/list'];
+process.stdout.write(
+  JSON.stringify({ type: 'ready', methods, schema: { service: 'mem0', version: 1 } }) + '\n',
+);
 
-function addMemory(text) {
-  const m = { id: store.length + 1, text, ts: Date.now() };
+function add(text) {
+  const m = { id: store.length + 1, text: text || '', ts: Date.now() };
   store.push(m);
   return m;
 }
-function listMemories() {
-  return store.slice(-10);
+function list() {
+  return store.slice(-50);
 }
 
-const [cmd, ...rest] = process.argv.slice(2);
-if (!cmd || cmd === 'help') {
-  out({ notice: 'Mem0 MCP stub', usage: 'add <text> | list' });
-  process.exit(0);
+process.stdin.setEncoding('utf8');
+let buf = '';
+process.stdin.on('data', (chunk) => {
+  buf += chunk;
+  const lines = buf.split(/\n/);
+  buf = lines.pop();
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    let msg;
+    try {
+      msg = JSON.parse(line);
+    } catch {
+      continue;
+    }
+    if (msg.jsonrpc !== '2.0' || !msg.method) continue;
+    if (msg.method === 'mem0/add') {
+      const text = msg.params?.text || '';
+      return sendResult(msg.id, { added: add(text) });
+    }
+    if (msg.method === 'mem0/list') {
+      return sendResult(msg.id, { memories: list() });
+    }
+    if (/listMethods$/i.test(msg.method)) {
+      return sendResult(msg.id, { methods });
+    }
+    sendError(msg.id, 'NOT_IMPLEMENTED', 'Unknown method');
+  }
+});
+
+function sendResult(id, result) {
+  if (id !== undefined) process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id, result }) + '\n');
 }
-if (cmd === 'add') {
-  const text = rest.join(' ');
-  const saved = addMemory(text || '');
-  out({ added: saved });
-  process.exit(0);
+function sendError(id, code, message) {
+  if (id !== undefined)
+    process.stdout.write(
+      JSON.stringify({ jsonrpc: '2.0', id, error: { code: -32000, data: { code }, message } }) +
+        '\n',
+    );
 }
-if (cmd === 'list') {
-  out({ memories: listMemories() });
-  process.exit(0);
-}
-fail('Unknown command');

@@ -47,6 +47,18 @@ const tests = [
     expectKey: 'sessions',
     optional: true,
   },
+  {
+    name: 'github repo (optional)',
+    cmd: ['node', ['scripts/mcp_github.mjs']],
+    request: {
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'gh/repo',
+      params: { owner: 'octocat', repo: 'Hello-World' },
+    },
+    expectKey: 'repo',
+    optional: true,
+  },
 ];
 
 function runTest(def) {
