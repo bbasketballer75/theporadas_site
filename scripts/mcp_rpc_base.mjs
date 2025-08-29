@@ -27,6 +27,37 @@ const errorCounters = {
   total: 0,
 };
 
+// Build Prometheus exposition text for current error + method metrics.
+// Returns { contentType, body } matching RPC method response expectation.
+function buildPromMetrics() {
+  const lines = [];
+  const esc = (v) => String(v).replace(/\\/g, '\\\\').replace(/\n/g, '');
+  lines.push('# HELP mcp_errors_total Total application errors captured');
+  lines.push('# TYPE mcp_errors_total counter');
+  lines.push(`mcp_errors_total ${errorCounters.total}`);
+  lines.push('# HELP mcp_errors_by_domain_total Errors partitioned by domain');
+  lines.push('# TYPE mcp_errors_by_domain_total counter');
+  for (const [dom, count] of errorCounters.byDomain.entries())
+    lines.push(`mcp_errors_by_domain_total{domain="${esc(dom)}"} ${count}`);
+  lines.push('# HELP mcp_errors_by_symbol_total Errors partitioned by symbol');
+  lines.push('# TYPE mcp_errors_by_symbol_total counter');
+  for (const [sym, count] of errorCounters.bySymbol.entries())
+    lines.push(`mcp_errors_by_symbol_total{symbol="${esc(sym)}"} ${count}`);
+  lines.push('# HELP mcp_errors_by_code_total Errors partitioned by code');
+  lines.push('# TYPE mcp_errors_by_code_total counter');
+  for (const [code, count] of errorCounters.byCode.entries())
+    lines.push(`mcp_errors_by_code_total{code="${code}"} ${count}`);
+  lines.push('# HELP mcp_method_calls_total Method invocation counts');
+  lines.push('# TYPE mcp_method_calls_total counter');
+  lines.push('# HELP mcp_method_errors_total Method error counts');
+  lines.push('# TYPE mcp_method_errors_total counter');
+  for (const [name, stats] of methodStats.entries()) {
+    lines.push(`mcp_method_calls_total{method="${esc(name)}"} ${stats.calls}`);
+    lines.push(`mcp_method_errors_total{method="${esc(name)}"} ${stats.errors}`);
+  }
+  return { contentType: 'text/plain; version=0.0.4', body: lines.join('\n') + '\n' };
+}
+
 function incCounter(map, key) {
   if (!key) return;
   map.set(key, (map.get(key) || 0) + 1);
@@ -217,35 +248,10 @@ export function start() {
           return;
         }
         if (promMetricsEnabled && req.url === '/metrics') {
-          // Generate the same payload as sys/promMetrics RPC method
-          const lines = [];
-          const esc = (v) => String(v).replace(/\\/g, '\\\\').replace(/\n/g, '');
-          lines.push('# HELP mcp_errors_total Total application errors captured');
-          lines.push('# TYPE mcp_errors_total counter');
-          lines.push(`mcp_errors_total ${errorCounters.total}`);
-          lines.push('# HELP mcp_errors_by_domain_total Errors partitioned by domain');
-          lines.push('# TYPE mcp_errors_by_domain_total counter');
-          for (const [dom, count] of errorCounters.byDomain.entries())
-            lines.push(`mcp_errors_by_domain_total{domain="${esc(dom)}"} ${count}`);
-          lines.push('# HELP mcp_errors_by_symbol_total Errors partitioned by symbol');
-          lines.push('# TYPE mcp_errors_by_symbol_total counter');
-          for (const [sym, count] of errorCounters.bySymbol.entries())
-            lines.push(`mcp_errors_by_symbol_total{symbol="${esc(sym)}"} ${count}`);
-          lines.push('# HELP mcp_errors_by_code_total Errors partitioned by code');
-          lines.push('# TYPE mcp_errors_by_code_total counter');
-          for (const [code, count] of errorCounters.byCode.entries())
-            lines.push(`mcp_errors_by_code_total{code="${code}"} ${count}`);
-          lines.push('# HELP mcp_method_calls_total Method invocation counts');
-            lines.push('# TYPE mcp_method_calls_total counter');
-            lines.push('# HELP mcp_method_errors_total Method error counts');
-            lines.push('# TYPE mcp_method_errors_total counter');
-            for (const [name, stats] of methodStats.entries()) {
-              lines.push(`mcp_method_calls_total{method="${esc(name)}"} ${stats.calls}`);
-              lines.push(`mcp_method_errors_total{method="${esc(name)}"} ${stats.errors}`);
-            }
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'text/plain; version=0.0.4');
-          res.end(lines.join('\n') + '\n');
+          const { contentType, body } = buildPromMetrics();
+            res.statusCode = 200;
+            res.setHeader('Content-Type', contentType);
+            res.end(body);
           return;
         }
         res.statusCode = 404;
@@ -256,55 +262,45 @@ export function start() {
       });
     } catch (e) {
       // If http import fails (ESM interop), attempt dynamic import fallback
-      import('node:http').then((httpMod) => {
-        const startedAt = Date.now();
-        const serverName = process.env.MCP_SERVER_NAME || 'mcp-server';
-        const srv = httpMod.createServer((req, res) => {
-          if (req.method !== 'GET') {
-            res.statusCode = 405;
-            return res.end();
-          }
-          if (req.url === '/healthz') {
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify({ status: 'ok', server: serverName, methods: listMethods().length, uptimeMs: Date.now() - startedAt }));
-            return;
-          }
-          if (promMetricsEnabled && req.url === '/metrics') {
-            const lines = [];
-            const esc = (v) => String(v).replace(/\\/g, '\\\\').replace(/\n/g, '');
-            lines.push('# HELP mcp_errors_total Total application errors captured');
-            lines.push('# TYPE mcp_errors_total counter');
-            lines.push(`mcp_errors_total ${errorCounters.total}`);
-            lines.push('# HELP mcp_errors_by_domain_total Errors partitioned by domain');
-            lines.push('# TYPE mcp_errors_by_domain_total counter');
-            for (const [dom, count] of errorCounters.byDomain.entries())
-              lines.push(`mcp_errors_by_domain_total{domain="${esc(dom)}"} ${count}`);
-            lines.push('# HELP mcp_errors_by_symbol_total Errors partitioned by symbol');
-            lines.push('# TYPE mcp_errors_by_symbol_total counter');
-            for (const [sym, count] of errorCounters.bySymbol.entries())
-              lines.push(`mcp_errors_by_symbol_total{symbol="${esc(sym)}"} ${count}`);
-            lines.push('# HELP mcp_errors_by_code_total Errors partitioned by code');
-            lines.push('# TYPE mcp_errors_by_code_total counter');
-            for (const [code, count] of errorCounters.byCode.entries())
-              lines.push(`mcp_errors_by_code_total{code="${code}"} ${count}`);
-            lines.push('# HELP mcp_method_calls_total Method invocation counts');
-            lines.push('# TYPE mcp_method_calls_total counter');
-            lines.push('# HELP mcp_method_errors_total Method error counts');
-            lines.push('# TYPE mcp_method_errors_total counter');
-            for (const [name, stats] of methodStats.entries()) {
-              lines.push(`mcp_method_calls_total{method="${esc(name)}"} ${stats.calls}`);
-              lines.push(`mcp_method_errors_total{method="${esc(name)}"} ${stats.errors}`);
+      import('node:http')
+        .then((httpMod) => {
+          const startedAt = Date.now();
+          const serverName = process.env.MCP_SERVER_NAME || 'mcp-server';
+          const srv = httpMod.createServer((req, res) => {
+            if (req.method !== 'GET') {
+              res.statusCode = 405;
+              return res.end();
             }
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'text/plain; version=0.0.4');
-            res.end(lines.join('\n') + '\n');
-            return;
-          }
-          res.statusCode = 404; res.end();
-        });
-        srv.listen(healthPort, '0.0.0.0').on('error', (err2) => console.error('[mcp:harness] failed to start health server', err2.message));
-      }).catch(() => {});
+            if (req.url === '/healthz') {
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(
+                JSON.stringify({
+                  status: 'ok',
+                  server: serverName,
+                  methods: listMethods().length,
+                  uptimeMs: Date.now() - startedAt,
+                }),
+              );
+              return;
+            }
+            if (promMetricsEnabled && req.url === '/metrics') {
+              const { contentType, body } = buildPromMetrics();
+                res.statusCode = 200;
+                res.setHeader('Content-Type', contentType);
+                res.end(body);
+              return;
+            }
+            res.statusCode = 404;
+            res.end();
+          });
+          srv
+            .listen(healthPort, '0.0.0.0')
+            .on('error', (err2) =>
+              console.error('[mcp:harness] failed to start health server', err2.message),
+            );
+        })
+        .catch(() => {});
     }
   }
 }
@@ -332,36 +328,7 @@ export function createServer(registrar) {
   }
   if (promMetricsEnabled) {
     register('sys/promMetrics', () => {
-      const lines = [];
-      const esc = (v) => String(v).replace(/\\/g, '\\\\').replace(/\n/g, '');
-      lines.push('# HELP mcp_errors_total Total application errors captured');
-      lines.push('# TYPE mcp_errors_total counter');
-      lines.push(`mcp_errors_total ${errorCounters.total}`);
-      // Errors by domain
-      lines.push('# HELP mcp_errors_by_domain_total Errors partitioned by domain');
-      lines.push('# TYPE mcp_errors_by_domain_total counter');
-      for (const [dom, count] of errorCounters.byDomain.entries())
-        lines.push(`mcp_errors_by_domain_total{domain="${esc(dom)}"} ${count}`);
-      // Errors by symbol
-      lines.push('# HELP mcp_errors_by_symbol_total Errors partitioned by symbol');
-      lines.push('# TYPE mcp_errors_by_symbol_total counter');
-      for (const [sym, count] of errorCounters.bySymbol.entries())
-        lines.push(`mcp_errors_by_symbol_total{symbol="${esc(sym)}"} ${count}`);
-      // Errors by code
-      lines.push('# HELP mcp_errors_by_code_total Errors partitioned by code');
-      lines.push('# TYPE mcp_errors_by_code_total counter');
-      for (const [code, count] of errorCounters.byCode.entries())
-        lines.push(`mcp_errors_by_code_total{code="${code}"} ${count}`);
-      // Method call / error gauges
-      lines.push('# HELP mcp_method_calls_total Method invocation counts');
-      lines.push('# TYPE mcp_method_calls_total counter');
-      lines.push('# HELP mcp_method_errors_total Method error counts');
-      lines.push('# TYPE mcp_method_errors_total counter');
-      for (const [name, stats] of methodStats.entries()) {
-        lines.push(`mcp_method_calls_total{method="${esc(name)}"} ${stats.calls}`);
-        lines.push(`mcp_method_errors_total{method="${esc(name)}"} ${stats.errors}`);
-      }
-      return { contentType: 'text/plain; version=0.0.4', body: lines.join('\n') + '\n' };
+      return buildPromMetrics();
     });
   }
   start();
