@@ -37,6 +37,37 @@ output truncation. |
 | Memory Bank | `scripts/mcp_memory_bank.mjs` | `MCP_MEMORY_BANK_DIR` (opt) | List/read/search markdown knowledge files (capped). |
 | KG Memory | `scripts/mcp_kg_memory.mjs` | `MCP_KG_MAX_TRIPLES` (opt) | In-memory triple store add/query/subjects (bounded). |
 | Pieces | `scripts/mcp_pieces.mjs` | `PIECES_API_KEY` (opt) | Placeholder integration: key presence probe, ping, and key-required method. |
+| GitHub | `scripts/mcp_github.mjs` | `GITHUB_TOKEN` (opt) | Basic repo & issue metadata, create issue, rate limit. |
+| Vector DB | `scripts/mcp_vectordb.mjs` | `VECTOR_DB_PATH` (opt) | On-disk JSONL vector store add/search cosine similarity. |
+| Scheduler | `scripts/mcp_scheduler.mjs` | `SCHEDULER_MAX_TASKS` (opt) | In-memory delayed task execution & events. |
+| Secrets | `scripts/mcp_secrets.mjs` | `REDACTED_BY_AUDIT_ISSUE_70S_ALLOWLIST` | Allowlisted environment variable access. |
+
+### Automated Smoke Runner
+
+Added `scripts/mcp_smoke_runner.mjs` to iterate `servers.json`, spawn each server,
+wait for the readiness line, and perform a trivial probe. Example:
+
+```pwsh
+node scripts/mcp_smoke_runner.mjs
+```
+
+Environment variables:
+
+```env
+SMOKE_TIMEOUT_MS=8000   # override per-server wait
+SMOKE_IGNORE_FAIL=1     # do not exit non-zero on failures
+```
+
+Output format (columns with whitespace separation):
+
+```text
+Name       Status  Ms   Methods
+tavily     ready   123  1
+filesystem ready   85   5
+github     ready   110  4
+```
+
+Statuses include: `ready`, `timeout`, `exit-<code>`, `spawn-error`. Non-ready statuses cause exit code 1 unless ignored.
 
 ## Usage Examples
 
@@ -162,7 +193,32 @@ Example config file (`servers.json`) with per-server restart overrides:
 ```json
 [
   { "name": "fs", "cmd": "node", "args": ["scripts/mcp_filesystem.mjs"], "maxRestarts": 0 },
-  { "name": "tavily", "cmd": "node", "args": ["scripts/mcp_tavily.mjs"], "maxRestarts": 5 }
+  {
+    "name": "filesystem",
+    "cmd": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-filesystem", "${workspaceFolder}"]
+  },
+  { "name": "tavily", "cmd": "node", "args": ["scripts/mcp_tavily.mjs"], "maxRestarts": 5 },
+  { "name": "notion", "cmd": "node", "args": ["scripts/mcp_notion.mjs"], "maxRestarts": 3 },
+  { "name": "mem0", "cmd": "node", "args": ["scripts/mcp_mem0.mjs"], "maxRestarts": 3 },
+  { "name": "sqlserver", "cmd": "node", "args": ["scripts/mcp_sqlserver.mjs"], "maxRestarts": 3 },
+  {
+    "name": "memoryBank",
+    "cmd": "node",
+    "args": ["scripts/mcp_memory_bank.mjs"],
+    "maxRestarts": 2
+  },
+  { "name": "kgMemory", "cmd": "node", "args": ["scripts/mcp_kg_memory.mjs"], "maxRestarts": 2 },
+  { "name": "pythonExec", "cmd": "node", "args": ["scripts/mcp_python.mjs"], "maxRestarts": 2 },
+  { "name": "playwright", "cmd": "node", "args": ["scripts/mcp_playwright.mjs"], "maxRestarts": 2 },
+  { "name": "puppeteer", "cmd": "node", "args": ["scripts/mcp_puppeteer.mjs"], "maxRestarts": 2 },
+  { "name": "pieces", "cmd": "node", "args": ["scripts/mcp_pieces.mjs"], "maxRestarts": 2 },
+  {
+    "name": "firebase",
+    "cmd": "pwsh",
+    "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "scripts/firebase_mcp.ps1"],
+    "maxRestarts": 2
+  }
 ]
 ```
 
@@ -338,6 +394,71 @@ or framing bugs.
 6. Sandboxed Python (pyodide / WASM) option for untrusted code.
 7. Implement KG persistence (snapshot + WAL) per `docs/mcp_persistence_plan.md`.
 8. Telemetry hooks & metrics for error/domain counts.
+
+## Validation Checklist (Expanded Server Set)
+
+Manual quick-start (PowerShell examples):
+
+1. Ensure `.env` created from `.env.example` and populate any required API keys (Tavily, Notion, etc.).
+
+1. Run a single server ad-hoc to confirm readiness line:
+
+```pwsh
+node scripts/mcp_tavily.mjs "test query"  # one-off mode prints JSON
+```
+
+1. Launch persistent servers via supervisor (subset):
+
+```pwsh
+node scripts/mcp_supervisor.mjs --only tavily,notion,mem0,pythonExec --max-restarts 2 --heartbeat-ms 5000
+```
+
+Expect `ready` events for each server that emits a readiness line.
+
+1. Test JSON-RPC methods (example Python + Memory Bank):
+
+```pwsh
+$p = Start-Process node -PassThru -RedirectStandardInput pipe -RedirectStandardOutput pipe -NoNewWindow -ArgumentList 'scripts/mcp_python.mjs'
+$null = $p.StandardOutput.ReadLine() # ready line
+$p.StandardInput.WriteLine('{"jsonrpc":"2.0","id":1,"method":"py/exec","params":{"code":"print(2+3)"}}')
+$p.StandardInput.Flush(); while(-not $p.StandardOutput.EndOfStream){ ($l=$p.StandardOutput.ReadLine()); if($l -match '"id":1') { $l; break } }
+```
+
+1. Browser automation (Playwright):
+
+```pwsh
+$b = Start-Process node -PassThru -RedirectStandardInput pipe -RedirectStandardOutput pipe -NoNewWindow -ArgumentList 'scripts/mcp_playwright.mjs'
+$null = $b.StandardOutput.ReadLine()
+$b.StandardInput.WriteLine('{"jsonrpc":"2.0","id":1,"method":"pw/launch"}')
+$b.StandardInput.Flush()
+```
+
+1. Firebase experimental MCP wrapper smoke test (banner detection):
+
+```pwsh
+node scripts/check_firebase_mcp.mjs
+```
+
+1. Health endpoints (Dockerized) once containers up:
+
+```pwsh
+curl -fsS http://localhost:3010/healthz | jq
+curl -fsS http://localhost:3016/healthz | jq
+```
+
+1. Prometheus metrics (enable `MCP_PROM_METRICS=1`):
+
+```pwsh
+curl -fsS http://localhost:3010/metrics | Select-String mcp_method_calls_total
+```
+
+1. Graceful failure path: unset `TAVILY_API_KEY` and start Tavily server, verify non-zero exit and supervisor `give-up` event after retries.
+
+1. Rate limit simulation (if implemented): set `MCP_RATE_LIMIT=1` and flood a
+   lightweight method; expect structured RL error codes per
+   `docs/mcp_error_codes.md` (if adopted).
+
+All steps above should succeed without unhandled exceptions in stderr. Document anomalies in `mcp_supervisor.log` if using `--log-file`.
 
 ### Error Factory Adoption Status
 

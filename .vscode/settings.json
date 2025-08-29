@@ -39,5 +39,6 @@
   // Use Docker extension formatter for Dockerfiles; Prettier does not handle them.
   "[dockerfile]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-containers"
-  }
+  },
+  "cSpell.words": ["Autobuild"]
 }

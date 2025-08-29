@@ -1,9 +1,23 @@
 [
   { "name": "fs", "cmd": "node", "args": ["scripts/mcp_filesystem.mjs"] },
+  { "name": "tavily", "cmd": "node", "args": ["scripts/mcp_tavily.mjs"], "maxRestarts": 5 },
+  { "name": "notion", "cmd": "node", "args": ["scripts/mcp_notion.mjs"], "maxRestarts": 3 },
+  { "name": "mem0", "cmd": "node", "args": ["scripts/mcp_mem0.mjs"], "maxRestarts": 3 },
+  { "name": "sqlserver", "cmd": "node", "args": ["scripts/mcp_sqlserver.mjs"], "maxRestarts": 3 },
   {
-    "name": "filesystem",
-    "cmd": "npx",
-    "args": ["-y", "@modelcontextprotocol/server-filesystem", "${workspaceFolder}"]
+    "name": "memoryBank",
+    "cmd": "node",
+    "args": ["scripts/mcp_memory_bank.mjs"],
+    "maxRestarts": 2
   },
-  { "name": "tavily", "cmd": "node", "args": ["scripts/mcp_tavily.mjs"] }
+  { "name": "kgMemory", "cmd": "node", "args": ["scripts/mcp_kg_memory.mjs"], "maxRestarts": 2 },
+  { "name": "pythonExec", "cmd": "node", "args": ["scripts/mcp_python.mjs"], "maxRestarts": 2 },
+  { "name": "playwright", "cmd": "node", "args": ["scripts/mcp_playwright.mjs"], "maxRestarts": 2 },
+  { "name": "puppeteer", "cmd": "node", "args": ["scripts/mcp_puppeteer.mjs"], "maxRestarts": 2 },
+  { "name": "pieces", "cmd": "node", "args": ["scripts/mcp_pieces.mjs"], "maxRestarts": 2 },
+  { "name": "firebase", "cmd": "node", "args": ["scripts/mcp_firebase.mjs"], "maxRestarts": 2 },
+  { "name": "github", "cmd": "node", "args": ["scripts/mcp_github.mjs"], "maxRestarts": 2 },
+  { "name": "vectordb", "cmd": "node", "args": ["scripts/mcp_vectordb.mjs"], "maxRestarts": 2 },
+  { "name": "scheduler", "cmd": "node", "args": ["scripts/mcp_scheduler.mjs"], "maxRestarts": 2 },
+  { "name": "secrets", "cmd": "node", "args": ["scripts/mcp_secrets.mjs"], "maxRestarts": 2 }
 ]
