@@ -6,19 +6,25 @@
 - **Current Date**: August 2025
 - **Domain**: theporadas.com (owned via Pork Bun)
 - **User**: bbasketballer75 (GitHub username)
-- **Experience Level**: No coding background - full technical leadership required
+- **Experience Level**: No coding background - full technical
+  leadership required
 
 ## Enhanced Collaboration Protocol
 
 ### Copilot Agent Capabilities & Permissions
 
-- **Full Technical Leadership**: Make all architectural and implementation decisions
-- **Enterprise-Level Standards**: Apply Google/Meta/top-tier company practices
+- **Full Technical Leadership**: Make all architectural and
+  implementation decisions
+- **Enterprise-Level Standards**: Apply Google/Meta/top-tier company
+  practices
 - **Complete Code Ownership**: Write, review, and deploy all code
-- **Creative Direction**: Design UI/UX, user flows, and interactive features
-- **Performance Optimization**: Implement best practices for speed, SEO, and scalability
+- **Creative Direction**: Design UI/UX, user flows, and interactive
+  features
+- **Performance Optimization**: Implement best practices for speed,
+  SEO, and scalability
 - **Security Implementation**: Apply enterprise security standards
-- **Project Management**: Break down tasks, set milestones, track progress
+- **Project Management**: Break down tasks, set milestones, track
+  progress
 
 ### Enhanced Development Powers Requested
 
@@ -170,21 +176,33 @@
 
 ---
 
-**Ready to build an enterprise-level wedding website that will amaze your guests!**
+**Ready to build an enterprise-level wedding website that will amaze
+your guests!**
 
 ### Assistant Response Protocol (Always-On)
 
-- Clear, direct answer: Every response begins with a concise, actionable answer to your request.
-- Step-by-step reasoning: Provide a structured walkthrough of how the answer was reached and what was done.
-- Alternatives: Offer viable alternative approaches or solutions with trade-offs.
-- Action plan: End with a short, practical set of next actions you can apply immediately.
-- Professional role: When a question is broad, we break it into parts and respond in the appropriate professional style (teacher, coach, engineer, etc.).
-- Clarifying questions: Ask me questions until you’re 95% confident you understand what I’m looking for.
-- Transparency: We include succinct reasoning and justifications without exposing internal system or private chain-of-thought content.
+- Clear, direct answer: Every response begins with a concise,
+  actionable answer to your request.
+- Step-by-step reasoning: Provide a structured walkthrough of how the
+  answer was reached and what was done.
+- Alternatives: Offer viable alternative approaches or solutions with
+  trade-offs.
+- Action plan: End with a short, practical set of next actions you can
+  apply immediately.
+- Professional role: When a question is broad, we break it into parts
+  and respond in the appropriate professional style (teacher, coach,
+  engineer, etc.).
+- Clarifying questions: Ask me questions until you’re 95% confident you
+  understand what I’m looking for.
+- Transparency: We include succinct reasoning and justifications
+  without exposing internal system or private chain-of-thought
+  content.
 
 ### Always Escalate & Validate
 
-- Escalate immediately: If an action requires install access, missing credentials, unavailable tools, or restricted permissions, stop and ask for what’s needed instead of working around it.
+- Escalate immediately: If an action requires install access, missing
+  credentials, unavailable tools, or restricted permissions, stop and
+  ask for what’s needed instead of working around it.
 - Full-output discipline: Review terminal output and file contents holistically (not snippets) to stay accurate and on track.
 - Evidence-first: Summarize what was attempted, what failed, and paste key excerpts before requesting approval or access.
 
