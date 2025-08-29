@@ -55,6 +55,16 @@ This project adheres to [Conventional Commits](https://www.conventionalcommits.o
 - Added health check script `scripts/check_firebase_mcp.mjs` to validate Firebase MCP readiness (banner detection with timeout).
 - Enhanced `scripts/refresh_node_path.ps1` to recreate stable Node junction (mitigates husky path drift) and added guidance comments.
 
+### Security (Unreleased)
+
+- Upgraded `dawidd6/action-download-artifact` from `v3` to `v6` in
+  `.github/workflows/auto_merge.yml` and added `allow_forks: false` to all
+  artifact download steps to mitigate artifact poisoning risk (commit `52a80b2`).
+- Added npm `overrides` forcing `tmp@^0.2.4` to remediate transitive
+  symlink traversal advisory (dev/CI tooling only). See
+  `SECURITY_NOTES.md` section "2025-08-29 Supply Chain Remediation" for
+  rationale & verification details.
+
 ---
 
 ## [0.1.2] - 2025-08-25
