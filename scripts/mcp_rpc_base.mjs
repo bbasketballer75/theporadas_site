@@ -177,9 +177,13 @@ export function start() {
   process.stdin.on('data', processLines);
   process.stdin.on('error', () => {});
   process.stdin.resume();
-  // Keep the event loop alive even if stdin closes (common in detached Docker)
-  if (!global.__mcpKeepAlive) {
-    global.__mcpKeepAlive = setInterval(() => {}, 60_000);
+  // Keep the event loop alive even if stdin closes (common in detached Docker).
+  // Allow tests to disable this behavior so short-lived processes can exit and
+  // supervisor tests observing give-up semantics are not delayed.
+  if (!process.env.DISABLE_MCP_KEEPALIVE) {
+    if (!global.__mcpKeepAlive) {
+      global.__mcpKeepAlive = setInterval(() => {}, 60_000);
+    }
   }
   const ready = { type: 'ready', methods: listMethods(), schema: { errorCodes: 1 } };
   if (process.env.MCP_SERVER_NAME) ready.server = process.env.MCP_SERVER_NAME;

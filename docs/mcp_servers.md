@@ -6,12 +6,12 @@ CLI/JSON interface you can wrap later.
 
 ## Scripts
 
-| Service    | Script                       | Env Vars                                                                 | Description                                                                                                                                     |
-| ---------- | ---------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Notion     | `scripts/mcp_notion.mjs`     | `NOTION_API_KEY`                                                         | Validates key and prints placeholder notice. Extend to expose search/query later.                                                               |
-| Tavily     | `scripts/mcp_tavily.mjs`     | `TAVILY_API_KEY`                                                         | Runs a search query (POST /search) and returns JSON result. Arg string becomes query.                                                           |
-| Mem0       | `scripts/mcp_mem0.mjs`       | `MEM0_API_KEY`                                                           | In-memory mock add/list memory commands (placeholder until real SDK).                                                                           |
-| Filesystem | `scripts/mcp_filesystem.mjs` | `MCP_FS_ROOT` (optional), `MCP_FS_MAX_BYTES`, `MCP_FS_ALLOW_WRITE_GLOBS` | Safe scoped list/read/write/mkdir/delete/stat inside root (defaults to repo root). Prevents path escape; supports size limit & write allowlist. |
+| Service    | Script                       | Env Vars                                                                       | Description                                                                                                                                     |
+| ---------- | ---------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Notion     | `scripts/mcp_notion.mjs`     | `NOTION_API_KEY`                                                               | Validates key and prints placeholder notice. Extend to expose search/query later.                                                               |
+| Tavily     | `scripts/mcp_tavily.mjs`     | `TAVILY_API_KEY`, `TAVILY_MOCK_SCENARIO` (tests), `TAVILY_FORCE_CRASH` (tests) | Runs a search query (POST /search) and returns JSON result. Arg string becomes query.                                                           |
+| Mem0       | `scripts/mcp_mem0.mjs`       | `MEM0_API_KEY`                                                                 | In-memory mock add/list memory commands (placeholder until real SDK).                                                                           |
+| Filesystem | `scripts/mcp_filesystem.mjs` | `MCP_FS_ROOT` (optional), `MCP_FS_MAX_BYTES`, `MCP_FS_ALLOW_WRITE_GLOBS`       | Safe scoped list/read/write/mkdir/delete/stat inside root (defaults to repo root). Prevents path escape; supports size limit & write allowlist. |
 
 ### Filesystem Server Consolidation
 
@@ -77,6 +77,9 @@ MCP_KG_MAX_TRIPLES=5000
 MCP_ERROR_METRICS=0
 MCP_ERRORS_VERBOSE=
 MCP_MAX_LINE_LEN=200000
+DISABLE_MCP_KEEPALIVE=
+TAVILY_MOCK_SCENARIO=
+TAVILY_FORCE_CRASH=
 FIREBASE_MCP_CHECK_TIMEOUT_MS=8000
 ```
 
