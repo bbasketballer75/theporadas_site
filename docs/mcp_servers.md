@@ -49,6 +49,7 @@ wait for the readiness line, and perform a trivial probe. Example:
 
 ```pwsh
 node scripts/mcp_smoke_runner.mjs
+\n
 ```
 
 Environment variables:
@@ -56,16 +57,18 @@ Environment variables:
 ```env
 SMOKE_TIMEOUT_MS=8000   # override per-server wait
 SMOKE_IGNORE_FAIL=1     # do not exit non-zero on failures
+\n
 ```
 
 Output format (columns with whitespace separation):
 
-```text
+````text
 Name       Status  Ms   Methods
 tavily     ready   123  1
 filesystem ready   85   5
 github     ready   110  4
-```
+\n
+```text
 
 Statuses include: `ready`, `timeout`, `exit-<code>`, `spawn-error`. Non-ready statuses cause exit code 1 unless ignored.
 
@@ -86,7 +89,7 @@ echo '{"jsonrpc":"2.0","id":2,"method":"kg/query","params":{"subject":"Site"}}' 
 echo '{"jsonrpc":"2.0","id":1,"method":"py/exec","params":{"code":"print(1+1)"}}' | node scripts/mcp_python.mjs
 echo '{"jsonrpc":"2.0","id":1,"method":"pw/launch"}' | node scripts/mcp_playwright.mjs
 echo '{"jsonrpc":"2.0","id":2,"method":"pt/launch"}' | node scripts/mcp_puppeteer.mjs
-```
+````
 
 ## Environment Variables
 
@@ -119,6 +122,72 @@ MCP_SERVER_NAME=custom-name # (optional) override health JSON 'server' field
 ### Environment Variable Loading & Supervisor
 
 The stub servers do NOT automatically load values from `.env` unless you invoke them
+
+### SSE Gateway
+
+An experimental SSE gateway (`scripts/mcp_sse_gateway.mjs`) provides a lightweight
+event stream and ingestion endpoint. It is not spawned by default; enable it via
+either environment variable or CLI flag:
+
+```pwsh
+# PowerShell
+$env:MCP_INCLUDE_SSE = '1'
+node scripts/mcp_supervisor.mjs
+# or prefer the explicit flag (no env mutation required):
+node scripts/mcp_supervisor.mjs --with-sse
+
+# Recommended wrapper (handles parameters & avoids common inline env pitfalls):
+pwsh scripts/run_supervisor.ps1 -WithSse
+```
+
+Versioned primary paths (default version `2024-11-05`):
+
+```text
+/model_context_protocol/2024-11-05/sse      (GET, text/event-stream)
+/model_context_protocol/2024-11-05/events   (POST, JSON ingest)
+```
+
+Stable aliases maintained for forward compatibility (all map to the active version):
+
+```text
+/model_context_protocol/latest/sse
+/model_context_protocol/sse
+/model_context_protocol/latest/events
+/model_context_protocol/events
+```
+
+Environment overrides:
+
+| Variable               | Purpose                                               | Default            |
+| ---------------------- | ----------------------------------------------------- | ------------------ |
+| `MCP_SSE_VERSION`      | Override version segment in primary paths             | `2024-11-05`       |
+| `MCP_SSE_PORT`         | Listening port                                        | `39300`            |
+| `MCP_SSE_AUTH_TOKEN`   | Optional Bearer token required for subscribers        | (empty => no auth) |
+| `MCP_SSE_INGEST_TOKEN` | Separate token for ingestion (defaults to auth token) | (inherits)         |
+| `MCP_SSE_HMAC_REDACTED_BY_AUDIT_ISSUE_70`  | Adds HMAC signature line per ingested event           | (disabled)         |
+| `MCP_SSE_HEARTBEAT_MS` | Heartbeat interval ms                                 | `15000`            |
+| `MCP_SSE_RING_MAX`     | Max retained events in ring buffer                    | `500`              |
+
+Ingest request format:
+
+```json
+{ "topic": "optional-topic", "data": { "any": "json" } }
+```
+
+Successful ingestion returns `202 Accepted` with `{ "id": <eventId> }`.
+
+### Logging Method Consistency
+
+All active servers now import `mcp_logging.mjs` to expose the JSON-RPC method:
+
+```text
+sys/setLogLevel { level: "debug" | "info" | "warn" | "error" }
+```
+
+If a client invokes `sys/setLogLevel` against an older server build lacking the
+import it will receive JSON-RPC `-32601` (method not found). After updating to the
+current version this method is uniformly available across filesystem, tavily, and other servers.
+
 through a wrapper that sources those variables first (e.g. `dotenv -e .env -- node ...` or
 your shell exporting them). The added `mcp_supervisor.mjs` intentionally avoids implicit
 `.env` parsing to keep side effects explicit.
@@ -128,6 +197,16 @@ To run the supervisor with selective servers and ensure `TAVILY_API_KEY` is pres
 ```pwsh
 $env:TAVILY_API_KEY = 'tvly-xxxxxxxx'  # PowerShell session only
 node scripts/mcp_supervisor.mjs --only tavily,fs --max-restarts 5 --backoff-ms 500-8000
+```
+
+PowerShell inline environment variable assignment differs from POSIX shells.
+Avoid using `VAR=value command` syntax (it is parsed as a separate token and
+produces errors like `=1: The term '=1' is not recognized...`). Instead set the
+variable on its own line or use the `$env:` prefix before invoking the command,
+or rely on the new `scripts/run_supervisor.ps1` wrapper:
+
+```pwsh
+pwsh scripts/run_supervisor.ps1 -Only fs,tavily,sse -HeartbeatMs 2000 -WithSse
 ```
 
 Readiness & lifecycle events are emitted as structured JSON lines, e.g.:
