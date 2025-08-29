@@ -10,8 +10,9 @@ artifacts/
 artifacts
 
 # Generated diff/report markdown artifacts (auto-created, not hand-authored)
+
 coverage-diff.md
 lighthouse-assertions-diff.md
 workflows-verify.md
 codeql_drift_report.md
-codeql_drift-*.md
+codeql_drift-\*.md
