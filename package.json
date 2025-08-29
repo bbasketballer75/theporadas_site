@@ -61,7 +61,9 @@
     "csp:audit": "node scripts/audit_csp_inlines.mjs",
     "csp:verify": "node scripts/verify_csp_diff.mjs",
     "db:test": "node scripts/db/test_connection.mjs",
-    "db:test:env": "node -r dotenv/config scripts/db/test_connection.mjs"
+    "db:test:env": "node -r dotenv/config scripts/db/test_connection.mjs",
+    "env:docs": "node scripts/generate_env_docs.mjs",
+    "env:docs:check": "node scripts/generate_env_docs.mjs --check"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
