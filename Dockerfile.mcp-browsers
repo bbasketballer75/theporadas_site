@@ -1,0 +1,29 @@
+# Browser-capable MCP image
+# Rationale: Base on Debian/Ubuntu (glibc) so Playwright provided browsers work.
+# Keep prod dependency installation consistent; add playwright+puppeteer and install browsers.
+
+FROM node:20-bookworm AS base
+ENV NODE_ENV=production
+ENV HUSKY=0
+ENV PATH=/app/node_modules/.bin:$PATH
+WORKDIR /app
+
+# System packages first (curl for healthchecks)
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates && rm -rf /var/lib/apt/lists/*
+
+# Copy manifest and strip prepare script to avoid husky during container build
+COPY package.json package-lock.json* .npmrc* ./
+RUN node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));if(p.scripts&&p.scripts.prepare){delete p.scripts.prepare;fs.writeFileSync('package.json',JSON.stringify(p,null,2));}" && \
+    npm install --omit=dev && npm cache clean --force
+
+# Install playwright & puppeteer pinned, then fetch browsers
+ARG PLAYWRIGHT_VERSION=1.48.2
+ARG PUPPETEER_VERSION=23.7.0
+RUN npm install --no-save "playwright@${PLAYWRIGHT_VERSION}" "puppeteer@${PUPPETEER_VERSION}" && \
+    node node_modules/playwright/cli.js install --with-deps
+
+# Copy application (scripts, docs, etc.)
+COPY . .
+
+# Default entrypoint (overridden per service via command)
+ENTRYPOINT ["node"]
