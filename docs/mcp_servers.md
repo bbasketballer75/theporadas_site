@@ -428,6 +428,14 @@ Adding a new secret:
 3. Document here.
 4. Add to compose service environment block.
 
+### Consolidated Environment Variable Index (Auto-Generated)
+
+The following table is auto-generated. Do not edit between the markers manually; run `npm run env:docs` to refresh.
+
+<!-- ENV_VARS_AUTO_START -->
+<!-- (will be populated by scripts/generate_env_docs.mjs) -->
+<!-- ENV_VARS_AUTO_END -->
+
 ## VS Code Extensions
 
 Recommended extensions for working with these MCP servers:

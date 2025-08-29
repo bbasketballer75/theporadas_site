@@ -3,62 +3,8 @@ import process from 'node:process';
 
 import { describe, it, expect } from 'vitest';
 
-interface FetchResponseLike {
-  ok: boolean;
-  status: number;
-  statusText: string;
-  headers: { get(name: string): string | null };
-  json(): Promise<unknown>;
-  text(): Promise<string>;
-}
-
 type MockScenario = 'success' | 'auth' | 'quota' | 'http' | 'parse' | 'network';
-
-type FetchFn = (...args: unknown[]) => Promise<FetchResponseLike>;
-
-function buildFetch(scenario: MockScenario): FetchFn {
-  return async () => {
-    if (scenario === 'network') {
-      throw new Error('simulated network failure');
-    }
-    if (scenario === 'parse') {
-      return {
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        headers: {
-          get: (n: string) => (n.toLowerCase() === 'content-type' ? 'application/json' : null),
-        },
-        async json() {
-          throw new Error('bad json');
-        },
-        async text() {
-          return 'unreachable';
-        },
-      };
-    }
-    const base = {
-      headers: {
-        get: (n: string) => (n.toLowerCase() === 'content-type' ? 'application/json' : null),
-      },
-      async json() {
-        return { results: [{ url: 'http://example.com', title: 'Example' }], query: 'q' };
-      },
-      async text() {
-        return JSON.stringify({ error: 'x' });
-      },
-    };
-    if (scenario === 'success')
-      return { ok: true, status: 200, statusText: 'OK', ...base } as FetchResponseLike;
-    if (scenario === 'auth')
-      return { ok: false, status: 401, statusText: 'Unauthorized', ...base } as FetchResponseLike;
-    if (scenario === 'quota')
-      return { ok: false, status: 429, statusText: 'Too Many', ...base } as FetchResponseLike;
-    if (scenario === 'http')
-      return { ok: false, status: 500, statusText: 'Server Error', ...base } as FetchResponseLike;
-    return { ok: true, status: 200, statusText: 'OK', ...base } as FetchResponseLike;
-  };
-}
+// Network mocking now handled by TAVILY_MOCK_SCENARIO env in server.
 
 interface TavilySuccessInnerResult {
   url: string;
@@ -90,7 +36,7 @@ interface RpcResponse {
 function runScenario(scenario: MockScenario): Promise<RpcResponse[]> {
   return new Promise((resolve) => {
     const child = spawn('node', ['scripts/mcp_tavily.mjs'], {
-      env: { ...process.env, TAVILY_API_KEY: 'test-key' },
+      env: { ...process.env, TAVILY_API_KEY: 'test-key', TAVILY_MOCK_SCENARIO: scenario },
       stdio: ['pipe', 'pipe', 'pipe'],
     });
     const responses: RpcResponse[] = [];
@@ -115,9 +61,7 @@ function runScenario(scenario: MockScenario): Promise<RpcResponse[]> {
         }
       }
     });
-    child.stdin.write(
-      'global.__MCP_FAKE_FETCH = (' + buildFetch.toString() + `)('${scenario}');\n`,
-    );
+    // no stdin injection required
     setTimeout(() => {
       try {
         child.kill();
@@ -129,7 +73,7 @@ function runScenario(scenario: MockScenario): Promise<RpcResponse[]> {
   });
 }
 
-describe('tavily server integration (mock fetch)', () => {
+describe('tavily server integration (env mock)', () => {
   it('returns success shape', async () => {
     const r = await runScenario('success');
     const resp = r.find((x) => x.id === '1');
