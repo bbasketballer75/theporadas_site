@@ -136,3 +136,23 @@ const RL_DOMAIN = defineDomain('rate-limit', RL_ERRORS);
 export function rlError(kind, extra = {}) {
   return RL_DOMAIN.error(kind, extra);
 }
+
+// GitHub domain 3100-3199
+// Purpose: standardized errors for GitHub API interactions (auth, rate limit, network, not found)
+export const GH_ERRORS = {
+  AUTH_MISSING: { code: 3100, symbol: 'E_GH_AUTH_MISSING', message: 'github token missing' },
+  AUTH_FAILED: { code: 3101, symbol: 'E_GH_AUTH_FAILED', message: 'github auth failed' },
+  NETWORK: { code: 3102, symbol: 'E_GH_NETWORK', message: 'github network error' },
+  HTTP_ERROR: { code: 3103, symbol: 'E_GH_HTTP', message: 'github http error' },
+  RATE_LIMIT: { code: 3104, symbol: 'E_GH_RATE_LIMIT', message: 'github rate limit exceeded' },
+  NOT_FOUND: { code: 3105, symbol: 'E_GH_NOT_FOUND', message: 'github resource not found' },
+  INVALID_PARAMS: {
+    code: 3106,
+    symbol: 'E_GH_INVALID_PARAMS',
+    message: 'invalid github parameters',
+  },
+};
+const GH_DOMAIN = defineDomain('github', GH_ERRORS);
+export function ghError(kind, extra = {}) {
+  return GH_DOMAIN.error(kind, extra);
+}
