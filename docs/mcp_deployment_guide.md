@@ -79,6 +79,7 @@ npm test -- --run
 | `GITHUB_TOKEN`                | (Optional) Increases GitHub rate limits when set.              |
 | `MCP_FS_ROOT`                 | Root path for custom filesystem server.                        |
 | `MCP_FS_ALLOW_WRITE_GLOBS`    | Comma/newline separated globs permitting write ops.            |
+| `FIREBASE_TOKEN`              | Enables firebase project/app methods (otherwise ping only).    |
 
 Create a `.env` file (not committed) if needed:
 
@@ -87,7 +88,53 @@ NOTION_API_KEY=xxx
 MEM0_API_KEY=xxx
 SQLSERVER_CONNECTION_STRING=Server=localhost;Database=master;User Id=sa;Password=Your_password123;Encrypt=false;
 GITHUB_TOKEN=ghp_...
+FIREBASE_TOKEN=ya29....
 ```
+
+### Obtaining & Using `FIREBASE_TOKEN`
+
+To enable full firebase method exposure (beyond `firebase/ping`):
+
+1. Install the Firebase CLI if not already present:
+
+```powershell
+npm i -g firebase-tools
+```
+
+1. Authenticate (interactive):
+
+```powershell
+firebase login
+```
+
+1. Generate a CI token (non-interactive use):
+
+```powershell
+firebase login:ci
+```
+
+Copy the emitted token and set it as `FIREBASE_TOKEN` in your environment or CI secret store.
+
+1. Re-run the smoke runner ensuring firebase is not skipped:
+
+```powershell
+$env:FIREBASE_TOKEN="<token>"
+$env:SMOKE_SKIP=''
+node scripts/mcp_smoke_runner.mjs
+```
+
+Expected firebase methods with token set (may expand over time):
+
+```json
+["firebase/ping", "firebase/projects", "firebase/apps"]
+```
+
+Without the token only `firebase/ping` appears and the smoke summary will show firebase either as
+`ready` (minimal) or `skipped` if explicitly excluded via `SMOKE_SKIP`.
+
+Integration test behavior: `firebase.integration.test.mjs` always asserts `firebase/ping`. Additional
+assertions for `projects` / `apps` execute only when `FIREBASE_TOKEN` is detected to avoid credential
+dependence in local environments.
 
 ## Docker vs Local
 

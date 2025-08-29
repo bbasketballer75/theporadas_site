@@ -212,3 +212,16 @@ Details:
   - Risk: JSONL growth over time; mitigation plan includes periodic
     compaction (derive aggregates, prune old) once file exceeds size budget
     (e.g., 5MB).
+
+- 2025-08-29: Adopt explicit commit message length rules & documentation.
+  - Rationale: Repeated commit failures due to implicit 100-char body line rule caused friction;
+    making limits explicit improves contributor onboarding, reduces trial/error, and ensures
+    consistent changelog parsing. Added detailed guidance & examples to `CONTRIBUTING.md` plus
+    rationale for selective Conventional Commit types.
+  - Implementation: Updated `commitlint.config.cjs` earlier with `body-max-line-length` and
+    supplemented docs (header/body <=100, structured examples, VS Code ruler tip). Reinforced
+    interplay with automated changelog (only feat/fix/perf types surfaced) and clarified amend vs
+    additive commit guidance post-review.
+  - Future: Consider adding automated pre-commit soft wrap checker or an `npm run commit` wrapper
+    that enforces formatting interactively; evaluate semantic-release style automation if release
+    cadence increases.
