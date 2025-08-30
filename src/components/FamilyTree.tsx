@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { hierarchy, linkVertical, select, tree, zoom } from 'd3';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -75,17 +76,21 @@ export function FamilyTree({ width = 800, height = 600, onMemberClick }: FamilyT
 
     const root = treeLayout(treeData);
 
+    // Create main group
+    const g = svg.append('g').attr('transform', `translate(${width / 2}, ${height / 2})`);
+
     // Create zoom behavior
     const zoomBehavior = zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.1, 3])
       .on('zoom', (event) => {
-        g.attr('transform', event.transform);
+        // Apply zoom transform to the main group
+        g.attr(
+          'transform',
+          `translate(${width / 2}, ${height / 2}) scale(${event.transform.k}) translate(${event.transform.x}, ${event.transform.y})`,
+        );
       });
 
     svg.call(zoomBehavior);
-
-    // Create main group
-    const g = svg.append('g').attr('transform', `translate(${width / 2}, ${height / 2})`);
 
     // Create links
     g.selectAll('.link')
@@ -93,10 +98,12 @@ export function FamilyTree({ width = 800, height = 600, onMemberClick }: FamilyT
       .enter()
       .append('path')
       .attr('class', 'link')
-      .attr(
-        'd',
-        (linkVertical() as any).x((d) => d.x).y((d) => d.y),
-      )
+      .attr('d', (d: any) => {
+        const linkGenerator = linkVertical()
+          .x((d: any) => d.x)
+          .y((d: any) => d.y);
+        return linkGenerator(d);
+      })
       .attr('fill', 'none')
       .attr('stroke', '#ccc')
       .attr('stroke-width', 2);
