@@ -1,16 +1,16 @@
-import React from 'react';
-
+import { FamilyTree } from './components/FamilyTree';
 import { Gallery } from './components/Gallery';
+import './components/gallery.css';
+import { GuestMessages } from './components/GuestMessages';
 import { HeroVideo } from './components/HeroVideo';
 import { MotionToggle } from './components/MotionToggle';
 import { SiteNav } from './components/SiteNav';
 import { ThemeToggle } from './components/ThemeToggle';
 import { VideoPlayer } from './components/VideoPlayer/VideoPlayer';
 import { getNonHeroSections } from './content/loader';
+import './designSystem.css';
 import { useHashNavigation } from './hooks/useHashNavigation';
 import { listVideos } from './video/registry';
-import './designSystem.css';
-import './components/gallery.css';
 
 export default function App() {
   // Exclude the markdown 'gallery' section because we now have a dedicated
@@ -60,6 +60,18 @@ export default function App() {
         <div className="card stack">
           <h2 id="gallery-heading">Gallery</h2>
           <Gallery headingId="gallery-heading" />
+        </div>
+      </section>
+      <section className="snap-section" aria-label="Family Tree">
+        <div className="card stack">
+          <h2 id="family-tree-heading">Family Tree</h2>
+          <FamilyTree width={800} height={600} />
+        </div>
+      </section>
+      <section className="snap-section" aria-label="Guest Messages">
+        <div className="card stack">
+          <h2 id="guest-messages-heading">Guest Messages</h2>
+          <GuestMessages />
         </div>
       </section>
       {sections.map((s) => {

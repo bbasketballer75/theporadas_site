@@ -23,6 +23,7 @@ export default [
       'lighthouse/**',
       '**/.vscode/**',
       '**/scripts/**',
+      'functions/venv/**',
     ],
   },
   {

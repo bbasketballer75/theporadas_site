@@ -2,10 +2,15 @@
 FROM node:20-alpine AS base
 WORKDIR /app
 ENV HUSKY=0
+
+# Install curl for health checks
+RUN apk add --no-cache curl
+
 COPY package.json package-lock.json* pnpm-lock.yaml* ./
 # Install only production deps (husky disabled via HUSKY=0)
 RUN if [ -f pnpm-lock.yaml ]; then npm install -g pnpm && pnpm install --prod --ignore-scripts; \
     else npm install --omit=dev --ignore-scripts; fi
+COPY .env ./.env
 COPY scripts ./scripts
 COPY src ./src
 COPY docs ./docs
