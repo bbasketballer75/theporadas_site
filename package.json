@@ -35,7 +35,7 @@
     "changelog:unreleased": "conventional-changelog -p angular -u -o CHANGELOG.md",
     "changelog:release": "conventional-changelog -p angular -r 0 -o CHANGELOG.md && git add CHANGELOG.md",
     "changelog:print": "conventional-changelog -p angular -r 0",
-    "prepare": "husky install",
+    "prepare": "husky",
     "db:up": "docker compose up -d mssql",
     "db:down": "docker compose down -v",
     "db:seed": "node --loader ts-node/esm scripts/db/seed.ts",
