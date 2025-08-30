@@ -1,0 +1,16 @@
+# Cloud Run dependencies for The Poradas Wedding Website
+firebase_admin~=6.0.0
+
+# Web framework for Cloud Run deployment
+flask~=3.0.0
+
+# Image processing
+pillow~=10.0.0
+requests~=2.31.0
+
+# Data processing and utilities
+python-dateutil>=2.8.0
+python-dotenv~=1.0.0
+
+# For logging and monitoring
+structlog>=23.0.0

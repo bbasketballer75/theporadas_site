@@ -1,6 +1,5 @@
-import { render, fireEvent } from '@testing-library/react';
-import React from 'react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { act, fireEvent, render } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { LazyVideoPlayer } from '../src/components/VideoPlayer/LazyVideoPlayer';
 import { VideoPlayer } from '../src/components/VideoPlayer/VideoPlayer';
@@ -46,10 +45,12 @@ describe('Video players', () => {
     expect(getByRole('img', { name: /waiting/i })).toBeTruthy();
     const IOCls = (globalThis as unknown as { IntersectionObserver: typeof IOStub })
       .IntersectionObserver as unknown as typeof IOStub & { instances: IOStub[] };
-    IOCls.instances.forEach((inst) => inst.triggerAll());
+    act(() => {
+      IOCls.instances.forEach((inst) => inst.triggerAll());
+    });
   });
 
-  it('VideoPlayer selects quality heuristic and emits chapters + deprecation warning', () => {
+  it('VideoPlayer selects quality heuristic and emits chapters + deprecation warning', async () => {
     // Force network conditions
     (navigator as unknown as { connection?: unknown }).connection = {
       downlink: 5,
@@ -76,12 +77,16 @@ describe('Video players', () => {
     );
     const video = container.querySelector('video')!;
     // Simulate media events
-    ['loadedmetadata', 'play', 'timeupdate'].forEach((evt) => {
-      fireEvent(video, new Event(evt));
+    await act(async () => {
+      ['loadedmetadata', 'play', 'timeupdate'].forEach((evt) => {
+        fireEvent(video, new Event(evt));
+      });
     });
     // Chapters navigation
     const middleBtn = getByText('Middle');
-    fireEvent.click(middleBtn);
+    await act(async () => {
+      fireEvent.click(middleBtn);
+    });
     expect(warn).toHaveBeenCalled();
     expect(events).toContain('play');
     expect(events).toContain('timeupdate');
