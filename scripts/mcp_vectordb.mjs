@@ -9,6 +9,7 @@
 // Cosine similarity (default). Data persisted to VECTOR_DB_PATH (default: .vectordb.jsonl).
 
 import './load_env.mjs';
+import './mcp_logging.mjs';
 import { createServer, appError } from './mcp_rpc_base.mjs';
 import { writeFileSync, appendFileSync, readFileSync, existsSync } from 'fs';
 import { randomUUID } from 'crypto';

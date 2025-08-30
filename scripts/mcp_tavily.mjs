@@ -4,15 +4,21 @@
 // Emits structured domain errors via tvError helper.
 
 import './load_env.mjs';
+import './mcp_logging.mjs';
 import fetchOrig from 'node-fetch';
 import { createServer } from './mcp_rpc_base.mjs';
 import { tvError } from './mcp_error_codes.mjs';
 
 const API_URL = process.env.TAVILY_API_URL || 'https://api.tavily.com/search';
 
-// Ensure API key presence at startup so supervisor detects failure immediately when absent.
-// Previous behavior lazily checked on first request, causing supervisor tests expecting give-up to fail.
-const _eagerKey = process.env.TAVILY_API_KEY ? null : (() => requireKey())();
+// Ensure API key presence at startup unless running in optional mode (TAVILY_OPTIONAL=1).
+// In optional mode we keep the process alive and register a stub method that returns
+// an AUTH_FAILED style domain error so dependent tooling can degrade gracefully
+// without triggering supervisor give-up cycles.
+const TAVILY_OPTIONAL = process.env.TAVILY_OPTIONAL === '1';
+if (!TAVILY_OPTIONAL) {
+  const _eagerKey = process.env.TAVILY_API_KEY ? null : (() => requireKey())();
+}
 
 // Optional forced crash for supervisor testing: if set, exit immediately non-zero after emitting a diagnostic line.
 if (process.env.TAVILY_FORCE_CRASH === '1') {
@@ -23,7 +29,10 @@ if (process.env.TAVILY_FORCE_CRASH === '1') {
 function requireKey() {
   const key = process.env.TAVILY_API_KEY;
   if (!key) {
-    // Emit structured error then exit non-zero so supervisor can apply give-up logic.
+    if (TAVILY_OPTIONAL) {
+      return null; // caller must handle null (stub path below)
+    }
+    // Emit structured error then exit non-zero so supervisor can apply give-up logic when not optional.
     process.stderr.write('Tavily API key missing (TAVILY_API_KEY)\n');
     process.exit(12); // distinct non-zero
   }
@@ -148,5 +157,14 @@ async function tavilySearch(params = {}) {
 }
 
 createServer(({ register }) => {
+  if (TAVILY_OPTIONAL && !process.env.TAVILY_API_KEY) {
+    register('tv/search', () => {
+      throw tvError('AUTH_FAILED', { details: 'Tavily API key not configured (optional mode)' });
+    });
+    process.stderr.write(
+      '[tavily] Started in optional mode without API key; tv/search will return AUTH_FAILED.\n',
+    );
+    return;
+  }
   register('tv/search', tavilySearch);
 });

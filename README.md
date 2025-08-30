@@ -1,4 +1,4 @@
-# theporadas.com — Post‑Wedding Narrative & Video Site
+/# theporadas.com — Post‑Wedding Narrative & Video Site
 
 Post‑wedding narrative & video experience. Primary hero video followed by curated
 story sections in enforced order: Story → Rings → Wedding Party → additional
@@ -24,6 +24,10 @@ comparisons, and coverage diff gating.
 
 ![CI Verify](https://github.com/bbasketballer75/theporadas_site/actions/workflows/ci.yml/badge.svg)
 ![Uptime (prod) Placeholder](https://img.shields.io/badge/uptime-configuring-lightgrey)
+
+_Uptime monitoring integration in progress — see `docs/uptime_monitor.md` for setup
+instructions and replace this placeholder badge once the external monitor is
+created._
 
 > Replace the uptime placeholder after creating an UptimeRobot monitor:
 >

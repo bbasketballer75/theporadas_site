@@ -2,6 +2,7 @@
 // Persistent minimal MCP server for Notion. Provides two stub JSON-RPC methods:
 // notion/listDatabases and notion/retrievePage. Emits standard {type:'ready'} for harness.
 import './load_env.mjs';
+import './mcp_logging.mjs';
 import { Client } from '@notionhq/client';
 
 if (!process.env.NOTION_API_KEY) {
