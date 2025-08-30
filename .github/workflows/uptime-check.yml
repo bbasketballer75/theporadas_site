@@ -1,0 +1,53 @@
+name: Uptime Check
+
+on:
+  schedule:
+    - cron: '*/30 * * * *' # every 30 minutes (external monitor covers 5m granularity)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Curl production
+        id: curl
+        run: |
+          URL="https://theporadas-site.vercel.app/"
+          start=$(date +%s%3N)
+          # -L follow redirects, -s silent, -S show errors, -w write metrics, capture HTTP status
+          out=$(curl -L -o /dev/null -s -S -w '%{http_code} %{time_connect} %{time_starttransfer} %{time_total}' "$URL" || echo '000 0 0 0')
+          code=$(echo "$out" | awk '{print $1}')
+          connect_ms=$(echo "$out" | awk '{printf("%.0f", $2*1000)}')
+          ttfb_ms=$(echo "$out" | awk '{printf("%.0f", $3*1000)}')
+          total_ms=$(echo "$out" | awk '{printf("%.0f", $4*1000)}')
+          echo "code=$code" >> $GITHUB_OUTPUT
+          echo "connect_ms=$connect_ms" >> $GITHUB_OUTPUT
+          echo "ttfb_ms=$ttfb_ms" >> $GITHUB_OUTPUT
+          echo "total_ms=$total_ms" >> $GITHUB_OUTPUT
+          echo "HTTP $code in ${total_ms}ms (connect ${connect_ms}ms, TTFB ${ttfb_ms}ms)"
+          # Basic guards
+          if [ "$code" != "200" ]; then
+            echo "::error::Unexpected status code $code"; exit 1;
+          fi
+          # Soft latency thresholds (adjust later if needed)
+          if [ "$ttfb_ms" -gt 1500 ]; then
+            echo "::warning::High TTFB ${ttfb_ms}ms (>1500ms)";
+          fi
+          if [ "$total_ms" -gt 4000 ]; then
+            echo "::error::High total load time ${total_ms}ms (>4000ms)"; exit 1;
+          fi
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Uptime Probe" >> $GITHUB_STEP_SUMMARY
+          echo "Status: ${{ steps.curl.outputs.code }}" >> $GITHUB_STEP_SUMMARY
+          echo "Connect: ${{ steps.curl.outputs.connect_ms }}ms" >> $GITHUB_STEP_SUMMARY
+          echo "TTFB: ${{ steps.curl.outputs.ttfb_ms }}ms" >> $GITHUB_STEP_SUMMARY
+          echo "Total: ${{ steps.curl.outputs.total_ms }}ms" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ job.status }}" != "success" ]; then
+            echo "\n:warning: Probe failed or degraded." >> $GITHUB_STEP_SUMMARY
+          fi
