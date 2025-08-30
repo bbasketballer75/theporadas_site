@@ -40,5 +40,36 @@
   "[dockerfile]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-containers"
   },
-  "cSpell.words": ["Autobuild"]
+  "cSpell.words": ["Autobuild", "tavily", "TAVILY", "tvsearch"],
+  // Enhanced settings for better development experience
+  "files.eol": "\n",
+  "eslint.format.enable": true,
+  "git.confirmSync": false,
+  "github.copilot.inlineSuggest.enable": true,
+  "github.copilot.chat.codeSelection": "expanded",
+  "vitest.enable": true,
+  "vitest.showNodeProcessStack": true,
+  // PowerShell formatting for scripts
+  "[powershell]": {
+    "editor.defaultFormatter": "ms-vscode.powershell",
+    "editor.formatOnSave": true
+  },
+  // Ensure consistent formatting
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  // Better search and file handling
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.git": true,
+    "**/coverage": true,
+    "**/*.log": true
+  },
+  // Enhanced TypeScript support
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always"
 }

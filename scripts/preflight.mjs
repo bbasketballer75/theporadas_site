@@ -19,6 +19,36 @@ for (let i = 0; i < args.length; i++) {
 
 console.log('Preflight Validation Report');
 
+// Environment variable checks for MCP servers
+const envChecks = [
+  { name: 'TAVILY_API_KEY', required: false, description: 'Tavily search API key (optional if TAVILY_OPTIONAL=1)' },
+  { name: 'NOTION_API_KEY', required: true, description: 'Notion API integration token' },
+  { name: 'MEM0_API_KEY', required: true, description: 'Mem0 memory service API key' },
+  { name: 'SQLSERVER_CONNECTION_STRING', required: true, description: 'SQL Server connection string' },
+  { name: 'FIREBASE_TOKEN', required: false, description: 'Firebase CLI token (optional for basic ping)' },
+  { name: 'GCLOUD_TOKEN', required: false, description: 'Google Cloud token (alternative to FIREBASE_TOKEN)' },
+  { name: 'GITHUB_TOKEN', required: false, description: 'GitHub API token (optional for public repos)' },
+  { name: 'PIECES_API_KEY', required: false, description: 'Pieces API key (optional for basic operations)' },
+  { name: 'VECTOR_DB_PATH', required: false, description: 'Vector database file path (defaults to .vectordb.jsonl)' },
+  { name: 'MCP_SSE_PORT', required: false, description: 'SSE gateway port (defaults to 39300)' },
+  { name: 'MCP_SSE_AUTH_TOKEN', required: false, description: 'SSE authentication token (optional)' },
+  { name: 'MCP_SSE_INGEST_TOKEN', required: false, description: 'SSE ingestion token (optional)' },
+  { name: 'MCP_SSE_HMAC_REDACTED_BY_AUDIT_ISSUE_70', required: false, description: 'SSE HMAC secret for integrity (optional)' },
+];
+
+console.log('\n--- Environment Variable Checks ---');
+let envOk = true;
+for (const check of envChecks) {
+  const value = process.env[check.name];
+  const hasValue = Boolean(value && value.trim());
+  const status = hasValue ? '✓' : (check.required ? '✗ MISSING' : '⚠ OPTIONAL');
+
+  console.log(`${status} ${check.name}: ${check.description}`);
+  if (check.required && !hasValue) {
+    envOk = false;
+  }
+}
+
 const steps = lightMode
   ? [
       { name: 'Lint', cmd: ['echo', '(light) lint skipped'] },
@@ -60,6 +90,14 @@ const diagnostics = {
       }
     })(),
   },
+  environmentVariables: envChecks.reduce((acc, check) => {
+    acc[check.name] = {
+      present: Boolean(process.env[check.name]),
+      required: check.required,
+      description: check.description
+    };
+    return acc;
+  }, {}),
 };
 
 if (jsonPath) {
@@ -70,7 +108,7 @@ if (jsonPath) {
   }
 }
 
-if (!ok) {
+if (!ok || !envOk) {
   console.error('\nPreflight failed. Fix issues above.');
   process.exit(1);
 }

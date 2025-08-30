@@ -37,13 +37,20 @@ function startSupervisor() {
 
 function fetchSSE(path) {
   return new Promise((resolve, reject) => {
-    http
-      .get({ host: '127.0.0.1', port: 39600, path }, (res) => {
-        let body = '';
-        res.on('data', (c) => (body += c.toString()));
-        res.on('end', () => resolve({ status: res.statusCode, headers: res.headers, body }));
-      })
-      .on('error', reject);
+    const req = http.get({ host: '127.0.0.1', port: 39600, path }, (res) => {
+      let body = '';
+      res.on('data', (c) => (body += c.toString()));
+      // Resolve after short window; then destroy to end stream
+      setTimeout(() => {
+        resolve({ status: res.statusCode, headers: res.headers, body });
+        try {
+          req.destroy();
+        } catch {
+          // ignore destroy errors
+        }
+      }, 180);
+    });
+    req.on('error', reject);
   });
 }
 
@@ -56,7 +63,7 @@ describe('supervisor + sse alias endpoints', () => {
     try {
       proc.kill();
     } catch {
-      /* ignore */
+      // ignore
     }
     for (const r of results) {
       expect(r.status).toBe(200);
