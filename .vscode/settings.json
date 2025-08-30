@@ -10,14 +10,9 @@
   "python.envFile": "${workspaceFolder}/.env",
   "python.defaultInterpreterPath": "python",
   "python.terminal.activateEnvironment": false,
-  "python.venvFolders": [
-    "venv",
-    ".venv"
-  ],
+  "python.venvFolders": ["venv", ".venv"],
   "python.venvPath": "",
-  "python.experiments.optInto": [
-    "pythonTerminalEnvVarActivation"
-  ],
+  "python.experiments.optInto": ["pythonTerminalEnvVarActivation"],
   "python.workspaceSymbols.enabled": false,
   "python.analysis.autoImportCompletions": false,
   "python.analysis.exclude": [
@@ -53,12 +48,7 @@
   "[dockerfile]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-containers"
   },
-  "cSpell.words": [
-    "Autobuild",
-    "tavily",
-    "TAVILY",
-    "tvsearch"
-  ],
+  "cSpell.words": ["Autobuild", "tavily", "TAVILY", "tvsearch"],
   // Enhanced settings for better development experience
   "files.eol": "\n",
   "eslint.format.enable": true,
@@ -89,5 +79,7 @@
   // Enhanced TypeScript support
   "typescript.preferences.includePackageJsonAutoImports": "auto",
   "typescript.suggest.autoImports": true,
-  "typescript.updateImportsOnFileMove.enabled": "always"
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "python-envs.defaultEnvManager": "ms-python.python:system",
+  "python-envs.pythonProjects": []
 }

@@ -3,11 +3,10 @@
 // Compares local .github/workflows files to remote GitHub repository workflows via REST API.
 // Outputs JSON + Markdown artifacts and provides exit codes for CI enforcement.
 
+import { spawnSync } from 'child_process';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { spawnSync } from 'child_process';
-import 'dotenv/config'; // loads .env if present (non-fatal if missing)
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
