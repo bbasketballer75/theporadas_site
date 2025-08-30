@@ -1,6 +1,7 @@
 [
   { "name": "fs", "cmd": "node", "args": ["scripts/mcp_filesystem.mjs"] },
   { "name": "tavily", "cmd": "node", "args": ["scripts/mcp_tavily.mjs"], "maxRestarts": 5 },
+  { "name": "sse", "cmd": "node", "args": ["scripts/mcp_sse_gateway.mjs"], "maxRestarts": 3 },
   { "name": "notion", "cmd": "node", "args": ["scripts/mcp_notion.mjs"], "maxRestarts": 3 },
   { "name": "mem0", "cmd": "node", "args": ["scripts/mcp_mem0.mjs"], "maxRestarts": 3 },
   { "name": "sqlserver", "cmd": "node", "args": ["scripts/mcp_sqlserver.mjs"], "maxRestarts": 3 },
@@ -19,5 +20,34 @@
   { "name": "github", "cmd": "node", "args": ["scripts/mcp_github.mjs"], "maxRestarts": 2 },
   { "name": "vectordb", "cmd": "node", "args": ["scripts/mcp_vectordb.mjs"], "maxRestarts": 2 },
   { "name": "scheduler", "cmd": "node", "args": ["scripts/mcp_scheduler.mjs"], "maxRestarts": 2 },
-  { "name": "secrets", "cmd": "node", "args": ["scripts/mcp_secrets.mjs"], "maxRestarts": 2 }
+  { "name": "secrets", "cmd": "node", "args": ["scripts/mcp_secrets.mjs"], "maxRestarts": 2 },
+  {
+    "name": "errorCodes",
+    "cmd": "node",
+    "args": ["scripts/mcp_error_codes.mjs"],
+    "maxRestarts": 1
+  },
+  { "name": "events", "cmd": "node", "args": ["scripts/mcp_events.mjs"], "maxRestarts": 1 },
+  {
+    "name": "healthcheck",
+    "cmd": "node",
+    "args": ["scripts/mcp_healthcheck.mjs"],
+    "maxRestarts": 1
+  },
+  { "name": "logging", "cmd": "node", "args": ["scripts/mcp_logging.mjs"], "maxRestarts": 1 },
+  { "name": "rateLimit", "cmd": "node", "args": ["scripts/mcp_rate_limit.mjs"], "maxRestarts": 1 },
+  { "name": "rpcBase", "cmd": "node", "args": ["scripts/mcp_rpc_base.mjs"], "maxRestarts": 1 },
+  {
+    "name": "testMetrics",
+    "cmd": "node",
+    "args": ["scripts/mcp_test_metrics.mjs"],
+    "maxRestarts": 1
+  },
+  { "name": "smokeTest", "cmd": "node", "args": ["scripts/mcp_smoke_test.mjs"], "maxRestarts": 1 },
+  {
+    "name": "smokeRunner",
+    "cmd": "node",
+    "args": ["scripts/mcp_smoke_runner.mjs"],
+    "maxRestarts": 1
+  }
 ]

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Puppeteer MCP server using shared harness
+import './mcp_logging.mjs';
 import { register, createServer } from './mcp_rpc_base.mjs';
 import { ptError } from './mcp_error_codes.mjs';
 let puppeteer;

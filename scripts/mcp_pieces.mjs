@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Pieces MCP server: provides minimal integration placeholder.
 // Extend with real Pieces API interactions once SDK or HTTP endpoints integrated.
+import './mcp_logging.mjs';
 import { register, createServer } from './mcp_rpc_base.mjs';
 import { appError } from './mcp_rpc_base.mjs';
 
