@@ -10,6 +10,7 @@
 // Cron supports minute-level patterns: "*/5" meaning every 5 minutes.
 
 import './load_env.mjs';
+import './mcp_logging.mjs';
 import { createServer, appError } from './mcp_rpc_base.mjs';
 import { randomUUID } from 'crypto';
 

@@ -8,6 +8,7 @@
 // Requires GITHUB_TOKEN (fine-grained or classic) for authenticated requests; unauth OK for public repo reads.
 
 import './load_env.mjs';
+import './mcp_logging.mjs';
 import fetch from 'node-fetch';
 import { createServer, appError } from './mcp_rpc_base.mjs';
 import { ghError } from './mcp_error_codes.mjs'; // Domain-specific error helper.

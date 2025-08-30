@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Persistent minimal MCP server for SQL Server. Provides sql/query method.
 import './load_env.mjs';
+import './mcp_logging.mjs';
 import sql from 'mssql';
 
 if (!process.env.SQLSERVER_CONNECTION_STRING) {

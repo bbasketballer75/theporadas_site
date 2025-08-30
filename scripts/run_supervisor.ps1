@@ -1,10 +1,10 @@
 param(
-  [string]$Only = 'fs,tavily,sse',
-  [int]$HeartbeatMs = 4000,
-  [switch]$WithSse,
-  [switch]$FailFast,
-  [int]$MaxRestarts = 3,
-  [string]$Backoff = '500-4000'
+    [string]$Only = 'fs,tavily,sse',
+    [int]$HeartbeatMs = 4000,
+    [switch]$WithSse,
+    [switch]$FailFast,
+    [int]$MaxRestarts = 3,
+    [string]$Backoff = '500-4000'
 )
 
 $ErrorActionPreference = 'Stop'
