@@ -29,7 +29,10 @@ async function runFirebase(args) {
       if (code === 0) {
         try {
           resolve(JSON.parse(out));
-        } catch (_) {
+        } catch (parseError) {
+          console.warn(
+            `Firebase MCP: Failed to parse JSON response: ${parseError.message}, returning raw output`,
+          );
           resolve({ raw: out });
         }
       } else {

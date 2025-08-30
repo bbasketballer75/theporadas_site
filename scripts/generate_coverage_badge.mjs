@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
 // Simple color scale (adjustable)
@@ -35,7 +35,7 @@ function main() {
   // Approximate character width mapping (rough, monospace-ish simplification)
   const charWidth = (ch) => {
     if (/[il1]/.test(ch)) return 4;
-    if (/[0-9]/.test(ch)) return 7;
+    if (/\d/.test(ch)) return 7;
     if (ch === '%') return 7;
     if (ch === ' ') return 3;
     return 7; // default average

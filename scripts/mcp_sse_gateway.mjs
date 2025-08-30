@@ -4,8 +4,8 @@
 // /model_context_protocol/2024-11-05/sse receive a 200 instead of 404.
 // Future: multiplex multiple child MCP processes & forward events.
 
-import http from 'node:http';
 import crypto from 'node:crypto';
+import http from 'node:http';
 import process from 'node:process';
 
 const PORT = parseInt(process.env.MCP_SSE_PORT || '39300', 10);
@@ -35,7 +35,7 @@ const HMAC_REDACTED_BY_AUDIT_ISSUE_70 = process.env.MCP_SSE_HMAC_REDACTED_BY_AUD
 
 // In-memory state
 let nextId = 1;
-const ring = []; // {id, topic, data, ts}
+const ring = [];
 const clients = new Set(); // { res, topics:Set<string>, bytes, connectedTs }
 
 // Metrics counters
@@ -60,7 +60,7 @@ function writeEvent(res, evt) {
     block += '\n';
     res.write(block);
     return Buffer.byteLength(block);
-  } catch (e) {
+  } catch {
     return 0;
   }
 }
@@ -209,7 +209,7 @@ const server = http.createServer((req, res) => {
         deliver(evt);
         res.writeHead(202, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ id: evt.id }));
-      } catch (e) {
+      } catch {
         res.writeHead(400, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'invalid_json' }));
       }

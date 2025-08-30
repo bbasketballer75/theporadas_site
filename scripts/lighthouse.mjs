@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
-import { resolve } from 'node:path';
 
 // Simple Lighthouse runner: builds site, starts preview (Vite), runs lighthouse against localhost
 const PORT = process.env.LH_PORT || 5174;

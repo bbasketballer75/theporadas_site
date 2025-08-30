@@ -7,11 +7,12 @@
 //  gh/rateLimit -> remaining core rate limit
 // Requires GITHUB_TOKEN (fine-grained or classic) for authenticated requests; unauth OK for public repo reads.
 
+import fetch from 'node-fetch';
 import './load_env.mjs';
 import './mcp_logging.mjs';
-import fetch from 'node-fetch';
-import { createServer, appError } from './mcp_rpc_base.mjs';
+
 import { ghError } from './mcp_error_codes.mjs'; // Domain-specific error helper.
+import { createServer } from './mcp_rpc_base.mjs';
 
 const API = process.env.GITHUB_API_URL || 'https://api.github.com';
 const token = process.env.GITHUB_TOKEN || '';
@@ -62,7 +63,7 @@ async function repoMeta(p) {
 async function listIssues(p) {
   if (!p?.owner || !p?.repo) throw ghError('INVALID_PARAMS', { details: 'owner/repo required' });
   const state = p.state && ['open', 'closed', 'all'].includes(p.state) ? p.state : 'open';
-  const { json, res } = await ghFetch(
+  const { json } = await ghFetch(
     `/repos/${encodeURIComponent(p.owner)}/${encodeURIComponent(p.repo)}/issues?per_page=20&state=${state}`,
   );
   const issues = (json || [])

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 
 /*
   Enforce quality gates before enabling auto-merge.
@@ -137,7 +137,8 @@ async function loadLighthouseAssertions() {
     if (existsSync(p)) {
       try {
         return JSON.parse(await readFile(p, 'utf8'));
-      } catch {
+      } catch (error) {
+        console.warn(`[enforce-gating] Failed to parse JSON from ${p}: ${error.message}`);
         // ignore parse error and continue
       }
     }
@@ -156,7 +157,8 @@ async function loadPreviousCoverage() {
     try {
       const data = JSON.parse(await readFile(p, 'utf8'));
       if (data.total) return data.total;
-    } catch {
+    } catch (error) {
+      console.warn(`[enforce-gating] Failed to parse JSON from ${p}: ${error.message}`);
       // continue
     }
   }
@@ -168,7 +170,8 @@ async function loadTokenDeltas() {
   if (!existsSync(path)) return null;
   try {
     return JSON.parse(await readFile(path, 'utf8'));
-  } catch {
+  } catch (error) {
+    console.warn(`[enforce-gating] Failed to parse token deltas from ${path}: ${error.message}`);
     return null;
   }
 }
@@ -185,7 +188,8 @@ async function loadBundleSizes(previous = false) {
     if (!existsSync(p)) continue;
     try {
       return JSON.parse(await readFile(p, 'utf8'));
-    } catch {
+    } catch (error) {
+      console.warn(`[enforce-gating] Failed to parse bundle sizes from ${p}: ${error.message}`);
       // continue
     }
   }
@@ -223,40 +227,69 @@ function checkLighthouseCategories(currentAssertions) {
 }
 
 function analyzeLighthouseDiff(diffText) {
-  if (!diffText)
+  if (!diffText) {
     return [{ level: 'warn', message: 'No Lighthouse diff found; skipping diff regression gate.' }];
-  if (diffText.includes('No differences detected.'))
-    return [{ level: 'ok', message: 'No Lighthouse differences.' }];
-  // simple parse: look at Category Score Changes table
-  const lines = diffText.split(/\r?\n/);
-  const tableStart = lines.findIndex((l) => l.startsWith('| Category |'));
-  const failures = [];
-  if (tableStart !== -1) {
-    for (let i = tableStart + 2; i < lines.length; i++) {
-      const line = lines[i];
-      if (!line.startsWith('|')) break;
-      const cells = line
-        .split('|')
-        .map((c) => c.trim())
-        .filter(Boolean);
-      // cells: Category, Prev, Curr, Delta (may include emoji)
-      if (cells.length < 4) continue;
-      const category = cells[0];
-      const deltaCell = cells[3];
-      const deltaMatch = deltaCell.match(/(-?\d+\.\d+)/);
-      if (!deltaMatch) continue;
-      const delta = parseFloat(deltaMatch[1]);
-      if (delta < -LH_CATEGORY_TOLERANCE) {
-        failures.push({
-          level: 'error',
-          message: `Lighthouse category ${category} regressed delta ${delta}`,
-        });
-      }
-    }
   }
+  if (diffText.includes('No differences detected.')) {
+    return [{ level: 'ok', message: 'No Lighthouse differences.' }];
+  }
+
+  const failures = parseLighthouseTable(diffText);
   return failures.length
     ? failures
     : [{ level: 'ok', message: 'Lighthouse diff within tolerated bounds.' }];
+}
+
+function parseLighthouseTable(diffText) {
+  const lines = diffText.split(/\r?\n/);
+  const tableStart = lines.findIndex((l) => l.startsWith('| Category |'));
+  const failures = [];
+
+  if (tableStart !== -1) {
+    processTableRows(lines, tableStart, failures);
+  }
+
+  return failures;
+}
+
+function processTableRows(lines, tableStart, failures) {
+  for (let i = tableStart + 2; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line.startsWith('|')) break;
+
+    const cells = parseTableCells(line);
+    if (cells.length < 4) continue;
+
+    const failure = checkCategoryRegression(cells);
+    if (failure) {
+      failures.push(failure);
+    }
+  }
+}
+
+function parseTableCells(line) {
+  return line
+    .split('|')
+    .map((c) => c.trim())
+    .filter(Boolean);
+}
+
+function checkCategoryRegression(cells) {
+  const category = cells[0];
+  const deltaCell = cells[3];
+  const deltaMatch = deltaCell.match(/(-?\d+\.\d+)/);
+
+  if (!deltaMatch) return null;
+
+  const delta = parseFloat(deltaMatch[1]);
+  if (delta < -LH_CATEGORY_TOLERANCE) {
+    return {
+      level: 'error',
+      message: `Lighthouse category ${category} regressed delta ${delta}`,
+    };
+  }
+
+  return null;
 }
 
 function checkLighthouseMetrics(assertions) {
@@ -313,9 +346,10 @@ function checkTokenGrowth(data) {
   return issues.length ? issues : [{ level: 'ok', message: 'Token growth within limits.' }];
 }
 
-function formatKb(bytes) {
-  if (typeof bytes !== 'number') return 'n/a';
-  return (bytes / 1024).toFixed(2) + 'KB';
+function getLogLevelTag(level) {
+  if (level === 'error') return 'ERROR';
+  if (level === 'warn') return 'WARN';
+  return 'OK';
 }
 
 function bundleDeltaMessages(prev, curr) {
@@ -426,7 +460,7 @@ function bundleDeltaMessages(prev, curr) {
     ...bundleResults,
   ];
   for (const r of all) {
-    const tag = r.level === 'error' ? 'ERROR' : r.level === 'warn' ? 'WARN' : 'OK';
+    const tag = getLogLevelTag(r.level);
     console.log(`[gate][${tag}] ${r.message}`);
   }
   const failed = all.some((r) => r.level === 'error');

@@ -8,11 +8,12 @@
 //  vec/reset -> { cleared }
 // Cosine similarity (default). Data persisted to VECTOR_DB_PATH (default: .vectordb.jsonl).
 
+import { randomUUID } from 'crypto';
+import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'fs';
 import './load_env.mjs';
 import './mcp_logging.mjs';
-import { createServer, appError } from './mcp_rpc_base.mjs';
-import { writeFileSync, appendFileSync, readFileSync, existsSync } from 'fs';
-import { randomUUID } from 'crypto';
+
+import { appError, createServer } from './mcp_rpc_base.mjs';
 
 const path = process.env.VECTOR_DB_PATH || '.vectordb.jsonl';
 let dim = null;
@@ -27,7 +28,9 @@ function load() {
       if (!obj.id || !Array.isArray(obj.vector)) continue;
       if (dim == null) dim = obj.vector.length;
       store.set(obj.id, { vector: Float64Array.from(obj.vector), metadata: obj.metadata });
-    } catch (_) {}
+    } catch {
+      // Skip invalid JSON lines
+    }
   }
 }
 
@@ -87,7 +90,7 @@ createServer(({ register }) => {
     for (const it of p.items.slice(0, 1000)) {
       try {
         added.push(addOne(it));
-      } catch (e) {
+      } catch {
         /* skip invalid */
       }
     }

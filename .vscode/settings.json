@@ -1,5 +1,5 @@
 {
-  "github.copilotChat.model": "gpt-5",
+  "github.copilotChat.model": "Grok Code Fast 1 (Preview)",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "github.copilot.enable": {
@@ -67,6 +67,17 @@
     "source.fixAll.eslint": "explicit",
     "source.organizeImports": "explicit"
   },
+  // Performance optimizations
+  "editor.largeFileOptimizations": true,
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/coverage/**": true,
+    "**/.tmp/**": true
+  },
   // Better search and file handling
   "search.exclude": {
     "**/node_modules": true,
@@ -74,12 +85,26 @@
     "**/build": true,
     "**/.git": true,
     "**/coverage": true,
-    "**/*.log": true
+    "**/*.log": true,
+    "**/.tmp/**": true
   },
   // Enhanced TypeScript support
   "typescript.preferences.includePackageJsonAutoImports": "auto",
   "typescript.suggest.autoImports": true,
   "typescript.updateImportsOnFileMove.enabled": "always",
+  // Additional productivity enhancements
+  "editor.suggest.showKeywords": false,
+  "editor.suggest.showSnippets": true,
+  "editor.quickSuggestions": {
+    "other": "on",
+    "comments": "off",
+    "strings": "on"
+  },
+  "editor.parameterHints.enabled": true,
+  "editor.hover.enabled": true,
+  "workbench.editor.enablePreview": false,
+  "workbench.editor.showTabs": "multiple",
+  "workbench.quickOpen.closeOnFocusLost": false,
   "python-envs.defaultEnvManager": "ms-python.python:system",
   "python-envs.pythonProjects": []
 }

@@ -17,10 +17,9 @@ async function main() {
     const rows = await client.query<{ Id: number }>('SELECT TOP 1 Id FROM Guest');
     if (rows.length === 0) {
       await client.query("INSERT INTO Guest (Name) VALUES ('Alice'), ('Bob'), ('Charlie')");
-      // eslint-disable-next-line no-console
+
       console.log('Seeded Guest table with sample data');
     } else {
-      // eslint-disable-next-line no-console
       console.log('Guest table already has data; skipping inserts');
     }
   } finally {
@@ -29,7 +28,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  // eslint-disable-next-line no-console
   console.error('Seed failed:', err);
   process.exitCode = 1;
 });

@@ -1,15 +1,13 @@
 #!/usr/bin/env node
-import { readFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
 import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import url from 'node:url';
 
 // Configurable expectations
 const ROOT = path.resolve(process.cwd());
 const REGISTRY_PATH = path.join(ROOT, 'src', 'video', 'registry.ts');
 const MEDIA_ROOT = path.join(ROOT, 'media');
-const ENCODED_PREFIX = '/media/'; // paths in registry are public web paths
 
 const EXPECTED_CODECS = ['h264', 'hevc', 'av01', 'vp9']; // expandable
 const MAX_DIMENSIONS = { width: 3840, height: 2160 }; // guardrail
@@ -134,7 +132,6 @@ async function main() {
   log(`Found ${sources.length} unique video source(s) in registry.`);
   const results = [];
   for (const src of sources) {
-    // eslint-disable-next-line no-await-in-loop
     const r = await validateFile(src);
     results.push(r);
     if (r.ok) {

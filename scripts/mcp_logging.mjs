@@ -2,8 +2,8 @@
 // Exposes method: sys/setLogLevel { level } returning { level }
 // Levels: debug, info, warn, error
 
-import { register } from './mcp_rpc_base.mjs';
 import { emitEvent } from './mcp_events.mjs';
+import { register } from './mcp_rpc_base.mjs';
 
 let currentLevel = process.env.MCP_LOG_LEVEL || 'info';
 const levels = ['debug', 'info', 'warn', 'error'];
@@ -34,10 +34,12 @@ export function registerLogLevelMethod() {
         if (previous !== currentLevel) {
           emitEvent('log/level', { previous, current: currentLevel });
         }
-      } catch {}
+      } catch (error) {
+        console.warn(`[mcp-logging] Failed to emit log level change event: ${error.message}`);
+      }
       return { level: currentLevel, changed: previous !== currentLevel };
     });
-  } catch (e) {
+  } catch {
     // ignore duplicate registration
   }
 }

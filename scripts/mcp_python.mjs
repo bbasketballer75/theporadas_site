@@ -2,6 +2,7 @@
 // Python execution MCP server using shared harness.
 // Method: py/exec { code } -> { stdout, stderr, exitCode, timeout }
 import { spawn } from 'child_process';
+
 import './load_env.mjs';
 import { pyError } from './mcp_error_codes.mjs';
 import './mcp_logging.mjs';

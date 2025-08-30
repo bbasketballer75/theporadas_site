@@ -1,11 +1,596 @@
 [
   {
-    "id": "sample-1",
+    "id": "engagement-1",
     "type": "image",
-    "src": "/media/encoded/sample1.jpg",
-    "thumb": "/media/lqip/sample1.jpg",
-    "contributorName": "Guest",
-    "caption": "A joyful moment",
-    "createdAt": "2025-08-25T00:00:00.000Z"
+    "src": "/media/photos/engagement/PoradaProposal-11.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-11.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - A beautiful moment",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-2",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-146.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-146.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Cherished memories",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-3",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-150.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-150.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Love story begins",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-4",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-156.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-156.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Special moments",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-5",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-181.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-181.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Beautiful memories",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-6",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-198.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-198.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Joyful celebration",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-7",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-255.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-255.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Magical moments",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-8",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-259.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-259.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Heartwarming scenes",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-9",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-262.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-262.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Precious memories",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-10",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-268.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-268.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Romantic moments",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-11",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-273.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-273.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Beautiful celebration",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-12",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-277.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-277.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Joyful occasion",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-13",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-28.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-28.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Special day",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-14",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-286.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-286.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Cherished moments",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-15",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-29.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-29.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Beautiful memories",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-16",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-309.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-309.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Magical celebration",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-17",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-31.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-31.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Joyful moments",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-18",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-310.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-310.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Special occasion",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-19",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-316.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-316.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Beautiful day",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-20",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-318.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-318.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Cherished celebration",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-21",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-320.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-320.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Magical moments",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-22",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-359.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-359.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Joyful celebration",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-23",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-36.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-36.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Special memories",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-24",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-375.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-375.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Beautiful occasion",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-25",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-4.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-4.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Cherished day",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-26",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-40.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-40.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Joyful memories",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-27",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-421.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-421.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Magical celebration",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-28",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-458.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-458.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Special moments",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-29",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-482.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-482.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Beautiful memories",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-30",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-58.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-58.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Joyful occasion",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-31",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-6.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-6.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Cherished celebration",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-32",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-62.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-62.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Magical day",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-33",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-67.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-67.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Special memories",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-34",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-75.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-75.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Beautiful celebration",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "engagement-35",
+    "type": "image",
+    "src": "/media/photos/engagement/PoradaProposal-78.webp",
+    "thumb": "/media/photos/engagement/PoradaProposal-78.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Engagement - Joyful moments",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "engagement"
+  },
+  {
+    "id": "rings-1",
+    "type": "image",
+    "src": "/media/photos/rings/austins_ring1.webp",
+    "thumb": "/media/photos/rings/austins_ring1.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Austin's Wedding Ring",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "rings"
+  },
+  {
+    "id": "rings-2",
+    "type": "image",
+    "src": "/media/photos/rings/austins_ring2.webp",
+    "thumb": "/media/photos/rings/austins_ring2.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Austin's Wedding Ring - Detail",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "rings"
+  },
+  {
+    "id": "rings-3",
+    "type": "image",
+    "src": "/media/photos/rings/jordyns_ring1.webp",
+    "thumb": "/media/photos/rings/jordyns_ring1.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Jordyn's Wedding Ring",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "rings"
+  },
+  {
+    "id": "rings-4",
+    "type": "image",
+    "src": "/media/photos/rings/jordyns_ring_2.webp",
+    "thumb": "/media/photos/rings/jordyns_ring_2.webp",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Jordyn's Wedding Ring - Detail",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "rings"
+  },
+  {
+    "id": "bridesmaid-1",
+    "type": "image",
+    "src": "/media/photos/wedding_party/bridesmaids/brinnah-porada.webp",
+    "thumb": "/media/photos/wedding_party/bridesmaids/brinnah-porada.webp",
+    "contributorName": "Wedding Party",
+    "caption": "Bridesmaid - Brinnah Porada",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "wedding_party"
+  },
+  {
+    "id": "bridesmaid-2",
+    "type": "image",
+    "src": "/media/photos/wedding_party/bridesmaids/caitie-helsel.webp",
+    "thumb": "/media/photos/wedding_party/bridesmaids/caitie-helsel.webp",
+    "contributorName": "Wedding Party",
+    "caption": "Bridesmaid - Caitie Helsel",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "wedding_party"
+  },
+  {
+    "id": "bridesmaid-3",
+    "type": "image",
+    "src": "/media/photos/wedding_party/bridesmaids/emily-aurandt.webp",
+    "thumb": "/media/photos/wedding_party/bridesmaids/emily-aurandt.webp",
+    "contributorName": "Wedding Party",
+    "caption": "Bridesmaid - Emily Aurandt",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "wedding_party"
+  },
+  {
+    "id": "bridesmaid-4",
+    "type": "image",
+    "src": "/media/photos/wedding_party/bridesmaids/hannah-porada.webp",
+    "thumb": "/media/photos/wedding_party/bridesmaids/hannah-porada.webp",
+    "contributorName": "Wedding Party",
+    "caption": "Bridesmaid - Hannah Porada",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "wedding_party"
+  },
+  {
+    "id": "bridesmaid-5",
+    "type": "image",
+    "src": "/media/photos/wedding_party/bridesmaids/lexi-ferg.webp",
+    "thumb": "/media/photos/wedding_party/bridesmaids/lexi-ferg.webp",
+    "contributorName": "Wedding Party",
+    "caption": "Bridesmaid - Lexi Ferg",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "wedding_party"
+  },
+  {
+    "id": "bridesmaid-6",
+    "type": "image",
+    "src": "/media/photos/wedding_party/bridesmaids/maria-mccray.webp",
+    "thumb": "/media/photos/wedding_party/bridesmaids/maria-mccray.webp",
+    "contributorName": "Wedding Party",
+    "caption": "Bridesmaid - Maria McCray",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "wedding_party"
+  },
+  {
+    "id": "bridesmaid-7",
+    "type": "image",
+    "src": "/media/photos/wedding_party/bridesmaids/mic.webp",
+    "thumb": "/media/photos/wedding_party/bridesmaids/mic.webp",
+    "contributorName": "Wedding Party",
+    "caption": "Bridesmaid - Mic",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "wedding_party"
+  },
+  {
+    "id": "groomsman-1",
+    "type": "image",
+    "src": "/media/photos/wedding_party/groomsmen/alex-molnar.webp",
+    "thumb": "/media/photos/wedding_party/groomsmen/alex-molnar.webp",
+    "contributorName": "Wedding Party",
+    "caption": "Groomsman - Alex Molnar",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "wedding_party"
+  },
+  {
+    "id": "groomsman-2",
+    "type": "image",
+    "src": "/media/photos/wedding_party/groomsmen/brosonan-mccray.webp",
+    "thumb": "/media/photos/wedding_party/groomsmen/brosonan-mccray.webp",
+    "contributorName": "Wedding Party",
+    "caption": "Groomsman - Brosonan McCray",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "wedding_party"
+  },
+  {
+    "id": "groomsman-3",
+    "type": "image",
+    "src": "/media/photos/wedding_party/groomsmen/ean-pringle.webp",
+    "thumb": "/media/photos/wedding_party/groomsmen/ean-pringle.webp",
+    "contributorName": "Wedding Party",
+    "caption": "Groomsman - Ean Pringle",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "wedding_party"
+  },
+  {
+    "id": "groomsman-4",
+    "type": "image",
+    "src": "/media/photos/wedding_party/groomsmen/eddie-migut.webp",
+    "thumb": "/media/photos/wedding_party/groomsmen/eddie-migut.webp",
+    "contributorName": "Wedding Party",
+    "caption": "Groomsman - Eddie Migut",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "wedding_party"
+  },
+  {
+    "id": "groomsman-5",
+    "type": "image",
+    "src": "/media/photos/wedding_party/groomsmen/ian-porada.webp",
+    "thumb": "/media/photos/wedding_party/groomsmen/ian-porada.webp",
+    "contributorName": "Wedding Party",
+    "caption": "Groomsman - Ian Porada",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "wedding_party"
+  },
+  {
+    "id": "groomsman-6",
+    "type": "image",
+    "src": "/media/photos/wedding_party/groomsmen/nate-berkebile.webp",
+    "thumb": "/media/photos/wedding_party/groomsmen/nate-berkebile.webp",
+    "contributorName": "Wedding Party",
+    "caption": "Groomsman - Nate Berkebile",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "wedding_party"
+  },
+  {
+    "id": "groomsman-7",
+    "type": "image",
+    "src": "/media/photos/wedding_party/groomsmen/tyler-sharpe.webp",
+    "thumb": "/media/photos/wedding_party/groomsmen/tyler-sharpe.webp",
+    "contributorName": "Wedding Party",
+    "caption": "Groomsman - Tyler Sharpe",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "wedding_party"
+  },
+  {
+    "id": "parent-1",
+    "type": "image",
+    "src": "/media/photos/parents/christine.webp",
+    "thumb": "/media/photos/parents/christine.webp",
+    "contributorName": "Family",
+    "caption": "Christine - Click to watch her video message",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "parents",
+    "videoLink": "/media/videos/final-wedding-video.mp4"
+  },
+  {
+    "id": "parent-2",
+    "type": "image",
+    "src": "/media/photos/parents/heather.webp",
+    "thumb": "/media/photos/parents/heather.webp",
+    "contributorName": "Family",
+    "caption": "Heather - Click to watch her video message",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "parents",
+    "videoLink": "/media/videos/final-wedding-video.mp4"
+  },
+  {
+    "id": "parent-3",
+    "type": "image",
+    "src": "/media/photos/parents/jerame.webp",
+    "thumb": "/media/photos/parents/jerame.webp",
+    "contributorName": "Family",
+    "caption": "Jerame - Click to watch his video message",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "parents",
+    "videoLink": "/media/videos/final-wedding-video.mp4"
+  },
+  {
+    "id": "parent-4",
+    "type": "image",
+    "src": "/media/photos/parents/melony.webp",
+    "thumb": "/media/photos/parents/melony.webp",
+    "contributorName": "Family",
+    "caption": "Melony - Click to watch her video message",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "parents",
+    "videoLink": "/media/videos/final-wedding-video.mp4"
+  },
+  {
+    "id": "austin-jordyn-1",
+    "type": "image",
+    "src": "/media/photos/austin_jordyn/495660452_23961794676737340_6440789571967380360_n.jpg",
+    "thumb": "/media/photos/austin_jordyn/495660452_23961794676737340_6440789571967380360_n.jpg",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Austin & Jordyn - Beautiful couple",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "austin_jordyn"
+  },
+  {
+    "id": "austin-jordyn-2",
+    "type": "image",
+    "src": "/media/photos/austin_jordyn/496093297_9839735762736111_2592755804783153377_n.jpg",
+    "thumb": "/media/photos/austin_jordyn/496093297_9839735762736111_2592755804783153377_n.jpg",
+    "contributorName": "Austin & Jordyn",
+    "caption": "Austin & Jordyn - Happy together",
+    "createdAt": "2025-08-25T00:00:00.000Z",
+    "category": "austin_jordyn"
   }
 ]

@@ -30,11 +30,12 @@
 
  Mapping aligns with existing scripts for consistency.
 */
+import { spawnSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+
 import { safeFetchJson } from './lib/safe_fetch.mjs';
-import { spawnSync } from 'child_process';
 
 let repo = process.env.GITHUB_REPOSITORY;
 if (!repo) {
@@ -50,7 +51,7 @@ if (!repo) {
         repo = `${match[1]}/${match[2]}`;
       }
     }
-  } catch (e) {
+  } catch {
     // ignore
   }
 }
@@ -66,7 +67,7 @@ if (!token) {
       const out = gh.stdout.trim();
       if (out) token = out;
     }
-  } catch (e) {
+  } catch {
     // ignore, fallback handled below
   }
 }
@@ -217,23 +218,31 @@ function buildReport(baselineCounts, currentCounts, delta, unavailable) {
   if (unavailable) {
     return `## CodeQL Drift Report (${date})\n\nCode Scanning not currently enabled (HTTP ${unavailable}); drift cannot be computed. Baseline remains unchanged.\n`;
   }
-  const formatDelta = (v) => (v === 0 ? '0' : v > 0 ? `+${v}` : `${v}`);
+  function formatDelta(v) {
+    if (v === 0) return '0';
+    return v > 0 ? `+${v}` : `${v}`;
+  }
   return `## CodeQL Drift Report (${date})\n\nDelta since First Automated Run baseline (current - baseline):\n\n| Severity | Baseline | Current | Delta |\n|----------|----------|---------|-------|\n| Total | ${baselineCounts.total} | ${currentCounts.total} | ${formatDelta(delta.total)} |\n| Critical | ${baselineCounts.critical} | ${currentCounts.critical} | ${formatDelta(delta.critical)} |\n| High | ${baselineCounts.high} | ${currentCounts.high} | ${formatDelta(delta.high)} |\n| Medium | ${baselineCounts.medium} | ${currentCounts.medium} | ${formatDelta(delta.medium)} |\n| Low | ${baselineCounts.low} | ${currentCounts.low} | ${formatDelta(delta.low)} |\n\nInterpretation: Positive delta indicates new or unresolved alerts added since baseline; negative delta indicates net reduction (fixed / dismissed). Track High/Medium increases promptly.\n`;
 }
 
-(async () => {
-  const { alerts, status } = await fetchAlerts();
+function ensureArtifactsDir() {
   const artifactsDir = path.join(process.cwd(), 'artifacts');
-  if (!fs.existsSync(artifactsDir)) fs.mkdirSync(artifactsDir, { recursive: true });
-  if (alerts === null) {
-    const report = buildReport(baseline, null, null, status);
-    fs.writeFileSync(path.join(artifactsDir, 'codeql-drift-report.md'), report);
-    if (!process.env.QUIET) console.log(JSON.stringify({ unavailable: status }, null, 2));
-    process.exit(0);
+  if (!fs.existsSync(artifactsDir)) {
+    fs.mkdirSync(artifactsDir, { recursive: true });
   }
-  const currentCounts = aggregate(alerts);
-  const delta = computeDelta(currentCounts, baseline);
-  // Attempt to enrich delta with new alert numbers vs baseline raw snapshot
+  return artifactsDir;
+}
+
+function handleUnavailableAlerts(artifactsDir, status) {
+  const report = buildReport(baseline, null, null, status);
+  fs.writeFileSync(path.join(artifactsDir, 'codeql-drift-report.md'), report);
+  if (!process.env.QUIET) {
+    console.log(JSON.stringify({ unavailable: status }, null, 2));
+  }
+  process.exit(0);
+}
+
+function enrichDeltaWithNewAlerts(alerts) {
   let newAlertNumbers = null;
   try {
     const baselineRawPath = path.join(process.cwd(), 'codeql_alerts.json');
@@ -255,9 +264,13 @@ function buildReport(baselineCounts, currentCounts, delta, unavailable) {
         newAlertNumbers = bucket;
       }
     }
-  } catch (e) {
+  } catch {
     // Non-fatal; ignore enrichment errors
   }
+  return newAlertNumbers;
+}
+
+function writeArtifacts(artifactsDir, alerts, currentCounts, delta, newAlertNumbers) {
   const report = buildReport(baseline, currentCounts, delta, null);
   fs.writeFileSync(
     path.join(artifactsDir, 'codeql-drift-current-alerts.json'),
@@ -272,7 +285,10 @@ function buildReport(baselineCounts, currentCounts, delta, unavailable) {
     JSON.stringify(newAlertNumbers ? { ...delta, newAlertNumbers } : delta, null, 2),
   );
   fs.writeFileSync(path.join(artifactsDir, 'codeql-drift-report.md'), report);
-  if (!process.env.QUIET)
+}
+
+function outputResults(currentCounts, delta, newAlertNumbers) {
+  if (!process.env.QUIET) {
     console.log(
       JSON.stringify(
         newAlertNumbers
@@ -282,4 +298,18 @@ function buildReport(baselineCounts, currentCounts, delta, unavailable) {
         2,
       ),
     );
+  }
+}
+
+(async () => {
+  const { alerts, status } = await fetchAlerts();
+  const artifactsDir = ensureArtifactsDir();
+  if (alerts === null) {
+    handleUnavailableAlerts(artifactsDir, status);
+  }
+  const currentCounts = aggregate(alerts);
+  const delta = computeDelta(currentCounts, baseline);
+  const newAlertNumbers = enrichDeltaWithNewAlerts(alerts);
+  writeArtifacts(artifactsDir, alerts, currentCounts, delta, newAlertNumbers);
+  outputResults(currentCounts, delta, newAlertNumbers);
 })();

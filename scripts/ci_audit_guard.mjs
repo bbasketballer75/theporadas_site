@@ -26,19 +26,26 @@
  */
 
 import fs from 'node:fs';
-import path from 'node:path';
 
 const SEVERITY_ORDER = ['low', 'moderate', 'high', 'critical'];
 
 function parseArgs(argv) {
   const args = { input: null, baseline: null };
-  for (let i = 2; i < argv.length; i++) {
+  for (let i = 2; i < argv.length; ) {
     const a = argv[i];
-    if (a === '--input') args.input = argv[++i];
-    else if (a === '--baseline') args.baseline = argv[++i];
-    else if (a === '--help' || a === '-h') {
-      console.log('Usage: node scripts/ci_audit_guard.mjs --input audit.json --baseline security/audit-baseline.json');
+    if (a === '--input') {
+      args.input = argv[i + 1];
+      i += 2;
+    } else if (a === '--baseline') {
+      args.baseline = argv[i + 1];
+      i += 2;
+    } else if (a === '--help' || a === '-h') {
+      console.log(
+        'Usage: node scripts/ci_audit_guard.mjs --input audit.json --baseline security/audit-baseline.json',
+      );
       process.exit(0);
+    } else {
+      i += 1;
     }
   }
   if (!args.input || !args.baseline) {
@@ -57,7 +64,9 @@ function readJson(file) {
   }
 }
 
-function severityRank(s) { return SEVERITY_ORDER.indexOf(s); }
+function severityRank(s) {
+  return SEVERITY_ORDER.indexOf(s);
+}
 
 function loadBaseline(baselinePath) {
   if (!fs.existsSync(baselinePath)) {
@@ -73,18 +82,18 @@ function normalizeFindings(auditJson) {
     const out = {};
     for (const [name, meta] of Object.entries(auditJson.vulnerabilities)) {
       // meta via current schema has 'severity' and 'via' which can be array of strings/objects
-      const findings = Array.isArray(meta.via) ? meta.via.filter(v => typeof v === 'object') : [];
+      const findings = Array.isArray(meta.via) ? meta.via.filter((v) => typeof v === 'object') : [];
       for (const f of findings) {
         const id = f.source || f.url || `${name}-${f.name || 'unknown'}`;
         out[id] = {
           id,
-            module_name: name,
-            severity: f.severity || meta.severity || 'info',
-            title: f.title || f.name || 'unknown',
-            url: f.url || (typeof f.url === 'string' ? f.url : undefined),
-            via: f.via,
-            dependency: name,
-            isDev: meta.dev === true,
+          module_name: name,
+          severity: f.severity || meta.severity || 'info',
+          title: f.title || f.name || 'unknown',
+          url: f.url || (typeof f.url === 'string' ? f.url : undefined),
+          via: f.via,
+          dependency: name,
+          isDev: meta.dev === true,
         };
       }
     }
@@ -92,17 +101,74 @@ function normalizeFindings(auditJson) {
   }
   if (auditJson.advisories) {
     // Legacy format
-    return Object.fromEntries(Object.entries(auditJson.advisories).map(([id, adv]) => [id, {
-      id,
-      module_name: adv.module_name,
-      severity: adv.severity,
-      title: adv.title,
-      url: adv.url,
-      dependency: adv.module_name,
-      isDev: adv.dev === true,
-    }]));
+    return Object.fromEntries(
+      Object.entries(auditJson.advisories).map(([id, adv]) => [
+        id,
+        {
+          id,
+          module_name: adv.module_name,
+          severity: adv.severity,
+          title: adv.title,
+          url: adv.url,
+          dependency: adv.module_name,
+          isDev: adv.dev === true,
+        },
+      ]),
+    );
   }
   return {};
+}
+
+function validateConfig(minFail, allowDev) {
+  if (!SEVERITY_ORDER.includes(minFail)) {
+    console.error('[audit-guard] Invalid AUDIT_FAIL_LEVEL', minFail);
+    process.exit(2);
+  }
+  return { minFail, allowDev };
+}
+
+function analyzeVulnerabilities(findings, baselineAdvisories, minFail, allowDev) {
+  const newIssues = [];
+  const escalations = [];
+
+  for (const adv of Object.values(findings)) {
+    if (!allowDev && adv.isDev) continue;
+    if (severityRank(adv.severity) < severityRank(minFail)) continue;
+
+    const base = baselineAdvisories[adv.id];
+    if (!base) {
+      newIssues.push(adv);
+    } else if (severityRank(adv.severity) > severityRank(base.severity)) {
+      escalations.push({ from: base.severity, to: adv.severity, adv });
+    }
+  }
+
+  return { newIssues, escalations };
+}
+
+function reportResults(newIssues, escalations, minFail) {
+  if (newIssues.length === 0 && escalations.length === 0) {
+    console.log('[audit-guard] PASS: No new or escalated vulnerabilities at/above', minFail);
+    return;
+  }
+
+  console.error('[audit-guard] FAIL: Detected disallowed vulnerability changes');
+
+  if (newIssues.length) {
+    console.error('\nNew issues:');
+    for (const n of newIssues) {
+      console.error(` - ${n.id} (${n.severity}) ${n.module_name} :: ${n.title}`);
+    }
+  }
+
+  if (escalations.length) {
+    console.error('\nEscalations:');
+    for (const e of escalations) {
+      console.error(` - ${e.adv.id} severity increased ${e.from} -> ${e.to}`);
+    }
+  }
+
+  process.exit(1);
 }
 
 function main() {
@@ -112,46 +178,18 @@ function main() {
   const findings = normalizeFindings(audit);
 
   const minFail = process.env.AUDIT_FAIL_LEVEL || 'moderate';
-  if (!SEVERITY_ORDER.includes(minFail)) {
-    console.error('[audit-guard] Invalid AUDIT_FAIL_LEVEL', minFail);
-    process.exit(2);
-  }
   const allowDev = process.env.AUDIT_ALLOW_DEV === '1';
+  validateConfig(minFail, allowDev);
 
   const baselineAdvisories = baselineData.advisories || {};
-  const newIssues = [];
-  const escalations = [];
+  const { newIssues, escalations } = analyzeVulnerabilities(
+    findings,
+    baselineAdvisories,
+    minFail,
+    allowDev,
+  );
 
-  for (const adv of Object.values(findings)) {
-    if (!allowDev && adv.isDev) continue; // ignore dev dependency findings
-    if (severityRank(adv.severity) < severityRank(minFail)) continue; // below threshold
-    const base = baselineAdvisories[adv.id];
-    if (!base) {
-      newIssues.push(adv);
-    } else if (severityRank(adv.severity) > severityRank(base.severity)) {
-      escalations.push({ from: base.severity, to: adv.severity, adv });
-    }
-  }
-
-  if (newIssues.length === 0 && escalations.length === 0) {
-    console.log('[audit-guard] PASS: No new or escalated vulnerabilities at/above', minFail);
-    return;
-  }
-
-  console.error('[audit-guard] FAIL: Detected disallowed vulnerability changes');
-  if (newIssues.length) {
-    console.error('\nNew issues:');
-    for (const n of newIssues) {
-      console.error(` - ${n.id} (${n.severity}) ${n.module_name} :: ${n.title}`);
-    }
-  }
-  if (escalations.length) {
-    console.error('\nEscalations:');
-    for (const e of escalations) {
-      console.error(` - ${e.adv.id} severity increased ${e.from} -> ${e.to}`);
-    }
-  }
-  process.exit(1);
+  reportResults(newIssues, escalations, minFail);
 }
 
 main();

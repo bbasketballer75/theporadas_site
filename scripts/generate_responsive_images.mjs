@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-import { readdirSync, statSync, mkdirSync, writeFileSync } from 'node:fs';
-import { join, extname, basename } from 'node:path';
+import { mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { basename, extname, join } from 'node:path';
+
 import { Jimp } from 'jimp';
 
 // Simple responsive image generator.
@@ -24,7 +25,9 @@ function collectImages(dir) {
 function ensureDir(p) {
   try {
     mkdirSync(p, { recursive: true });
-  } catch {}
+  } catch (error) {
+    console.warn(`[images] Failed to create directory ${p}: ${error.message}`);
+  }
 }
 
 async function processOne(file) {

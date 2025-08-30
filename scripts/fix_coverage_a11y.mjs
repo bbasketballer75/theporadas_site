@@ -5,8 +5,8 @@
  * We cannot modify Istanbul's internal template easily without forking; so we
  * patch the generated index.html in-place. Script is idempotent.
  */
-import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from 'node:fs';
-import { resolve, join } from 'node:path';
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 
 // Allow override for testing or custom location via COVERAGE_HTML env var.
 const SILENT =
@@ -25,7 +25,8 @@ function gatherCoverageHtmlFiles() {
     let entries = [];
     try {
       entries = readdirSync(dir);
-    } catch {
+    } catch (error) {
+      console.warn(`[fix_coverage_a11y] Failed to read directory ${dir}: ${error.message}`);
       return;
     }
     for (const name of entries) {
@@ -33,7 +34,8 @@ function gatherCoverageHtmlFiles() {
       let st;
       try {
         st = statSync(full);
-      } catch {
+      } catch (error) {
+        console.warn(`[fix_coverage_a11y] Failed to stat file ${full}: ${error.message}`);
         continue;
       }
       if (st.isDirectory()) walk(full);
