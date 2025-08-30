@@ -10,7 +10,6 @@ if (!fs.existsSync(reportPath)) {
 const json = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
 // Budgets audits live under audits keyed by 'performance-budget' & 'timing-budget' in older versions
 const audits = json.audits || {};
-const perfBudget = audits['resource-summary'] ? audits['resource-summary'] : null;
 
 // Build simple summary using categories + selected metrics
 const categories = json.categories || {};

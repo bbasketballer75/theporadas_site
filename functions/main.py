@@ -6,7 +6,7 @@ from firebase_admin import initialize_app, firestore, storage, auth
 from firebase_admin.exceptions import FirebaseError
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Any, Optional
 import requests
 from PIL import Image
@@ -85,7 +85,7 @@ CORS(app, origins=[
 # Set global options for cost control (only for Firebase Functions)
 try:
     set_global_options(max_instances=10)
-except:
+except Exception:
     pass  # Ignore if not in Firebase Functions environment
 
 # Lazy initialization of Firebase clients
@@ -125,6 +125,17 @@ GUEST_MESSAGES_COLLECTION = 'guestMessages'
 GUEST_REACTIONS_COLLECTION = 'guestReactions'
 LIVE_STATS_PATH = 'liveStats'
 
+# HTTP Headers and Content Types
+CONTENT_TYPE_JSON = 'application/json'
+
+# Error Messages
+ERROR_METHOD_NOT_ALLOWED = 'Method not allowed'
+SERVICE_NAME = 'wedding-website-functions'
+
+def get_current_utc_time():
+    """Get current UTC time as timezone-aware datetime object"""
+    return datetime.now(timezone.utc)
+
 # =============================================================================
 # FLASK ROUTES FOR CLOUD RUN DEPLOYMENT
 # =============================================================================
@@ -134,8 +145,8 @@ def health_check_flask():
     """Health check endpoint for Cloud Run"""
     return jsonify({
         'status': 'healthy',
-        'timestamp': datetime.utcnow().isoformat(),
-        'service': 'wedding-website-functions'
+        'timestamp': get_current_utc_time().isoformat(),
+        'service': SERVICE_NAME
     })
 
 @app.route('/family-tree', methods=['GET'])
@@ -180,7 +191,7 @@ def add_family_member_flask():
                 return jsonify({'success': False, 'error': f'Missing required field: {field}'}), 400
 
         # Add timestamps
-        now = datetime.utcnow()
+        now = get_current_utc_time()
         data['createdAt'] = now
         data['updatedAt'] = now
 
@@ -220,7 +231,7 @@ def process_guest_message_flask():
             }), 400
 
         # Add metadata
-        now = datetime.utcnow()
+        now = get_current_utc_time()
         data['timestamp'] = now
         data['isRead'] = False
         data['type'] = data.get('type', 'message')
@@ -374,7 +385,7 @@ def get_family_tree(req: https_fn.Request) -> https_fn.Response:
                 'count': len(members)
             }),
             status=200,
-            headers={'Content-Type': 'application/json'}
+            headers={'Content-Type': CONTENT_TYPE_JSON}
         )
 
     except Exception as e:
@@ -385,7 +396,7 @@ def get_family_tree(req: https_fn.Request) -> https_fn.Response:
                 'error': 'Failed to retrieve family tree data'
             }),
             status=500,
-            headers={'Content-Type': 'application/json'}
+            headers={'Content-Type': CONTENT_TYPE_JSON}
         )
 
 @firebase_function
@@ -394,9 +405,9 @@ def add_family_member(req: https_fn.Request) -> https_fn.Response:
     try:
         if req.method != 'POST':
             return https_fn.Response(
-                json.dumps({'success': False, 'error': 'Method not allowed'}),
+                json.dumps({'success': False, 'error': ERROR_METHOD_NOT_ALLOWED}),
                 status=405,
-                headers={'Content-Type': 'application/json'}
+                headers={'Content-Type': CONTENT_TYPE_JSON}
             )
 
         data = req.get_json()
@@ -407,11 +418,11 @@ def add_family_member(req: https_fn.Request) -> https_fn.Response:
                 return https_fn.Response(
                     json.dumps({'success': False, 'error': f'Missing required field: {field}'}),
                     status=400,
-                    headers={'Content-Type': 'application/json'}
+                    headers={'Content-Type': CONTENT_TYPE_JSON}
                 )
 
         # Add timestamps
-        now = datetime.utcnow()
+        now = get_current_utc_time()
         data['createdAt'] = now
         data['updatedAt'] = now
 
@@ -426,7 +437,7 @@ def add_family_member(req: https_fn.Request) -> https_fn.Response:
                 'message': 'Family member added successfully'
             }),
             status=201,
-            headers={'Content-Type': 'application/json'}
+            headers={'Content-Type': CONTENT_TYPE_JSON}
         )
 
     except Exception as e:
@@ -437,7 +448,7 @@ def add_family_member(req: https_fn.Request) -> https_fn.Response:
                 'error': 'Failed to add family member'
             }),
             status=500,
-            headers={'Content-Type': 'application/json'}
+            headers={'Content-Type': CONTENT_TYPE_JSON}
         )
 
 # =============================================================================
@@ -450,9 +461,9 @@ def process_guest_message(req: https_fn.Request) -> https_fn.Response:
     try:
         if req.method != 'POST':
             return https_fn.Response(
-                json.dumps({'success': False, 'error': 'Method not allowed'}),
+                json.dumps({'success': False, 'error': ERROR_METHOD_NOT_ALLOWED}),
                 status=405,
-                headers={'Content-Type': 'application/json'}
+                headers={'Content-Type': CONTENT_TYPE_JSON}
             )
 
         data = req.get_json()
@@ -463,7 +474,7 @@ def process_guest_message(req: https_fn.Request) -> https_fn.Response:
                 return https_fn.Response(
                     json.dumps({'success': False, 'error': f'Missing required field: {field}'}),
                     status=400,
-                    headers={'Content-Type': 'application/json'}
+                    headers={'Content-Type': CONTENT_TYPE_JSON}
                 )
 
         # Basic content moderation
@@ -474,11 +485,11 @@ def process_guest_message(req: https_fn.Request) -> https_fn.Response:
                     'error': 'Message contains inappropriate content'
                 }),
                 status=400,
-                headers={'Content-Type': 'application/json'}
+                headers={'Content-Type': CONTENT_TYPE_JSON}
             )
 
         # Add metadata
-        now = datetime.utcnow()
+        now = get_current_utc_time()
         data['timestamp'] = now
         data['isRead'] = False
         data['type'] = data.get('type', 'message')
@@ -497,7 +508,7 @@ def process_guest_message(req: https_fn.Request) -> https_fn.Response:
                 'message': 'Guest message processed successfully'
             }),
             status=201,
-            headers={'Content-Type': 'application/json'}
+            headers={'Content-Type': CONTENT_TYPE_JSON}
         )
 
     except Exception as e:
@@ -508,7 +519,7 @@ def process_guest_message(req: https_fn.Request) -> https_fn.Response:
                 'error': 'Failed to process guest message'
             }),
             status=500,
-            headers={'Content-Type': 'application/json'}
+            headers={'Content-Type': CONTENT_TYPE_JSON}
         )
 
 @firebase_function
@@ -545,7 +556,7 @@ def get_guest_messages(req: https_fn.Request) -> https_fn.Response:
                 'count': len(messages)
             }),
             status=200,
-            headers={'Content-Type': 'application/json'}
+            headers={'Content-Type': CONTENT_TYPE_JSON}
         )
 
     except Exception as e:
@@ -556,7 +567,7 @@ def get_guest_messages(req: https_fn.Request) -> https_fn.Response:
                 'error': 'Failed to retrieve guest messages'
             }),
             status=500,
-            headers={'Content-Type': 'application/json'}
+            headers={'Content-Type': CONTENT_TYPE_JSON}
         )
 
 # =============================================================================
@@ -569,9 +580,9 @@ def process_gallery_image(req: https_fn.Request) -> https_fn.Response:
     try:
         if req.method != 'POST':
             return https_fn.Response(
-                json.dumps({'success': False, 'error': 'Method not allowed'}),
+                json.dumps({'success': False, 'error': ERROR_METHOD_NOT_ALLOWED}),
                 status=405,
-                headers={'Content-Type': 'application/json'}
+                headers={'Content-Type': CONTENT_TYPE_JSON}
             )
 
         # Get image data from request
@@ -583,7 +594,7 @@ def process_gallery_image(req: https_fn.Request) -> https_fn.Response:
             return https_fn.Response(
                 json.dumps({'success': False, 'error': 'Missing imageUrl or filename'}),
                 status=400,
-                headers={'Content-Type': 'application/json'}
+                headers={'Content-Type': CONTENT_TYPE_JSON}
             )
 
         # Download and process image
@@ -592,7 +603,7 @@ def process_gallery_image(req: https_fn.Request) -> https_fn.Response:
             return https_fn.Response(
                 json.dumps({'success': False, 'error': 'Failed to download image'}),
                 status=400,
-                headers={'Content-Type': 'application/json'}
+                headers={'Content-Type': CONTENT_TYPE_JSON}
             )
 
         # Process image
@@ -634,7 +645,7 @@ def process_gallery_image(req: https_fn.Request) -> https_fn.Response:
                 'message': 'Image processed successfully'
             }),
             status=200,
-            headers={'Content-Type': 'application/json'}
+            headers={'Content-Type': CONTENT_TYPE_JSON}
         )
 
     except Exception as e:
@@ -645,7 +656,7 @@ def process_gallery_image(req: https_fn.Request) -> https_fn.Response:
                 'error': 'Failed to process image'
             }),
             status=500,
-            headers={'Content-Type': 'application/json'}
+            headers={'Content-Type': CONTENT_TYPE_JSON}
         )
 
 # =============================================================================
@@ -707,7 +718,7 @@ def update_live_stats(field: str, increment: bool = False, value: Any = None) ->
             'activeGuests': 0,
             'totalMessages': 0,
             'totalReactions': 0,
-            'lastUpdated': datetime.utcnow().isoformat()
+            'lastUpdated': get_current_utc_time().isoformat()
         }
 
         if increment and field in current_stats:
@@ -715,7 +726,7 @@ def update_live_stats(field: str, increment: bool = False, value: Any = None) ->
         elif value is not None:
             current_stats[field] = value
 
-        current_stats['lastUpdated'] = datetime.utcnow().isoformat()
+        current_stats['lastUpdated'] = get_current_utc_time().isoformat()
         stats_ref.set(current_stats)
 
     except Exception as e:
@@ -731,11 +742,11 @@ def health_check(req: https_fn.Request) -> https_fn.Response:
     return https_fn.Response(
         json.dumps({
             'status': 'healthy',
-            'timestamp': datetime.utcnow().isoformat(),
-            'service': 'wedding-website-functions'
+            'timestamp': get_current_utc_time().isoformat(),
+            'service': SERVICE_NAME
         }),
         status=200,
-        headers={'Content-Type': 'application/json'}
+        headers={'Content-Type': CONTENT_TYPE_JSON}
     )
 
 # =============================================================================

@@ -12,10 +12,11 @@
  *   If --write omitted, prints would-be block.
  */
 
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
+
 import { safeFetchJson } from './lib/safe_fetch.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -24,11 +25,19 @@ const __dirname = path.dirname(__filename);
 function parseArgs() {
   const args = process.argv.slice(2);
   const opts = { alerts: 'codeql_alerts.json', write: false };
-  for (let i = 0; i < args.length; i++) {
+  let i = 0;
+  while (i < args.length) {
     const a = args[i];
-    if (a === '--alerts') opts.alerts = args[++i];
-    else if (a === '--write') opts.write = true;
-    else if (a === '--help') {
+    if (a === '--alerts') {
+      i += 1;
+      if (i < args.length) {
+        opts.alerts = args[i];
+      }
+      i += 1;
+    } else if (a === '--write') {
+      opts.write = true;
+      i += 1;
+    } else if (a === '--help') {
       console.log(
         'Usage: node scripts/codeql_trend_append.mjs --alerts codeql_alerts.json [--write]',
       );
@@ -60,7 +69,7 @@ function fetchAlertsViaGhCli(repo) {
     if (res.status === 0) {
       return JSON.parse(res.stdout);
     }
-  } catch (_) {
+  } catch {
     // ignore
   }
   return null;
@@ -78,7 +87,7 @@ async function fetchAlertsViaApi(repo, token) {
       },
       maxBytes: 2_000_000,
     });
-  } catch (_) {
+  } catch {
     return null;
   }
 }
@@ -151,7 +160,10 @@ function currentCounts(alerts) {
 
 function formatDeltaLine(label, baseline, current) {
   const delta = current - baseline;
-  const sign = delta === 0 ? '' : delta > 0 ? '+' : '';
+  let sign = '';
+  if (delta > 0) {
+    sign = '+';
+  }
   return `| ${label} | ${baseline} | ${current} | ${sign}${delta} |`;
 }
 

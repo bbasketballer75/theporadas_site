@@ -22,7 +22,6 @@ export default [
       'coverage/**',
       'lighthouse/**',
       '**/.vscode/**',
-      '**/scripts/**',
       'functions/venv/**',
     ],
   },
@@ -119,5 +118,74 @@ export default [
       globals: vitestPlugin.environments?.env?.globals || {},
     },
     rules: {},
+  },
+  // Script files configuration with Node.js globals
+  {
+    files: ['**/scripts/**/*.{js,mjs,ts}'],
+    languageOptions: {
+      ecmaVersion: 2023,
+      sourceType: 'module',
+      parser: tsParser,
+      parserOptions: {
+        ecmaFeatures: { jsx: false },
+      },
+      globals: {
+        ...globals.node,
+      },
+    },
+    plugins: {
+      prettier,
+      '@typescript-eslint': tseslint,
+      import: importPlugin,
+    },
+    settings: {
+      'import/parsers': {
+        '@typescript-eslint/parser': ['.ts', '.tsx'],
+      },
+      'import/resolver': {
+        typescript: { alwaysTryTypes: true },
+        node: { extensions: ['.js', '.mjs', '.ts', '.d.ts'] },
+      },
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      ...tseslint.configs.recommended.rules,
+      'prettier/prettier': ['warn', { endOfLine: 'auto' }],
+      'import/order': [
+        'warn',
+        {
+          groups: [
+            'builtin',
+            'external',
+            'internal',
+            'parent',
+            'sibling',
+            'index',
+            'object',
+            'type',
+          ],
+          'newlines-between': 'always',
+          alphabetize: { order: 'asc', caseInsensitive: true },
+        },
+      ],
+      'import/no-unresolved': ['error', { commonjs: true, caseSensitive: true }],
+      'import/no-extraneous-dependencies': [
+        'error',
+        {
+          devDependencies: true, // Allow dev dependencies in scripts
+          optionalDependencies: false,
+          peerDependencies: true,
+        },
+      ],
+      'import/newline-after-import': ['warn', { count: 1 }],
+      'import/no-duplicates': 'error',
+      'import/no-cycle': ['error', { maxDepth: 5 }],
+      'import/no-self-import': 'error',
+      'import/first': 'error',
+      'import/no-useless-path-segments': ['warn', { noUselessIndex: true }],
+      'linebreak-style': 'off',
+      'no-console': 'off', // Allow console in scripts
+      'no-await-in-loop': 'off', // Allow await in loops in scripts
+    },
   },
 ];

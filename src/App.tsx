@@ -1,8 +1,10 @@
+import { BackgroundAudio } from './components/BackgroundAudio';
 import { FamilyTree } from './components/FamilyTree';
 import { Gallery } from './components/Gallery';
 import './components/gallery.css';
 import { GuestMessages } from './components/GuestMessages';
 import { HeroVideo } from './components/HeroVideo';
+import { IntroVideo } from './components/IntroVideo';
 import { MotionToggle } from './components/MotionToggle';
 import { SiteNav } from './components/SiteNav';
 import { ThemeToggle } from './components/ThemeToggle';
@@ -18,28 +20,31 @@ export default function App() {
   // landmarks with the same accessible name triggering axe landmark-unique.
   const sections = getNonHeroSections().filter((s) => s.frontmatter.slug !== 'gallery');
   const { hash } = useHashNavigation();
+
   return (
-    <div id="appShell" role="main" tabIndex={-1}>
-      <section className="snap-section hero" aria-label="Welcome">
-        <HeroVideo caption="Poradas Wedding Feature">
-          <div className="stack" style={{ textAlign: 'center' }}>
-            <h1 className="display">
-              <span className="hero-accent">The Poradas Wedding Videos</span>
-            </h1>
-            <p>
-              A celebration in sage & blush. This is an evolving immersive experience—sections will
-              appear here as they are completed.
-            </p>
-            <div className="stack" style={{ alignItems: 'center' }}>
-              <SiteNav active={hash} />
-              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                <MotionToggle />
-                <ThemeToggle />
+    <main id="appShell" tabIndex={-1}>
+      <IntroVideo onComplete={() => {}}>
+        <section className="snap-section hero" aria-label="Welcome">
+          <HeroVideo caption="Poradas Wedding Feature">
+            <div className="stack" style={{ textAlign: 'center' }}>
+              <h1 className="display">
+                <span className="hero-accent">The Poradas Wedding Videos</span>
+              </h1>
+              <p>
+                A celebration in sage & blush. This is an evolving immersive experience—sections
+                will appear here as they are completed.
+              </p>
+              <div className="stack" style={{ alignItems: 'center' }}>
+                <SiteNav active={hash} />
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <MotionToggle />
+                  <ThemeToggle />
+                </div>
               </div>
             </div>
-          </div>
-        </HeroVideo>
-      </section>
+          </HeroVideo>
+        </section>
+      </IntroVideo>
       <section className="snap-section" aria-label="Video Feature">
         <div className="card stack">
           <h2>Feature Video</h2>
@@ -83,13 +88,13 @@ export default function App() {
             key={s.frontmatter.slug}
             id={s.frontmatter.slug}
             className="snap-section"
-            role="region"
             aria-labelledby={headingId}
           >
             <div className="card stack" dangerouslySetInnerHTML={{ __html: html }} />
           </section>
         );
       })}
-    </div>
+      <BackgroundAudio src="/media/audio/first-time-acoustic.mp3" />
+    </main>
   );
 }

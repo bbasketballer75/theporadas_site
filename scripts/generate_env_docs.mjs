@@ -54,18 +54,16 @@ function classify(name) {
   return 'General';
 }
 
-const rows = [...varInfo.keys()]
-  .sort()
-  .map((v) => {
-    const info = varInfo.get(v);
-    const descParts = [];
-    if (info.samples.size) descParts.push([...info.samples][0]);
-    const classification = classify(v);
-    if (!descParts.length) descParts.push(classification);
-    else if (!descParts[0].toLowerCase().includes(classification.toLowerCase()))
-      descParts.push(classification);
-    return `| \`${v}\` | ${descParts.join(' — ')} | ${[...info.files].slice(0, 3).join(', ')} |`;
-  });
+const rows = [...varInfo.keys()].sort().map((v) => {
+  const info = varInfo.get(v);
+  const descParts = [];
+  if (info.samples.size) descParts.push([...info.samples][0]);
+  const classification = classify(v);
+  if (!descParts.length || !descParts[0].toLowerCase().includes(classification.toLowerCase())) {
+    descParts.push(classification);
+  }
+  return `| \`${v}\` | ${descParts.join(' — ')} | ${[...info.files].slice(0, 3).join(', ')} |`;
+});
 
 const table = [
   '| Variable | Description (heuristic) | Seen In |',
@@ -84,10 +82,7 @@ if (!doc.includes(START_MARK) || !doc.includes(END_MARK)) {
 }
 
 const newBlock = `${START_MARK}\n\n${table}\n\n${END_MARK}`;
-const updated = doc.replace(
-  new RegExp(`${START_MARK}[\s\S]*?${END_MARK}`),
-  newBlock,
-);
+const updated = doc.replace(new RegExp(`${START_MARK}[\\s\\S]*?${END_MARK}`), newBlock);
 
 if (CHECK) {
   if (updated !== doc) {

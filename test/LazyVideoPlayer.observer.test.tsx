@@ -1,8 +1,9 @@
-import { render, screen, act } from '@testing-library/react';
-import React from 'react';
+import { act, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { LazyVideoPlayer } from '../src/components/VideoPlayer/LazyVideoPlayer';
+
+import { MockIntersectionObserverWithCallback } from './utils/intersectionObserverMock';
 
 vi.mock('../src/components/VideoPlayer/VideoPlayer', () => ({
   VideoPlayer: (props: { caption?: string }) => (
@@ -39,32 +40,10 @@ describe('LazyVideoPlayer (observer branches)', () => {
   ).IntersectionObserver;
   beforeEach(() => {
     (globalThis as unknown as { __LATEST_OBSERVER_CB?: IOCB }).__LATEST_OBSERVER_CB = undefined;
-    class MockIO implements IntersectionObserver {
-      readonly root: Element | Document | null = null;
-      readonly rootMargin: string = '';
-      readonly thresholds: ReadonlyArray<number> = [];
-      // store the callback so class isn't considered unused logic
-      private readonly cbRef: IOCB;
-      constructor(cb: IOCB) {
-        this.cbRef = cb;
-        (globalThis as unknown as { __LATEST_OBSERVER_CB?: IOCB }).__LATEST_OBSERVER_CB = cb;
-      }
-      disconnect(): void {
-        /* noop */
-      }
-      observe(): void {
-        /* noop */
-      }
-      takeRecords(): IntersectionObserverEntry[] {
-        return [];
-      }
-      unobserve(): void {
-        /* noop */
-      }
-    }
     (
       globalThis as unknown as { IntersectionObserver?: IntersectionObserverConstructor }
-    ).IntersectionObserver = MockIO as unknown as IntersectionObserverConstructor;
+    ).IntersectionObserver =
+      MockIntersectionObserverWithCallback as unknown as IntersectionObserverConstructor;
   });
   afterEach(() => {
     (

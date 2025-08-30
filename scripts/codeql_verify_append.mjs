@@ -24,6 +24,7 @@
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+
 import { safeFetchJson } from './lib/safe_fetch.mjs';
 
 const repo = process.env.GITHUB_REPOSITORY;
@@ -138,14 +139,7 @@ function buildSection(counts) {
   fs.writeFileSync(path.join(artifactsDir, 'codeql-verification-section.md'), section);
 
   // Append to SECURITY_NOTES.md after the pending verification section if present, else at end
-  let updated = notes;
-  if (/^## CodeQL Baseline Verification \(Pending Enablement\)/m.test(notes)) {
-    const lines = notes.split(/\r?\n/);
-    // find end of pending section (blank line after its block of dashes line or next heading) - simplistic: append at end
-    updated = notes.trimEnd() + '\n\n' + section + '\n';
-  } else {
-    updated = notes.trimEnd() + '\n\n' + section + '\n';
-  }
+  const updated = notes.trimEnd() + '\n\n' + section + '\n';
   fs.writeFileSync(notesPath, updated);
   console.log('Appended verification section.');
 })();

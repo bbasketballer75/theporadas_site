@@ -22,7 +22,9 @@ function finish(ok, msg) {
   done = true;
   try {
     ps.kill('SIGKILL');
-  } catch {}
+  } catch {
+    // ignore
+  }
   if (ok) {
     console.log(JSON.stringify({ ok: true, message: msg }));
     process.exit(0);

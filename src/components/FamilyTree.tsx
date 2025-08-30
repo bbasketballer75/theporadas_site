@@ -70,10 +70,9 @@ export function FamilyTree({ width = 800, height = 600, onMemberClick }: FamilyT
     if (!treeData) return;
 
     // Create tree layout
-    const treeLayout = tree<FamilyMember>()
-      .size([width - 200, height - 200])
-      .nodeSize([100, 150]);
-
+    const nodeWidth = 160;
+    const nodeHeight = 120;
+    const treeLayout = tree<FamilyMember>().size([width, height]).nodeSize([nodeWidth, nodeHeight]);
     const root = treeLayout(treeData);
 
     // Create main group

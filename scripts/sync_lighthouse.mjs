@@ -13,10 +13,11 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync, cpSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, dirname } from 'node:path';
+import { dirname, join } from 'node:path';
 import process from 'node:process';
+
 import { glob } from 'glob';
 import { Minimatch } from 'minimatch';
 
@@ -31,25 +32,8 @@ function fail(msg) {
   process.exit(1);
 }
 
-function parseArgs() {
-  const args = process.argv.slice(2);
-  const out = { ref: 'latest', dryRun: false, preserve: [] };
-  for (let i = 0; i < args.length; i++) {
-    const a = args[i];
-    if (a === '--ref') {
-      out.ref = args[++i];
-      continue;
-    }
-    if (a === '--dry-run') {
-      out.dryRun = true;
-      continue;
-    }
-    if (a === '--preserve') {
-      out.preserve.push(args[++i]);
-      continue;
-    }
-    if (a === '--help' || a === '-h') {
-      console.log(`Usage: node scripts/sync_lighthouse.mjs [--ref <git-ref>] [--dry-run] [--preserve <glob>]
+function showHelp() {
+  console.log(`Usage: node scripts/sync_lighthouse.mjs [--ref <git-ref>] [--dry-run] [--preserve <glob>]
 
 Options:
   --ref <git-ref>     Upstream Lighthouse ref (tag/branch/commit). 'latest' = latest release tag.
@@ -57,10 +41,51 @@ Options:
   --preserve <glob>   Glob (minimatch) to exclude from overwrite inside local lighthouse/.
                        Repeatable. Examples: --preserve build/reset-link.js --preserve 'docs/**'
 `);
-      process.exit(0);
+  process.exit(0);
+}
+
+function parseArgs() {
+  const args = process.argv.slice(2);
+  const out = { ref: 'latest', dryRun: false, preserve: [] };
+  let i = 0;
+
+  while (i < args.length) {
+    const currentArg = args[i];
+
+    switch (currentArg) {
+      case '--ref':
+        if (i + 1 < args.length) {
+          out.ref = args[i + 1];
+          i += 2;
+        } else {
+          fail('Missing value for --ref');
+        }
+        break;
+
+      case '--dry-run':
+        out.dryRun = true;
+        i++;
+        break;
+
+      case '--preserve':
+        if (i + 1 < args.length) {
+          out.preserve.push(args[i + 1]);
+          i += 2;
+        } else {
+          fail('Missing value for --preserve');
+        }
+        break;
+
+      case '--help':
+      case '-h':
+        showHelp();
+        break;
+
+      default:
+        fail(`Unknown argument: ${currentArg}`);
     }
-    fail(`Unknown argument: ${a}`);
   }
+
   return out;
 }
 
@@ -95,7 +120,7 @@ function getLatestTag() {
     tags.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
     const last = tags[tags.length - 1];
     return last?.replace('refs/tags/', '') || null;
-  } catch (e) {
+  } catch {
     warn('Failed to fetch remote tags; falling back to hardcoded ref main');
     return 'main';
   }
@@ -171,9 +196,7 @@ async function main() {
 
   const srcRoot = join(tmp, 'lighthouse');
   const destRoot = join(process.cwd(), 'lighthouse');
-  try {
-    readFileSync(join(destRoot, 'package.json'), 'utf8');
-  } catch {
+  if (!existsSync(join(destRoot, 'package.json'))) {
     fail('Expected local lighthouse/ directory with package.json');
   }
 

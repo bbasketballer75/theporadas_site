@@ -1,16 +1,13 @@
 #!/usr/bin/env node
-import { writeFile } from 'node:fs/promises';
 import { existsSync, mkdirSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
 
 /**
  * Reads Lighthouse CI assertion results (stdout JSON via lhci autorun) is not trivially accessible.
  * Instead, we assume lhci has produced a manifest (e.g., .lighthouseci/(
  * We will collect the latest lhr*.json files and extract relevant categories + audits
  */
-
-import { readdir, readFile } from 'node:fs/promises';
 
 const ROOT = resolve(process.cwd());
 const LHCI_DIR = resolve(ROOT, '.lighthouseci');
@@ -39,26 +36,61 @@ async function collectLighthouseReports() {
 }
 
 function extractAssertionData(reports) {
-  // Collapse to max scores per category & list non-perfect audits; collect key metrics from first report (representative)
-  if (!reports.length)
-    return {
-      schemaVersion: SCHEMA_VERSION,
-      categories: {},
-      audits: {},
-      metrics: {},
-      meta: { reports: 0 },
-    };
+  if (!reports.length) {
+    return createEmptyAssertionData();
+  }
+
+  const categories = processCategories(reports);
+  const audits = processAudits(reports);
+  const metrics = extractMetrics(reports[0]);
+
+  return createAssertionData(categories, audits, metrics, reports.length);
+}
+
+function createEmptyAssertionData() {
+  return {
+    schemaVersion: SCHEMA_VERSION,
+    categories: {},
+    audits: {},
+    metrics: {},
+    meta: { reports: 0 },
+  };
+}
+
+function createAssertionData(categories, audits, metrics, reportCount) {
+  return {
+    schemaVersion: SCHEMA_VERSION,
+    categories,
+    audits,
+    metrics,
+    meta: { reports: reportCount, generatedAt: new Date().toISOString() },
+  };
+}
+
+function processCategories(reports) {
   const categories = {};
-  const audits = {};
   for (const r of reports) {
     if (r.categories) {
       for (const [key, cat] of Object.entries(r.categories)) {
-        const score = typeof cat.score === 'number' ? cat.score : null;
-        if (score != null) {
-          if (!categories[key] || categories[key] < score) categories[key] = score;
-        }
+        updateCategoryScore(categories, key, cat.score);
       }
     }
+  }
+  return categories;
+}
+
+function updateCategoryScore(categories, key, score) {
+  const validScore = typeof score === 'number' ? score : null;
+  if (validScore != null) {
+    if (!categories[key] || categories[key] < validScore) {
+      categories[key] = validScore;
+    }
+  }
+}
+
+function processAudits(reports) {
+  const audits = {};
+  for (const r of reports) {
     if (r.audits) {
       for (const [aid, audit] of Object.entries(r.audits)) {
         if (audit.score !== 1) {
@@ -73,8 +105,10 @@ function extractAssertionData(reports) {
       }
     }
   }
-  // metrics (from first report only to avoid mixing strategies / pages)
-  const primary = reports[0];
+  return audits;
+}
+
+function extractMetrics(primaryReport) {
   const metrics = {};
   const metricMap = {
     LCP: 'largest-contentful-paint',
@@ -83,19 +117,14 @@ function extractAssertionData(reports) {
     TBT: 'total-blocking-time',
     SI: 'speed-index',
   };
+
   for (const [abbr, auditId] of Object.entries(metricMap)) {
-    const a = primary?.audits?.[auditId];
-    if (a && typeof a.numericValue === 'number') {
-      metrics[abbr] = { numericValue: a.numericValue, score: a.score };
+    const audit = primaryReport?.audits?.[auditId];
+    if (audit && typeof audit.numericValue === 'number') {
+      metrics[abbr] = { numericValue: audit.numericValue, score: audit.score };
     }
   }
-  return {
-    schemaVersion: SCHEMA_VERSION,
-    categories,
-    audits,
-    metrics,
-    meta: { reports: reports.length, generatedAt: new Date().toISOString() },
-  };
+  return metrics;
 }
 
 async function main() {

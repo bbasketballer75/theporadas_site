@@ -10,7 +10,7 @@ if (!process.env.SKIP_DOTENV) {
     try {
       const mod = await import('dotenv');
       mod.config({ path: dotenvPath });
-    } catch (e) {
+    } catch {
       // Fallback minimal parser (very limited) so local dev still works w/o dependency
       try {
         const raw = readFileSync(dotenvPath, 'utf8');
