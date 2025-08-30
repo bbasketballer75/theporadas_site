@@ -176,6 +176,51 @@ Ingest request format:
 
 Successful ingestion returns `202 Accepted` with `{ "id": <eventId> }`.
 
+### Ingestion Authentication & HMAC Integrity
+
+If `MCP_SSE_AUTH_TOKEN` is set, clients must supply `Authorization: Bearer <token>` for
+SSE subscriptions. If `MCP_SSE_INGEST_TOKEN` is set (or inherited from auth token), ingestion
+requests must also include the same header. Missing or invalid tokens yield `401`.
+
+When `MCP_SSE_HMAC_REDACTED_BY_AUDIT_ISSUE_70` is provided, the gateway computes an HMAC (SHA-256) over the raw
+request body and includes a signature line before the event payload:
+
+```text
+event: <topic>
+id: 123
+retry: 5000
+extension: signature=sha256=<hex>
+data: {"topic":"...","data":{...}}
+```
+
+Example client ingestion (PowerShell):
+
+```pwsh
+$body = '{"topic":"metrics.build","data":{"delta":5}}'
+Invoke-RestMethod -Method Post -Uri http://127.0.0.1:39300/model_context_protocol/2024-11-05/events `
+  -Headers @{ 'Content-Type'='application/json'; Authorization='Bearer '+$Env:MCP_SSE_INGEST_TOKEN } `
+  -Body $body
+```
+
+The signature lets downstream consumers verify integrity if they share the secret. Absence of
+`MCP_SSE_HMAC_REDACTED_BY_AUDIT_ISSUE_70` omits the line (backwards compatible).
+
+### Client SSE Path Guidance
+
+For most client integrations prefer the alias path `/model_context_protocol/sse` (or the shorter
+`/sse`), which always follows the active version, minimizing hard-coded version churn. Use the
+explicit versioned path (`/model_context_protocol/2024-11-05/sse`) only when you require strict
+pinning for replay reproducibility or protocol diff testing. The `/latest/sse` alias tracks the
+active version but signals that the client intentionally allows silent upgrades.
+
+Summary:
+
+| Path                                     | Use Case                                  |
+| ---------------------------------------- | ----------------------------------------- |
+| `/model_context_protocol/sse` or `/sse`  | Default: stable alias, auto-upgrades      |
+| `/model_context_protocol/latest/sse`     | Explicit opt-in to latest (same as above) |
+| `/model_context_protocol/2024-11-05/sse` | Version pin / reproducible diagnostics    |
+
 ### Logging Method Consistency
 
 All active servers now import `mcp_logging.mjs` to expose the JSON-RPC method:
@@ -701,7 +746,71 @@ Adding a new secret:
 The following table is auto-generated. Do not edit between the markers manually; run `npm run env:docs` to refresh.
 
 <!-- ENV_VARS_AUTO_START -->
-<!-- (will be populated by scripts/generate_env_docs.mjs) -->
+
+| Variable                      | Default | Description                                                          |
+| ----------------------------- | ------- | -------------------------------------------------------------------- |
+| DISABLE_MCP_KEEPALIVE         |         |                                                                      |
+| EMBEDDINGS_API_KEY            |         |                                                                      |
+| EMBEDDINGS_PROVIDER           |         |                                                                      |
+| FIREBASE_MCP_CHECK_TIMEOUT_MS |         |                                                                      |
+| GATE_LH_CATEGORY_TOLERANCE    |         |                                                                      |
+| GATE_MIN_BRANCHES             |         |                                                                      |
+| GATE_MIN_FUNCTIONS            |         |                                                                      |
+| GATE_MIN_LINES                |         |                                                                      |
+| GATE_MIN_STATEMENTS           |         |                                                                      |
+| GATE_TOKEN_MAX_ADDED          |         |                                                                      |
+| GATE_TOKEN_MAX_NET            |         |                                                                      |
+| GCLOUD_TOKEN                  |         |                                                                      |
+| GH_TOKEN                      |         |                                                                      |
+| GITHUB_APP_INSTALLATION_TOKEN |         | GitHub App installation token (alternative auth)                     |
+| GITHUB_REPOSITORY             |         | GitHub repository owner/name (CI context)                            |
+| GITHUB_STEP_SUMMARY           |         | File path for GitHub Actions step summary output                     |
+| GITHUB_TOKEN                  |         | GitHub token for workflow verification scripts                       |
+| LH_ALLOWED_DELTA              |         | Allowed Lighthouse metric delta (quality regression check)           |
+| LH_METRIC_REGRESSION_PCT      |         | Percentage threshold for Lighthouse metric regression                |
+| MCP_ERRORS_VERBOSE            |         |                                                                      |
+| MCP_ERROR_METRICS             |         |                                                                      |
+| MCP_FS_ALLOW_WRITE_GLOBS      |         | Comma-separated glob patterns allowed for write operations           |
+| MCP_FS_MAX_BYTES              |         | Maximum allowed file size (bytes) for writes; unset for no limit     |
+| MCP_FS_ROOT                   |         | Root directory for filesystem server operations                      |
+| MCP_INCLUDE_SSE               |         | Include the SSE gateway under supervisor when set to 1               |
+| MCP_KG_MAX_TRIPLES            |         |                                                                      |
+| MCP_MAX_LINE_LEN              |         |                                                                      |
+| MCP_MEMORY_BANK_DIR           |         |                                                                      |
+| MCP_PROM_METRICS              |         |                                                                      |
+| MCP_PT_NAV_TIMEOUT_MS         |         |                                                                      |
+| MCP_PT_SESSION_LIMIT          |         |                                                                      |
+| MCP_PW_NAV_TIMEOUT_MS         |         |                                                                      |
+| MCP_PW_SESSION_LIMIT          |         |                                                                      |
+| MCP_PY_TIMEOUT_MS             |         |                                                                      |
+| MCP_PYTHON_BIN                |         |                                                                      |
+| MCP_RATE_LIMIT                |         |                                                                      |
+| MCP_RATE_LIMIT_CAPACITY       |         |                                                                      |
+| MCP_RATE_LIMIT_MODE           |         |                                                                      |
+| MCP_RATE_LIMIT_REFILL_MS      |         |                                                                      |
+| MCP_SERVER_NAME               |         | Override server name advertised in readiness event                   |
+| MCP_SSE_AUTH_TOKEN            |         | Bearer token required for SSE subscription (if set)                  |
+| MCP_SSE_HEARTBEAT_MS          |         | Heartbeat interval (ms) for SSE keepalive events                     |
+| MCP_SSE_HMAC_REDACTED_BY_AUDIT_ISSUE_70           |         | Optional HMAC secret; adds X-MCP-Signature header to ingested events |
+| MCP_SSE_INGEST_TOKEN          |         | Bearer token required for ingestion (defaults to auth token)         |
+| MCP_SSE_PORT                  |         | Port for the SSE gateway HTTP server                                 |
+| MCP_SSE_RING_MAX              |         | Maximum number of events retained in ring buffer                     |
+| MCP_SSE_VERSION               |         | Version segment used for versioned SSE paths                         |
+| MEM0_API_KEY                  |         |                                                                      |
+| MY_REDACTED_BY_AUDIT_ISSUE_70                     |         |                                                                      |
+| NOTION_API_KEY                |         |                                                                      |
+| PIECES_API_KEY                |         |                                                                      |
+| SCHEDULER_MAX_TASKS           |         |                                                                      |
+| REDACTED_BY_AUDIT_ISSUE_70S_ALLOWLIST             |         |                                                                      |
+| SQLSERVER_CONNECTION_STRING   |         |                                                                      |
+| TAVILY_API_KEY                |         | Tavily API key (required unless TAVILY_OPTIONAL=1)                   |
+| TAVILY_API_URL                |         | Override Tavily API base URL                                         |
+| TAVILY_FORCE_CRASH            |         | Testing flag to force Tavily server crash on startup                 |
+| TAVILY_MOCK_SCENARIO          |         | Testing scenario selector for mock Tavily responses                  |
+| TAVILY_OPTIONAL               |         | Allow degraded mode without API key when set to 1                    |
+| VECTOR_DB_PATH                |         | Path to vector DB JSONL storage file                                 |
+| VITEST_COVERAGE_LIGHT         |         |                                                                      |
+
 <!-- ENV_VARS_AUTO_END -->
 
 ## VS Code Extensions

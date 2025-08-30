@@ -357,3 +357,131 @@ button,
 .hero-video-overlay .stack {
   max-width: 60ch;
 }
+
+/* Global Link Styling */
+a {
+  color: var(--color-text-accent);
+  text-decoration-color: color-mix(in srgb, var(--c-blush-400) 55%, transparent);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 2px;
+  transition:
+    color var(--dur-short) var(--ease-standard),
+    text-decoration-color var(--dur-short) var(--ease-standard);
+}
+a:hover {
+  color: var(--c-blush-300);
+  text-decoration-color: var(--c-blush-300);
+}
+a:active {
+  color: var(--c-blush-200);
+}
+
+/* Site Navigation */
+.site-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.site-nav a {
+  display: inline-block;
+  padding: 0.45em 0.95em;
+  border-radius: var(--radius-lg);
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: var(--c-surface-alt);
+  border: 1px solid var(--c-border);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition:
+    background var(--dur-short) var(--ease-standard),
+    border-color var(--dur-short) var(--ease-standard),
+    color var(--dur-short) var(--ease-standard),
+    transform var(--dur-short) var(--ease-standard);
+}
+.site-nav a:hover {
+  background: var(--c-surface-alt);
+  border-color: var(--c-sage-400);
+  color: var(--c-sage-300);
+}
+.site-nav li.active a,
+.site-nav a[aria-current='true'] {
+  background: linear-gradient(120deg, var(--c-sage-500), var(--c-blush-500));
+  border-color: color-mix(in srgb, var(--c-sage-500) 60%, var(--c-blush-500));
+  color: var(--c-text-invert);
+  text-shadow: 0 1px 1px rgba(0 0 0 / 0.4);
+}
+.site-nav a:active {
+  transform: translateY(1px);
+}
+
+/* Video Player Chapters */
+nav[aria-label='Chapters'] ol {
+  --chapter-bg: var(--c-surface-alt);
+}
+nav[aria-label='Chapters'] button {
+  background: var(--chapter-bg);
+  color: var(--color-text-primary);
+  border: 1px solid var(--c-border);
+  font-weight: 500;
+  letter-spacing: 0.25px;
+  backdrop-filter: blur(4px);
+  background-image: linear-gradient(
+    to bottom right,
+    color-mix(in srgb, var(--c-sage-800) 55%, transparent),
+    color-mix(in srgb, var(--c-blush-800) 35%, transparent)
+  );
+  box-shadow: var(--shadow-sm);
+}
+nav[aria-label='Chapters'] button[aria-current='true'] {
+  background: linear-gradient(135deg, var(--c-sage-500), var(--c-blush-500));
+  color: var(--c-text-invert);
+  border-color: color-mix(in srgb, var(--c-sage-500) 60%, var(--c-blush-500));
+  box-shadow:
+    0 0 0 1px rgba(255 255 255 / 0.05),
+    var(--shadow-md);
+}
+nav[aria-label='Chapters'] button:hover {
+  border-color: var(--c-sage-400);
+}
+nav[aria-label='Chapters'] button:focus-visible {
+  outline-color: var(--c-blush-400);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--c-blush-400) 35%, transparent),
+    var(--shadow-sm);
+}
+@media (prefers-reduced-motion: no-preference) {
+  nav[aria-label='Chapters'] button[aria-current='true'] {
+    animation: pulseActive 3.5s var(--ease-emphatic) infinite;
+  }
+  @keyframes pulseActive {
+    0%,
+    100% {
+      filter: brightness(1) saturate(1);
+    }
+    50% {
+      filter: brightness(1.15) saturate(1.15);
+    }
+  }
+}
+
+/* Video container refinement */
+section[aria-label='Video Feature'] .card figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+section[aria-label='Video Feature'] video {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+section[aria-label='Video Feature'] figcaption {
+  font-size: 0.85rem;
+  opacity: 0.75;
+  letter-spacing: 0.25px;
+}
