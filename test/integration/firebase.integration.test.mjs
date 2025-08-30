@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 function startServer(cmd, args, timeout = 8000) {
   return new Promise((resolve, reject) => {
@@ -30,7 +30,9 @@ function startServer(cmd, args, timeout = 8000) {
               resolve({ child, methods });
             }
           } catch (e) {
-            console.warn(`Firebase integration test: Failed to parse line: ${line}, error: ${e.message}`);
+            console.warn(
+              `Firebase integration test: Failed to parse line: ${line}, error: ${e.message}`,
+            );
           }
         });
     });
@@ -68,7 +70,9 @@ async function rpc(child, method, params) {
               else resolve(obj.result);
             }
           } catch (e) {
-            console.warn(`Firebase integration test RPC: Failed to parse line: ${line}, error: ${e.message}`);
+            console.warn(
+              `Firebase integration test RPC: Failed to parse line: ${line}, error: ${e.message}`,
+            );
           }
         });
     }

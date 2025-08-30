@@ -1,9 +1,8 @@
-import { render } from '@testing-library/react';
-import React from 'react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { act, render } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import '../src/skipLinkFocus';
 import { useHashNavigation } from '../src/hooks/useHashNavigation';
+import '../src/skipLinkFocus';
 
 function HashNavProbe({ focus = true }: { focus?: boolean }) {
   const { hash } = useHashNavigation(focus);
@@ -22,9 +21,10 @@ describe('skipLinkFocus & useHashNavigation extended coverage', () => {
   it('applies tabindex and attempts focus on skip link activation logic', async () => {
     const main = document.getElementById('appShell') as HTMLElement;
     // Simulate location hash
-    history.replaceState(null, '', '#appShell');
-    window.dispatchEvent(new HashChangeEvent('hashchange'));
-    await Promise.resolve();
+    await act(async () => {
+      history.replaceState(null, '', '#appShell');
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    });
     expect(main.getAttribute('tabindex')).toBe('-1');
   });
 
@@ -35,22 +35,28 @@ describe('skipLinkFocus & useHashNavigation extended coverage', () => {
     // @ts-ignore
     target.scrollIntoView = vi.fn();
     const { container } = render(<HashNavProbe />);
-    history.replaceState(null, '', '#targetA');
-    window.dispatchEvent(new HashChangeEvent('hashchange'));
-    await new Promise((r) => setTimeout(r, 10));
+    await act(async () => {
+      history.replaceState(null, '', '#targetA');
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+      await new Promise((r) => setTimeout(r, 10));
+    });
     expect(container.querySelector('[data-hash="targetA"]')).toBeTruthy();
     expect(target.scrollIntoView as unknown as ReturnType<typeof vi.fn>).toHaveBeenCalled();
     expect(target.getAttribute('tabindex')).toBe('-1');
-    await new Promise((r) => setTimeout(r, 120));
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 120));
+    });
     expect(target.getAttribute('tabindex')).toBeNull();
   });
 
   it('useHashNavigation with focus=false does not mutate tabindex', async () => {
     const target = document.getElementById('targetA') as HTMLElement;
     render(<HashNavProbe focus={false} />);
-    history.replaceState(null, '', '#targetA');
-    window.dispatchEvent(new HashChangeEvent('hashchange'));
-    await new Promise((r) => setTimeout(r, 10));
+    await act(async () => {
+      history.replaceState(null, '', '#targetA');
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+      await new Promise((r) => setTimeout(r, 10));
+    });
     expect(target.getAttribute('tabindex')).toBeNull();
   });
 });

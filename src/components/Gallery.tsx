@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { loadGallery, GalleryItemBase } from '../gallery/loader';
+import { GalleryItemBase, loadGallery } from '../gallery/loader';
+
+import { ImageUpload } from './ImageUpload';
 
 interface GalleryProps {
   headingId?: string;
@@ -150,21 +152,14 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
           );
         })}
       </ul>
-      <form
-        aria-describedby="upload-help"
-        className="gallery-upload-stub"
-        onSubmit={(e) => e.preventDefault()}
-      >
-        <fieldset disabled>
-          <legend>Contribute a Photo (Coming Soon)</legend>
-          <input type="file" aria-label="Choose image" />
-          <button type="submit">Upload</button>
-          <p id="upload-help">
-            Uploads are not enabled yet. This placeholder will be replaced with the contributor form
-            workflow.
-          </p>
-        </fieldset>
-      </form>
+      <div className="gallery-upload">
+        <ImageUpload
+          onImageProcessed={(processedUrl: string) => {
+            // Here you could add logic to refresh the gallery or show a success message
+            console.log('Image processed:', processedUrl);
+          }}
+        />
+      </div>
       {active && (
         <div
           className="gallery-modal"

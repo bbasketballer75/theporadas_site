@@ -45,3 +45,5 @@ codeql-drift-baseline.json
 
 # Temporary comparison outputs
 *.lh-cache
+
+.vercel

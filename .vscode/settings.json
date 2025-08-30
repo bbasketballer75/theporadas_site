@@ -8,12 +8,25 @@
   "github.copilot.editor.enableAutoCompletions": true,
   "python.terminal.useEnvFile": true,
   "python.envFile": "${workspaceFolder}/.env",
-  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
-  "terminal.integrated.cwd": "${workspaceFolder}",
-  "terminal.integrated.splitCwd": "workspaceRoot",
-  "powershell.cwd": "${workspaceFolder}",
-  "python-envs.defaultEnvManager": "ms-python.python:system",
-  "python-envs.pythonProjects": [],
+  "python.defaultInterpreterPath": "python",
+  "python.terminal.activateEnvironment": false,
+  "python.venvFolders": [
+    "venv",
+    ".venv"
+  ],
+  "python.venvPath": "",
+  "python.experiments.optInto": [
+    "pythonTerminalEnvVarActivation"
+  ],
+  "python.workspaceSymbols.enabled": false,
+  "python.analysis.autoImportCompletions": false,
+  "python.analysis.exclude": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/.git/**",
+    "**/coverage/**"
+  ],
   // Exclude procedural markdown checklists (PR/issue templates, self review) from TODO scanners.
   "todo-tree.filtering.excludeGlobs": [
     "**/docs/self_review_checklist.md",
@@ -40,7 +53,12 @@
   "[dockerfile]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-containers"
   },
-  "cSpell.words": ["Autobuild", "tavily", "TAVILY", "tvsearch"],
+  "cSpell.words": [
+    "Autobuild",
+    "tavily",
+    "TAVILY",
+    "tvsearch"
+  ],
   // Enhanced settings for better development experience
   "files.eol": "\n",
   "eslint.format.enable": true,
