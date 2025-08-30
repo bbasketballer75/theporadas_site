@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Persistent minimal MCP server for Mem0-like memory store
 import './load_env.mjs';
+import './mcp_logging.mjs';
 
 if (!process.env.MEM0_API_KEY) {
   process.stdout.write(JSON.stringify({ type: 'error', error: 'MEM0_API_KEY not set' }) + '\n');

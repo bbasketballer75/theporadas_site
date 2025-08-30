@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
 import process from 'node:process';
+import './mcp_logging.mjs';
 
 /*
   Simple MCP supervisor: spawns selected MCP stub servers and reports readiness.
@@ -12,6 +13,10 @@ const baseServers = [
   { name: 'fs', cmd: 'node', args: ['scripts/mcp_filesystem.mjs'] },
   { name: 'tavily', cmd: 'node', args: ['scripts/mcp_tavily.mjs'] },
 ];
+
+if (process.env.MCP_INCLUDE_SSE === '1' || process.argv.includes('--with-sse')) {
+  baseServers.push({ name: 'sse', cmd: 'node', args: ['scripts/mcp_sse_gateway.mjs'] });
+}
 
 // Parse CLI flags: --only a,b   --exclude x,y  --max-restarts N  --backoff-ms 500-5000  --fail-fast
 // Optional: --heartbeat-ms N (emit periodic heartbeat)  --config path/to/servers.json
@@ -164,6 +169,11 @@ function spawnOne(s) {
           stats.ready = true;
           if (!stats.readyAt) stats.readyAt = Date.now();
           logJson({ type: 'supervisor', event: 'ready', server: s.name, pid: child.pid });
+          // Capture capabilities (methods) if provided by child readiness line
+          if (Array.isArray(j.methods)) {
+            stats.methods = j.methods.slice();
+          }
+          maybeEmitCapabilities();
         }
       } catch {}
     }
@@ -244,6 +254,19 @@ function supervise() {
   });
   if (heartbeatMs > 0) scheduleHeartbeat();
   if (maxUptimeMs > 0) scheduleMaxUptime();
+}
+
+function maybeEmitCapabilities() {
+  // Only emit once, after every server that will become ready has become ready
+  if (state.capabilitiesEmitted) return;
+  const allReady = servers.every((s) => state.servers[s.name].ready);
+  if (!allReady) return;
+  const serversCaps = {};
+  for (const [name, stats] of Object.entries(state.servers)) {
+    if (Array.isArray(stats.methods)) serversCaps[name] = stats.methods;
+  }
+  state.capabilitiesEmitted = true;
+  logJson({ type: 'supervisor', event: 'capabilities', servers: serversCaps });
 }
 
 function scheduleHeartbeat() {

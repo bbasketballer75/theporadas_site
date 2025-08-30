@@ -7,6 +7,7 @@
 // Allowlist from SECRETS_ALLOWLIST (comma-separated). If not set, read .env and expose no secrets.
 
 import './load_env.mjs';
+import './mcp_logging.mjs';
 import { createServer, appError } from './mcp_rpc_base.mjs';
 import { readFileSync, existsSync } from 'fs';
 
