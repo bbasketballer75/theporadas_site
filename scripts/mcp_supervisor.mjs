@@ -69,10 +69,8 @@ if (logFilePath) {
   try {
     const fs = await import('node:fs');
     logFileStream = fs.createWriteStream(logFilePath, { flags: 'a' });
-  } catch (e) {
-    process.stderr.write(
-      `[supervisor][err] Failed to open log file ${logFilePath}: ${e.message}\n`,
-    );
+  } catch {
+    process.stderr.write(`[supervisor][err] Failed to open log file ${logFilePath}\n`);
   }
 }
 
@@ -99,8 +97,8 @@ if (configPath) {
     } else {
       logJson({ type: 'supervisor', event: 'config-invalid', reason: 'Root JSON not array' });
     }
-  } catch (e) {
-    logJson({ type: 'supervisor', event: 'config-error', message: e.message });
+  } catch {
+    logJson({ type: 'supervisor', event: 'config-error', message: 'Failed to load config' });
   }
 }
 
@@ -175,7 +173,9 @@ function spawnOne(s) {
           }
           maybeEmitCapabilities();
         }
-      } catch {}
+      } catch {
+        console.warn(`[supervisor] Failed to parse JSON from ${s.name}`);
+      }
     }
     process.stdout.write(`[${s.name}] ${text}`);
   });
@@ -328,7 +328,9 @@ function shutdown() {
   for (const [, meta] of processes) {
     try {
       meta.child.kill('SIGTERM');
-    } catch {}
+    } catch {
+      console.warn(`[supervisor] Failed to kill child process`);
+    }
   }
   // Allow short grace period then emit summary & exit
   setTimeout(() => {
@@ -344,7 +346,9 @@ function shutdown() {
     if (logFileStream) {
       try {
         logFileStream.end();
-      } catch {}
+      } catch {
+        console.warn(`[supervisor] Failed to close log file stream`);
+      }
     }
     process.exit(code);
   }, 250);

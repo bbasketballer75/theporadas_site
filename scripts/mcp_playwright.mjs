@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 // Playwright MCP server using shared harness
-import './mcp_logging.mjs';
-import { register, createServer } from './mcp_rpc_base.mjs';
 import { pwError } from './mcp_error_codes.mjs';
+import './mcp_logging.mjs';
+import { createServer, register } from './mcp_rpc_base.mjs';
 
 let playwright;
 try {
   playwright = await import('playwright');
-} catch (e) {
+} catch {
   // playwright unavailable; structured errors will surface when methods invoked
   playwright = null;
 }

@@ -85,40 +85,69 @@ export function listMethods() {
   return Array.from(methods.keys());
 }
 
-export function safeError(err) {
-  if (!err) return { code: -32000, message: 'Unknown error' };
-  if (typeof err === 'string') return { code: -32000, message: err };
-  // Prefer explicit appCode if provided (positive domain-specific codes per taxonomy)
-  const code = Number.isInteger(err.appCode)
-    ? err.appCode
-    : Number.isInteger(err.code)
-      ? err.code
-      : -32000;
-  const data = Object.assign({}, err.data || {});
+function determineErrorCode(err) {
+  if (Number.isInteger(err.appCode)) return err.appCode;
+  if (Number.isInteger(err.code)) return err.code;
+  return -32000;
+}
+
+function buildErrorData(err) {
+  const data = { ...(err.data || {}) };
   if (err.domain) data.domain = err.domain;
   if (err.symbol) data.symbol = err.symbol;
   if (typeof err.retryable === 'boolean') data.retryable = err.retryable;
   if (err.details) data.details = err.details;
-  if (process.env.MCP_ERRORS_VERBOSE && err.stack) {
-    let mode = process.env.MCP_ERRORS_VERBOSE;
-    let lines;
-    if (mode === 'full') {
-      lines = String(err.stack).split('\n');
-    } else {
-      const n = parseInt(mode, 10);
-      lines = String(err.stack)
-        .split('\n')
-        .slice(0, Number.isFinite(n) ? n : 5);
-    }
-    data.stack = lines.join('\n');
+  return data;
+}
+
+function processStackTrace(err, data) {
+  if (!shouldProcessStackTrace(err)) return;
+
+  const mode = process.env.MCP_ERRORS_VERBOSE;
+  const lines = getStackTraceLines(err, mode);
+  data.stack = lines.join('\n');
+}
+
+function shouldProcessStackTrace(err) {
+  return process.env.MCP_ERRORS_VERBOSE && err.stack;
+}
+
+function getStackTraceLines(err, mode) {
+  if (mode === 'full') {
+    return String(err.stack).split('\n');
   }
-  // Metrics collection
-  if (errorMetricsEnabled) {
-    errorCounters.total += 1;
-    incCounter(errorCounters.byCode, code);
-    if (data.domain) incCounter(errorCounters.byDomain, data.domain);
-    if (data.symbol) incCounter(errorCounters.bySymbol, data.symbol);
-  }
+
+  const n = parseInt(mode, 10);
+  const limit = Number.isFinite(n) ? n : 5;
+  return String(err.stack).split('\n').slice(0, limit);
+}
+
+function collectErrorMetrics(code, data) {
+  if (!errorMetricsEnabled) return;
+
+  errorCounters.total += 1;
+  incCounter(errorCounters.byCode, code);
+  if (data.domain) incCounter(errorCounters.byDomain, data.domain);
+  if (data.symbol) incCounter(errorCounters.bySymbol, data.symbol);
+}
+
+export function safeError(err) {
+  if (!err) return createBasicError('Unknown error');
+  if (typeof err === 'string') return createBasicError(err);
+
+  return processStructuredError(err);
+}
+
+function createBasicError(message) {
+  return { code: -32000, message };
+}
+
+function processStructuredError(err) {
+  const code = determineErrorCode(err);
+  const data = buildErrorData(err);
+  processStackTrace(err, data);
+  collectErrorMetrics(code, data);
+
   return {
     code,
     message: err.message || 'Error',
@@ -144,7 +173,7 @@ function processLines(chunk) {
     let msg;
     try {
       msg = JSON.parse(line);
-    } catch (e) {
+    } catch {
       emit({
         jsonrpc: '2.0',
         id: null,
@@ -159,7 +188,7 @@ function processLines(chunk) {
 function emit(obj) {
   try {
     process.stdout.write(JSON.stringify(obj) + '\n');
-  } catch (e) {
+  } catch {
     // ignore EPIPE
   }
 }
@@ -203,7 +232,7 @@ async function handleMessage(msg) {
   }
 }
 
-export function start() {
+export async function start() {
   process.stdin.setEncoding('utf8');
   process.stdin.on('data', processLines);
   process.stdin.on('error', () => {});
@@ -225,7 +254,7 @@ export function start() {
   const healthPort = process.env.MCP_HEALTH_PORT && parseInt(process.env.MCP_HEALTH_PORT, 10);
   if (healthPort && Number.isFinite(healthPort)) {
     try {
-      const http = require('http');
+      const http = await import('node:http');
       const startedAt = Date.now();
       const serverName = process.env.MCP_SERVER_NAME || 'mcp-server';
       const srv = http.createServer((req, res) => {
@@ -260,53 +289,14 @@ export function start() {
       srv.listen(healthPort, '0.0.0.0').on('error', (e) => {
         console.error('[mcp:harness] failed to start health server', e.message);
       });
-    } catch (e) {
-      // If http import fails (ESM interop), attempt dynamic import fallback
-      import('node:http')
-        .then((httpMod) => {
-          const startedAt = Date.now();
-          const serverName = process.env.MCP_SERVER_NAME || 'mcp-server';
-          const srv = httpMod.createServer((req, res) => {
-            if (req.method !== 'GET') {
-              res.statusCode = 405;
-              return res.end();
-            }
-            if (req.url === '/healthz') {
-              res.statusCode = 200;
-              res.setHeader('Content-Type', 'application/json');
-              res.end(
-                JSON.stringify({
-                  status: 'ok',
-                  server: serverName,
-                  methods: listMethods().length,
-                  uptimeMs: Date.now() - startedAt,
-                }),
-              );
-              return;
-            }
-            if (promMetricsEnabled && req.url === '/metrics') {
-              const { contentType, body } = buildPromMetrics();
-              res.statusCode = 200;
-              res.setHeader('Content-Type', contentType);
-              res.end(body);
-              return;
-            }
-            res.statusCode = 404;
-            res.end();
-          });
-          srv
-            .listen(healthPort, '0.0.0.0')
-            .on('error', (err2) =>
-              console.error('[mcp:harness] failed to start health server', err2.message),
-            );
-        })
-        .catch(() => {});
+    } catch {
+      // If http import fails, skip health server
     }
   }
 }
 
 // Convenience to build a server quickly
-export function createServer(registrar) {
+export async function createServer(registrar) {
   registrar({ register });
   // Optionally register metrics inspection method
   if (errorMetricsEnabled) {
@@ -331,7 +321,7 @@ export function createServer(registrar) {
       return buildPromMetrics();
     });
   }
-  start();
+  await start();
 }
 
 // Export metrics for potential external inspection (tests) without RPC

@@ -1,6 +1,6 @@
 import type {
-  QualitySource,
   ChapterDef,
+  QualitySource,
   VideoTrackDef,
 } from '../components/VideoPlayer/VideoPlayer';
 
@@ -18,26 +18,12 @@ export interface VideoMeta {
 
 const heroQuality: QualitySource[] = [
   {
-    src: '/media/encoded/hero-480.mp4',
-    type: 'video/mp4',
-    height: 480,
-    bitrateKbps: 1200,
-    label: '480p',
-    default: true,
-  },
-  {
-    src: '/media/encoded/hero-720.mp4',
-    type: 'video/mp4',
-    height: 720,
-    bitrateKbps: 3000,
-    label: '720p',
-  },
-  {
-    src: '/media/encoded/hero-1080.mp4',
+    src: '/media/videos/final-wedding-video.mp4',
     type: 'video/mp4',
     height: 1080,
     bitrateKbps: 6000,
     label: '1080p',
+    default: true,
   },
 ];
 
@@ -52,10 +38,10 @@ const videos: Record<string, VideoMeta> = {
     quality: heroQuality,
     tracks: [
       {
-        kind: 'captions',
-        src: '/media/captions/hero.en.vtt',
+        kind: 'chapters',
+        src: '/media/videos/main-film-chapters.vtt',
         srcLang: 'en',
-        label: 'English',
+        label: 'Chapters',
         default: true,
       },
     ],

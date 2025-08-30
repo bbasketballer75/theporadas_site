@@ -485,3 +485,115 @@ section[aria-label='Video Feature'] figcaption {
   opacity: 0.75;
   letter-spacing: 0.25px;
 }
+
+/* Background Audio Player */
+.background-audio-player {
+  position: fixed;
+  bottom: var(--space-4);
+  right: var(--space-4);
+  z-index: 1000;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(8px);
+  background-image: linear-gradient(
+    to bottom right,
+    color-mix(in srgb, var(--c-sage-800) 30%, transparent),
+    color-mix(in srgb, var(--c-blush-800) 20%, transparent)
+  );
+}
+
+.audio-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.audio-play-pause,
+.volume-mute {
+  background: var(--c-surface-alt);
+  border: 1px solid var(--c-border);
+  color: var(--c-text);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition:
+    background var(--dur-short) var(--ease-standard),
+    border-color var(--dur-short) var(--ease-standard),
+    color var(--dur-short) var(--ease-standard);
+}
+
+.audio-play-pause:hover,
+.volume-mute:hover {
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+  color: var(--c-text-invert);
+}
+
+.audio-play-pause:focus-visible,
+.volume-mute:focus-visible {
+  outline: 2px solid var(--c-focus);
+  outline-offset: 2px;
+}
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.volume-slider {
+  width: 80px;
+  height: 4px;
+  background: var(--c-border);
+  border-radius: 2px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--c-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--c-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--c-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--c-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.volume-slider:focus-visible {
+  outline: 2px solid var(--c-focus);
+  outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+  .background-audio-player {
+    bottom: var(--space-2);
+    right: var(--space-2);
+    padding: var(--space-2);
+  }
+
+  .audio-controls {
+    gap: var(--space-2);
+  }
+
+  .volume-slider {
+    width: 60px;
+  }
+}

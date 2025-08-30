@@ -2,15 +2,12 @@
 // Wrapper that starts @modelcontextprotocol/server-filesystem and emits a standard ready event even
 // if underlying process exits quickly. If the underlying exits immediately (non-zero), we surface an error.
 import { spawn } from 'child_process';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
 import fs from 'fs';
+import { join } from 'path';
 
 const root = process.argv[2] || process.cwd();
 
 // Resolve the locally installed binary path. On Windows there will be a .cmd shim.
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 // projectRoot assumed two levels up from scripts folder; safer to traverse until package.json? For now rely on cwd.
 const binBase = join(process.cwd(), 'node_modules', '.bin', 'mcp-server-filesystem');
 const shimCmd = `${binBase}.cmd`;
@@ -28,7 +25,8 @@ function fileExists(p) {
   try {
     fs.accessSync(p);
     return true;
-  } catch {
+  } catch (error) {
+    console.warn(`[filesystem-wrapper] File access check failed for ${p}: ${error.message}`);
     return false;
   }
 }
@@ -38,6 +36,7 @@ let execType = 'unknown';
 let command;
 let args;
 let spawnOptions = { stdio: ['ignore', 'pipe', 'pipe'] };
+
 if (process.platform === 'win32') {
   if (fileExists(shimCmd)) {
     command = shimCmd;
@@ -55,7 +54,9 @@ if (process.platform === 'win32') {
   }
   // Sometimes direct spawning of .cmd can yield EINVAL depending on shell; try shell spawn if fails.
   spawnOptions.shell = false;
-} else {
+}
+
+if (process.platform !== 'win32') {
   if (fileExists(binBase)) {
     command = binBase;
     args = [root];
@@ -109,7 +110,6 @@ function attach(proc) {
   proc.on('exit', handleExit);
 }
 
-const argsOriginal = args;
 let readyEmitted = false;
 let stderr = '';
 function handleStdout(d) {

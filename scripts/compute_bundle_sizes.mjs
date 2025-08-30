@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { readdirSync, statSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { resolve, relative } from 'node:path';
+import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { relative, resolve } from 'node:path';
 import { brotliCompressSync, gzipSync } from 'node:zlib';
 
 function compressSize(buf, algo) {
@@ -20,7 +20,7 @@ async function fileInfo(filePath, root) {
   let content;
   try {
     content = readFileSync(full);
-  } catch (_) {
+  } catch {
     return null;
   }
   let gzip = null,

@@ -78,11 +78,15 @@ function runTest(def) {
           } else if (def.request) {
             proc.stdin.write(JSON.stringify(def.request) + '\n');
           }
-        } catch {}
+        } catch (error) {
+          console.warn(`[smoke-test] Failed to send request to ${def.name}: ${error.message}`);
+        }
         setTimeout(() => {
           try {
             proc.kill();
-          } catch {}
+          } catch (error) {
+            console.warn(`[smoke-test] Failed to kill process for ${def.name}: ${error.message}`);
+          }
         }, 400);
       }
     });
@@ -93,7 +97,10 @@ function runTest(def) {
           .map((l) => {
             try {
               return JSON.parse(l);
-            } catch {
+            } catch (error) {
+              console.warn(
+                `[smoke-test] Failed to parse JSON line from ${def.name}: ${error.message}`,
+              );
               return null;
             }
           })
@@ -109,7 +116,10 @@ function runTest(def) {
           passed =
             !!resp?.result && (def.expectKey ? resp.result[def.expectKey] !== undefined : true);
         }
-      } catch {}
+      } catch (error) {
+        console.warn(`[smoke-test] Failed to evaluate test ${def.name}: ${error.message}`);
+        passed = false;
+      }
       resolve({ name: def.name, passed, optional: def.optional });
     });
     proc.stderr.on('data', () => {});
@@ -119,7 +129,6 @@ function runTest(def) {
 (async () => {
   const results = [];
   for (const t of tests) {
-    // eslint-disable-next-line no-await-in-loop
     const r = await runTest(t);
     results.push(r);
   }

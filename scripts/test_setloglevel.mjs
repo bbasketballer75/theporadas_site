@@ -26,7 +26,10 @@ for (const s of servers) {
               params: { level: 'debug' },
             }) + '\n',
           );
-        } catch {}
+        } catch (error) {
+          // Ignore write errors - child process may have already exited
+          console.debug(`Write failed for ${s}: ${error.message}`);
+        }
         setTimeout(() => {
           if (!child.killed) child.kill();
         }, 300);

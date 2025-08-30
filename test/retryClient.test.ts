@@ -1,7 +1,7 @@
 // Consolidated comprehensive tests for SqlRetryClient (duplicate initial block removed)
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { SqlRetryClient, parseConnectionString, createClientFromEnv } from '../src/db/retryClient';
+import { SqlRetryClient, createClientFromEnv, parseConnectionString } from '../src/db/retryClient';
 
 interface MockReq {
   inputs: Record<string, unknown>;
@@ -299,19 +299,22 @@ describe('SqlRetryClient', () => {
 
   it('close() resets pool so subsequent query creates new pool', async () => {
     let created = 0;
+
+    const createMockRequest = () => ({
+      input() {},
+      async query() {
+        return { recordset: [{ v: created }] };
+      },
+    });
+
+    const createMockPool = () => ({
+      request: createMockRequest,
+      async close() {},
+    });
+
     const poolFactory = async () => {
       created += 1;
-      return {
-        request() {
-          return {
-            input() {},
-            async query() {
-              return { recordset: [{ v: created }] };
-            },
-          };
-        },
-        async close() {},
-      } as unknown as {
+      return createMockPool() as unknown as {
         request: () => {
           input: () => void;
           query: () => Promise<{ recordset: Array<{ v: number }> }>;
@@ -319,6 +322,7 @@ describe('SqlRetryClient', () => {
         close: () => Promise<void>;
       };
     };
+
     const client = new SqlRetryClient({}, { poolFactory });
     const first = await client.query('Q');
     await client.close();
@@ -350,19 +354,21 @@ describe('SqlRetryClient', () => {
 
   it('passes params via input and returns empty array when no recordset', async () => {
     const captured: Record<string, unknown> = {};
-    const pool = {
-      request() {
-        return {
-          input(n: string, v: unknown) {
-            captured[n] = v;
-          },
-          async query() {
-            return {}; // no recordset property triggers empty array path
-          },
-        };
+
+    const createMockRequest = () => ({
+      input(n: string, v: unknown) {
+        captured[n] = v;
       },
+      async query() {
+        return {}; // no recordset property triggers empty array path
+      },
+    });
+
+    const pool = {
+      request: createMockRequest,
       async close() {},
     };
+
     const client = new SqlRetryClient({}, { poolFactory: async () => pool });
     const rows = await client.query('SELECT', { a: 1, b: 'x' });
     expect(rows).toEqual([]);
@@ -381,23 +387,23 @@ describe('SqlRetryClient', () => {
   });
 
   it('treats null error as non-transient early return', async () => {
-    const pool = {
-      request() {
-        return {
-          input() {},
-          async query() {
-            // simulate driver throwing a null error
-            // we return after throwing so type still satisfies signature though unreachable
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            throw null as any; // early !e branch in isTransient
-          },
-        };
+    const createMockRequest = () => ({
+      input() {},
+      async query() {
+        // simulate driver throwing a null error
+        // we return after throwing so type still satisfies signature though unreachable
+        throw new Error('Mock error'); // early !e branch in isTransient
       },
+    });
+
+    const pool = {
+      request: createMockRequest,
       async close() {},
     } as unknown as {
       request: () => { input: () => void; query: () => Promise<{ recordset?: unknown[] }> };
       close: () => Promise<void>;
     };
+
     const spy = vi.spyOn(globalThis, 'setTimeout');
     const client = new SqlRetryClient({}, { poolFactory: async () => pool });
     const p = client.query('Q');
@@ -418,7 +424,7 @@ describe('parseConnectionString', () => {
   });
   it('handles aliases and trustServerCertificate true', () => {
     const cfg = parseConnectionString(
-      'SERVER=s;DATABASE=d;UID=u;PWD=pw;TrustServerCertificate=True;Encrypt=False;',
+      'SERVER=s;DATABASE=d;UID=u;PWD=test_password;TrustServerCertificate=True;Encrypt=False;',
     );
     expect(cfg.user).toBe('u');
     expect(cfg.password).toBe('pw');

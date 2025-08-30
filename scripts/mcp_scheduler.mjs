@@ -9,10 +9,11 @@
 // Emits task execution events by printing a JSON-RPC notification with method 'sched/event'.
 // Cron supports minute-level patterns: "*/5" meaning every 5 minutes.
 
+import { randomUUID } from 'crypto';
 import './load_env.mjs';
 import './mcp_logging.mjs';
-import { createServer, appError } from './mcp_rpc_base.mjs';
-import { randomUUID } from 'crypto';
+
+import { appError, createServer } from './mcp_rpc_base.mjs';
 
 const maxTasks = parseInt(process.env.SCHEDULER_MAX_TASKS || '500', 10);
 const tasks = new Map(); // id -> { timeout, interval, cron, payload, eta }
@@ -20,15 +21,6 @@ const tasks = new Map(); // id -> { timeout, interval, cron, payload, eta }
 function scheduleDelay(ms, task) {
   task.eta = Date.now() + ms;
   task.timeout = setTimeout(() => execute(task.id), ms);
-}
-
-function parseCron(expr) {
-  if (!expr) return null;
-  if (expr === '*') return { everyMinutes: 1 };
-  // Support formats like */5 meaning every 5 minutes
-  const m = expr.match(/^\*\/(\d+)$/);
-  if (m) return { everyMinutes: Math.max(1, parseInt(m[1], 10)) };
-  return null; // unsupported
 }
 
 function execute(id) {

@@ -1,9 +1,10 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import React from 'react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Gallery } from '../src/components/Gallery';
 import { GalleryItemBase } from '../src/gallery/loader';
+
+import { FakeIntersectionObserver } from './utils/intersectionObserverMock';
 
 const mockItems: GalleryItemBase[] = [
   {
@@ -32,28 +33,6 @@ vi.mock('../src/gallery/loader', () => ({
 
 describe('Gallery', () => {
   beforeEach(() => {
-    class FakeIntersectionObserver implements IntersectionObserver {
-      readonly root: Element | Document | null = null;
-      readonly rootMargin: string = '0px';
-      readonly thresholds: ReadonlyArray<number> = [0];
-      private readonly callback: (
-        entries: IntersectionObserverEntry[],
-        observer: IntersectionObserver,
-      ) => void;
-      constructor(
-        cb: (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => void,
-      ) {
-        this.callback = cb;
-      }
-      observe(el: Element) {
-        this.callback([{ isIntersecting: true, target: el } as IntersectionObserverEntry], this);
-      }
-      unobserve() {}
-      disconnect() {}
-      takeRecords(): IntersectionObserverEntry[] {
-        return [];
-      }
-    }
     (globalThis as { IntersectionObserver: typeof IntersectionObserver }).IntersectionObserver =
       FakeIntersectionObserver;
   });

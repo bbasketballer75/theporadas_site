@@ -35,7 +35,7 @@ export function emitEvent(topic, data = {}) {
     req.on('error', () => {}); // suppress errors (best-effort)
     req.write(body);
     req.end();
-  } catch {
-    // swallow errors
+  } catch (error) {
+    console.warn(`[mcp-events] Failed to send HTTP request: ${error.message}`);
   }
 }

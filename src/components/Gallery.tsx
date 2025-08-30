@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { GalleryItemBase, loadGallery } from '../gallery/loader';
 
@@ -11,21 +11,20 @@ interface GalleryProps {
 
 interface InternalItem extends GalleryItemBase {
   loaded?: boolean;
+  category?: string;
+  videoLink?: string;
 }
 
-export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
-  const all = loadGallery();
-  const items: InternalItem[] = all.slice(0, maxInitial).map((g) => ({ ...g }));
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const [active, setActive] = useState<InternalItem | null>(null);
-  const [loadedIds, setLoadedIds] = useState<Set<string>>(new Set());
-  const openerRef = useRef<HTMLButtonElement | null>(null);
-  const modalRef = useRef<HTMLDivElement | null>(null);
-
-  // IntersectionObserver for progressive loading of real src replacing thumb
+// Extract intersection observer logic
+function useProgressiveImageLoading(
+  containerRef: React.RefObject<HTMLDivElement | null>,
+  itemsLength: number,
+  setLoadedIds: React.Dispatch<React.SetStateAction<Set<string>>>,
+) {
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         setLoadedIds((prev) => {
@@ -41,49 +40,25 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
       },
       { rootMargin: '200px' },
     );
+
     const targets = el.querySelectorAll('[data-role="gallery-item"]');
     targets.forEach((t) => observer.observe(t));
     return () => observer.disconnect();
-  }, [items.length]);
+  }, [containerRef, itemsLength, setLoadedIds]);
+}
 
-  const onKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (!active) return;
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        setActive(null);
-      }
-      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-        e.preventDefault();
-        const idx = items.findIndex((i) => i.id === active.id);
-        if (idx !== -1) {
-          const nextIdx =
-            e.key === 'ArrowRight'
-              ? (idx + 1) % items.length
-              : (idx - 1 + items.length) % items.length;
-          setActive(items[nextIdx]);
-        }
-      }
-    },
-    [active, items],
-  );
-
-  useEffect(() => {
-    if (active) {
-      const onDoc = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') setActive(null);
-      };
-      document.addEventListener('keydown', onDoc);
-      return () => document.removeEventListener('keydown', onDoc);
-    }
-  }, [active]);
-
-  // Focus trap & restore logic
+// Extract focus trap logic
+function useFocusTrap(
+  active: InternalItem | null,
+  modalRef: React.RefObject<HTMLDialogElement | null>,
+  openerRef: React.RefObject<HTMLButtonElement | null>,
+) {
   useEffect(() => {
     if (active) {
       // Focus the close button after modal mounts
       const closeBtn = modalRef.current?.querySelector<HTMLButtonElement>('button.gallery-close');
       closeBtn?.focus();
+
       const handleKey = (e: KeyboardEvent) => {
         if (e.key !== 'Tab') return;
         const focusables = modalRef.current?.querySelectorAll<HTMLElement>(
@@ -109,49 +84,120 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
     } else if (openerRef.current) {
       openerRef.current.focus();
     }
+  }, [active, modalRef, openerRef]);
+}
+
+// Extract category grouping logic
+function groupItemsByCategory(items: InternalItem[]) {
+  return items.reduce(
+    (acc, item) => {
+      const category = item.category || 'other';
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(item);
+      return acc;
+    },
+    {} as Record<string, InternalItem[]>,
+  );
+}
+
+// Extract responsive image logic
+function generateSrcSet(src: string) {
+  if (
+    src.endsWith('.jpg') ||
+    src.endsWith('.jpeg') ||
+    src.endsWith('.png') ||
+    src.endsWith('.webp')
+  ) {
+    const baseName = src.replace(/^.*\//, '').replace(/\.(jpg|jpeg|png|webp)$/i, '');
+    const widths = [320, 640, 960, 1280];
+    return widths.map((w) => `/public_images/${w}/${baseName}.webp ${w}w`).join(', ');
+  }
+  return undefined;
+}
+
+export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
+  const all = loadGallery();
+  const items: InternalItem[] = all.slice(0, maxInitial).map((g) => ({ ...g }));
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [active, setActive] = useState<InternalItem | null>(null);
+  const [loadedIds, setLoadedIds] = useState<Set<string>>(new Set());
+  const openerRef = useRef<HTMLButtonElement | null>(null);
+  const modalRef = useRef<HTMLDialogElement | null>(null);
+
+  // Group items by category
+  const groupedItems = groupItemsByCategory(items);
+
+  // Category display names
+  const categoryNames: Record<string, string> = {
+    engagement: 'Engagement',
+    rings: 'Wedding Rings',
+    wedding_party: 'Wedding Party',
+    parents: 'Parents',
+    austin_jordyn: 'Austin & Jordyn',
+    shared: 'Shared Gallery',
+    other: 'Other',
+  };
+
+  // Use custom hooks for complex logic
+  useProgressiveImageLoading(containerRef, items.length, setLoadedIds);
+  useFocusTrap(active, modalRef, openerRef);
+
+  useEffect(() => {
+    if (active) {
+      const onDoc = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') setActive(null);
+      };
+      document.addEventListener('keydown', onDoc);
+      return () => document.removeEventListener('keydown', onDoc);
+    }
   }, [active]);
 
   return (
     <div className="gallery" ref={containerRef} aria-labelledby={headingId}>
-      <ul className="gallery-grid">
-        {items.map((it) => {
-          const showFull = loadedIds.has(it.id);
-          const imgSrc = showFull ? it.src : it.thumb || it.src;
-          // Derive srcSet from responsive image pipeline if file matches pattern
-          let srcSet: string | undefined;
-          if (it.src.endsWith('.jpg') || it.src.endsWith('.jpeg') || it.src.endsWith('.png')) {
-            const baseName = it.src.replace(/^.*\//, '').replace(/\.(jpg|jpeg|png)$/i, '');
-            const widths = [320, 640, 960, 1280];
-            srcSet = widths.map((w) => `/public_images/${w}/${baseName}.webp ${w}w`).join(', ');
-          }
-          return (
-            <li key={it.id} className="gallery-grid-item">
-              <button
-                data-id={it.id}
-                data-role="gallery-item"
-                type="button"
-                className="gallery-item"
-                onClick={(e) => {
-                  openerRef.current = e.currentTarget;
-                  setActive(it);
-                }}
-                aria-label={it.caption ? `${it.caption}` : 'Image'}
-              >
-                <img
-                  src={imgSrc}
-                  data-full={it.src}
-                  alt={it.caption || ''}
-                  loading="lazy"
-                  className={showFull ? 'loaded' : 'placeholder'}
-                  {...(srcSet
-                    ? { srcSet, sizes: '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw' }
-                    : {})}
-                />
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+      {Object.entries(groupedItems).map(([category, categoryItems]) => (
+        <section key={category} className="gallery-section">
+          <h3 className="gallery-section-title">{categoryNames[category] || category}</h3>
+          <ul className="gallery-grid">
+            {categoryItems.map((it) => {
+              const showFull = loadedIds.has(it.id);
+              const imgSrc = showFull ? it.src : it.thumb || it.src;
+              // Derive srcSet from responsive image pipeline if file matches pattern
+              const srcSet = generateSrcSet(it.src);
+              return (
+                <li key={it.id} className="gallery-grid-item">
+                  <button
+                    data-id={it.id}
+                    data-role="gallery-item"
+                    type="button"
+                    className="gallery-item"
+                    onClick={(e) => {
+                      openerRef.current = e.currentTarget;
+                      setActive(it);
+                    }}
+                    aria-label={it.caption ? `${it.caption}` : 'Image'}
+                  >
+                    <img
+                      src={imgSrc}
+                      data-full={it.src}
+                      alt={it.caption || ''}
+                      loading="lazy"
+                      className={showFull ? 'loaded' : 'placeholder'}
+                      {...(srcSet
+                        ? {
+                            srcSet,
+                            sizes: '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw',
+                          }
+                        : {})}
+                    />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ))}
       <div className="gallery-upload">
         <ImageUpload
           onImageProcessed={(processedUrl: string) => {
@@ -161,18 +207,41 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
         />
       </div>
       {active && (
-        <div
+        <dialog
           className="gallery-modal"
-          role="dialog"
-          aria-modal="true"
           aria-label={active.caption || 'Image'}
-          onKeyDown={onKeyDown}
           ref={modalRef}
+          open
         >
-          <div className="gallery-modal-backdrop" onClick={() => setActive(null)} />
+          <button
+            className="gallery-modal-backdrop"
+            onClick={() => setActive(null)}
+            aria-label="Close modal"
+            type="button"
+          />
           <div className="gallery-modal-content">
             <img src={active.src} alt={active.caption || ''} />
             {active.caption && <p className="gallery-caption">{active.caption}</p>}
+            {active.videoLink && (
+              <div className="gallery-video-container">
+                <video
+                  controls
+                  className="gallery-video-player"
+                  aria-label="Video message"
+                  preload="metadata"
+                >
+                  <source src={active.videoLink} type="video/mp4" />
+                  <track
+                    kind="captions"
+                    src="/media/videos/main-film-chapters.vtt"
+                    srcLang="en"
+                    label="English"
+                    default
+                  />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            )}
             <button
               type="button"
               className="gallery-close"
@@ -182,7 +251,7 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
               ×
             </button>
           </div>
-        </div>
+        </dialog>
       )}
     </div>
   );
