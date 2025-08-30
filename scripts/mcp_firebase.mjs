@@ -68,7 +68,8 @@ process.stdin.on('data', (chunk) => {
     let msg;
     try {
       msg = JSON.parse(line);
-    } catch {
+    } catch (e) {
+      console.error(`Firebase MCP: Failed to parse message: ${line}, error: ${e.message}`);
       continue;
     }
     if (msg.method === 'listMethods') {

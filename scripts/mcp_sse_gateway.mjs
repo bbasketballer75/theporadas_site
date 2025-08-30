@@ -18,6 +18,9 @@ const SSE_ALIAS_PATHS = [
   VERSIONED_SSE_PATH,
   '/model_context_protocol/latest/sse',
   '/model_context_protocol/sse',
+  // Short root aliases (tested via supervisor alias tests)
+  '/latest/sse',
+  '/sse',
 ];
 const INGEST_ALIAS_PATHS = [
   VERSIONED_INGEST_PATH,
