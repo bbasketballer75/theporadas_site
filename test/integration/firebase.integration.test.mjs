@@ -81,48 +81,65 @@ async function rpc(child, method, params) {
   });
 }
 
+function validateProjects(projects) {
+  if (!projects || !Array.isArray(projects.projects)) {
+    // Fallback weaker invariant if shape diverges (avoid hard flakes on format drift)
+    expect(typeof projects).toBe('object');
+    return;
+  }
+
+  // Basic invariant: each entry has a projectId string
+  for (const p of projects.projects.slice(0, 3)) {
+    expect(typeof p.projectId).toBe('string');
+    expect(p.projectId.length).toBeGreaterThan(0);
+  }
+}
+
+async function testAppsMethod(child, methods, projects) {
+  if (!methods.includes('firebase/apps') || !projects.projects[0]) {
+    return;
+  }
+
+  const first = projects.projects[0];
+  const apps = await rpc(child, 'firebase/apps', { projectId: first.projectId });
+
+  // apps may be { android:[], ios:[], web:[] } depending on CLI output
+  if (apps && typeof apps === 'object') {
+    ['androidApps', 'iosApps', 'webApps'].forEach((k) => {
+      if (k in apps) {
+        expect(Array.isArray(apps[k])).toBe(true);
+      }
+    });
+  }
+}
+
+async function testProjectsAndApps(child, methods) {
+  if (!methods.includes('firebase/projects')) {
+    // With token we generally expect project listing; failing to expose is noteworthy but not fatal
+    // (Do not fail test; future enhancement could log a warning.)
+    return;
+  }
+
+  const projects = await rpc(child, 'firebase/projects', {});
+  validateProjects(projects);
+
+  if (projects && Array.isArray(projects.projects)) {
+    await testAppsMethod(child, methods, projects);
+  }
+}
+
 describe('firebase MCP integration', () => {
   it('ping always available and optional project/app listing', async () => {
     const { child, methods } = await startServer('node', ['scripts/mcp_firebase.mjs']);
     expect(methods).toContain('firebase/ping');
+
     const pong = await rpc(child, 'firebase/ping', {});
     expect(pong.ok).toBe(true);
+
     if (process.env.FIREBASE_TOKEN) {
-      if (methods.includes('firebase/projects')) {
-        const projects = await rpc(child, 'firebase/projects', {});
-        // Expected shape from firebase CLI: { projects: [ { projectId, displayName, ... }, ... ] }
-        if (projects && Array.isArray(projects.projects)) {
-          // Basic invariant: each entry has a projectId string
-          for (const p of projects.projects.slice(0, 3)) {
-            expect(typeof p.projectId).toBe('string');
-            expect(p.projectId.length).toBeGreaterThan(0);
-          }
-          // Optionally exercise apps call for first project if method available
-          if (methods.includes('firebase/apps') && projects.projects[0]) {
-            const first = projects.projects[0];
-            try {
-              const apps = await rpc(child, 'firebase/apps', { projectId: first.projectId });
-              // apps may be { android:[], ios:[], web:[] } depending on CLI output
-              if (apps && typeof apps === 'object') {
-                ['androidApps', 'iosApps', 'webApps'].forEach((k) => {
-                  if (k in apps) {
-                    expect(Array.isArray(apps[k])).toBe(true);
-                  }
-                });
-              }
-            } catch (e) {
-              // Acceptable if token lacks permission or project has restricted access
-            }
-          }
-        } else {
-          // Fallback weaker invariant if shape diverges (avoid hard flakes on format drift)
-          expect(typeof projects).toBe('object');
-        }
-      } else {
-        // With token we generally expect project listing; failing to expose is noteworthy but not fatal
-        // (Do not fail test; future enhancement could log a warning.)
-      }
+      await testProjectsAndApps(child, methods);
     }
+
     child.kill();
   });
 });

@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 // Minimal placeholder MCP-style server for constrained filesystem ops
+import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'fs';
+import { relative, resolve } from 'path';
 import './mcp_logging.mjs';
-import { readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, rmSync } from 'fs';
-import { resolve, relative } from 'path';
-import { out, fail } from './mcp_util.mjs';
+
 import { fsError } from './mcp_error_codes.mjs';
+import { fail, out } from './mcp_util.mjs';
 
 const root = resolve(process.env.MCP_FS_ROOT || process.cwd());
 const maxBytes = process.env.MCP_FS_MAX_BYTES ? Number(process.env.MCP_FS_MAX_BYTES) : null;
@@ -35,7 +36,7 @@ function globToRegex(glob) {
       i += 1;
       continue;
     }
-    re += /[\\.^$+()|{}\[\]]/.test(c) ? `\\${c}` : c;
+    re += /[\\.^$+()|{}[\]]/.test(c) ? `\\${c}` : c;
     i += 1;
   }
   re += '$';
@@ -86,9 +87,8 @@ function del(p) {
   const sp = safePath(p);
   try {
     rmSync(sp, { recursive: true, force: false });
-  } catch (e) {
-    if (e.code === 'ENOENT') throw fsError('NOT_FOUND');
-    throw e;
+  } catch {
+    throw fsError('NOT_FOUND');
   }
   return { deleted: true };
 }
@@ -98,9 +98,8 @@ function statInfo(p) {
   let st;
   try {
     st = statSync(sp);
-  } catch (e) {
-    if (e.code === 'ENOENT') throw fsError('NOT_FOUND');
-    throw e;
+  } catch {
+    throw fsError('NOT_FOUND');
   }
   return { path: p, size: st.size, dir: st.isDirectory(), mtimeMs: st.mtimeMs };
 }
@@ -127,8 +126,8 @@ function runCli() {
     } else {
       fail('Unknown command');
     }
-  } catch (e) {
-    fail(e.message);
+  } catch {
+    fail('Command failed');
   }
 }
 
@@ -150,57 +149,84 @@ function respond(id, result, error) {
   out({ jsonrpc: '2.0', id, result });
 }
 
+function handleFsList(id, params) {
+  const dir = params?.dir || '.';
+  return respond(id, { items: list(dir) });
+}
+
+function handleFsRead(id, params) {
+  if (!params?.path) throw new Error('path required');
+  return respond(id, { content: read(params.path) });
+}
+
+function handleFsWrite(id, params) {
+  if (!params?.path) throw new Error('path required');
+  const content = params.content ?? '';
+  return respond(id, write(params.path, content));
+}
+
+function handleFsMkdir(id, params) {
+  if (!params?.path) throw fsError('INVALID_PARAMS');
+  return respond(id, mkdir(params.path));
+}
+
+function handleFsDelete(id, params) {
+  if (!params?.path) throw fsError('INVALID_PARAMS');
+  return respond(id, del(params.path));
+}
+
+function handleFsStat(id, params) {
+  if (!params?.path) throw fsError('INVALID_PARAMS');
+  return respond(id, statInfo(params.path));
+}
+
+function handleFsCapabilities(id) {
+  return respond(id, {
+    methods: [
+      'fs/list',
+      'fs/read',
+      'fs/write',
+      'fs/mkdir',
+      'fs/delete',
+      'fs/stat',
+      'fs/capabilities',
+      'fs/root',
+    ],
+    maxBytes,
+    allowGlobs: allowPatterns.length ? allowGlobsRaw : null,
+  });
+}
+
+function handleFsRoot(id) {
+  return respond(id, { root });
+}
+
 function handleRequest(msg) {
   const { id, method, params } = msg;
   try {
-    if (method === 'fs/list') {
-      const dir = params?.dir || '.';
-      return respond(id, { items: list(dir) });
-    }
-    if (method === 'fs/read') {
-      if (!params?.path) throw new Error('path required');
-      return respond(id, { content: read(params.path) });
-    }
-    if (method === 'fs/write') {
-      if (!params?.path) throw new Error('path required');
-      const content = params.content ?? '';
-      return respond(id, write(params.path, content));
-    }
-    if (method === 'fs/mkdir') {
-      if (!params?.path) throw fsError('INVALID_PARAMS');
-      return respond(id, mkdir(params.path));
-    }
-    if (method === 'fs/delete') {
-      if (!params?.path) throw fsError('INVALID_PARAMS');
-      return respond(id, del(params.path));
-    }
-    if (method === 'fs/stat') {
-      if (!params?.path) throw fsError('INVALID_PARAMS');
-      return respond(id, statInfo(params.path));
-    }
-    if (method === 'fs/capabilities') {
-      return respond(id, {
-        methods: [
-          'fs/list',
-          'fs/read',
-          'fs/write',
-          'fs/mkdir',
-          'fs/delete',
-          'fs/stat',
-          'fs/capabilities',
-          'fs/root',
-        ],
-        maxBytes,
-        allowGlobs: allowPatterns.length ? allowGlobsRaw : null,
-      });
-    }
-    if (method === 'fs/root') {
-      return respond(id, { root });
+    const handler = getMethodHandler(method);
+    if (handler) {
+      return handler(id, params);
     }
     throw fsError('INVALID_PARAMS', { details: 'Unknown method' });
   } catch (e) {
     respond(id, null, e);
   }
+}
+
+function getMethodHandler(method) {
+  const methodHandlers = {
+    'fs/list': handleFsList,
+    'fs/read': handleFsRead,
+    'fs/write': handleFsWrite,
+    'fs/mkdir': handleFsMkdir,
+    'fs/delete': handleFsDelete,
+    'fs/stat': handleFsStat,
+    'fs/capabilities': handleFsCapabilities,
+    'fs/root': handleFsRoot,
+  };
+
+  return methodHandlers[method];
 }
 
 function runJsonRpc() {
@@ -218,14 +244,11 @@ function runJsonRpc() {
       if (!line) continue;
       try {
         const msg = JSON.parse(line);
-        if (
-          msg.jsonrpc === '2.0' &&
-          (msg.method || Object.prototype.hasOwnProperty.call(msg, 'result'))
-        ) {
+        if (msg.jsonrpc === '2.0' && (msg.method || Object.hasOwn(msg, 'result'))) {
           if (msg.method) handleRequest(msg);
         }
-      } catch (e) {
-        out({ jsonrpc: '2.0', error: { message: 'Parse error: ' + e.message } });
+      } catch {
+        out({ jsonrpc: '2.0', error: { message: 'Parse error' } });
       }
     }
   });

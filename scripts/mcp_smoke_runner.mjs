@@ -3,8 +3,8 @@
 // sends a post-ready listMethods (or first declared) probe. Supports skip list for ephemeral/CLI-style entries
 // and custom readiness events (legacy fs/ready). Outputs table plus JSON summary for CI. Exits non-zero if any
 // persistent server fails unless SMOKE_IGNORE_FAIL=1.
-import { readFileSync } from 'fs';
 import { spawn } from 'child_process';
+import { readFileSync } from 'fs';
 
 const servers = JSON.parse(readFileSync('servers.json', 'utf8'));
 const timeoutMs = parseInt(process.env.SMOKE_TIMEOUT_MS || '8000', 10);
@@ -71,13 +71,15 @@ function runServer(def) {
               methodCount = obj.result.methods.length;
             }
           }
-        } catch (_) {}
+        } catch {
+          // ignore invalid JSON
+        }
       }
     });
     child.stderr.on('data', (d) => {
       stderr += d.toString();
     });
-    child.on('error', (e) => finish('spawn-error'));
+    child.on('error', () => finish('spawn-error'));
     child.on('exit', (code) => {
       if (!ready) finish('exit-' + code);
     });
@@ -89,8 +91,14 @@ function runServer(def) {
   for (const def of servers) {
     try {
       results.push(await runServer(def));
-    } catch (e) {
-      results.push({ name: def.name, status: 'error', ms: 0, methods: [], stderr: e.message });
+    } catch {
+      results.push({
+        name: def.name,
+        status: 'error',
+        ms: 0,
+        methods: [],
+        stderr: 'unknown error',
+      });
     }
   }
   const failed = results.filter((r) => r.status !== 'ready' && r.status !== 'skipped');

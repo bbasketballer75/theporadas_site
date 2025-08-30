@@ -10,9 +10,9 @@
 //  - Disallows redirects (prevents host bypass)
 //  - Returns metadata (bytesWritten, contentType, sha256)
 
+import crypto from 'crypto';
 import { promises as fs } from 'fs';
 import path from 'path';
-import crypto from 'crypto';
 
 const DEFAULT_ALLOWED_HOSTS = new Set(['api.github.com']);
 

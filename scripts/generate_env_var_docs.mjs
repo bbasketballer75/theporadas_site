@@ -4,8 +4,8 @@
  between <!-- ENV_VARS_AUTO_START --> and <!-- ENV_VARS_AUTO_END --> markers
  with a markdown table of variables, defaults, and descriptions.
 */
-import { readFileSync, writeFileSync } from 'fs';
 import { execSync } from 'child_process';
+import { readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 
 const repoRoot = process.cwd();
@@ -70,8 +70,8 @@ function buildTable(vars) {
       const defaultMatch = lines.map((l) => l.match(/\|\|\s*['"]([^'"]+)['"]/)).find(Boolean);
       if (defaultMatch) def = defaultMatch[1];
       else if (lines.some((l) => /===?\s*'1'/.test(l))) def = '1?';
-    } catch {
-      // ignore
+    } catch (error) {
+      console.warn(`[env-docs] Failed to extract default for ${v}: ${error.message}`);
     }
     const desc = DESCRIPTIONS[v] || '';
     return `| ${v} | ${def} | ${desc} |`;
@@ -87,7 +87,7 @@ function updateDoc(table) {
     throw new Error('Marker tags not found in ' + DOC_PATH);
   }
   const newContent = content.replace(
-    new RegExp(`${startTag}[\n\r]*[\s\S]*?${endTag}`),
+    new RegExp(`${startTag}[\n\r]*[\\s\\S]*?${endTag}`),
     `${startTag}\n\n${table}\n\n${endTag}`,
   );
   writeFileSync(DOC_PATH, newContent);

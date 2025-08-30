@@ -16,13 +16,26 @@ import { spawn } from 'child_process';
 
 function parseArgs(argv) {
   const out = {};
-  for (let i = 0; i < argv.length; i++) {
+  for (let i = 0; i < argv.length; ) {
     const a = argv[i];
-    if (a === '--cmd') out.cmd = argv[++i];
-    else if (a === '--timeout') out.timeout = parseInt(argv[++i], 10);
-    else if (a === '--rpc') out.rpc = argv[++i];
-    else if (a === '--params') out.params = argv[++i];
-    else if (a === '--expect-methods') out.expect = argv[++i];
+    if (a === '--cmd') {
+      out.cmd = argv[i + 1];
+      i += 2;
+    } else if (a === '--timeout') {
+      out.timeout = parseInt(argv[i + 1], 10);
+      i += 2;
+    } else if (a === '--rpc') {
+      out.rpc = argv[i + 1];
+      i += 2;
+    } else if (a === '--params') {
+      out.params = argv[i + 1];
+      i += 2;
+    } else if (a === '--expect-methods') {
+      out.expect = argv[i + 1];
+      i += 2;
+    } else {
+      i += 1;
+    }
   }
   return out;
 }
@@ -36,7 +49,6 @@ const timeoutMs = Number.isFinite(opts.timeout) ? opts.timeout : 8000;
 
 const child = spawn(opts.cmd, { shell: true });
 let done = false;
-let readyPayload = null;
 let stderrBuf = '';
 
 function finish(code, msg) {
@@ -45,36 +57,55 @@ function finish(code, msg) {
   if (msg) console.error(msg);
   try {
     child.kill();
-  } catch {}
+  } catch {
+    // Ignore kill errors
+  }
   process.exit(code);
 }
 
 const timer = setTimeout(() => finish(2, 'ready timeout'), timeoutMs);
 
+function parseJsonLine(line) {
+  const t = line.trim();
+  if (!t) return null;
+
+  try {
+    return JSON.parse(t);
+  } catch {
+    return null; // ignore invalid JSON
+  }
+}
+
+function handleReadyMessage(obj) {
+  clearTimeout(timer);
+
+  if (opts.expect) {
+    const needed = opts.expect
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const missing = needed.filter((m) => !obj.methods || !obj.methods.includes(m));
+    if (missing.length) {
+      return finish(4, 'missing methods: ' + missing.join(','));
+    }
+  }
+
+  if (!opts.rpc) {
+    return finish(0);
+  }
+
+  const params = opts.params ? JSON.parse(opts.params) : undefined;
+  invokeRPC(opts.rpc, params);
+}
+
 child.stdout.setEncoding('utf8');
 child.stdout.on('data', (data) => {
   for (const line of data.split('\n')) {
-    const t = line.trim();
-    if (!t) continue;
-    let obj;
-    try {
-      obj = JSON.parse(t);
-    } catch {
-      continue;
-    }
+    const obj = parseJsonLine(line);
+    if (!obj) continue;
+
     if (obj.type === 'ready') {
-      readyPayload = obj;
-      clearTimeout(timer);
-      if (opts.expect) {
-        const needed = opts.expect
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean);
-        const missing = needed.filter((m) => !obj.methods || !obj.methods.includes(m));
-        if (missing.length) return finish(4, 'missing methods: ' + missing.join(','));
-      }
-      if (!opts.rpc) return finish(0);
-      invokeRPC(opts.rpc, opts.params ? JSON.parse(opts.params) : undefined);
+      handleReadyMessage(obj);
     } else if (obj.id && (obj.result || obj.error)) {
       // RPC response handled in invokeRPC
     }

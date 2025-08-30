@@ -59,36 +59,45 @@ async function apiRequest<T>(
       });
 
       if (!response.ok) {
-        // Handle specific HTTP status codes
-        if (response.status === 404) {
-          throw new Error(`Resource not found: ${endpoint}`);
-        } else if (response.status === 429) {
-          throw new Error('Too many requests. Please try again later.');
-        } else if (response.status >= 500) {
-          throw new Error('Server error. Please try again later.');
-        } else {
-          throw new Error(`Request failed: ${response.status} ${response.statusText}`);
-        }
+        throw createHttpError(response, endpoint);
       }
 
       return response.json();
     } catch (error) {
-      // If this is the last attempt, throw the error
       if (attempt === retries) {
-        if (error instanceof Error) {
-          throw error;
-        } else {
-          throw new Error('Network error occurred');
-        }
+        throw normalizeError(error);
       }
 
-      // Wait before retrying (exponential backoff)
-      const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+      const delay = calculateRetryDelay(attempt);
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 
   throw new Error('Unexpected error in API request');
+}
+
+function createHttpError(response: Response, endpoint: string): Error {
+  if (response.status === 404) {
+    return new Error(`Resource not found: ${endpoint}`);
+  }
+  if (response.status === 429) {
+    return new Error('Too many requests. Please try again later.');
+  }
+  if (response.status >= 500) {
+    return new Error('Server error. Please try again later.');
+  }
+  return new Error(`Request failed: ${response.status} ${response.statusText}`);
+}
+
+function normalizeError(error: unknown): Error {
+  if (error instanceof Error) {
+    return error;
+  }
+  return new Error('Network error occurred');
+}
+
+function calculateRetryDelay(attempt: number): number {
+  return Math.min(1000 * Math.pow(2, attempt - 1), 5000);
 }
 
 // Family Members CRUD operations

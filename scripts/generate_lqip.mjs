@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-import { Jimp } from 'jimp';
 import { promises as fs } from 'fs';
 import path from 'path';
+
+import { Jimp } from 'jimp';
 
 /*
  * generate_lqip.mjs
@@ -37,7 +38,8 @@ async function needProcess(file) {
   try {
     await fs.access(path.join(LQIP_DIR, lqipName(file)));
     return false; // already exists
-  } catch {
+  } catch (error) {
+    console.warn(`[lqip] File access check failed for ${file}: ${error.message}`);
     return true;
   }
 }

@@ -14,8 +14,8 @@
  *
  * Permissions: App must have "Security events: Read" for the repository.
  */
-import { Octokit } from '@octokit/core';
 import { createAppAuth } from '@octokit/auth-app';
+import { Octokit } from '@octokit/core';
 
 function requireEnv(name) {
   const v = process.env[name];

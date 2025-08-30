@@ -3,11 +3,12 @@
 // Provides method: tv/search { query, depth?, maxResults? }
 // Emits structured domain errors via tvError helper.
 
+import fetchOrig from 'node-fetch';
 import './load_env.mjs';
 import './mcp_logging.mjs';
-import fetchOrig from 'node-fetch';
-import { createServer } from './mcp_rpc_base.mjs';
+
 import { tvError } from './mcp_error_codes.mjs';
+import { createServer } from './mcp_rpc_base.mjs';
 
 const API_URL = process.env.TAVILY_API_URL || 'https://api.tavily.com/search';
 
@@ -16,8 +17,8 @@ const API_URL = process.env.TAVILY_API_URL || 'https://api.tavily.com/search';
 // an AUTH_FAILED style domain error so dependent tooling can degrade gracefully
 // without triggering supervisor give-up cycles.
 const TAVILY_OPTIONAL = process.env.TAVILY_OPTIONAL === '1';
-if (!TAVILY_OPTIONAL) {
-  const _eagerKey = process.env.TAVILY_API_KEY ? null : (() => requireKey())();
+if (!TAVILY_OPTIONAL && !process.env.TAVILY_API_KEY) {
+  requireKey();
 }
 
 // Optional forced crash for supervisor testing: if set, exit immediately non-zero after emitting a diagnostic line.
@@ -103,51 +104,101 @@ function maybeMockResponse(scenario) {
 
 async function tavilySearch(params = {}) {
   const { query, depth = 'basic', maxResults } = params;
-  if (!query || typeof query !== 'string')
-    throw tvError('INVALID_PARAMS', { details: 'query string required' });
-  if (depth && !['basic', 'advanced'].includes(depth))
-    throw tvError('INVALID_PARAMS', { details: 'depth must be basic|advanced' });
+
+  validateSearchParams(query, depth);
   const key = requireKey();
-  let body = { query, search_depth: depth };
-  if (Number.isInteger(maxResults) && maxResults > 0) body.max_results = maxResults;
-  let res;
+  const body = buildRequestBody(query, depth, maxResults);
+
+  const res = await performSearchRequest(body, key);
+  const json = await parseSearchResponse(res);
+
+  return normalizeSearchResult(query, depth, json);
+}
+
+function validateSearchParams(query, depth) {
+  if (!query || typeof query !== 'string') {
+    throw tvError('INVALID_PARAMS', { details: 'query string required' });
+  }
+  if (depth && !['basic', 'advanced'].includes(depth)) {
+    throw tvError('INVALID_PARAMS', { details: 'depth must be basic|advanced' });
+  }
+}
+
+function buildRequestBody(query, depth, maxResults) {
+  const body = { query, search_depth: depth };
+  if (Number.isInteger(maxResults) && maxResults > 0) {
+    body.max_results = maxResults;
+  }
+  return body;
+}
+
+async function performSearchRequest(body, key) {
   const mockScenario = process.env.TAVILY_MOCK_SCENARIO;
   const mock = maybeMockResponse(mockScenario);
+
   if (mock) {
-    if (mock === 'NETWORK_ERROR')
-      throw tvError('NETWORK', { details: 'simulated network failure' });
-    res = mock;
-  } else {
-    try {
-      res = await fetchOrig(API_URL, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-    } catch (e) {
-      throw tvError('NETWORK', { details: e.message });
-    }
+    return handleMockResponse(mock);
   }
+
+  return await makeHttpRequest(body, key);
+}
+
+function handleMockResponse(mock) {
+  if (mock === 'NETWORK_ERROR') {
+    throw tvError('NETWORK', { details: 'simulated network failure' });
+  }
+  return mock;
+}
+
+async function makeHttpRequest(body, key) {
+  try {
+    return await fetchOrig(API_URL, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    throw tvError('NETWORK', { details: 'Network request failed' });
+  }
+}
+
+async function parseSearchResponse(res) {
   const ct = res.headers.get('content-type') || '';
+
   if (!res.ok) {
-    // Attempt to parse error body
-    let errText = await res.text().catch(() => '');
-    let detail = errText.slice(0, 500);
-    if (res.status === 401 || res.status === 403) throw tvError('AUTH_FAILED', { details: detail });
-    if (res.status === 429) throw tvError('QUOTA', { details: detail });
-    throw tvError('HTTP_ERROR', { details: `${res.status} ${res.statusText} ${detail}` });
+    return handleErrorResponse(res);
   }
-  let json;
+
+  return await parseSuccessResponse(res, ct);
+}
+
+async function handleErrorResponse(res) {
+  let errText = await res.text().catch(() => '');
+  let detail = errText.slice(0, 500);
+
+  if (res.status === 401 || res.status === 403) {
+    throw tvError('AUTH_FAILED', { details: detail });
+  }
+  if (res.status === 429) {
+    throw tvError('QUOTA', { details: detail });
+  }
+  throw tvError('HTTP_ERROR', { details: `${res.status} ${res.statusText} ${detail}` });
+}
+
+async function parseSuccessResponse(res, ct) {
   if (ct.includes('application/json')) {
     try {
-      json = await res.json();
-    } catch (e) {
-      throw tvError('PARSE', { details: e.message });
+      return await res.json();
+    } catch {
+      throw tvError('PARSE', { details: 'Failed to parse JSON response' });
     }
   } else {
     const text = await res.text();
     throw tvError('PARSE', { details: `unexpected content-type ${ct} body:${text.slice(0, 200)}` });
   }
+}
+
+function normalizeSearchResult(query, depth, json) {
   // Normalize to nested shape expected by integration tests: { result: { results:[...] } }
   let nested = json;
   if (json && json.results && !json.result) {

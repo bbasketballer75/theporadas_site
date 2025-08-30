@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { readFile } from 'node:fs/promises';
 import { existsSync, statSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 
 /*
   Analyze artifacts/quality-history.jsonl and emit:

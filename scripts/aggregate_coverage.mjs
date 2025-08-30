@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { readdirSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { resolve, join } from 'node:path';
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 // Merge multiple coverage-summary.json files by summing covered/total per metric.
 function mergeSummaries(summaries) {
@@ -31,8 +31,8 @@ function findSummaries(baseDir) {
       try {
         const raw = readFileSync(candidate, 'utf8');
         summaries.push(JSON.parse(raw));
-      } catch (_) {
-        // ignore
+      } catch {
+        // ignore missing files
       }
     }
   }
@@ -41,7 +41,9 @@ function findSummaries(baseDir) {
   try {
     const raw = readFileSync(rootSummary, 'utf8');
     summaries.push(JSON.parse(raw));
-  } catch (_) {}
+  } catch {
+    // ignore missing root summary
+  }
   return summaries;
 }
 

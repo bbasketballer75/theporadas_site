@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 // Simple CSP inline auditor: scans dist/index.html for <style>...</style> and <script>...</script> blocks (non-module & module)
@@ -13,7 +13,7 @@ function sha256Base64(content) {
 }
 
 function extractBlocks(html, tag) {
-  const regex = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\/${tag}>`, 'gi');
+  const regex = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`, 'gi');
   const blocks = [];
   let m;
   while ((m = regex.exec(html))) {
@@ -27,7 +27,7 @@ function main() {
   let html;
   try {
     html = readFileSync(distIndex, 'utf8');
-  } catch (e) {
+  } catch {
     console.error('[csp:audit] Cannot read dist/index.html. Build first.');
     process.exit(1);
   }

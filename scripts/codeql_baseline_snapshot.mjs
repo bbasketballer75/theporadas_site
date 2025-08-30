@@ -10,6 +10,7 @@
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+
 import { safeFetchJson } from './lib/safe_fetch.mjs';
 
 const repo = process.env.GITHUB_REPOSITORY; // owner/repo

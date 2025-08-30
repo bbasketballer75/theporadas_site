@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { readFile, appendFile, mkdir } from 'node:fs/promises';
 import { existsSync, openSync, closeSync } from 'node:fs';
+import { readFile, appendFile, mkdir } from 'node:fs/promises';
 
 /*
   Append a single JSON line of quality metrics to artifacts/quality-history.jsonl

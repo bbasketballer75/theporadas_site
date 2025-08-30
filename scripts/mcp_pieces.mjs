@@ -2,8 +2,7 @@
 // Pieces MCP server: provides minimal integration placeholder.
 // Extend with real Pieces API interactions once SDK or HTTP endpoints integrated.
 import './mcp_logging.mjs';
-import { register, createServer } from './mcp_rpc_base.mjs';
-import { appError } from './mcp_rpc_base.mjs';
+import { register, createServer, appError } from './mcp_rpc_base.mjs';
 
 const API_KEY = process.env.PIECES_API_KEY || '';
 

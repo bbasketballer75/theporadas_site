@@ -4,7 +4,7 @@ services:
     container_name: wedding-sql
     environment:
       ACCEPT_EULA: 'Y'
-      MSSQL_SA_PASSWORD: 'DevLocalStr0ng!Pass'
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:-DevLocalStr0ng!Pass}
       MSSQL_PID: 'Developer'
     ports:
       - '14333:1433'
@@ -14,7 +14,7 @@ services:
       test:
         [
           'CMD-SHELL',
-          "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P 'DevLocalStr0ng!Pass' -Q 'SELECT 1' || exit 1",
+          "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P '${MSSQL_SA_PASSWORD}' -Q 'SELECT 1' || exit 1",
         ]
       interval: 10s
       timeout: 5s
@@ -88,7 +88,7 @@ services:
     depends_on:
       - mssql
     environment:
-      SQLSERVER_CONNECTION_STRING: 'Server=mssql,1433;Database=master;User Id=sa;Password=DevLocalStr0ng!Pass;TrustServerCertificate=true;'
+      SQLSERVER_CONNECTION_STRING: 'Server=mssql,1433;Database=master;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=true;'
       NODE_ENV: production
       MCP_HEALTH_PORT: 3013
       MCP_SERVER_NAME: sqlserver

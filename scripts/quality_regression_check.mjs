@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 
 /*
   quality_regression_check.mjs
@@ -36,7 +36,8 @@ async function readHistory(path) {
     .map((line) => {
       try {
         return JSON.parse(line);
-      } catch {
+      } catch (error) {
+        console.warn(`[quality-regression] Skipping invalid JSON line: ${error.message}`);
         return null;
       }
     })
@@ -47,21 +48,17 @@ function pick(obj, path) {
   return path.split('.').reduce((o, k) => (o && k in o ? o[k] : undefined), obj);
 }
 
-async function main() {
-  const historyPath = 'artifacts/quality-history.jsonl';
-  const records = await readHistory(historyPath);
+function validateRecords(records) {
   if (records.length < 10) {
     console.log(
       `[quality-regression] Not enough records (${records.length}) < 10; skipping regression enforcement.`,
     );
-    return;
+    return false;
   }
-  const current = records[records.length - 1];
-  const prior = records.slice(0, -1);
+  return true;
+}
 
-  const allowedDelta = Number(process.env.LH_ALLOWED_DELTA ?? '0.03');
-  const metricPct = Number(process.env.LH_METRIC_REGRESSION_PCT ?? '0.10');
-
+function checkCategoryRegressions(current, prior, allowedDelta) {
   const categories = ['performance', 'accessibility', 'seo', 'best-practices'];
   const categoryFindings = [];
   for (const cat of categories) {
@@ -76,8 +73,10 @@ async function main() {
       categoryFindings.push({ cat, baseline, current: curr, drop });
     }
   }
+  return categoryFindings;
+}
 
-  // Core metrics: lower better
+function checkMetricRegressions(current, prior, metricPct) {
   const metricKeys = [
     { key: 'lcp', better: 'lower' },
     { key: 'tbt', better: 'lower' },
@@ -99,7 +98,10 @@ async function main() {
       }
     }
   }
+  return metricFindings;
+}
 
+function reportFindings(categoryFindings, metricFindings, allowedDelta, metricPct) {
   if (!categoryFindings.length && !metricFindings.length) {
     console.log('[quality-regression] OK: no regressions beyond thresholds.');
     return;
@@ -123,6 +125,23 @@ async function main() {
     }
   }
   process.exit(1);
+}
+
+async function main() {
+  const historyPath = 'artifacts/quality-history.jsonl';
+  const records = await readHistory(historyPath);
+  if (!validateRecords(records)) return;
+
+  const current = records[records.length - 1];
+  const prior = records.slice(0, -1);
+
+  const allowedDelta = Number(process.env.LH_ALLOWED_DELTA ?? '0.03');
+  const metricPct = Number(process.env.LH_METRIC_REGRESSION_PCT ?? '0.10');
+
+  const categoryFindings = checkCategoryRegressions(current, prior, allowedDelta);
+  const metricFindings = checkMetricRegressions(current, prior, metricPct);
+
+  reportFindings(categoryFindings, metricFindings, allowedDelta, metricPct);
 }
 
 main().catch((e) => {

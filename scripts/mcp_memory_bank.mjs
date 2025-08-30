@@ -2,8 +2,9 @@
 // Memory Bank MCP server using shared harness
 import { readdirSync, readFileSync } from 'fs';
 import { resolve } from 'path';
-import { register, createServer, appError } from './mcp_rpc_base.mjs';
+
 import { mbError } from './mcp_error_codes.mjs';
+import { register, createServer, appError } from './mcp_rpc_base.mjs';
 
 const dir = resolve(process.env.MCP_MEMORY_BANK_DIR || 'memory-bank');
 

@@ -8,8 +8,8 @@
 
 import './load_env.mjs';
 import './mcp_logging.mjs';
-import { createServer, appError } from './mcp_rpc_base.mjs';
-import { readFileSync, existsSync } from 'fs';
+
+import { appError, createServer } from './mcp_rpc_base.mjs';
 
 let allow = new Set();
 function loadAllow() {

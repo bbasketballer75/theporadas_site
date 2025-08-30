@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Knowledge Graph Memory MCP server using shared harness
-import { register, createServer, appError } from './mcp_rpc_base.mjs';
 import { kgError } from './mcp_error_codes.mjs';
+import { register, createServer, appError } from './mcp_rpc_base.mjs';
 
 const triples = [];
 const MAX_TRIPLES = parseInt(process.env.MCP_KG_MAX_TRIPLES || '5000', 10);

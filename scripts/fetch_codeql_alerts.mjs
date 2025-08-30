@@ -23,8 +23,8 @@ execFile('gh', args, { maxBuffer: 5 * 1024 * 1024 }, (err, stdout, stderr) => {
   }
   try {
     JSON.parse(stdout);
-  } catch {
-    console.error('Received non-JSON payload from gh api. Aborting write.');
+  } catch (error) {
+    console.error(`Received invalid JSON payload from gh api: ${error.message}. Aborting write.`);
     process.exitCode = 2;
     return;
   }

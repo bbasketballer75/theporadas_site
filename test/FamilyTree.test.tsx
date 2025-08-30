@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -28,25 +29,31 @@ vi.mock('d3', () => {
     html: vi.fn(() => mockSelection),
   };
 
-  const mockTreeLayout = vi.fn(() => ({
-    links: vi.fn(() => []),
-    descendants: vi.fn(() => []),
-  }));
-
-  const mockTree = vi.fn(() => {
-    const layout = {
-      size: vi.fn(() => layout),
-      nodeSize: vi.fn(() => layout),
-    };
-    // Return the layout function that can be called with data
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // Create a proper tree function that returns a layout function
+  const createTreeLayout = () => {
+    // Create the layout function that gets called with data
     const layoutFunction = function (data: unknown) {
-      return mockTreeLayout();
+      // Return a mock tree layout result
+      return {
+        links: vi.fn(() => []),
+        descendants: vi.fn(() => []),
+        x: 0,
+        y: 0,
+        data: data,
+      };
     };
-    // Copy methods to the callable function
-    Object.assign(layoutFunction, layout);
+
+    // Add methods to make it chainable
+    layoutFunction.size = vi.fn(() => layoutFunction);
+    layoutFunction.nodeSize = vi.fn(() => layoutFunction);
+
     return layoutFunction;
-  });
+  };
+
+  // Make tree function generic-compatible
+  const treeFunction = function () {
+    return createTreeLayout();
+  };
 
   const mockHierarchy = {
     links: vi.fn(() => []),
@@ -61,7 +68,7 @@ vi.mock('d3', () => {
 
   return {
     select: vi.fn(() => mockSelection),
-    tree: mockTree,
+    tree: treeFunction,
     hierarchy: vi.fn(() => mockHierarchy),
     zoom: vi.fn(() => mockZoom),
     linkVertical: vi.fn(() => mockSelection),
