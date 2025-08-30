@@ -29,7 +29,9 @@ function startServer(cmd, args, timeout = 8000) {
               clearTimeout(timer);
               resolve({ child, methods });
             }
-          } catch {}
+          } catch (e) {
+            console.warn(`Firebase integration test: Failed to parse line: ${line}, error: ${e.message}`);
+          }
         });
     });
     child.on('error', (e) => {
@@ -65,7 +67,9 @@ async function rpc(child, method, params) {
               if (obj.error) reject(new Error(obj.error.message));
               else resolve(obj.result);
             }
-          } catch {}
+          } catch (e) {
+            console.warn(`Firebase integration test RPC: Failed to parse line: ${line}, error: ${e.message}`);
+          }
         });
     }
     child.stdout.on('data', onData);

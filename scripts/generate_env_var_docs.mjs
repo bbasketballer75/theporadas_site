@@ -67,9 +67,7 @@ function buildTable(vars) {
       const lines = execSync(`git --no-pager grep -h "${pattern}"`, { encoding: 'utf8' })
         .split(/\n/)
         .filter(Boolean);
-      const defaultMatch = lines
-        .map((l) => l.match(/\|\|\s*['"]([^'"]+)['"]/))
-        .find(Boolean);
+      const defaultMatch = lines.map((l) => l.match(/\|\|\s*['"]([^'"]+)['"]/)).find(Boolean);
       if (defaultMatch) def = defaultMatch[1];
       else if (lines.some((l) => /===?\s*'1'/.test(l))) def = '1?';
     } catch {

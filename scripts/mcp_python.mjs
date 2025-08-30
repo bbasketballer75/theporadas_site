@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Python execution MCP server using shared harness.
 // Method: py/exec { code } -> { stdout, stderr, exitCode, timeout }
+import './mcp_logging.mjs';
 import { spawn } from 'child_process';
 import { register, createServer } from './mcp_rpc_base.mjs';
 import { pyError } from './mcp_error_codes.mjs';

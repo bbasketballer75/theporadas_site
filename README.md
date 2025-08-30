@@ -1,4 +1,4 @@
-/# theporadas.com — Post‑Wedding Narrative & Video Site
+# theporadas.com — Post‑Wedding Narrative & Video Site
 
 Post‑wedding narrative & video experience. Primary hero video followed by curated
 story sections in enforced order: Story → Rings → Wedding Party → additional

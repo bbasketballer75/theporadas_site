@@ -88,10 +88,7 @@ services:
     depends_on:
       - mssql
     environment:
-      SQLSERVER_HOST: mssql
-      SQLSERVER_PORT: 1433
-      SQLSERVER_USER: sa
-      SQLSERVER_PASSWORD: DevLocalStr0ng!Pass
+      SQLSERVER_CONNECTION_STRING: 'Server=mssql,1433;Database=master;User Id=sa;Password=DevLocalStr0ng!Pass;TrustServerCertificate=true;'
       NODE_ENV: production
       MCP_HEALTH_PORT: 3013
       MCP_SERVER_NAME: sqlserver
@@ -111,13 +108,15 @@ services:
       dockerfile: Dockerfile.mcp
     container_name: mcp-supervisor
     environment:
-      SUPERVISED_SERVERS: tavily,notion,mem0,sqlserver
+      SUPERVISED_SERVERS: fs,tavily,sse,notion,mem0,sqlserver,memoryBank,kgMemory,pythonExec,playwright,puppeteer,pieces,firebase,github,vectordb,scheduler,secrets,errorCodes,events,healthcheck,logging,rateLimit,rpcBase,testMetrics,smokeTest,smokeRunner
       NODE_ENV: production
       MCP_HEALTH_PORT: 3014
       MCP_SERVER_NAME: supervisor
       MCP_PROM_METRICS: 1
       MCP_ERROR_METRICS: 1
-    command: ['scripts/mcp_supervisor.mjs']
+    command: ['scripts/mcp_supervisor.mjs', '--config', 'servers.json', '--heartbeat-ms', '30000']
+    volumes:
+      - ./memory-bank:/app/memory-bank:rw
     restart: unless-stopped
     healthcheck:
       test: ['CMD-SHELL', 'curl -fsS http://localhost:3014/healthz || exit 1']
@@ -162,6 +161,8 @@ services:
       MCP_SERVER_NAME: memory-bank
       MCP_PROM_METRICS: 1
       MCP_ERROR_METRICS: 1
+    volumes:
+      - ./memory-bank:/app/memory-bank:rw
     command: ['scripts/mcp_memory_bank.mjs']
     restart: unless-stopped
     healthcheck:
@@ -243,7 +244,7 @@ services:
     environment:
       MCP_PT_SESSION_LIMIT: 5
       MCP_PT_NAV_TIMEOUT_MS: 15000
-      MCP_HEALTH_PORT: 3001
+      MCP_HEALTH_PORT: 3002
       NODE_ENV: production
       MCP_SERVER_NAME: puppeteer
       MCP_PROM_METRICS: 1
@@ -251,7 +252,7 @@ services:
     command: ['scripts/mcp_puppeteer.mjs']
     restart: unless-stopped
     healthcheck:
-      test: ['CMD-SHELL', 'curl -fsS http://localhost:3001/healthz || exit 1']
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3002/healthz || exit 1']
       interval: 15s
       timeout: 5s
       retries: 3
@@ -273,6 +274,290 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ['CMD-SHELL', 'curl -fsS http://localhost:3019/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  mcp_firebase:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-firebase
+    profiles: [mcp-local]
+    environment:
+      FIREBASE_TOKEN: ${FIREBASE_TOKEN:-}
+      GCLOUD_TOKEN: ${GCLOUD_TOKEN:-}
+      NODE_ENV: production
+      MCP_HEALTH_PORT: 3020
+      MCP_SERVER_NAME: firebase
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
+    command: ['scripts/mcp_firebase.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3020/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  mcp_github:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-github
+    profiles: [mcp-local]
+    environment:
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      NODE_ENV: production
+      MCP_HEALTH_PORT: 3021
+      MCP_SERVER_NAME: github
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
+    command: ['scripts/mcp_github.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3021/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  mcp_vectordb:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-vectordb
+    profiles: [mcp-local]
+    environment:
+      VECTOR_DB_PATH: /app/.vectordb.jsonl
+      NODE_ENV: production
+      MCP_HEALTH_PORT: 3022
+      MCP_SERVER_NAME: vectordb
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
+    command: ['scripts/mcp_vectordb.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3022/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  mcp_scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-scheduler
+    profiles: [mcp-local]
+    environment:
+      NODE_ENV: production
+      MCP_HEALTH_PORT: 3023
+      MCP_SERVER_NAME: scheduler
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
+    command: ['scripts/mcp_scheduler.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3023/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  mcp_secrets:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-secrets
+    profiles: [mcp-local]
+    environment:
+      NODE_ENV: production
+      MCP_HEALTH_PORT: 3024
+      MCP_SERVER_NAME: secrets
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
+    command: ['scripts/mcp_secrets.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3024/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  mcp_error_codes:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-error-codes
+    profiles: [mcp-local]
+    environment:
+      NODE_ENV: production
+      MCP_HEALTH_PORT: 3025
+      MCP_SERVER_NAME: error-codes
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
+    command: ['scripts/mcp_error_codes.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3025/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  mcp_events:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-events
+    profiles: [mcp-local]
+    environment:
+      NODE_ENV: production
+      MCP_HEALTH_PORT: 3026
+      MCP_SERVER_NAME: events
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
+    command: ['scripts/mcp_events.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3026/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  mcp_healthcheck:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-healthcheck
+    profiles: [mcp-local]
+    environment:
+      NODE_ENV: production
+      MCP_HEALTH_PORT: 3027
+      MCP_SERVER_NAME: healthcheck
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
+    command: ['scripts/mcp_healthcheck.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3027/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  mcp_logging:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-logging
+    profiles: [mcp-local]
+    environment:
+      NODE_ENV: production
+      MCP_HEALTH_PORT: 3028
+      MCP_SERVER_NAME: logging
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
+    command: ['scripts/mcp_logging.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3028/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  mcp_rate_limit:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-rate-limit
+    profiles: [mcp-local]
+    environment:
+      NODE_ENV: production
+      MCP_HEALTH_PORT: 3029
+      MCP_SERVER_NAME: rate-limit
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
+    command: ['scripts/mcp_rate_limit.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3029/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  mcp_rpc_base:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-rpc-base
+    profiles: [mcp-local]
+    environment:
+      NODE_ENV: production
+      MCP_HEALTH_PORT: 3030
+      MCP_SERVER_NAME: rpc-base
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
+    command: ['scripts/mcp_rpc_base.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3030/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  mcp_test_metrics:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-test-metrics
+    profiles: [mcp-local]
+    environment:
+      NODE_ENV: production
+      MCP_HEALTH_PORT: 3031
+      MCP_SERVER_NAME: test-metrics
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
+    command: ['scripts/mcp_test_metrics.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3031/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  mcp_smoke_test:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-smoke-test
+    profiles: [mcp-local]
+    environment:
+      NODE_ENV: production
+      MCP_HEALTH_PORT: 3032
+      MCP_SERVER_NAME: smoke-test
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
+    command: ['scripts/mcp_smoke_test.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3032/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  mcp_smoke_runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-smoke-runner
+    profiles: [mcp-local]
+    environment:
+      NODE_ENV: production
+      MCP_HEALTH_PORT: 3033
+      MCP_SERVER_NAME: smoke-runner
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
+    command: ['scripts/mcp_smoke_runner.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3033/healthz || exit 1']
       interval: 30s
       timeout: 5s
       retries: 3
