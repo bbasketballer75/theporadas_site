@@ -7,20 +7,13 @@
 *.md text eol=lf
 # Enforce LF line endings for text files
 * text=auto eol=lf
-
 # Explicit text file globs (helps on Windows clones)
-*.js text eol=lf
 *.jsx text eol=lf
-*.ts text eol=lf
-*.tsx text eol=lf
 *.json text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
-*.md text eol=lf
-*.css text eol=lf
 *.html text eol=lf
 *.ps1 text eol=lf
-
 # Binary / do not modify line endings
 *.png binary
 *.jpg binary
@@ -31,6 +24,15 @@
 *.woff binary
 *.woff2 binary
 *.ttf binary
-
 # Coverage HTML reports are regenerated; treat as text but normalized
 coverage/** text eol=lf
+*.mp4 filter=lfs diff=lfs merge=lfs -text
+*.webm filter=lfs diff=lfs merge=lfs -text
+*.mpg filter=lfs diff=lfs merge=lfs -text
+*.mpeg filter=lfs diff=lfs merge=lfs -text
+*.mov filter=lfs diff=lfs merge=lfs -text
+*.avi filter=lfs diff=lfs merge=lfs -text
+*.mkv filter=lfs diff=lfs merge=lfs -text
+*.flv filter=lfs diff=lfs merge=lfs -text
+*.wmv filter=lfs diff=lfs merge=lfs -text
+ollama.zip filter=lfs diff=lfs merge=lfs -text
