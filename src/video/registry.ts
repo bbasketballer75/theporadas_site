@@ -44,6 +44,13 @@ const videos: Record<string, VideoMeta> = {
         label: 'Chapters',
         default: true,
       },
+      {
+        kind: 'captions',
+        src: '/media/videos/main-film-chapters.vtt', // Using chapters file as placeholder for captions
+        srcLang: 'en',
+        label: 'English Captions',
+        default: false,
+      },
     ],
     chapters: [
       { start: 0, title: 'Opening' },

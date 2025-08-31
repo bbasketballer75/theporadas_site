@@ -53,7 +53,7 @@ describe('Gallery misc behaviors', () => {
     const second = screen.getByRole('button', { name: /second image/i });
     fireEvent.click(second);
     expect(screen.getByRole('dialog')).toBeTruthy();
-    const closeBtn = screen.getByRole('button', { name: /close/i });
+    const closeBtn = screen.getByRole('button', { name: 'Close' });
     fireEvent.click(closeBtn);
     expect(screen.queryByRole('dialog')).toBeNull();
   });

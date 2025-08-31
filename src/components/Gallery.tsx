@@ -71,10 +71,14 @@ function useFocusTrap(
         const last = list[list.length - 1];
         const isShift = e.shiftKey;
         const activeEl = document.activeElement as HTMLElement | null;
+
+        // Prevent tabbing out of modal by wrapping focus
         if (!isShift && activeEl === last) {
+          // Tab from last element -> wrap to first
           e.preventDefault();
           first.focus();
         } else if (isShift && activeEl === first) {
+          // Shift+Tab from first element -> wrap to last
           e.preventDefault();
           last.focus();
         }
@@ -147,12 +151,24 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
   useEffect(() => {
     if (active) {
       const onDoc = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') setActive(null);
+        if (e.key === 'Escape') {
+          setActive(null);
+        } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          const currentIndex = items.findIndex((item) => item.id === active.id);
+          if (currentIndex !== -1) {
+            const nextIndex =
+              e.key === 'ArrowRight'
+                ? (currentIndex + 1) % items.length
+                : (currentIndex - 1 + items.length) % items.length;
+            setActive(items[nextIndex]);
+          }
+        }
       };
       document.addEventListener('keydown', onDoc);
       return () => document.removeEventListener('keydown', onDoc);
     }
-  }, [active]);
+  }, [active, items]);
 
   return (
     <div className="gallery" ref={containerRef} aria-labelledby={headingId}>
@@ -212,11 +228,12 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
           aria-label={active.caption || 'Image'}
           ref={modalRef}
           open
+          aria-modal="true"
         >
           <button
             className="gallery-modal-backdrop"
             onClick={() => setActive(null)}
-            aria-label="Close modal"
+            aria-label="Close gallery modal"
             type="button"
           />
           <div className="gallery-modal-content">

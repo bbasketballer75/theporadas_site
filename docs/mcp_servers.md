@@ -747,69 +747,141 @@ The following table is auto-generated. Do not edit between the markers manually;
 
 <!-- ENV_VARS_AUTO_START -->
 
-| Variable                      | Default | Description                                                          |
-| ----------------------------- | ------- | -------------------------------------------------------------------- |
-| DISABLE_MCP_KEEPALIVE         |         |                                                                      |
-| EMBEDDINGS_API_KEY            |         |                                                                      |
-| EMBEDDINGS_PROVIDER           |         |                                                                      |
-| FIREBASE_MCP_CHECK_TIMEOUT_MS |         |                                                                      |
-| GATE_LH_CATEGORY_TOLERANCE    |         |                                                                      |
-| GATE_MIN_BRANCHES             |         |                                                                      |
-| GATE_MIN_FUNCTIONS            |         |                                                                      |
-| GATE_MIN_LINES                |         |                                                                      |
-| GATE_MIN_STATEMENTS           |         |                                                                      |
-| GATE_TOKEN_MAX_ADDED          |         |                                                                      |
-| GATE_TOKEN_MAX_NET            |         |                                                                      |
-| GCLOUD_TOKEN                  |         |                                                                      |
-| GH_TOKEN                      |         |                                                                      |
-| GITHUB_APP_INSTALLATION_TOKEN |         | GitHub App installation token (alternative auth)                     |
-| GITHUB_REPOSITORY             |         | GitHub repository owner/name (CI context)                            |
-| GITHUB_STEP_SUMMARY           |         | File path for GitHub Actions step summary output                     |
-| GITHUB_TOKEN                  |         | GitHub token for workflow verification scripts                       |
-| LH_ALLOWED_DELTA              |         | Allowed Lighthouse metric delta (quality regression check)           |
-| LH_METRIC_REGRESSION_PCT      |         | Percentage threshold for Lighthouse metric regression                |
-| MCP_ERRORS_VERBOSE            |         |                                                                      |
-| MCP_ERROR_METRICS             |         |                                                                      |
-| MCP_FS_ALLOW_WRITE_GLOBS      |         | Comma-separated glob patterns allowed for write operations           |
-| MCP_FS_MAX_BYTES              |         | Maximum allowed file size (bytes) for writes; unset for no limit     |
-| MCP_FS_ROOT                   |         | Root directory for filesystem server operations                      |
-| MCP_INCLUDE_SSE               |         | Include the SSE gateway under supervisor when set to 1               |
-| MCP_KG_MAX_TRIPLES            |         |                                                                      |
-| MCP_MAX_LINE_LEN              |         |                                                                      |
-| MCP_MEMORY_BANK_DIR           |         |                                                                      |
-| MCP_PROM_METRICS              |         |                                                                      |
-| MCP_PT_NAV_TIMEOUT_MS         |         |                                                                      |
-| MCP_PT_SESSION_LIMIT          |         |                                                                      |
-| MCP_PW_NAV_TIMEOUT_MS         |         |                                                                      |
-| MCP_PW_SESSION_LIMIT          |         |                                                                      |
-| MCP_PY_TIMEOUT_MS             |         |                                                                      |
-| MCP_PYTHON_BIN                |         |                                                                      |
-| MCP_RATE_LIMIT                |         |                                                                      |
-| MCP_RATE_LIMIT_CAPACITY       |         |                                                                      |
-| MCP_RATE_LIMIT_MODE           |         |                                                                      |
-| MCP_RATE_LIMIT_REFILL_MS      |         |                                                                      |
-| MCP_SERVER_NAME               |         | Override server name advertised in readiness event                   |
-| MCP_SSE_AUTH_TOKEN            |         | Bearer token required for SSE subscription (if set)                  |
-| MCP_SSE_HEARTBEAT_MS          |         | Heartbeat interval (ms) for SSE keepalive events                     |
-| MCP_SSE_HMAC_SECRET           |         | Optional HMAC secret; adds X-MCP-Signature header to ingested events |
-| MCP_SSE_INGEST_TOKEN          |         | Bearer token required for ingestion (defaults to auth token)         |
-| MCP_SSE_PORT                  |         | Port for the SSE gateway HTTP server                                 |
-| MCP_SSE_RING_MAX              |         | Maximum number of events retained in ring buffer                     |
-| MCP_SSE_VERSION               |         | Version segment used for versioned SSE paths                         |
-| MEM0_API_KEY                  |         |                                                                      |
-| MY_SECRET                     |         |                                                                      |
-| NOTION_API_KEY                |         |                                                                      |
-| PIECES_API_KEY                |         |                                                                      |
-| SCHEDULER_MAX_TASKS           |         |                                                                      |
-| SECRETS_ALLOWLIST             |         |                                                                      |
-| SQLSERVER_CONNECTION_STRING   |         |                                                                      |
-| TAVILY_API_KEY                |         | Tavily API key (required unless TAVILY_OPTIONAL=1)                   |
-| TAVILY_API_URL                |         | Override Tavily API base URL                                         |
-| TAVILY_FORCE_CRASH            |         | Testing flag to force Tavily server crash on startup                 |
-| TAVILY_MOCK_SCENARIO          |         | Testing scenario selector for mock Tavily responses                  |
-| TAVILY_OPTIONAL               |         | Allow degraded mode without API key when set to 1                    |
-| VECTOR_DB_PATH                |         | Path to vector DB JSONL storage file                                 |
-| VITEST_COVERAGE_LIGHT         |         |                                                                      |
+| Variable | Description (heuristic) | Seen In |
+| -------- | ----------------------- | ------- |
+| `A11Y_BEST_ENFORCE` | Th — General | scripts\axe_best_enforce.mjs |
+| `A11Y_BEST_OUTPUT` | General | test\utils\axeHelper.ts |
+| `A11Y_BEST_OUTPUT_PATH` | Configuration via env vars — General | scripts\axe_best_enforce.mjs, test\utils\axeHelper.ts |
+| `A11Y_INCLUDE_BEST_PRACTICES` | General | test\utils\axeHelper.ts |
+| `A11Y_THRESHOLD_HEADING_ORDER` | General | scripts\axe_best_enforce.mjs |
+| `A11Y_THRESHOLD_REGION` | General | scripts\axe_best_enforce.mjs |
+| `AUDIT_ALLOW_DEV` | General | scripts\ci_audit_guard.mjs |
+| `AUDIT_FAIL_LEVEL` | General | scripts\ci_audit_guard.mjs |
+| `BASE_REF` | Get base branch (default main) — General | scripts\coverage_diff.mjs |
+| `BUNDLE_DIR` | General | scripts\compute_bundle_sizes.mjs |
+| `CI` | Default — General | lighthouse\build\build-bundle.js, lighthouse\cli\sentry-prompt.js, lighthouse\cli\test\smokehouse\frontends\smokehouse-bin.js |
+| `CODEQL_ALERTS_OUTFILE` | General | scripts\fetch_codeql_alerts.mjs |
+| `CODEQL_ALERTS_PER_PAGE` | General | scripts\fetch_codeql_alerts.mjs |
+| `CODEQL_GATING_REMOVAL_SHA` | General | scripts\codeql_baseline_snapshot.mjs |
+| `CODEQL_RUN_NUMBER` | General | scripts\codeql_baseline_snapshot.mjs |
+| `COMSPEC` | General | test\refresh_path.test.ts |
+| `COVERAGE_A11Y_SILENT` | Allow override for testing or custom location via COVERAGE_HTML env var. — General | scripts\fix_coverage_a11y.mjs |
+| `COVERAGE_A11Y_STRICT` | General | scripts\fix_coverage_a11y.mjs |
+| `COVERAGE_HTML` | General | scripts\fix_coverage_a11y.mjs |
+| `DEBUG` | Set DEBUG environment variable if you want to see the tests in action. — General | lighthouse\build\build-bundle.js, lighthouse\build\build-dt-report-resources.js, lighthouse\build\build-legacy-javascript.js |
+| `DEVTOOLS_PATH` | General | lighthouse\cli\test\smokehouse\lighthouse-runners\devtools.js |
+| `DISABLE_MCP_KEEPALIVE` | supervisor tests observing give-up semantics are not delayed. — General | scripts\mcp_rpc_base.mjs |
+| `EMBEDDINGS_API_KEY` | API key | src\search\embeddings.ts |
+| `EMBEDDINGS_PROVIDER` | General | src\search\embeddings.ts |
+| `FIREBASE_MCP_CHECK_TIMEOUT_MS` | Timeout (ms) | scripts\check_firebase_mcp.mjs |
+| `FIREBASE_TOKEN` | General | scripts\mcp_firebase.mjs, test\integration\firebase.integration.test.mjs |
+| `FORCE` | General | lighthouse\core\scripts\lantern\update-baseline-lantern-values.js |
+| `GATE_LH_CATEGORY_TOLERANCE` | allo — General | scripts\enforce_gating.mjs |
+| `GATE_MIN_BRANCHES` | General | scripts\enforce_gating.mjs |
+| `GATE_MIN_FUNCTIONS` | General | scripts\enforce_gating.mjs |
+| `GATE_MIN_LINES` | General | scripts\enforce_gating.mjs |
+| `GATE_MIN_STATEMENTS` | General | scripts\enforce_gating.mjs |
+| `GATE_TOKEN_MAX_ADDED` | Added hard limit only enforced if explicitly provided. — Limit / bound | scripts\enforce_gating.mjs |
+| `GATE_TOKEN_MAX_NET` | Added — Limit / bound | scripts\enforce_gating.mjs |
+| `GCLOUD_TOKEN` | General | scripts\mcp_firebase.mjs |
+| `GCP_COLLECT` | General | lighthouse\core\scripts\lantern\collect\common.js |
+| `GH_TOKEN` | api.github.com/'; — General | lighthouse\core\scripts\internal-analysis\download-issues.js, scripts\codeql_trend_append.mjs |
+| `GITHUB_ACTIONS` | General | lighthouse\core\test\test-utils.js |
+| `GITHUB_API_URL` | Domain-specific error helper. — General | scripts\mcp_github.mjs |
+| `GITHUB_APP_INSTALLATION_TOKEN` | General | scripts\codeql_baseline_snapshot.mjs, scripts\codeql_drift_delta.mjs, scripts\codeql_verify_append.mjs |
+| `GITHUB_BASE_REF` | Get base branch (default main) — General | scripts\compute_token_deltas.mjs, scripts\coverage_diff.mjs |
+| `GITHUB_HEAD_REF` | General | scripts\append_quality_history.mjs |
+| `GITHUB_REF_NAME` | General | scripts\append_quality_history.mjs |
+| `GITHUB_REPOSITORY` | owner/repo — General | scripts\codeql_baseline_snapshot.mjs, scripts\codeql_drift_delta.mjs, scripts\codeql_trend_append.mjs |
+| `GITHUB_SHA` | General | scripts\append_quality_history.mjs |
+| `GITHUB_STEP_SUMMARY` | General | scripts\verify_workflows.mjs |
+| `GITHUB_TOKEN` | Accept a token via standard envs (prioritized): GITHUB_TOKEN, GITHUB_APP_INSTALLATION_TOKEN — General | scripts\codeql_baseline_snapshot.mjs, scripts\codeql_drift_delta.mjs, scripts\codeql_trend_append.mjs |
+| `GIT_COMMIT` | General | scripts\append_quality_history.mjs |
+| `INTERNAL_LANTERN_USE_TRACE` | TODO(15841): remove devtools impl when ready to make breaking change. — General | lighthouse\core\computed\metrics\lantern-metric.js, lighthouse\core\test\audits\byte-efficiency\render-blocking-resources-test.js, lighthouse\core\test\audits\mainthread-work-breakdown-test.js |
+| `LANTERN_DEBUG` | General | lighthouse\core\lib\asset-saver.js, lighthouse\core\scripts\lantern\debug-url.js, lighthouse\core\scripts\lantern\run-once.js |
+| `LHCI_CURR` | General | scripts\lhci_diff.mjs |
+| `LHCI_DIFF_MD` | General | scripts\lhci_diff.mjs |
+| `LHCI_PREV` | General | scripts\lhci_diff.mjs |
+| `LH_ALLOWED_DELTA` | General | scripts\quality_regression_check.mjs |
+| `LH_DISABLE_ZLIB_SHIMS` | General | lighthouse\build\build-bundle.js |
+| `LH_FAILED_TESTS_FILE` | General | lighthouse\core\test\scripts\run-mocha-tests.js, lighthouse\core\test\test-env\mocha-setup.js |
+| `LH_FPS_DEBUG` | General | lighthouse\core\test\gather\gatherers\full-page-screenshot-test.js |
+| `LH_FPS_TEST` | Note: this analysis was done for JPEG, but now we use WEBP. — General | lighthouse\core\gather\gatherers\full-page-screenshot.js, lighthouse\core\test\scripts\run-mocha-tests.js, lighthouse\dist\lighthouse-dt-bundle.js |
+| `LH_METRIC_REGRESSION_PCT` | General | scripts\quality_regression_check.mjs |
+| `LH_MIN_GZIP_DELTA_BYTES` | General | scripts\compare_lighthouse_bundles.mjs |
+| `LH_MIN_GZIP_DELTA_PCT` | General | scripts\compare_lighthouse_bundles.mjs |
+| `LH_MIN_RAW_DELTA_BYTES` | General | scripts\compare_lighthouse_bundles.mjs |
+| `LH_MIN_RAW_DELTA_PCT` | General | scripts\compare_lighthouse_bundles.mjs |
+| `LH_PORT` | Simple Lighthouse runner: builds site, starts preview (Vite), runs lighthouse against localhost — General | scripts\lighthouse.mjs |
+| `MAX_BRANCH_DROP` | Limit / bound | scripts\coverage_diff.mjs |
+| `MAX_FUNCTION_DROP` | Limit / bound | scripts\coverage_diff.mjs |
+| `MAX_LINE_DROP` | Per — Limit / bound | scripts\coverage_diff.mjs |
+| `MAX_STATEMENT_DROP` | Configurable thresholds via env (percentages) — Limit / bound | scripts\coverage_diff.mjs |
+| `MCP_ERRORS_VERBOSE` | MCP harness | scripts\mcp_rpc_base.mjs |
+| `MCP_ERROR_METRICS` | Optional in-memory error metrics (enabled via MCP_ERROR_METRICS=1) — MCP harness | scripts\mcp_rpc_base.mjs |
+| `MCP_FS_ALLOW_WRITE_GLOBS` | MCP harness | scripts\mcp_filesystem.mjs |
+| `MCP_FS_MAX_BYTES` | Limit / bound | scripts\mcp_filesystem.mjs |
+| `MCP_FS_ROOT` | MCP harness | scripts\mcp_filesystem.mjs |
+| `MCP_HEALTH_PORT` | Provides minimal JSON body with server name and method count. — MCP harness | scripts\mcp_rpc_base.mjs |
+| `MCP_INCLUDE_SSE` | MCP harness | scripts\mcp_supervisor.mjs |
+| `MCP_KG_MAX_TRIPLES` | Limit / bound | scripts\mcp_kg_memory.mjs, test\mcp_errors.test.js |
+| `MCP_LOG_LEVEL` | MCP harness | scripts\mcp_logging.mjs |
+| `MCP_MAX_LINE_LEN` | Limit / bound | scripts\mcp_rpc_base.mjs |
+| `MCP_MEMORY_BANK_DIR` | MCP harness | scripts\mcp_memory_bank.mjs |
+| `MCP_PROM_METRICS` | Per-m — MCP harness | scripts\mcp_rpc_base.mjs |
+| `MCP_PT_NAV_TIMEOUT_MS` | Timeout (ms) | scripts\mcp_puppeteer.mjs |
+| `MCP_PT_SESSION_LIMIT` | Limit / bound | scripts\mcp_puppeteer.mjs |
+| `MCP_PW_NAV_TIMEOUT_MS` | Timeout (ms) | scripts\mcp_playwright.mjs |
+| `MCP_PW_SESSION_LIMIT` | Limit / bound | scripts\mcp_playwright.mjs |
+| `MCP_PYTHON_BIN` | MCP harness | scripts\mcp_python.mjs |
+| `MCP_PY_TIMEOUT_MS` | Timeout (ms) | scripts\mcp_python.mjs |
+| `MCP_RATE_LIMIT` | NOT production ready (no persistence / eviction). Disabled unless MCP_RATE_LIMIT=1. — Limit / bound | scripts\mcp_rate_limit.mjs, scripts\mcp_rpc_base.mjs |
+| `MCP_RATE_LIMIT_CAPACITY` | key -> { tokens, lastRefill } — Limit / bound | scripts\mcp_rate_limit.mjs |
+| `MCP_RATE_LIMIT_MODE` | ' — Limit / bound | scripts\mcp_rpc_base.mjs |
+| `MCP_RATE_LIMIT_REFILL_MS` | tokens — Limit / bound | scripts\mcp_rate_limit.mjs |
+| `MCP_SERVER_NAME` | MCP harness | scripts\mcp_filesystem.mjs, scripts\mcp_rpc_base.mjs |
+| `MCP_SSE_AUTH_TOKEN` | ring buffer events retained — MCP harness | scripts\mcp_events.mjs, scripts\mcp_sse_gateway.mjs |
+| `MCP_SSE_HEARTBEAT_MS` | MCP harness | scripts\mcp_sse_gateway.mjs |
+| `MCP_SSE_HMAC_SECRET` | ingestion auth (defaults to same) — MCP harness | scripts\mcp_sse_gateway.mjs |
+| `MCP_SSE_INGEST_TOKEN` | for subscribers (optional) — MCP harness | scripts\mcp_events.mjs, scripts\mcp_sse_gateway.mjs |
+| `MCP_SSE_INGEST_URL` | 127.0.0.1:39300/model_context_protocol/2024-11-05/events'; — MCP harness | scripts\mcp_events.mjs |
+| `MCP_SSE_PORT` | MCP harness | scripts\mcp_sse_gateway.mjs |
+| `MCP_SSE_RING_MAX` |  — MCP harness | scripts\mcp_sse_gateway.mjs |
+| `MCP_SSE_VERSION` | Versioned base (default date-based). Provide aliases for forward compatibility. — MCP harness | scripts\mcp_sse_gateway.mjs |
+| `MEM0_API_KEY` | API key | scripts\mcp_mem0.mjs |
+| `NODE_ENV` | CI as a catchall for everything we do in GitHub Actions — General | lighthouse\core\lib\lh-env.js, lighthouse\core\test\test-env\mocha-setup.js |
+| `NOTION_API_KEY` | API key | scripts\mcp_notion.mjs |
+| `OOPIFS` | General | lighthouse\core\scripts\lantern\collect\collect.js |
+| `OUTPUT` | General | scripts\code_scanning_app_fetch.mjs |
+| `PER_FILE_FAIL_DROP` | Maximum allowed per-file statement drop that will fail build (optional) — General | scripts\coverage_diff.mjs |
+| `PER_FILE_WARN_DROP` | Per-file warning (does not fail) when statement % drops more than this value — General | scripts\coverage_diff.mjs |
+| `PER_PAGE` | General | scripts\code_scanning_app_fetch.mjs |
+| `PIECES_API_KEY` | API key | scripts\mcp_pieces.mjs |
+| `PRINT_WORST` | General | lighthouse\core\scripts\lantern\print-correlations.js |
+| `QUIET` | General | scripts\codeql_baseline_snapshot.mjs, scripts\codeql_drift_delta.mjs |
+| `SCHEDULER_MAX_TASKS` | Limit / bound | scripts\mcp_scheduler.mjs |
+| `SECRETS_ALLOWLIST` | General | scripts\mcp_secrets.mjs |
+| `SKIP_DOTENV` | General | scripts\load_env.mjs |
+| `SMOKE_IGNORE_FAIL` | General | scripts\mcp_smoke_runner.mjs |
+| `SMOKE_POST_READY_MS` | Grace period after emitting ready to allow listMethods response — General | scripts\mcp_smoke_runner.mjs |
+| `SMOKE_SKIP` | General | scripts\mcp_smoke_runner.mjs |
+| `SMOKE_TIMEOUT_MS` | Timeout (ms) | scripts\mcp_smoke_runner.mjs |
+| `SNAPSHOT_UPDATE` | ', ''); — General | lighthouse\core\test\scripts\run-mocha-tests.js, lighthouse\core\test\test-env\mocha-setup.js |
+| `SQLSERVER_CONNECTION_STRING` | General | scripts\db\test_connection.mjs, scripts\mcp_sqlserver.mjs, test\retryClient.test.ts |
+| `STAGE` | build, audit, all. — General | lighthouse\core\scripts\legacy-javascript\run.js |
+| `STRICT` | General | scripts\codeql_drift_delta.mjs |
+| `TAVILY_API_KEY` | API key | scripts\mcp_tavily.mjs |
+| `TAVILY_API_URL` | api.t — General | scripts\mcp_tavily.mjs |
+| `TAVILY_FORCE_CRASH` | General | scripts\mcp_tavily.mjs |
+| `TAVILY_MOCK_SCENARIO` | General | scripts\mcp_tavily.mjs |
+| `TAVILY_OPTIONAL` | without triggering supervisor give-up cycles. — General | scripts\mcp_tavily.mjs |
+| `TEST_URLS` | www.webpagetest.org'; — General | lighthouse\core\scripts\lantern\collect\collect.js |
+| `TZ` | Use consistent TZ across testing environments. — General | lighthouse\core\test\test-env\mocha-setup.js |
+| `USE_NPM_LINK` | General | lighthouse\build\reset-link.js |
+| `VECTOR_DB_PATH` | General | scripts\mcp_vectordb.mjs |
+| `VITEST_COVERAGE_LIGHT` | General | vitest.config.ts |
+| `WPT_KEY` | General | lighthouse\core\scripts\lantern\collect\collect.js |
+| `WPT_URL` | www.w — General | lighthouse\core\scripts\lantern\collect\collect.js |
 
 <!-- ENV_VARS_AUTO_END -->
 

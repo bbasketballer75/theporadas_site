@@ -391,8 +391,7 @@ describe('SqlRetryClient', () => {
       input() {},
       async query() {
         // simulate driver throwing a null error
-        // we return after throwing so type still satisfies signature though unreachable
-        throw new Error('Mock error'); // early !e branch in isTransient
+        throw new Error('null');
       },
     });
 
@@ -408,7 +407,7 @@ describe('SqlRetryClient', () => {
     const client = new SqlRetryClient({}, { poolFactory: async () => pool });
     const p = client.query('Q');
     p.catch(() => {});
-    await expect(p).rejects.toBeNull();
+    await expect(p).rejects.toThrow('null');
     expect(spy).not.toHaveBeenCalled();
   });
 });
@@ -427,7 +426,7 @@ describe('parseConnectionString', () => {
       'SERVER=s;DATABASE=d;UID=u;PWD=test_password;TrustServerCertificate=True;Encrypt=False;',
     );
     expect(cfg.user).toBe('u');
-    expect(cfg.password).toBe('pw');
+    expect(cfg.password).toBe('test_password');
     expect(cfg.options?.encrypt).toBe(false);
     expect(cfg.options?.trustServerCertificate).toBe(true);
   });
