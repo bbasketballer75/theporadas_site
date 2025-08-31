@@ -57,7 +57,7 @@ function createMockQuerySnapshot(docs: Array<{ id: string; data: () => Record<st
   return {
     docs: docs.map((doc) => ({
       id: doc.id,
-      data: () => doc.data,
+      data: doc.data,
     })),
   };
 }
