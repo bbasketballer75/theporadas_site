@@ -1,5 +1,5 @@
 import { act, fireEvent, render } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { LazyVideoPlayer } from '../src/components/VideoPlayer/LazyVideoPlayer';
 import { VideoPlayer } from '../src/components/VideoPlayer/VideoPlayer';
@@ -29,7 +29,10 @@ class IOStub {
 }
 
 describe('Video players', () => {
+  let warnSpy: ReturnType<typeof vi.spyOn>;
+
   beforeEach(() => {
+    warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     class TestIO extends IOStub {
       static readonly instances: IOStub[] = [];
       constructor(cb: (entries: IntersectionObserverEntry[]) => void) {
@@ -38,6 +41,10 @@ describe('Video players', () => {
       }
     }
     (globalThis as unknown as { IntersectionObserver: unknown }).IntersectionObserver = TestIO;
+  });
+
+  afterEach(() => {
+    warnSpy.mockRestore();
   });
 
   it('LazyVideoPlayer shows placeholder then mounts VideoPlayer when intersecting', () => {
@@ -77,7 +84,6 @@ describe('Video players', () => {
   });
 
   it('VideoPlayer emits chapters events and deprecation warning', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const events: string[] = [];
 
     const { getByText } = render(
@@ -87,6 +93,7 @@ describe('Video players', () => {
           { start: 0, title: 'Intro' },
           { start: 10, title: 'Middle' },
         ]}
+        tracks={[{ kind: 'subtitles', src: '/sub.vtt', srclang: 'en', label: 'EN', default: true }]}
         caption="Sample Video"
         onEvent={(p) => events.push(p.name)}
       />,
@@ -107,7 +114,7 @@ describe('Video players', () => {
       fireEvent.click(middleBtn);
     });
 
-    expect(warn).toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalled();
     expect(events).toContain('play');
     expect(events).toContain('timeupdate');
   });

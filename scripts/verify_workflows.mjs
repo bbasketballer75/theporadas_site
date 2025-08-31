@@ -13,12 +13,10 @@ const ARTIFACTS_DIR = path.join(process.cwd(), 'artifacts');
 function parseArgs(argv) {
   const args = createDefaultArgs();
   let i = 2;
-
   while (i < argv.length) {
-    const a = argv[i];
-    i = processArgument(a, argv, args, i);
+    const arg = argv[i];
+    i = processArgument(arg, argv, args, i);
   }
-
   return args;
 }
 
@@ -43,6 +41,7 @@ function createDefaultArgs() {
 function processArgument(arg, argv, args, index) {
   if (isBooleanFlag(arg)) {
     processBooleanFlag(arg, args);
+    return index + 1; // Boolean flags consume one argument
   } else if (isValueFlag(arg)) {
     return processValueFlag(arg, argv, args, index);
   } else if (isListFlag(arg)) {
