@@ -291,9 +291,6 @@ Examples:
 # Governance in CI (warn on name diffs, fail on path mismatches, ignore previews)
 node scripts/verify_workflows.mjs --require "CI Pipeline,Security Scan" --ignore "*preview*" --fail-missing --name-diff-severity warn
 
-# Offline test / simulation (uses fixture instead of API)
-node scripts/verify_workflows.mjs --remote-json test/fixtures/workflows_remote.json --key path
-
 # Enable remote caching (5 min TTL)
 node scripts/verify_workflows.mjs --cache-remote --cache-ttl 300
 ```
