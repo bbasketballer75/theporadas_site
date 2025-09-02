@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { GuestMessage, guestMessagesService } from '../services/api';
+import './GuestMessages.css';
 
 interface GuestMessagesProps {
   maxMessages?: number;
@@ -91,6 +92,24 @@ export function GuestMessages({ maxMessages = 10 }: GuestMessagesProps) {
   if (loading) {
     return (
       <div className="guest-messages-loading" style={{ padding: '20px', textAlign: 'center' }}>
+        <div style={{ display: 'inline-block', marginBottom: '10px' }}>
+          <div
+            style={{
+              width: '40px',
+              height: '40px',
+              border: '4px solid #f3f3f3',
+              borderTop: '4px solid #4ecdc4',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+            }}
+          />
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
         <div>Loading guest messages...</div>
       </div>
     );
@@ -129,7 +148,7 @@ export function GuestMessages({ maxMessages = 10 }: GuestMessagesProps) {
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} data-testid="guest-form">
           <div style={{ marginBottom: '15px' }}>
             <label
               htmlFor="guestName"
@@ -143,6 +162,7 @@ export function GuestMessages({ maxMessages = 10 }: GuestMessagesProps) {
               value={guestName}
               onChange={(e) => setGuestName(e.target.value)}
               required
+              data-testid="guest-name"
               style={{
                 width: '100%',
                 padding: '10px',
@@ -167,6 +187,7 @@ export function GuestMessages({ maxMessages = 10 }: GuestMessagesProps) {
               type="email"
               value={guestEmail}
               onChange={(e) => setGuestEmail(e.target.value)}
+              data-testid="guest-email"
               style={{
                 width: '100%',
                 padding: '10px',
@@ -192,6 +213,7 @@ export function GuestMessages({ maxMessages = 10 }: GuestMessagesProps) {
               onChange={(e) => setNewMessage(e.target.value)}
               required
               rows={4}
+              data-testid="guest-message"
               style={{
                 width: '100%',
                 padding: '10px',
@@ -208,6 +230,7 @@ export function GuestMessages({ maxMessages = 10 }: GuestMessagesProps) {
           <button
             type="submit"
             disabled={submitting}
+            data-testid="guest-submit"
             style={{
               backgroundColor: submitting ? '#ccc' : '#4ecdc4',
               color: 'white',
@@ -226,7 +249,7 @@ export function GuestMessages({ maxMessages = 10 }: GuestMessagesProps) {
       </div>
 
       {/* Messages List */}
-      <div className="messages-list">
+      <div className="messages-list" data-testid="guest-messages">
         <h3 style={{ marginBottom: '20px', color: '#555' }}>
           Messages from Guests ({messages.length})
         </h3>

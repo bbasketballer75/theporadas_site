@@ -1,0 +1,11 @@
+{
+  "timestamp": "2025-09-01T19:33:58.009023",
+  "summary": {
+    "total_tools": 0,
+    "total_executions": 0,
+    "overall_error_rate": 0.0,
+    "alerts_count": 0
+  },
+  "tool_details": {},
+  "alerts": []
+}

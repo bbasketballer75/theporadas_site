@@ -3,6 +3,11 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    fs: {
+      deny: ['lighthouse/**']
+    }
+  },
   build: {
     // Enable code splitting
     rollupOptions: {

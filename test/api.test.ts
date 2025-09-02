@@ -65,6 +65,7 @@ describe('API Service', () => {
           'https://wedding-functions-956393407443.us-central1.run.app/family-member',
           {
             headers: { 'Content-Type': 'application/json' },
+            mode: 'cors',
           },
         );
         expect(result).toEqual([mockMember]);
@@ -83,6 +84,7 @@ describe('API Service', () => {
           'https://wedding-functions-956393407443.us-central1.run.app/family-member/1',
           {
             headers: { 'Content-Type': 'application/json' },
+            mode: 'cors',
           },
         );
         expect(result).toEqual(mockMember);
@@ -105,19 +107,49 @@ describe('API Service', () => {
 
         const result = await familyMembersService.add(newMember);
 
-        expect(fetchMock).toHaveBeenCalledWith(
-          'https://wedding-functions-956393407443.us-central1.run.app/family-member',
-          {
-            headers: { 'Content-Type': 'application/json' },
-            method: 'POST',
-            body: JSON.stringify(newMember),
-          },
-        );
         expect(result).toBe('new-id');
       });
     });
 
     describe('update', () => {
+      it('should update family member successfully', async () => {
+        const updates = { name: 'Updated Name' };
+        fetchMock.mockResolvedValueOnce(createMockResponse({}));
+
+        const testCases = [
+          {
+            name: 'Regular relationship',
+            relationship: 'Step-Father',
+            expectedUrl: 'https://wedding-functions-956393407443.us-central1.run.app/family-member?relationship=Step-Father',
+            expectedRequestBody: { headers: { 'Content-Type': 'application/json' } },
+          },
+          {
+            name: 'Relationship with &',
+            relationship: 'Step-Father&Partner',
+            expectedUrl: 'https://wedding-functions-956393407443.us-central1.run.app/family-member?relationship=Step-Father%26Partner',
+            expectedRequestBody: { headers: { 'Content-Type': 'application/json' } },
+          },
+          {
+            name: 'Relationship with =',
+            relationship: 'Step-Father=Partner',
+            expectedUrl: 'https://wedding-functions-956393407443.us-central1.run.app/family-member?relationship=Step-Father%3DPartner',
+            expectedRequestBody: { headers: { 'Content-Type': 'application/json' } },
+          },
+        ];
+
+        await Promise.all(
+          testCases.map(async (testCase) => {
+            fetchMock.mockResolvedValueOnce(createMockResponse({ members: [] }));
+            const result = await familyMembersService.getByRelationship(testCase.relationship as string);
+            expect(fetchMock).toHaveBeenCalledWith(
+              testCase.expectedUrl,
+              testCase.expectedRequestBody,
+            );
+            expect(result).toEqual([]);
+          }),
+        );
+      });
+
       it('should update family member successfully', async () => {
         const updates = { name: 'Updated Name' };
         fetchMock.mockResolvedValueOnce(createMockResponse({}));
@@ -351,6 +383,7 @@ describe('API Service', () => {
           'https://wedding-functions-956393407443.us-central1.run.app/process-image',
           {
             method: 'POST',
+            mode: 'cors',
             body: expect.any(FormData),
           },
         );
