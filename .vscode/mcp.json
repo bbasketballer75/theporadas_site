@@ -1,49 +1,44 @@
 {
-  "servers": {
-    "context7": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@upstash/context7-mcp@latest",
-        "--transport",
-        "stdio",
-        "--api-key",
-        "${input:context7-api-key}"
-      ],
-      "env": {
-        "PATH": "${env:LOCALAPPDATA}\\nodejs;${env:APPDATA}\\npm;${env:PATH}"
-      }
-    },
-    "sequentialthinking": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
-      "env": {
-        "PATH": "${env:LOCALAPPDATA}\\nodejs;${env:APPDATA}\\npm;${env:PATH}"
-      }
-    },
-    "firebase": {
-      "type": "stdio",
-      "command": "pwsh",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}/scripts/firebase_mcp.ps1"
-      ],
-      "env": {
-        "PATH": "${env:LOCALAPPDATA}\\nodejs;${env:APPDATA}\\npm;${env:PATH}"
-      }
-    }
+  "github": {
+    "command": "docker run -i --rm -e GITHUB_PERSONAL_ACCESS_TOKEN -e GITHUB_TOOLSETS -e GITHUB_READ_ONLY ghcr.io/github/github-mcp-server"
   },
-  "inputs": [
-    {
-      "id": "context7-api-key",
-      "type": "promptString",
-      "description": "Context7 API key (optional, for higher rate limits)",
-      "password": true
-    }
-  ]
+  "context7": {
+    "command": "npx -y @upstash/context7-mcp"
+  },
+  "puppeteer": {
+    "command": "npx -y @modelcontextprotocol/server-puppeteer"
+  },
+  "sequentialthinking": {
+    "command": "npx -y @modelcontextprotocol/server-sequential-thinking"
+  },
+  "brave-search": {
+    "command": "npx -y @modelcontextprotocol/server-brave-search"
+  },
+  "time": {
+    "command": "python -m mcp_server_time"
+  },
+  "memory": {
+    "command": "npx -y @modelcontextprotocol/server-memory"
+  },
+  "sqlite": {
+    "command": "npx -y mcp-sqlite C:/Users/Austin/Documents/theporadas_site/database.db"
+  },
+  "tavily": {
+    "command": "npx -y tavily-mcp@0.2.3"
+  },
+  "sentry": {
+    "command": "uvx mcp-server-sentry --auth-token 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"
+  },
+  "notion": {
+    "command": "npx -y @notionhq/notion-mcp-server"
+  },
+  "git": {
+    "command": "uvx mcp-server-git --repository C:/Users/Austin/Documents/theporadas_site"
+  },
+  "filesystem": {
+    "command": "docker run -i --rm --mount type=bind,src=C:/Users/Austin/Documents,dst=/projects mcp/filesystem /projects"
+  },
+  "playwright": {
+    "command": "docker run -i --rm --init --pull=always mcr.microsoft.com/playwright/mcp@sha256:48cfafeaaf213c618fff8d2e311f33b170dd1eab87a351260cdb9c24a785fc50"
+  }
 }
