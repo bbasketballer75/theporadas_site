@@ -898,7 +898,7 @@ Threshold env vars (tune in workflow file):
 
 ## Visual Regression Testing
 
-Playwright harness (`playwright.config.ts`, tests under `pw-tests/`) performs basic
+Playwright harness (`playwright.config.ts`, tests under `test/`) performs basic
 cross‑browser visual assertions. On first run missing snapshots are generated
 locally with:
 
@@ -913,7 +913,7 @@ and runs tests across Chromium, Firefox, WebKit. Failures upload traces & diffs.
 
 For pull requests the workflow attempts to download the latest successful
 `playwright-snapshots` artifact from the `main` branch and restore it into
-`pw-tests/__snapshots__` before tests run. If no baseline exists yet, snapshots
+`test/__snapshots__` before tests run. If no baseline exists yet, snapshots
 are generated fresh; once merged to `main` a new baseline artifact is published.
 
 Local ad‑hoc visual test run (excluded from core `verify` for speed):

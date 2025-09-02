@@ -5,10 +5,12 @@ import './components/gallery.css';
 import { GuestMessages } from './components/GuestMessages';
 import { HeroVideo } from './components/HeroVideo';
 import { IntroVideo } from './components/IntroVideo';
+import Map from './components/Map';
 import { MotionToggle } from './components/MotionToggle';
 import { SiteNav } from './components/SiteNav';
 import { ThemeToggle } from './components/ThemeToggle';
 import { VideoPlayer } from './components/VideoPlayer/VideoPlayer';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { getNonHeroSections } from './content/loader';
 import './designSystem.css';
 import { useHashNavigation } from './hooks/useHashNavigation';
@@ -23,7 +25,7 @@ export default function App() {
 
   return (
     <main id="appShell" tabIndex={-1}>
-      <IntroVideo onComplete={() => {}}>
+      <IntroVideo>
         <section className="snap-section hero" aria-label="Welcome">
           <HeroVideo caption="Poradas Wedding Feature">
             <div className="stack" style={{ textAlign: 'center' }}>
@@ -46,40 +48,52 @@ export default function App() {
         </section>
       </IntroVideo>
       <section className="snap-section" aria-label="Video Feature">
-        <div className="card stack">
-          <h2>Feature Video</h2>
-          {(() => {
-            const [hero] = listVideos();
-            if (!hero) return <p>No video available.</p>;
-            return (
-              <VideoPlayer
-                qualitySources={hero.quality}
-                caption={hero.caption}
-                placeholderLabel={hero.placeholderLabel}
-              />
-            );
-          })()}
-        </div>
-      </section>
-      <section className="snap-section" aria-label="Gallery">
-        <div className="card stack">
-          <h2 id="gallery-heading">Gallery</h2>
-          <Gallery headingId="gallery-heading" />
-        </div>
-      </section>
-      <section className="snap-section" aria-label="Family Tree">
-        <div className="card stack">
-          <h2 id="family-tree-heading">Family Tree</h2>
-          <FamilyTree width={800} height={600} />
-        </div>
-      </section>
-      <section className="snap-section" aria-label="Guest Messages">
-        <div className="card stack">
-          <h2 id="guest-messages-heading">Guest Messages</h2>
-          <GuestMessages />
-        </div>
-      </section>
-      {sections.map((s) => {
+         <div className="card stack">
+           <h2>Feature Video</h2>
+           {(() => {
+              const [hero] = listVideos();
+              if (!hero) return <p>No video available.</p>;
+              return (
+                <ErrorBoundary>
+                  <VideoPlayer
+                    qualitySources={hero.quality}
+                    caption={hero.caption}
+                    placeholderLabel={hero.placeholderLabel}
+                  />
+                </ErrorBoundary>
+              );
+            })()}
+         </div>
+       </section>
+       <section id="gallery" className="snap-section" aria-label="Gallery">
+         <div className="card stack">
+           <h2 id="gallery-heading">Gallery</h2>
+           <Gallery headingId="gallery-heading" />
+         </div>
+       </section>
+       <section id="family-tree" className="snap-section" aria-label="Family Tree">
+         <div className="card stack">
+           <h2 id="family-tree-heading">Family Tree</h2>
+           <ErrorBoundary>
+             <FamilyTree width={800} height={600} />
+           </ErrorBoundary>
+         </div>
+       </section>
+       <section id="guest-messages" className="snap-section" aria-label="Guest Messages">
+          <div className="card stack">
+            <h2 id="guest-messages-heading">Guest Messages</h2>
+            <GuestMessages />
+          </div>
+        </section>
+        <section id="location" className="snap-section" aria-label="Location">
+          <div className="card stack">
+            <h2 id="location-heading">Location</h2>
+            <ErrorBoundary>
+              <Map />
+            </ErrorBoundary>
+          </div>
+        </section>
+       {sections.map((s) => {
         const headingId = `${s.frontmatter.slug}-heading`;
         // Inject id into first h2 occurrence for aria-labelledby reference
         const html = s.html.replace('<h2', `<h2 id="${headingId}"`);
