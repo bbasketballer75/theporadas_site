@@ -1,0 +1,176 @@
+/* Final cleaned map styles */
+.map-container {
+  height: 400px;
+  width: 100%;
+  max-width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  /* Browser-specific prefixes */
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  -ms-border-radius: 8px;
+  -webkit-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  -ms-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  /* Performance optimizations */
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  -ms-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Leaflet controls responsive positioning */
+.leaflet-control-container {
+  font-size: 14px;
+}
+
+.leaflet-control-zoom {
+  margin-bottom: 10px;
+}
+
+.leaflet-control-zoom a {
+  width: 32px;
+  height: 32px;
+  line-height: 30px;
+  font-size: 18px;
+  border-radius: 4px;
+  /* Browser-specific prefixes */
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  /* Box shadow for better visibility */
+  -webkit-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+  -ms-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+  /* Transition for smooth hover effects */
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+
+/* Mobile styles */
+@media (max-width: 767px) {
+  .map-container {
+    height: 300px;
+    border-radius: 4px;
+  }
+
+  .leaflet-control-container {
+    font-size: 12px;
+  }
+
+  .leaflet-control-zoom a {
+    width: 36px;
+    height: 36px;
+    line-height: 34px;
+    font-size: 20px;
+  }
+
+  .leaflet-control-zoom {
+    margin-bottom: 15px;
+  }
+
+  /* Move zoom controls to bottom right on mobile for better thumb access */
+  .leaflet-control-container .leaflet-control-zoom {
+    margin-right: 10px;
+    margin-bottom: 20px;
+  }
+
+  /* Ensure popup doesn't overflow on small screens */
+  .leaflet-popup-content-wrapper {
+    max-width: 280px;
+  }
+
+  .leaflet-popup-content {
+    margin: 8px 12px;
+    font-size: 14px;
+  }
+}
+
+/* Tablet styles */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .map-container {
+    height: 350px;
+  }
+
+  .leaflet-control-zoom a {
+    width: 34px;
+    height: 34px;
+    line-height: 32px;
+    font-size: 19px;
+  }
+
+  .leaflet-control-container .leaflet-control-zoom {
+    margin-right: 15px;
+    margin-bottom: 15px;
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 1024px) {
+  .map-container {
+    height: 450px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .leaflet-control-zoom a {
+    width: 32px;
+    height: 32px;
+    line-height: 30px;
+    font-size: 18px;
+  }
+
+  /* Ensure controls don't interfere with content */
+  .leaflet-control-container .leaflet-control-zoom {
+    margin-right: 20px;
+    margin-bottom: 20px;
+  }
+}
+
+/* Large desktop styles */
+@media (min-width: 1440px) {
+  .map-container {
+    height: 500px;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .leaflet-control-zoom a {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .leaflet-marker-icon {
+    width: 32px !important;
+    height: 32px !important;
+    margin-left: -16px !important;
+    margin-top: -16px !important;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .leaflet-control-zoom a {
+    border-width: 2px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .map-container {
+    height: 300px;
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+}

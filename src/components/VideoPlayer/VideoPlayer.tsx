@@ -1,5 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import './VideoPlayer.css';
+import { detectBrowser } from '../../utils/browserDetection';
+
 export interface VideoSource {
   src: string;
   type?: string; // e.g., "video/mp4" | "video/webm"
@@ -81,6 +84,8 @@ export interface QualitySource extends VideoSource {
   default?: boolean;
 }
 
+export const ReadyAndLoadedVideoState = "ReadyAndLoadedVideoState";
+
 export function VideoPlayer(props: VideoPlayerProps) {
   const {
     src,
@@ -102,6 +107,95 @@ export function VideoPlayer(props: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadAttempts, setLoadAttempts] = useState(0);
+  const [hasError, setHasError] = useState(false);
+  const [loadingTimeout, setLoadingTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const [retryTimeout, setRetryTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const maxRetries = 3;
+  const loadingTimeoutMs = 10000; // 10 seconds
+
+  // Browser detection for compatibility fixes
+  const browserInfo = useMemo(() => detectBrowser(), []);
+
+  // Clear timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (loadingTimeout) clearTimeout(loadingTimeout);
+      if (retryTimeout) clearTimeout(retryTimeout);
+    };
+  }, [loadingTimeout, retryTimeout]);
+
+  // Handle loading timeout
+  const handleLoadingTimeout = useCallback(() => {
+    if (isLoading && loadAttempts < maxRetries) {
+      setHasError(true);
+      setIsLoading(false);
+      // Trigger retry after a delay
+      const retryId = setTimeout(() => {
+        setLoadAttempts(prev => prev + 1);
+        setHasError(false);
+        setIsLoading(true);
+        // Force reload by changing src temporarily
+        const video = videoRef.current;
+        if (video) {
+          const currentSrc = video.src;
+          video.src = '';
+          video.load();
+          setTimeout(() => {
+            if (video) {
+              video.src = currentSrc;
+              video.load();
+            }
+          }, 100);
+        }
+      }, 2000); // 2 second delay before retry
+      setRetryTimeout(retryId);
+    } else if (loadAttempts >= maxRetries) {
+      setHasError(true);
+      setIsLoading(false);
+    }
+  }, [isLoading, loadAttempts, maxRetries]);
+
+  // Check video readyState for granular loading states
+  const checkReadyState = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const readyState = video.readyState;
+    switch (readyState) {
+      case 0: // HAVE_NOTHING
+        setIsLoading(true);
+        break;
+      case 1: // HAVE_METADATA
+        setIsLoading(true);
+        break;
+      case 2: // HAVE_CURRENT_DATA
+        setIsLoading(true);
+        break;
+      case 3: // HAVE_FUTURE_DATA
+        setIsLoading(false);
+        break;
+      case 4: // HAVE_ENOUGH_DATA
+        setIsLoading(false);
+        break;
+    }
+  }, []);
+
+  // Start loading timeout when loading begins
+  const startLoadingTimeout = useCallback(() => {
+    if (loadingTimeout) clearTimeout(loadingTimeout);
+    const timeoutId = setTimeout(handleLoadingTimeout, loadingTimeoutMs);
+    setLoadingTimeout(timeoutId);
+  }, [handleLoadingTimeout, loadingTimeout, loadingTimeoutMs]);
+
+  // Clear loading timeout when loading completes
+  const clearLoadingTimeout = useCallback(() => {
+    if (loadingTimeout) {
+      clearTimeout(loadingTimeout);
+      setLoadingTimeout(null);
+    }
+  }, [loadingTimeout]);
 
   // Quality selection heuristic – choose ONE best source when qualitySources provided.
   const selectedQualitySource = useMemo<QualitySource | undefined>(() => {
@@ -190,6 +284,58 @@ export function VideoPlayer(props: VideoPlayerProps) {
     [onEvent, chapterIndex],
   );
 
+  // Select best video source based on browser codec support
+  const selectBestSource = useCallback((sources: VideoSource[]): VideoSource | null => {
+    if (!sources || sources.length === 0) return null;
+
+    // Firefox prefers WebM, Safari prefers MP4 with H.264, Chrome supports both
+    const preferredOrder = browserInfo.name === 'firefox'
+      ? ['video/webm', 'video/mp4']
+      : browserInfo.name === 'safari'
+      ? ['video/mp4', 'video/webm']
+      : ['video/mp4', 'video/webm'];
+
+    for (const mimeType of preferredOrder) {
+      const source = sources.find(s => s.type === mimeType);
+      if (source) {
+        // Additional codec check for MP4
+        if (mimeType === 'video/mp4' && !browserInfo.supportsVideoCodecs.h264) {
+          continue;
+        }
+        // Additional codec check for WebM
+        if (mimeType === 'video/webm' && !browserInfo.supportsVideoCodecs.webm) {
+          continue;
+        }
+        return source;
+      }
+    }
+
+    // Fallback to first available source
+    return sources[0];
+  }, [browserInfo]);
+
+  // Get the best source for rendering
+  const bestSource = useMemo(() => {
+    if (selectedQualitySource) {
+      return selectedQualitySource;
+    }
+    if (resolvedSources && resolvedSources.length > 0) {
+      return selectBestSource(resolvedSources);
+    }
+    return null;
+  }, [selectedQualitySource, resolvedSources, selectBestSource]);
+
+  const handleSelectChapter = useCallback(
+    (idx: number) => {
+      const el = videoRef.current;
+      if (!el || !chapters || !chapters[idx]) return;
+      el.currentTime = chapters[idx].start;
+      emit('seeking');
+      // timeupdate will fire subsequently
+    },
+    [chapters, emit],
+  );
+
   // Attach media event listeners
   useEffect(() => {
     const el = videoRef.current;
@@ -205,149 +351,291 @@ export function VideoPlayer(props: VideoPlayerProps) {
       setDuration(!Number.isNaN(el.duration) ? el.duration : null);
       emit('loadedmetadata');
     }
+    function handleLoadStart() {
+      setIsLoading(true);
+      setHasError(false);
+      startLoadingTimeout();
+      checkReadyState();
+    }
+    function handleCanPlay() {
+      setIsLoading(false);
+      clearLoadingTimeout();
+      checkReadyState();
+    }
+    function handleError() {
+      setIsLoading(false);
+      clearLoadingTimeout();
+      if (loadAttempts < maxRetries) {
+        // Trigger retry
+        const retryId = setTimeout(() => {
+          setLoadAttempts(prev => prev + 1);
+          setHasError(false);
+          setIsLoading(true);
+          // Force reload
+          if (el) {
+            const currentSrc = el.src;
+            el.src = '';
+            el.load();
+            setTimeout(() => {
+              if (el) {
+                el.src = currentSrc;
+                el.load();
+              }
+            }, 100);
+          }
+        }, 2000);
+        setRetryTimeout(retryId);
+      } else {
+        setHasError(true);
+        emit('error');
+      }
+    }
+    function handleProgress() {
+      checkReadyState();
+    }
+
+    // Browser-specific event handling
+    function handleCanPlayThrough() {
+      // Safari sometimes doesn't fire canplay reliably
+      if (browserInfo.name === 'safari') {
+        setIsLoading(false);
+        clearLoadingTimeout();
+      }
+    }
+
+    function handleStalled() {
+      // Firefox may stall on certain video formats
+      if (browserInfo.name === 'firefox' && !isLoading) {
+        setIsLoading(true);
+        // Attempt to recover by reloading
+        setTimeout(() => {
+          if (el) {
+            el.load();
+          }
+        }, 1000);
+      }
+    }
+
+    function handleWaiting() {
+      // Handle buffering states
+      if (!isLoading) {
+        setIsLoading(true);
+      }
+    }
+
     const listeners: Array<[string, () => void]> = [
       ['play', () => emit('play')],
       ['pause', () => emit('pause')],
       ['ended', () => emit('ended')],
       ['seeking', () => emit('seeking')],
       ['seeked', () => emit('seeked')],
-      ['error', () => emit('error')],
+      ['loadstart', handleLoadStart],
+      ['canplay', handleCanPlay],
+      ['error', handleError],
+      ['progress', handleProgress],
       ['timeupdate', handleTimeUpdate],
       ['loadedmetadata', handleLoadedMetadata],
     ];
+
+    // Add browser-specific listeners
+    if (browserInfo.name === 'safari') {
+      listeners.push(['canplaythrough', handleCanPlayThrough]);
+    }
+    if (browserInfo.name === 'firefox') {
+      listeners.push(['stalled', handleStalled]);
+    }
+    listeners.push(['waiting', handleWaiting]);
+
     listeners.forEach(([evt, fn]) => el.addEventListener(evt, fn));
     return () => listeners.forEach(([evt, fn]) => el.removeEventListener(evt, fn));
-  }, [emit]);
-
-  const handleSelectChapter = useCallback(
-    (idx: number) => {
-      const el = videoRef.current;
-      if (!el || !chapters || !chapters[idx]) return;
-      el.currentTime = chapters[idx].start;
-      emit('seeking');
-      // timeupdate will fire subsequently
-    },
-    [chapters, emit],
-  );
+  }, [emit, startLoadingTimeout, clearLoadingTimeout, checkReadyState, loadAttempts, maxRetries, browserInfo.name, isLoading]);
 
   return (
-    <section style={{ maxWidth: 640 }}>
-      {resolvedSources ? (
-        <figure>
+    <section
+      className="video-player"
+      data-testid="video-player"
+      data-loading={isLoading ? 'true' : 'false'}
+      data-ready={!isLoading && !hasError ? 'true' : 'false'}
+      data-error={hasError ? 'true' : 'false'}
+    >
+      {bestSource ? (
+        <>
+          {isLoading && (
+            <div className="video-loading-indicator" data-testid="video-loading-indicator">
+              <div className="loading-spinner"></div>
+              <span>Loading video... {loadAttempts > 0 && `(Attempt ${loadAttempts + 1}/${maxRetries + 1})`}</span>
+            </div>
+          )}
           <video
             ref={videoRef}
-            controls
-            style={{ maxWidth: '100%', display: 'block' }}
-            {...(poster ? { poster } : {})}
-            {...(autoPlay ? { autoPlay: true } : {})}
-            {...(muted ? { muted: true } : {})}
-            {...(playsInline ? { playsInline: true } : {})}
-            // If only one simple source (no type), keep src attribute for simplicity
-            {...(resolvedSources.length === 1 && !resolvedSources[0].type
-              ? { src: resolvedSources[0].src }
-              : {})}
+            className="video-element"
+            poster={poster}
+            autoPlay={autoPlay}
+            muted={muted}
+            playsInline={playsInline}
+            data-testid="video-element"
+            preload={browserInfo.name === 'safari' ? 'metadata' : 'auto'}
+            crossOrigin={browserInfo.name === 'firefox' ? 'anonymous' : undefined}
           >
-            {resolvedSources.length > 1 &&
-              resolvedSources.map((s, i) => (
-                <source key={i} src={s.src} {...(s.type ? { type: s.type } : {})} />
-              ))}
-            {tracks &&
-              tracks.map((t, i) => {
-                const lang = t.srcLang || t.srclang; // backward compatibility
-                const meta = import.meta as unknown as {
-                  env?: { MODE?: string };
-                };
-                const overrideMode = (
-                  globalThis as unknown as {
-                    __VIDEOPLAYER_MODE__?: string;
-                  }
-                ).__VIDEOPLAYER_MODE__;
-                const mode = overrideMode || meta.env?.MODE;
-                if (mode !== 'production' && t.srclang) {
-                  console.warn(
-                    "[VideoPlayer] 'srclang' prop is deprecated; use 'srcLang' instead.",
-                  );
-                }
-                return (
-                  <track
-                    key={`${t.kind}-${t.label || i}-${lang || ''}`}
-                    kind={t.kind}
-                    src={t.src}
-                    {...(lang ? { srcLang: lang } : {})}
-                    {...(t.label ? { label: t.label } : {})}
-                    {...(t.default ? { default: true } : {})}
-                  />
-                );
-              })}
+            {bestSource ? (
+              <source src={bestSource.src} type={bestSource.type} />
+            ) : (
+              resolvedSources?.map((source, index) => (
+                <source key={index} src={source.src} type={source.type} />
+              ))
+            )}
+            {tracks?.map((track, index) => (
+              <track
+                key={index}
+                kind={track.kind}
+                src={track.src}
+                srcLang={track.srcLang || track.srclang}
+                label={track.label}
+                default={track.default}
+              />
+            ))}
+            Your browser does not support the video tag.
           </video>
-          {selectedQualitySource?.label ? (
-            <div style={{ fontSize: 11, opacity: 0.7, marginTop: 4 }}>
-              {selectedQualitySource.label}
-            </div>
-          ) : null}
-          {caption && <figcaption>{caption}</figcaption>}
-        </figure>
+        </>
       ) : (
         <div
+          className="video-placeholder"
           role="img"
-          aria-label={placeholderLabel || 'Sample (placeholder)'}
-          style={{
-            width: 320,
-            height: 180,
-            background: '#ddd',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 14,
-            color: '#555',
-            fontFamily: 'sans-serif',
-          }}
+          aria-label={placeholderLabel || 'Video loading placeholder'}
+          data-testid="video-loading"
         >
-          {placeholderLabel || 'Sample (placeholder)'}
+          {placeholderLabel || 'Loading video...'}
         </div>
       )}
-      {showChapters && chapters && chapters.length > 0 && (
-        <nav aria-label="Chapters" style={{ marginTop: 12 }}>
-          <ol
-            style={{
-              listStyle: 'none',
-              padding: 0,
-              margin: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 4,
+
+      {/* Video Controls */}
+      {bestSource && (
+        <div className="video-controls" data-testid="video-controls">
+          <button
+            type="button"
+            className="video-play-pause"
+            onClick={() => {
+              const video = videoRef.current;
+              if (video) {
+                if (video.paused) {
+                  video.play();
+                } else {
+                  video.pause();
+                }
+              }
             }}
+            aria-label="Play/Pause video"
+            data-testid="play-button"
           >
+            {videoRef.current?.paused ? '▶️' : '⏸️'}
+          </button>
+
+          <div className="video-progress" data-testid="progress">
+            <div
+              className="video-progress-bar"
+              style={{
+                width: duration ? `${((currentTime || 0) / duration) * 100}%` : '0%'
+              }}
+            />
+          </div>
+
+          <div className="video-time">
+            {duration ? (
+              <>
+                {Math.floor((currentTime || 0) / 60)}:{Math.floor((currentTime || 0) % 60).toString().padStart(2, '0')} /{' '}
+                {Math.floor(duration / 60)}:{Math.floor(duration % 60).toString().padStart(2, '0')}
+              </>
+            ) : (
+              '0:00 / 0:00'
+            )}
+          </div>
+
+          <div className="volume-control">
+            <button
+              type="button"
+              className="volume-mute"
+              onClick={() => {
+                const video = videoRef.current;
+                if (video) {
+                  video.muted = !video.muted;
+                }
+              }}
+              aria-label="Mute/Unmute"
+              data-testid="mute"
+            >
+              🔊
+            </button>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.1"
+              defaultValue="0.7"
+              className="volume-slider"
+              onChange={(e) => {
+                const video = videoRef.current;
+                if (video) {
+                  video.volume = parseFloat(e.target.value);
+                }
+              }}
+              aria-label="Volume"
+              data-testid="volume"
+            />
+          </div>
+
+          <button
+            type="button"
+            className="video-fullscreen"
+            onClick={() => {
+              const video = videoRef.current;
+              if (video) {
+                if (video.requestFullscreen) {
+                  video.requestFullscreen();
+                }
+              }
+            }}
+            aria-label="Fullscreen"
+            data-testid="fullscreen"
+          >
+            ⛶
+          </button>
+        </div>
+      )}
+
+      {/* Error handling */}
+      {hasError && (
+        <div
+          className="video-error"
+          data-testid="video-error"
+        >
+          <div className="error-content">
+            <span>Video failed to load</span>
+            {loadAttempts >= maxRetries ? (
+              <span> (Maximum retries exceeded)</span>
+            ) : (
+              <span> (Retrying...)</span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Chapters */}
+      {showChapters && chapters && chapters.length > 0 && (
+        <nav className="chapters-nav" aria-label="Video chapters">
+          <ol className="chapters-list">
             {chapters.map((c, i) => {
               const active = i === chapterIndex;
               return (
                 <li key={i}>
                   <button
                     type="button"
+                    className={`chapter-button ${active ? 'active' : ''}`}
                     onClick={() => handleSelectChapter(i)}
                     aria-current={active ? 'true' : undefined}
-                    style={{
-                      display: 'block',
-                      width: '100%',
-                      textAlign: 'left',
-                      background: active ? '#005fdd' : '#f3f3f3',
-                      color: active ? '#fff' : '#222',
-                      border: '1px solid #ccc',
-                      padding: '4px 8px',
-                      fontSize: 13,
-                      borderRadius: 4,
-                      cursor: 'pointer',
-                    }}
                   >
                     {c.title}
                     {duration ? (
-                      <span
-                        style={{
-                          opacity: 0.7,
-                          marginLeft: 6,
-                          fontVariantNumeric: 'tabular-nums',
-                        }}
-                      >
+                      <span>
                         {Math.floor(c.start / 60)
                           .toString()
                           .padStart(2, '0')}

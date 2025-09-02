@@ -13,6 +13,6 @@ yarn-error.log*
 .mcp_cache
 # Exclude large media/raw assets if not needed
 media
-public_images
+assets/wedding
 # Keep scripts and package.json (explicitly included by COPY . .) but exclude temp files
 **/*.tmp

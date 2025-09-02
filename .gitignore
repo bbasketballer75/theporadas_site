@@ -47,7 +47,3 @@ codeql-drift-baseline.json
 *.lh-cache
 
 .vercel
-# Temporarily exclude large video files until LFS is properly configured
-FINAL WEDDING MEDIA/videos/final-wedding-video.mp4
-FINAL WEDDING MEDIA/parents/parent_videos/*.mp4
-public/media/videos/*.mp4

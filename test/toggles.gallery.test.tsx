@@ -66,8 +66,8 @@ describe('MotionToggle & ThemeToggle & Gallery', () => {
     // Provide a minimal gallery manifest by mocking loader
     vi.mock('../src/gallery/loader', () => ({
       loadGallery: () => [
-        { id: 'g1', type: 'image', src: '/public_images/one.jpg', caption: 'One' },
-        { id: 'g2', type: 'image', src: '/public_images/two.jpg', caption: 'Two' },
+        { id: 'g1', type: 'image', src: '/assets/wedding/one.jpg', caption: 'One' },
+        { id: 'g2', type: 'image', src: '/assets/wedding/two.jpg', caption: 'Two' },
       ],
     }));
     const { getAllByRole, getByLabelText } = render(<Gallery />);
