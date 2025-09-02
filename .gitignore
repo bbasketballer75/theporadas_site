@@ -49,4 +49,25 @@ codeql-drift-baseline.json
 # Temporary comparison outputs
 *.lh-cache
 
+# Auto-sync related files
+logs/
+backups/
+*.sync.log
+*.sync.tmp
+sync-state.json
+.env
+!.env.example
+
+# Sensitive configuration files
+secrets/
+*.key
+*.pem
+*.crt
+config/secrets.json
+config/auth.json
+
+# Temporary sync artifacts
+.sync/
+.auto-sync/
+temp-sync/
 .vercel
