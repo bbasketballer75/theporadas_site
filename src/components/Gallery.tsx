@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { GalleryItemBase, loadGallery } from '../gallery/loader';
 
 import { ImageUpload } from './ImageUpload';
-import { detectBrowser } from '../utils/browserDetection';
+import { usePerformanceMonitor, useInteractionPerformance, useMediaPerformance } from '../hooks/usePerformanceMonitor';
 
 interface GalleryProps {
   headingId?: string;
@@ -129,6 +129,11 @@ function useProgressiveImageLoading(
 }
 
 export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
+  // Performance monitoring hooks
+  const performanceMonitor = usePerformanceMonitor('Gallery');
+  const { measureClick } = useInteractionPerformance();
+  const { measureMediaLoad } = useMediaPerformance();
+
   const all = loadGallery();
   const items: InternalItem[] = all.slice(0, maxInitial).map((g) => ({ ...g }));
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -138,24 +143,90 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
   const [modalImageState, setModalImageState] = useState<ImageLoadState>('idle');
   const openerRef = useRef<HTMLButtonElement | null>(null);
   const modalRef = useRef<HTMLDialogElement | null>(null);
-  const timeoutRefs = useRef<{ [key: string]: NodeJS.Timeout }>({});
-  const modalTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRefs = useRef<{ [key: string]: ReturnType<typeof setTimeout> }>({});
+  const modalTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Browser detection for compatibility fixes
-  const browserInfo = React.useMemo(() => detectBrowser(), []);
+  // const browserInfo = React.useMemo(() => detectBrowser(), []);
+
+  // Add image preloading functionality
+  const preloadImages = useCallback(
+    (currentIndex: number, count: number = 3) => {
+      for (let i = 1; i <= count; i++) {
+        const nextIndex = (currentIndex + i) % items.length;
+        const nextItem = items[nextIndex];
+        if (nextItem && !nextItem.loaded) {
+          const img = new Image();
+          img.src = nextItem.src;
+          img.onload = () => {
+            nextItem.loaded = true;
+          };
+        }
+      }
+    },
+    [items],
+  );
+
+  // Add compression detection functionality
+  const detectImageCompression = useCallback(
+    async (src: string): Promise<{ isCompressed: boolean; size?: number }> => {
+      // Check format first
+      const compressedFormats = ['.webp', '.jpg', '.jpeg', '.png'];
+      const isCompressedFormat = compressedFormats.some((format) =>
+        src.toLowerCase().endsWith(format),
+      );
+
+      if (!isCompressedFormat) {
+        return { isCompressed: false };
+      }
+
+      // Try to fetch and check size
+      try {
+        const response = await fetch(src, { method: 'HEAD' });
+        const size = parseInt(response.headers.get('content-length') || '0');
+        // Consider images under 500KB as potentially compressed
+        const isCompressed = size > 0 && size < 500000;
+        return { isCompressed, size };
+      } catch {
+        // If fetch fails, assume compressed based on format
+        return { isCompressed: true };
+      }
+    },
+    [],
+  );
 
   // Image loading handlers
-  const handleImageLoad = useCallback((imageId: string) => {
-    setImageStates(prev => ({ ...prev, [imageId]: 'loaded' }));
-    setLoadedIds(prev => new Set(prev).add(imageId));
-    if (timeoutRefs.current[imageId]) {
-      clearTimeout(timeoutRefs.current[imageId]);
-      delete timeoutRefs.current[imageId];
-    }
-  }, []);
+  const handleImageLoad = useCallback(
+    async (imageId: string) => {
+      performanceMonitor.startTiming(`image-load-${imageId}`);
+
+      setImageStates((prev) => ({ ...prev, [imageId]: 'loaded' }));
+      setLoadedIds((prev) => new Set(prev).add(imageId));
+      if (timeoutRefs.current[imageId]) {
+        clearTimeout(timeoutRefs.current[imageId]);
+        delete timeoutRefs.current[imageId];
+      }
+
+      // Find the current item and preload next images
+      const currentIndex = items.findIndex((item) => item.id === imageId);
+      if (currentIndex !== -1) {
+        preloadImages(currentIndex);
+
+        // Check compression for the loaded image
+        const currentItem = items[currentIndex];
+        if (currentItem) {
+          const compressionInfo = await detectImageCompression(currentItem.src);
+          console.log(`Image ${imageId} compression info:`, compressionInfo);
+        }
+      }
+
+      performanceMonitor.endTiming(`image-load-${imageId}`);
+    },
+    [preloadImages, detectImageCompression, items, performanceMonitor],
+  );
 
   const handleImageError = useCallback((imageId: string) => {
-    setImageStates(prev => ({ ...prev, [imageId]: 'error' }));
+    setImageStates((prev) => ({ ...prev, [imageId]: 'error' }));
     if (timeoutRefs.current[imageId]) {
       clearTimeout(timeoutRefs.current[imageId]);
       delete timeoutRefs.current[imageId];
@@ -163,21 +234,24 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
   }, []);
 
   const handleImageTimeout = useCallback((imageId: string) => {
-    setImageStates(prev => ({ ...prev, [imageId]: 'timeout' }));
+    setImageStates((prev) => ({ ...prev, [imageId]: 'timeout' }));
     delete timeoutRefs.current[imageId];
   }, []);
 
-  const startImageLoad = useCallback((imageId: string, src: string) => {
-    if (imageStates[imageId] === 'idle') {
-      setImageStates(prev => ({ ...prev, [imageId]: 'loading' }));
-      timeoutRefs.current[imageId] = setTimeout(() => handleImageTimeout(imageId), 8000);
-    }
-  }, [imageStates, handleImageTimeout]);
+  // const startImageLoad = useCallback(
+  //   (imageId: string, src: string) => {
+  //     if (imageStates[imageId] === 'idle') {
+  //       setImageStates((prev) => ({ ...prev, [imageId]: 'loading' }));
+  //       timeoutRefs.current[imageId] = setTimeout(() => handleImageTimeout(imageId), 8000);
+  //     }
+  //   },
+  //   [imageStates, handleImageTimeout],
+  // );
 
-  const retryImageLoad = useCallback((imageId: string) => {
-    setImageStates(prev => ({ ...prev, [imageId]: 'idle' }));
-    delete timeoutRefs.current[imageId];
-  }, []);
+  // const retryImageLoad = useCallback((imageId: string) => {
+  //   setImageStates((prev) => ({ ...prev, [imageId]: 'idle' }));
+  //   delete timeoutRefs.current[imageId];
+  // }, []);
 
   // Modal image handlers
   const handleModalImageLoad = useCallback(() => {
@@ -293,61 +367,65 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
               return (
                 <li key={it.id} className="gallery-grid-item">
                   <button
-                     data-id={it.id}
-                     data-role="gallery-item"
-                     type="button"
-                     className="gallery-item"
-                     onClick={(e) => {
-                       openerRef.current = e.currentTarget;
-                       setActive(it);
-                     }}
-                     aria-label={it.caption ? `${it.caption}` : 'Image'}
-                     data-testid="photo"
-                   >
-                     <img
-                       src={imgSrc}
-                       data-full={it.src}
-                       alt={it.caption || ''}
-                       loading="lazy"
-                       className={showFull ? 'loaded' : 'placeholder'}
-                       onLoad={() => handleImageLoad(it.id)}
-                       onError={() => handleImageError(it.id)}
-                       data-loading={imageStates[it.id] === 'loading' ? 'true' : 'false'}
-                       data-error={imageStates[it.id] === 'error' || imageStates[it.id] === 'timeout' ? 'true' : 'false'}
-                       {...(srcSet
-                         ? {
-                             srcSet,
-                             sizes: '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw',
-                           }
-                         : {})}
-                     />
-                     {!showFull && (
-                       <div
-                         style={{
-                           position: 'absolute',
-                           top: '50%',
-                           left: '50%',
-                           transform: 'translate(-50%, -50%)',
-                           display: 'flex',
-                           flexDirection: 'column',
-                           alignItems: 'center',
-                           gap: '8px',
-                         }}
-                       >
-                         <div
-                           style={{
-                             width: '24px',
-                             height: '24px',
-                             border: '2px solid #f3f3f3',
-                             borderTop: '2px solid #4ecdc4',
-                             borderRadius: '50%',
-                             animation: 'spin 1s linear infinite',
-                           }}
-                         />
-                         <span style={{ fontSize: '12px', color: '#666' }}>Loading...</span>
-                       </div>
-                     )}
-                   </button>
+                    data-id={it.id}
+                    data-role="gallery-item"
+                    type="button"
+                    className="gallery-item"
+                    onClick={measureClick(`gallery-item-${it.id}`, (e) => {
+                      openerRef.current = e.currentTarget as HTMLButtonElement;
+                      setActive(it);
+                    })}
+                    aria-label={it.caption ? `${it.caption}` : 'Image'}
+                    data-testid="photo"
+                  >
+                    <img
+                      src={imgSrc}
+                      data-full={it.src}
+                      alt={it.caption || ''}
+                      loading="lazy"
+                      className={showFull ? 'loaded' : 'placeholder'}
+                      onLoad={() => handleImageLoad(it.id)}
+                      onError={() => handleImageError(it.id)}
+                      data-loading={imageStates[it.id] === 'loading' ? 'true' : 'false'}
+                      data-error={
+                        imageStates[it.id] === 'error' || imageStates[it.id] === 'timeout'
+                          ? 'true'
+                          : 'false'
+                      }
+                      {...(srcSet
+                        ? {
+                            srcSet,
+                            sizes: '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw',
+                          }
+                        : {})}
+                    />
+                    {!showFull && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          gap: '8px',
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: '24px',
+                            height: '24px',
+                            border: '2px solid #f3f3f3',
+                            borderTop: '2px solid #4ecdc4',
+                            borderRadius: '50%',
+                            animation: 'spin 1s linear infinite',
+                          }}
+                        />
+                        <span style={{ fontSize: '12px', color: '#666' }}>Loading...</span>
+                      </div>
+                    )}
+                  </button>
                 </li>
               );
             })}
@@ -373,87 +451,91 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
         >
           <button
             className="gallery-modal-backdrop"
-            onClick={() => setActive(null)}
+            onClick={measureClick('gallery-modal-backdrop', () => setActive(null))}
             aria-label="Close gallery modal"
             type="button"
           />
           <div className="gallery-modal-content">
             {modalImageState === 'loading' && (
-               <div
-                 style={{
-                   position: 'absolute',
-                   top: '50%',
-                   left: '50%',
-                   transform: 'translate(-50%, -50%)',
-                   display: 'flex',
-                   flexDirection: 'column',
-                   alignItems: 'center',
-                   gap: '8px',
-                   zIndex: 10,
-                 }}
-               >
-                 <div
-                   style={{
-                     width: '32px',
-                     height: '32px',
-                     border: '3px solid #f3f3f3',
-                     borderTop: '3px solid #4ecdc4',
-                     borderRadius: '50%',
-                     animation: 'spin 1s linear infinite',
-                   }}
-                 />
-                 <span style={{ fontSize: '14px', color: '#666' }}>Loading image...</span>
-               </div>
-             )}
-             {(modalImageState === 'error' || modalImageState === 'timeout') && (
-               <div
-                 style={{
-                   position: 'absolute',
-                   top: '50%',
-                   left: '50%',
-                   transform: 'translate(-50%, -50%)',
-                   display: 'flex',
-                   flexDirection: 'column',
-                   alignItems: 'center',
-                   gap: '12px',
-                   zIndex: 10,
-                   backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                   padding: '20px',
-                   borderRadius: '8px',
-                 }}
-               >
-                 <span style={{ fontSize: '16px', color: '#666' }}>
-                   {modalImageState === 'timeout' ? 'Image load timeout' : 'Failed to load image'}
-                 </span>
-                 <button
-                   onClick={() => {
-                     setModalImageState('idle');
-                     startModalImageLoad();
-                   }}
-                   style={{
-                     padding: '8px 16px',
-                     backgroundColor: '#4ecdc4',
-                     color: 'white',
-                     border: 'none',
-                     borderRadius: '4px',
-                     cursor: 'pointer',
-                   }}
-                 >
-                   Retry
-                 </button>
-               </div>
-             )}
-             <img
-               src={active.src}
-               alt={active.caption || ''}
-               onLoad={handleModalImageLoad}
-               onError={handleModalImageError}
-               style={{
-                 opacity: modalImageState === 'loaded' ? 1 : 0.3,
-                 transition: 'opacity 0.3s ease-in-out',
-               }}
-             />
-             {active.caption && <p className="gallery-caption" data-testid="photo-caption">{active.caption}</p>}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '8px',
+                  zIndex: 10,
+                }}
+              >
+                <div
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    border: '3px solid #f3f3f3',
+                    borderTop: '3px solid #4ecdc4',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite',
+                  }}
+                />
+                <span style={{ fontSize: '14px', color: '#666' }}>Loading image...</span>
+              </div>
+            )}
+            {(modalImageState === 'error' || modalImageState === 'timeout') && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '12px',
+                  zIndex: 10,
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  padding: '20px',
+                  borderRadius: '8px',
+                }}
+              >
+                <span style={{ fontSize: '16px', color: '#666' }}>
+                  {modalImageState === 'timeout' ? 'Image load timeout' : 'Failed to load image'}
+                </span>
+                <button
+                  onClick={() => {
+                    setModalImageState('idle');
+                    startModalImageLoad();
+                  }}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#4ecdc4',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+            <img
+              src={active.src}
+              alt={active.caption || ''}
+              onLoad={handleModalImageLoad}
+              onError={handleModalImageError}
+              style={{
+                opacity: modalImageState === 'loaded' ? 1 : 0.3,
+                transition: 'opacity 0.3s ease-in-out',
+              }}
+            />
+            {active.caption && (
+              <p className="gallery-caption" data-testid="photo-caption">
+                {active.caption}
+              </p>
+            )}
           </div>
         </dialog>
       )}

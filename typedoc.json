@@ -1,0 +1,55 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/services/api.ts",
+    "src/hooks/useApi.ts"
+  ],
+  "out": "docs/api-typedoc",
+  "name": "Wedding Website API Documentation",
+  "includeVersion": true,
+  "exclude": [
+    "**/node_modules/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/test/**",
+    "**/dist/**",
+    "**/build/**"
+  ],
+  "excludeExternals": true,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "hideGenerator": true,
+  "readme": "docs/api.md",
+  "theme": "default",
+  "categorizeByGroup": true,
+  "categoryOrder": [
+    "Services",
+    "Hooks",
+    "Types",
+    "*"
+  ],
+  "groupOrder": [
+    "Services",
+    "Hooks",
+    "Types",
+    "*"
+  ],
+  "sort": [
+    "source-order",
+    "visibility"
+  ],
+  "navigation": {
+    "includeCategories": true,
+    "includeGroups": true
+  },
+  "searchInComments": true,
+  "cleanOutputDir": true,
+  "emit": "docs",
+  "validation": {
+    "notExported": false,
+    "invalidLink": false,
+    "notDocumented": false
+  }
+}

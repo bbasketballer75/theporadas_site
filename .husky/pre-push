@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+
+# Get current branch
+branch=$(git branch --show-current)
+
+# Get remote
+remote=$(git remote | head -1)
+
+if [ -z "$remote" ]; then
+  echo "No remote configured"
+  exit 0
+fi
+
+# Check if there are commits to push
+if git log --oneline ${remote}/${branch}..HEAD 2>/dev/null | grep -q .; then
+  echo "Pushing changes to ${remote}/${branch}..."
+  git push ${remote} ${branch}
+else
+  echo "No changes to push"
+fi
