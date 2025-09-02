@@ -49,7 +49,13 @@
     "deps:update:major": "ncu --target major -u",
     "deps:safe-update": "node scripts/safe-update-dependencies.mjs",
     "deps:safe-update:major": "node scripts/safe-update-dependencies.mjs major",
-    "deps:report": "node scripts/generate-dependency-report.mjs"
+    "deps:report": "node scripts/generate-dependency-report.mjs",
+    "sync:auto": "node scripts/auto-sync.mjs",
+    "sync:watch": "node scripts/watch-sync.mjs",
+    "sync:scheduled": "node scripts/scheduled-sync.mjs",
+    "sync:auto:dry": "DRY_RUN=true node scripts/auto-sync.mjs",
+    "sync:scheduled:hourly": "SYNC_INTERVAL_MINUTES=60 node scripts/scheduled-sync.mjs",
+    "sync:scheduled:daily": "SYNC_INTERVAL_MINUTES=1440 node scripts/scheduled-sync.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
