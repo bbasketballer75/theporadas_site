@@ -1,0 +1,532 @@
+/* BackgroundAudio Component Responsive Styles */
+
+/* Main audio controls container */
+.background-audio {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  max-width: 300px;
+  /* Browser-specific prefixes */
+  -webkit-border-radius: 12px;
+  -moz-border-radius: 12px;
+  -ms-border-radius: 12px;
+  -webkit-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  -ms-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  /* Flexbox prefixes */
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flex;
+  display: flex;
+  -webkit-align-items: center;
+  -moz-align-items: center;
+  -ms-align-items: center;
+  align-items: center;
+  /* Transition prefixes */
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -ms-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+/* Mobile positioning */
+@media (max-width: 767px) {
+  .background-audio {
+    bottom: 15px;
+    right: 15px;
+    left: 15px;
+    max-width: none;
+    padding: 10px;
+    border-radius: 8px;
+    gap: 6px;
+  }
+}
+
+/* Tablet positioning */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .background-audio {
+    bottom: 20px;
+    right: 20px;
+    max-width: 280px;
+    padding: 12px;
+  }
+}
+
+/* Desktop positioning */
+@media (min-width: 1024px) {
+  .background-audio {
+    bottom: 30px;
+    right: 30px;
+    max-width: 320px;
+    padding: 15px;
+  }
+}
+
+/* Large desktop positioning */
+@media (min-width: 1440px) {
+  .background-audio {
+    bottom: 40px;
+    right: 40px;
+    max-width: 350px;
+  }
+}
+
+/* Audio controls layout */
+.audio-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+/* Mobile controls layout */
+@media (max-width: 767px) {
+  .audio-controls {
+    gap: 6px;
+  }
+}
+
+/* Play/pause button */
+.audio-play-pause {
+  background: #4ecdc4;
+  color: white;
+  border: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3);
+  flex-shrink: 0;
+  /* Browser-specific prefixes */
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  -ms-border-radius: 50%;
+  -webkit-box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3);
+  -moz-box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3);
+  -ms-box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3);
+  /* Flexbox prefixes */
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flex;
+  display: flex;
+  -webkit-align-items: center;
+  -moz-align-items: center;
+  -ms-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  -moz-justify-content: center;
+  -ms-justify-content: center;
+  justify-content: center;
+  /* Transition prefixes */
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+
+.audio-play-pause:hover,
+.audio-play-pause:focus-visible {
+  background: #3bb3a8;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.4);
+  /* Transform and box-shadow prefixes */
+  -webkit-transform: scale(1.05);
+  -moz-transform: scale(1.05);
+  -ms-transform: scale(1.05);
+  transform: scale(1.05);
+  -webkit-box-shadow: 0 4px 12px rgba(78, 205, 196, 0.4);
+  -moz-box-shadow: 0 4px 12px rgba(78, 205, 196, 0.4);
+  -ms-box-shadow: 0 4px 12px rgba(78, 205, 196, 0.4);
+}
+
+.audio-play-pause:active {
+  transform: scale(0.95);
+  /* Transform prefixes */
+  -webkit-transform: scale(0.95);
+  -moz-transform: scale(0.95);
+  -ms-transform: scale(0.95);
+  transform: scale(0.95);
+}
+
+/* Mobile play/pause button */
+@media (max-width: 767px) {
+  .audio-play-pause {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+}
+
+/* Volume controls */
+.volume-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Mobile volume controls */
+@media (max-width: 767px) {
+  .volume-controls {
+    gap: 4px;
+  }
+}
+
+/* Volume button */
+.volume-button {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.volume-button:hover,
+.volume-button:focus-visible {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+/* Mobile volume button */
+@media (max-width: 767px) {
+  .volume-button {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+}
+
+/* Volume slider */
+.volume-slider {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  min-width: 60px;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #4ecdc4;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #4ecdc4;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Mobile volume slider */
+@media (max-width: 767px) {
+  .volume-slider {
+    height: 6px;
+    min-width: 50px;
+  }
+
+  .volume-slider::-webkit-slider-thumb {
+    width: 16px;
+    height: 16px;
+  }
+
+  .volume-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Track info */
+.track-info {
+  flex: 1;
+  min-width: 0;
+  margin-left: 8px;
+}
+
+.track-title {
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.track-artist {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Mobile track info */
+@media (max-width: 767px) {
+  .track-info {
+    margin-left: 6px;
+  }
+
+  .track-title {
+    font-size: 12px;
+  }
+
+  .track-artist {
+    font-size: 10px;
+  }
+}
+
+/* Hide track info on very small screens */
+@media (max-width: 480px) {
+  .track-info {
+    display: none;
+  }
+}
+
+/* Progress bar */
+.progress-container {
+  position: absolute;
+  bottom: -6px;
+  left: 12px;
+  right: 12px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.background-audio:hover .progress-container,
+.progress-container.active {
+  opacity: 1;
+}
+
+.progress-bar {
+  height: 100%;
+  background: #4ecdc4;
+  border-radius: 2px;
+  transition: width 0.1s ease;
+}
+
+/* Mobile progress bar */
+@media (max-width: 767px) {
+  .progress-container {
+    bottom: -4px;
+    left: 10px;
+    right: 10px;
+    height: 4px;
+  }
+}
+
+/* Playlist button */
+.playlist-button {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.playlist-button:hover,
+.playlist-button:focus-visible {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+/* Mobile playlist button */
+@media (max-width: 767px) {
+  .playlist-button {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+}
+
+/* Hide playlist button on very small screens */
+@media (max-width: 480px) {
+  .playlist-button {
+    display: none;
+  }
+}
+
+/* Loading state */
+.audio-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.audio-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid #4ecdc4;
+  border-radius: 50%;
+  animation: audio-spin 1s linear infinite;
+}
+
+@keyframes audio-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error state */
+.audio-error {
+  color: #ff6b6b;
+  font-size: 12px;
+  text-align: center;
+  padding: 8px;
+  background: rgba(255, 0, 0, 0.1);
+  border-radius: 6px;
+  margin-top: 8px;
+}
+
+/* Mobile error */
+@media (max-width: 767px) {
+  .audio-error {
+    font-size: 11px;
+    padding: 6px;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .background-audio {
+    padding: 16px;
+  }
+
+  .audio-play-pause,
+  .volume-button,
+  .playlist-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .volume-slider {
+    height: 8px;
+  }
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+  .background-audio {
+    background: rgba(0, 0, 0, 0.95);
+    border: 2px solid #fff;
+  }
+
+  .audio-play-pause,
+  .volume-button,
+  .playlist-button {
+    border: 1px solid #fff;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .audio-play-pause,
+  .volume-button,
+  .playlist-button,
+  .background-audio {
+    transition: none;
+  }
+
+  .audio-play-pause:active,
+  .volume-button:active,
+  .playlist-button:active {
+    transform: none;
+  }
+
+  .audio-spinner {
+    animation: none;
+  }
+
+  @keyframes audio-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+}
+
+/* Focus management */
+.background-audio:focus-within {
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.5);
+}
+
+/* Collapsed state for mobile */
+.background-audio.collapsed {
+  max-width: 60px;
+  padding: 8px;
+}
+
+.background-audio.collapsed .track-info,
+.background-audio.collapsed .volume-controls,
+.background-audio.collapsed .playlist-button {
+  display: none;
+}
+
+.background-audio.collapsed .audio-play-pause {
+  margin: 0 auto;
+}
+
+/* Disabled controls during loading */
+.audio-play-pause:disabled,
+.volume-mute:disabled,
+.volume-slider:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Mobile disabled controls */
+@media (max-width: 767px) {
+  .audio-play-pause:disabled,
+  .volume-mute:disabled {
+    opacity: 0.4;
+  }
+}

@@ -51,6 +51,7 @@ export function MotionToggle() {
       className="btn btn-outline motion-toggle"
       aria-pressed={pref !== null}
       onClick={cycle}
+      data-testid="motion-toggle"
     >
       {label}
     </button>

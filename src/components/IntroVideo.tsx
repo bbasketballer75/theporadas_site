@@ -3,18 +3,18 @@ import React, { useEffect, useState } from 'react';
 import { VideoPlayer } from './VideoPlayer/VideoPlayer';
 
 interface IntroVideoProps {
-  onComplete: () => void;
+  onComplete?: () => void;
   children: React.ReactNode;
 }
 
-export function IntroVideo({ onComplete, children }: IntroVideoProps) {
+export function IntroVideo({ onComplete = () => {}, children }: IntroVideoProps) {
   const [showIntro, setShowIntro] = useState(true);
 
   useEffect(() => {
     // Auto-advance after intro video ends or after 10 seconds as fallback
     const timer = setTimeout(() => {
       setShowIntro(false);
-      onComplete();
+      onComplete?.();
     }, 10000); // 10 second fallback
 
     return () => clearTimeout(timer);
@@ -22,7 +22,7 @@ export function IntroVideo({ onComplete, children }: IntroVideoProps) {
 
   const handleVideoEnd = () => {
     setShowIntro(false);
-    onComplete();
+    onComplete?.();
   };
 
   if (!showIntro) {
@@ -46,7 +46,7 @@ export function IntroVideo({ onComplete, children }: IntroVideoProps) {
         className="skip-intro-button"
         onClick={() => {
           setShowIntro(false);
-          onComplete();
+          onComplete?.();
         }}
         aria-label="Skip intro video"
       >
