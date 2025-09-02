@@ -43,7 +43,7 @@ describe('Gallery focus trap', () => {
     opener.focus();
     fireEvent.click(opener);
     const dialog = screen.getByRole('dialog');
-    const closeBtn = screen.getByRole('button', { name: 'Close' });
+    const closeBtn = screen.getByRole('button', { name: 'Close gallery modal' });
 
     // Wait for focus trap to run
     await new Promise((resolve) => setTimeout(resolve, 0));

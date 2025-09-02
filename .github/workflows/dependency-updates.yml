@@ -1,0 +1,99 @@
+name: Dependency Updates
+
+on:
+  schedule:
+    # Run weekly on Mondays at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check for dependency updates
+        id: check-updates
+        run: |
+          # Check for minor updates
+          ncu --target minor --jsonUpgraded > updates_minor.json || echo "No minor updates"
+          # Check for major updates
+          ncu --target major --jsonUpgraded > updates_major.json || echo "No major updates"
+
+      - name: Update minor dependencies
+        id: update-minor
+        run: |
+          if [ -s updates_minor.json ]; then
+            ncu --target minor -u
+            echo "updated=true" >> $GITHUB_OUTPUT
+            echo "update_type=minor" >> $GITHUB_OUTPUT
+          else
+            echo "updated=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update major dependencies
+        id: update-major
+        run: |
+          if [ -s updates_major.json ] && [ "${{ steps.update-minor.outputs.updated }}" = "false" ]; then
+            ncu --target major -u
+            echo "updated=true" >> $GITHUB_OUTPUT
+            echo "update_type=major" >> $GITHUB_OUTPUT
+          else
+            echo "updated=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run tests after update
+        if: steps.update-minor.outputs.updated == 'true' || steps.update-major.outputs.updated == 'true'
+        run: |
+          npm run test
+          npm run lint
+          npm run typecheck
+
+      - name: Create Pull Request
+        if: steps.update-minor.outputs.updated == 'true' || steps.update-major.outputs.updated == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            chore: update dependencies
+
+            - Updated ${{ steps.update-minor.outputs.update_type || steps.update-major.outputs.update_type }} dependencies
+            - All tests pass
+          title: 'chore: update ${{ steps.update-minor.outputs.update_type || steps.update-major.outputs.update_type }} dependencies'
+          body: |
+            ## Dependency Updates
+
+            This PR updates ${{ steps.update-minor.outputs.update_type || steps.update-major.outputs.update_type }} dependencies using npm-check-updates.
+
+            ### Changes
+            - Updated package.json with latest compatible versions
+            - All tests pass
+            - Linting and type checking successful
+
+            ### Review Checklist
+            - [ ] Review dependency changes
+            - [ ] Verify tests still pass
+            - [ ] Check for breaking changes in updated packages
+          branch: automated/dependency-updates
+          delete-branch: true
+          labels: |
+            dependencies
+            automated
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "Dependency update workflow failed. Check logs for details."
