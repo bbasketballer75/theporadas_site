@@ -4,20 +4,281 @@
 - generic [active] [ref=e1]:
   - link "Skip to main content" [ref=e2] [cursor=pointer]:
     - /url: "#appShell"
-  - generic [ref=e5]:
-    - generic [ref=e6]:
-      - generic [ref=e7]: "[plugin:vite:react-swc]"
-      - generic [ref=e8]: "x Expression expected ,-[C:/Users/Austin/Documents/theporadas_site/src/utils/browserDetection.ts:175:1] 172 | } 173 | } 174 | } 175 | }</content> : ^ `---- x Expression expected ,-[C:/Users/Austin/Documents/theporadas_site/src/utils/browserDetection.ts:175:1] 172 | } 173 | } 174 | } 175 | }</content> : ^ `---- Caused by: Syntax Error"
-    - generic [ref=e9]: C:/Users/Austin/Documents/theporadas_site/src/utils/browserDetection.ts
-    - generic [ref=e10]:
-      - text: Click outside, press
-      - generic [ref=e11]: Esc
-      - text: key, or fix the code to dismiss.
-      - text: You can also disable this overlay by setting
-      - code [ref=e12]: server.hmr.overlay
-      - text: to
-      - code [ref=e13]: "false"
-      - text: in
-      - code [ref=e14]: vite.config.ts
-      - text: .
+  - main [ref=e4]:
+    - region "Welcome" [ref=e5]:
+      - region "Poradas Wedding Feature" [ref=e6]:
+        - img "Loading hero video" [ref=e8]
+        - generic [ref=e10]:
+          - heading "The Poradas Wedding Videos" [level=1] [ref=e11]:
+            - generic [ref=e12]: The Poradas Wedding Videos
+          - paragraph [ref=e13]: A celebration in sage & blush. This is an evolving immersive experience—sections will appear here as they are completed.
+          - generic [ref=e14]:
+            - navigation "Site Sections" [ref=e15]:
+              - list [ref=e16]:
+                - listitem [ref=e17]:
+                  - link "Our Story" [ref=e18] [cursor=pointer]:
+                    - /url: "#story"
+                - listitem [ref=e19]:
+                  - link "Rings" [ref=e20] [cursor=pointer]:
+                    - /url: "#rings"
+                - listitem [ref=e21]:
+                  - link "Wedding Party" [ref=e22] [cursor=pointer]:
+                    - /url: "#wedding-party"
+                - listitem [ref=e23]:
+                  - link "Gallery" [ref=e24] [cursor=pointer]:
+                    - /url: "#gallery"
+                - listitem [ref=e25]:
+                  - link "Highlights Timeline" [ref=e26] [cursor=pointer]:
+                    - /url: "#schedule-highlights"
+                - listitem [ref=e27]:
+                  - link "Venue & Location" [ref=e28] [cursor=pointer]:
+                    - /url: "#travel-info"
+                - listitem [ref=e29]:
+                  - link "Stay in Touch" [ref=e30] [cursor=pointer]:
+                    - /url: "#contact"
+                - listitem [ref=e31]:
+                  - link "Thank You" [ref=e32] [cursor=pointer]:
+                    - /url: "#thanks"
+            - generic [ref=e33]:
+              - 'button "Motion: System" [ref=e34] [cursor=pointer]'
+              - button "Switch to Dark" [pressed] [ref=e35] [cursor=pointer]: "Theme: Light"
+    - region "Video Feature" [ref=e36]:
+      - generic [ref=e37]:
+        - heading "Feature Video" [level=2] [ref=e38]
+        - generic [ref=e39]:
+          - generic [ref=e42]: Loading video...
+          - generic: Your browser does not support the video tag.
+          - generic [ref=e43]:
+            - button "Play/Pause video" [ref=e44] [cursor=pointer]: ▶️
+            - generic [ref=e45]: 0:00 / 0:00
+            - generic [ref=e46]:
+              - button "Mute/Unmute" [ref=e47] [cursor=pointer]: 🔊
+              - slider "Volume" [ref=e48] [cursor=pointer]: "0.7"
+            - button "Fullscreen" [ref=e49] [cursor=pointer]: ⛶
+    - region "Gallery" [ref=e50]:
+      - generic [ref=e51]:
+        - heading "Gallery" [level=2] [ref=e52]
+        - generic "Gallery" [ref=e53]:
+          - generic [ref=e54]:
+            - heading "Other" [level=3] [ref=e55]
+            - list [ref=e56]:
+              - listitem [ref=e57]:
+                - button "Image" [ref=e58] [cursor=pointer]
+              - listitem [ref=e59]:
+                - button "Image" [ref=e60] [cursor=pointer]
+              - listitem [ref=e61]:
+                - button "Image" [ref=e62] [cursor=pointer]
+              - listitem [ref=e63]:
+                - button "Image" [ref=e64] [cursor=pointer]
+              - listitem [ref=e65]:
+                - button "Image" [ref=e66] [cursor=pointer]
+              - listitem [ref=e67]:
+                - button "Image" [ref=e68] [cursor=pointer]
+              - listitem [ref=e69]:
+                - button "Image" [ref=e70] [cursor=pointer]
+              - listitem [ref=e71]:
+                - button "Image" [ref=e72] [cursor=pointer]
+              - listitem [ref=e73]:
+                - button "Image" [ref=e74] [cursor=pointer]:
+                  - generic [ref=e77] [cursor=pointer]: Loading...
+              - listitem [ref=e78]:
+                - button "Image" [ref=e79] [cursor=pointer]:
+                  - generic [ref=e82] [cursor=pointer]: Loading...
+              - listitem [ref=e83]:
+                - button "Image" [ref=e84] [cursor=pointer]:
+                  - generic [ref=e87] [cursor=pointer]: Loading...
+              - listitem [ref=e88]:
+                - button "Image" [ref=e89] [cursor=pointer]:
+                  - generic [ref=e92] [cursor=pointer]: Loading...
+              - listitem [ref=e93]:
+                - button "Image" [ref=e94] [cursor=pointer]:
+                  - generic [ref=e97] [cursor=pointer]: Loading...
+              - listitem [ref=e98]:
+                - button "Image" [ref=e99] [cursor=pointer]:
+                  - generic [ref=e102] [cursor=pointer]: Loading...
+              - listitem [ref=e103]:
+                - button "Image" [ref=e104] [cursor=pointer]:
+                  - generic [ref=e107] [cursor=pointer]: Loading...
+              - listitem [ref=e108]:
+                - button "Image" [ref=e109] [cursor=pointer]:
+                  - generic [ref=e112] [cursor=pointer]: Loading...
+              - listitem [ref=e113]:
+                - button "Image" [ref=e114] [cursor=pointer]:
+                  - generic [ref=e117] [cursor=pointer]: Loading...
+              - listitem [ref=e118]:
+                - button "Image" [ref=e119] [cursor=pointer]:
+                  - generic [ref=e122] [cursor=pointer]: Loading...
+              - listitem [ref=e123]:
+                - button "Image" [ref=e124] [cursor=pointer]:
+                  - generic [ref=e127] [cursor=pointer]: Loading...
+              - listitem [ref=e128]:
+                - button "Image" [ref=e129] [cursor=pointer]:
+                  - generic [ref=e132] [cursor=pointer]: Loading...
+              - listitem [ref=e133]:
+                - button "Image" [ref=e134] [cursor=pointer]:
+                  - generic [ref=e137] [cursor=pointer]: Loading...
+              - listitem [ref=e138]:
+                - button "Image" [ref=e139] [cursor=pointer]:
+                  - generic [ref=e142] [cursor=pointer]: Loading...
+              - listitem [ref=e143]:
+                - button "Image" [ref=e144] [cursor=pointer]:
+                  - generic [ref=e147] [cursor=pointer]: Loading...
+              - listitem [ref=e148]:
+                - button "Image" [ref=e149] [cursor=pointer]:
+                  - generic [ref=e152] [cursor=pointer]: Loading...
+          - generic [ref=e154]:
+            - heading "Upload and Process Image" [level=3] [ref=e155]
+            - generic [ref=e157] [cursor=pointer]: Choose Image
+            - generic [ref=e158]:
+              - strong [ref=e159]: "Instructions:"
+              - list [ref=e160]:
+                - listitem [ref=e161]: Select an image file (JPEG, PNG, GIF, or WebP)
+                - listitem [ref=e162]: "Maximum file size: 10MB"
+                - listitem [ref=e163]: Click "Process Image" to apply enhancements
+                - listitem [ref=e164]: Download the processed image when ready
+    - region "Family Tree" [ref=e165]:
+      - generic [ref=e166]:
+        - heading "Family Tree" [level=2] [ref=e167]
+        - generic [ref=e169]: NetworkError when attempting to fetch resource.
+    - region "Guest Messages" [ref=e170]:
+      - generic [ref=e171]:
+        - heading "Guest Messages" [level=2] [ref=e172]
+        - generic [ref=e173]:
+          - generic [ref=e174]: "Error: Failed to send message. Please try again."
+          - heading "Guest Messages" [level=3] [ref=e176]
+          - generic [ref=e177]:
+            - heading "Leave a Message" [level=3] [ref=e178]
+            - generic [ref=e179]: Failed to send message. Please try again.
+            - generic [ref=e180]:
+              - generic [ref=e181]:
+                - generic [ref=e182]: Your Name *
+                - textbox "Your Name *" [ref=e183]: Test User
+              - generic [ref=e184]:
+                - generic [ref=e185]: Email (optional)
+                - textbox "Email (optional)" [ref=e186]
+              - generic [ref=e187]:
+                - generic [ref=e188]: Your Message *
+                - textbox "Your Message *" [ref=e189]: This is a test message for the guestbook.
+              - button "Send Message" [ref=e190] [cursor=pointer]
+          - generic [ref=e191]:
+            - heading "Messages from Guests (0)" [level=3] [ref=e192]
+            - generic [ref=e193]: No messages yet. Be the first to leave a message!
+    - region "Location" [ref=e194]:
+      - generic [ref=e195]:
+        - heading "Location" [level=2] [ref=e196]
+        - status [ref=e197]: Loading map...
+    - region "Our Story" [ref=e198]:
+      - generic [ref=e199]:
+        - heading "Our Story" [level=2] [ref=e200]
+        - paragraph [ref=e201]: "### How We Met"
+        - paragraph [ref=e202]: "[Share the story of how you first met - was it through friends, work, a chance encounter? Make it personal and heartfelt.]"
+        - paragraph [ref=e203]: "### The Beginning"
+        - paragraph [ref=e204]: "[Describe the early days of your relationship - the first date, the moment you knew this was special, the little moments that built your connection.]"
+        - paragraph [ref=e205]: "### The Proposal"
+        - paragraph [ref=e206]: "[Share the beautiful story of the proposal - where it happened, how it unfolded, the emotions of that magical moment.]"
+        - paragraph [ref=e207]: "### Planning Our Special Day"
+        - paragraph [ref=e208]: "[Describe the journey of planning your wedding - the venue choice, the theme, the challenges and joys of preparation.]"
+        - paragraph [ref=e209]: "### Our Wedding Day"
+        - paragraph [ref=e210]: "[Recount the highlights of your wedding day - the ceremony, the first dance, the moments that made it unforgettable.]"
+        - paragraph [ref=e211]: "### Life Together"
+        - paragraph [ref=e212]: "[Share a bit about your life together since the wedding and your hopes for the future.]"
+        - paragraph [ref=e213]: _This is just a template - replace with your actual story to make it truly yours!_
+    - region "Rings" [ref=e214]:
+      - generic [ref=e215]:
+        - heading "Rings" [level=2] [ref=e216]
+        - paragraph [ref=e217]: Symbols of our vows—crafted, exchanged, and now lived. Photos and macro video clips of the rings will appear here highlighting their details and craftsmanship.
+        - paragraph [ref=e218]: "### The Ring Story"
+        - paragraph [ref=e219]: "[Share the story of how you chose your rings - did you design them together, was there a family heirloom involved, what was the significance behind the design?]"
+        - paragraph [ref=e220]: "### His Ring"
+        - paragraph [ref=e221]: "[Describe his ring - the style, materials, any special engravings or symbolism]"
+        - paragraph [ref=e222]: "### Her Ring"
+        - paragraph [ref=e223]: "[Describe her ring - the style, materials, any special engravings or symbolism]"
+        - paragraph [ref=e224]: "### The Exchange"
+        - paragraph [ref=e225]: "[Describe the beautiful moment during the ceremony when you exchanged rings - the vows you said, the emotions you felt]"
+        - paragraph [ref=e226]: _Add photos of your rings to showcase their beauty!_
+    - region "Wedding Party" [ref=e227]:
+      - generic [ref=e228]:
+        - heading "Wedding Party" [level=2] [ref=e229]
+        - paragraph [ref=e230]: We were surrounded by the most amazing people who made our day absolutely perfect. Here's a special thank you to our incredible wedding party and the loved ones who stood by us.
+        - paragraph [ref=e231]: "### Maid of Honor / Best Man"
+        - paragraph [ref=e232]: "**[Name]** - [Relationship to you] [Brief description of why this person is special to you and their role in your life/your wedding]"
+        - paragraph [ref=e233]: "### Bridesmaids / Groomsmen"
+        - paragraph [ref=e234]: "**[Name]** - [Relationship] [Brief description]"
+        - paragraph [ref=e235]: "**[Name]** - [Relationship] [Brief description]"
+        - paragraph [ref=e236]: "**[Name]** - [Relationship] [Brief description]"
+        - paragraph [ref=e237]: "### Flower Girl / Ring Bearer"
+        - paragraph [ref=e238]: "**[Name]** - [Relationship] [Brief description]"
+        - paragraph [ref=e239]: "### Parents & Family"
+        - paragraph [ref=e240]: A special thank you to our parents for their love, support, and the foundation they've given us.
+        - paragraph [ref=e241]: "**[Parent Name]** - [Relationship] [Brief message]"
+        - paragraph [ref=e242]: "**[Parent Name]** - [Relationship] [Brief message]"
+        - paragraph [ref=e243]: "### Officiant"
+        - paragraph [ref=e244]: "**[Name]** - [Title/Relationship] [Brief description of their role and why you chose them]"
+        - paragraph [ref=e245]: _Add photos of each person to make this page come alive!_
+    - region "Highlights Timeline" [ref=e246]:
+      - generic [ref=e247]:
+        - heading "Highlights Timeline" [level=2] [ref=e248]
+        - paragraph [ref=e249]: Key beats of the day in retrospective timeline form. Will include times, locations, and short captions for each milestone.
+        - paragraph [ref=e250]: "### Wedding Day Timeline"
+        - paragraph [ref=e251]: "Here's a glimpse into the beautiful flow of our special day:"
+        - paragraph [ref=e252]: "**Morning Preparations** [Time] - Getting ready with our wedding party [Time] - First look / photos with partner [Time] - Wedding party photos"
+        - paragraph [ref=e253]: "**Ceremony** [Time] - Guests arrive and find their seats [Time] - Processional and ceremony begins [Time] - Ring exchange and vows [Time] - Pronouncement and first kiss as husband and wife"
+        - paragraph [ref=e254]: "**Reception** [Time] - Cocktail hour and appetizers [Time] - Grand entrance [Time] - First dance [Time] - Parent dances [Time] - Cake cutting [Time] - Dancing and celebration"
+        - paragraph [ref=e255]: "**Evening** [Time] - Last dance [Time] - Send-off/sparkler exit"
+        - paragraph [ref=e256]: _This timeline captures the key moments that made our day so special!_
+    - region "Venue & Location" [ref=e257]:
+      - generic [ref=e258]:
+        - heading "Venue & Location" [level=2] [ref=e259]
+        - paragraph [ref=e260]: Reference details about where everything happened—venue name, city, and any behind-the-scenes context for future reminiscing.
+        - paragraph [ref=e261]: "### Ceremony & Reception Venue"
+        - paragraph [ref=e262]: "**[Venue Name]** [Address] [City, State ZIP]"
+        - paragraph [ref=e263]: "[Description of the venue - what made it special for your wedding, the atmosphere, any unique features]"
+        - paragraph [ref=e264]: "### Accommodations"
+        - paragraph [ref=e265]: "**Recommended Hotels:**"
+        - paragraph [ref=e266]: "**[Hotel Name]** - [Distance from venue] [Address] [Phone number] [Website] [Why you recommend this hotel - amenities, shuttle service, etc.]"
+        - paragraph [ref=e267]: "**[Hotel Name]** - [Distance from venue] [Address] [Phone number] [Website]"
+        - paragraph [ref=e268]: "### Transportation"
+        - paragraph [ref=e269]: "[Information about airport, parking, shuttle services, rideshare options]"
+        - paragraph [ref=e270]: "### Local Attractions"
+        - paragraph [ref=e271]: "[Information about nearby restaurants, activities, or points of interest for guests]"
+        - paragraph [ref=e272]: "### Weather & What to Wear"
+        - paragraph [ref=e273]: "[Season/date information, expected weather, dress code recommendations]"
+        - paragraph [ref=e274]: _Contact us if you need help with reservations or have questions about travel!_
+    - region "Stay in Touch" [ref=e275]:
+      - generic [ref=e276]:
+        - heading "Stay in Touch" [level=2] [ref=e277]
+        - paragraph [ref=e278]: Ways to share additional media or reach out in the future. Placeholder.
+        - paragraph [ref=e279]: "### Get In Touch"
+        - paragraph [ref=e280]: "**Email:** [your.email@example.com]"
+        - paragraph [ref=e281]: "**Phone:** [Your Phone Number]"
+        - paragraph [ref=e282]: "**Address:** [Your Address] [City, State ZIP]"
+        - paragraph [ref=e283]: "### Social Media"
+        - paragraph [ref=e284]: "Follow us on social media for updates and more photos from our special day:"
+        - paragraph [ref=e285]: "- **Instagram:** [@yourhandle] - **Facebook:** [Your Facebook Page]"
+        - paragraph [ref=e286]: "### Photo Sharing"
+        - paragraph [ref=e287]: "If you have photos from our wedding that you'd like to share, you can:"
+        - paragraph [ref=e288]: "- Upload them directly to our gallery using the upload form - Email them to us at [photos@yourwedding.com] - Send them via direct message on social media"
+        - paragraph [ref=e289]: We appreciate every photo and memory that helps us relive our special day!
+        - paragraph [ref=e290]: _Thank you for being part of our journey!_
+    - region "Thank You" [ref=e291]:
+      - generic [ref=e292]:
+        - heading "Thank You" [level=2] [ref=e293]
+        - paragraph [ref=e294]: "### From the Bottom of Our Hearts"
+        - paragraph [ref=e295]: Words cannot express how grateful we are for everyone who made our wedding day so incredibly special. Your love, support, and presence meant the world to us.
+        - paragraph [ref=e296]: "### Special Thanks To"
+        - paragraph [ref=e297]: "**Our Families** For their unwavering love, guidance, and the foundation they've given us that made this day possible."
+        - paragraph [ref=e298]: "**Our Wedding Party** For standing by us through every step of the planning process and making our day unforgettable."
+        - paragraph [ref=e299]: "**Our Vendors** [Thank your photographer, videographer, florist, caterer, DJ/band, and other vendors who made your day beautiful]"
+        - paragraph [ref=e300]: "**Our Guests** For traveling from near and far to celebrate with us. Your presence, your well-wishes, and your joy made our day complete."
+        - paragraph [ref=e301]: "### A Note to Our Loved Ones"
+        - paragraph [ref=e302]: "[Personal message expressing your gratitude and love]"
+        - paragraph [ref=e303]: We feel so blessed to have such amazing people in our lives. Thank you for being part of our story and for helping us create memories that will last a lifetime.
+        - paragraph [ref=e304]: With all our love, [Your Names]
+    - generic [ref=e305]:
+      - generic [ref=e306]: Failed to load audio
+      - generic [ref=e307]:
+        - button "Play background music" [ref=e308] [cursor=pointer]: ▶️
+        - generic [ref=e309]:
+          - button "Mute background music" [ref=e310] [cursor=pointer]: 🔊
+          - slider "Background music volume" [ref=e311] [cursor=pointer]: "0.3"
 ```
