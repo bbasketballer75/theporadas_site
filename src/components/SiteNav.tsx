@@ -9,7 +9,7 @@ interface Props {
 export function SiteNav({ active }: Props) {
   const pages = getAllContent().filter((p) => !p.frontmatter.hero);
   return (
-    <nav aria-label="Site Sections" className="site-nav">
+    <nav aria-label="Site Sections" className="site-nav" data-testid="site-nav">
       <ul>
         {pages.map((p) => {
           const slug = p.frontmatter.slug;

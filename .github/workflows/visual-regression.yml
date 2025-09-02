@@ -46,8 +46,8 @@ jobs:
               echo "Downloading artifact id $artifact_id";
               gh run download $latest_run_id -n playwright-snapshots --dir baseline || true
               if [ -d baseline/playwright-snapshots ]; then
-                mkdir -p pw-tests/__snapshots__
-                cp -R baseline/playwright-snapshots/* pw-tests/__snapshots__/ || true
+                mkdir -p test/__snapshots__
+                cp -R baseline/playwright-snapshots/* test/__snapshots__/ || true
                 echo "Baseline snapshots restored.";
               else
                 echo "Artifact directory missing; proceeding without baselines.";
@@ -65,7 +65,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-snapshots
-          path: pw-tests/__snapshots__
+          path: test/__snapshots__
       - name: Upload traces (on failure)
         if: failure()
         uses: actions/upload-artifact@v4

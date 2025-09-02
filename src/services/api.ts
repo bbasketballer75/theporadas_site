@@ -1,13 +1,6 @@
 // API service layer for Cloud Run backend
 const API_BASE_URL = 'https://wedding-functions-956393407443.us-central1.run.app';
 
-type RequestInit = {
-  method?: string;
-  headers?: Record<string, string>;
-  body?: string | FormData;
-  signal?: AbortSignal;
-};
-
 // Family tree data types (same as Firebase version)
 export interface FamilyMember {
   id?: string;
@@ -43,20 +36,30 @@ export interface GuestMessage {
 // API helper functions
 async function apiRequest<T>(
   endpoint: string,
-  options: RequestInit = {},
+  options: any = {},
   retries: number = 3,
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
 
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      const response = await fetch(url, {
+      // Create timeout promise
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout')), 10000); // 10 second timeout
+      });
+
+      // Create fetch promise
+      const fetchPromise = fetch(url, {
         headers: {
           'Content-Type': 'application/json',
           ...options.headers,
         },
+        mode: 'cors',
         ...options,
       });
+
+      // Race between fetch and timeout
+      const response = await Promise.race([fetchPromise, timeoutPromise]);
 
       if (!response.ok) {
         throw createHttpError(response, endpoint);
@@ -64,6 +67,16 @@ async function apiRequest<T>(
 
       return response.json();
     } catch (error) {
+      // Handle AbortError separately
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Request was cancelled');
+      }
+
+      // Handle timeout errors
+      if (error instanceof Error && error.message === 'Request timeout') {
+        throw new Error('Request timed out after 10 seconds');
+      }
+
       if (attempt === retries) {
         throw normalizeError(error);
       }
@@ -86,6 +99,12 @@ function createHttpError(response: Response, endpoint: string): Error {
   if (response.status >= 500) {
     return new Error('Server error. Please try again later.');
   }
+  if (response.status === 403) {
+    return new Error('Access denied. Please check your permissions.');
+  }
+  if (response.status === 401) {
+    return new Error('Authentication required. Please log in.');
+  }
   return new Error(`Request failed: ${response.status} ${response.statusText}`);
 }
 
@@ -102,9 +121,12 @@ function calculateRetryDelay(attempt: number): number {
 
 // Family Members CRUD operations
 export const familyMembersService = {
-  // Get all family members
+  // Get all family members - changed to POST as per backend requirements
   async getAll(): Promise<FamilyMember[]> {
-    const data = await apiRequest<{ members: FamilyMember[] }>('/family-member');
+    const data = await apiRequest<{ members: FamilyMember[] }>('/family-member', {
+      method: 'POST', // Changed from GET to POST
+      body: JSON.stringify({}), // Empty body for POST request
+    });
     return data.members.map((member) => ({
       ...member,
       createdAt: new Date(member.createdAt),
@@ -236,11 +258,19 @@ export const familyTreesService = {
 export const guestMessagesService = {
   // Get all guest messages
   async getAll(): Promise<GuestMessage[]> {
-    const data = await apiRequest<{ messages: GuestMessage[] }>('/guest-messages');
-    return data.messages.map((message) => ({
-      ...message,
-      createdAt: new Date(message.createdAt),
-    }));
+    try {
+      const data = await apiRequest<{ messages: GuestMessage[] }>('/guest-messages');
+      return data.messages.map((message) => ({
+        ...message,
+        createdAt: new Date(message.createdAt),
+      }));
+    } catch (error) {
+      // Enhanced error handling for 500 errors
+      if (error instanceof Error && error.message.includes('Server error')) {
+        throw new Error('Unable to load guest messages at this time. The server may be experiencing issues. Please try again later.');
+      }
+      throw error;
+    }
   },
 
   // Add new guest message
@@ -263,6 +293,7 @@ export const imageProcessingService = {
     const response = await fetch(`${API_BASE_URL}/process-image`, {
       method: 'POST',
       body: formData,
+      mode: 'cors', // Add CORS handling
     });
 
     if (!response.ok) {

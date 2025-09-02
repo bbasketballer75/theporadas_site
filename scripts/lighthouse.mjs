@@ -18,6 +18,23 @@ function run(cmd, args, options = {}) {
   });
 }
 
+async function waitForServer(url, maxAttempts = 30) {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const response = await fetch(url);
+      if (response.ok) {
+        console.log(`Server is ready after ${attempt} attempts`);
+        return;
+      }
+    } catch {
+      // Server not ready yet
+    }
+    console.log(`Waiting for server... (attempt ${attempt}/${maxAttempts})`);
+    await new Promise(r => setTimeout(r, 1000)); // Wait 1 second between attempts
+  }
+  throw new Error('Server failed to start within the expected time');
+}
+
 async function main() {
   await run('npm', ['run', 'build']);
   // Start preview server
@@ -25,8 +42,10 @@ async function main() {
     stdio: 'inherit',
     shell: process.platform === 'win32',
   });
-  // Give server a moment to boot
-  await new Promise((r) => setTimeout(r, 4000));
+
+  // Wait for server to be ready
+  await waitForServer(URL);
+
   // Run lighthouse
   await run('npx', [
     'lighthouse',

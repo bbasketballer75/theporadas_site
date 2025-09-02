@@ -1,0 +1,323 @@
+{
+  "version": "1.0.0",
+  "description": "Quality Assurance Metrics Configuration for Kilo Code Workflow System",
+  "last_updated": "2025-09-01T23:40:00Z",
+
+  "quality_standards": {
+    "code_quality": {
+      "test_coverage": {
+        "critical_components": 80,
+        "overall_coverage": 70,
+        "unit_test_coverage": 85,
+        "integration_test_coverage": 75
+      },
+      "complexity_metrics": {
+        "cyclomatic_complexity_max": 10,
+        "cognitive_complexity_max": 15,
+        "maintainability_index_min": 65,
+        "halstead_difficulty_max": 20
+      },
+      "code_quality_metrics": {
+        "duplication_percentage_max": 5,
+        "technical_debt_ratio_max": 10,
+        "code_smell_density_max": 2,
+        "security_vulnerabilities_max": 0
+      },
+      "documentation_metrics": {
+        "comment_density_min": 15,
+        "api_documentation_coverage_min": 90,
+        "readme_completeness_score_min": 80
+      }
+    },
+
+    "process_quality": {
+      "defect_metrics": {
+        "defect_density_max": 0.5,
+        "critical_defect_rate_max": 0.1,
+        "mean_time_to_resolution_hours_max": 24,
+        "defect_fix_rate_min": 95
+      },
+      "review_metrics": {
+        "code_review_coverage_min": 100,
+        "review_turnaround_hours_max": 48,
+        "review_feedback_quality_score_min": 75
+      },
+      "automation_metrics": {
+        "automated_test_pass_rate_min": 95,
+        "build_success_rate_min": 98,
+        "deployment_success_rate_min": 98,
+        "continuous_integration_coverage_min": 90
+      }
+    },
+
+    "performance_quality": {
+      "response_time_metrics": {
+        "api_response_time_max_ms": 2000,
+        "page_load_time_max_ms": 3000,
+        "database_query_time_max_ms": 500
+      },
+      "resource_metrics": {
+        "memory_usage_max_mb": 512,
+        "cpu_usage_max_percent": 70,
+        "disk_io_max_percent": 80,
+        "network_bandwidth_max_mbps": 100
+      },
+      "scalability_metrics": {
+        "concurrent_users_min": 100,
+        "throughput_min_requests_per_second": 100,
+        "error_rate_max_percent": 0.1
+      }
+    },
+
+    "security_quality": {
+      "vulnerability_metrics": {
+        "critical_vulnerabilities_max": 0,
+        "high_vulnerabilities_max": 0,
+        "medium_vulnerabilities_max": 5,
+        "owasp_top_10_compliance_min": 90
+      },
+      "access_control_metrics": {
+        "authentication_coverage_min": 100,
+        "authorization_coverage_min": 100,
+        "session_management_score_min": 85
+      }
+    },
+
+    "accessibility_quality": {
+      "wcag_compliance": {
+        "level_a_compliance_min": 100,
+        "level_aa_compliance_min": 95,
+        "level_aaa_compliance_min": 85
+      },
+      "assistive_technology_metrics": {
+        "screen_reader_compatibility_min": 95,
+        "keyboard_navigation_score_min": 90,
+        "color_contrast_ratio_min": 4.5
+      }
+    }
+  },
+
+  "task_type_thresholds": {
+    "bug_fix": {
+      "complexity": "simple",
+      "required_checks": ["syntax_validation", "regression_testing", "impact_analysis"],
+      "quality_score_min": 85,
+      "max_regression_defects": 0
+    },
+    "feature_development": {
+      "complexity": "medium",
+      "required_checks": ["unit_testing", "integration_testing", "security_scanning", "performance_testing"],
+      "quality_score_min": 90,
+      "test_coverage_min": 80
+    },
+    "refactoring": {
+      "complexity": "medium",
+      "required_checks": ["regression_testing", "performance_verification", "code_quality_analysis"],
+      "quality_score_min": 88,
+      "functionality_preservation_required": true
+    },
+    "documentation": {
+      "complexity": "simple",
+      "required_checks": ["content_validation", "technical_accuracy_check"],
+      "quality_score_min": 80,
+      "completeness_score_min": 90
+    },
+    "testing": {
+      "complexity": "medium",
+      "required_checks": ["test_execution", "coverage_analysis", "defect_tracking"],
+      "quality_score_min": 92,
+      "test_pass_rate_min": 95
+    },
+    "configuration": {
+      "complexity": "simple",
+      "required_checks": ["configuration_validation", "environment_consistency"],
+      "quality_score_min": 85,
+      "rollback_procedures_required": true
+    }
+  },
+
+  "complexity_levels": {
+    "simple": {
+      "estimated_hours": "1-2",
+      "checklist_items_min": 5,
+      "review_required": false,
+      "testing_required": "basic",
+      "documentation_required": "minimal"
+    },
+    "medium": {
+      "estimated_hours": "3-8",
+      "checklist_items_min": 10,
+      "review_required": true,
+      "testing_required": "comprehensive",
+      "documentation_required": "standard"
+    },
+    "complex": {
+      "estimated_hours": "8-20",
+      "checklist_items_min": 15,
+      "review_required": true,
+      "testing_required": "thorough",
+      "documentation_required": "detailed"
+    },
+    "very_complex": {
+      "estimated_hours": "20+",
+      "checklist_items_min": 20,
+      "review_required": true,
+      "testing_required": "extensive",
+      "documentation_required": "comprehensive"
+    }
+  },
+
+  "scoring_criteria": {
+    "code_quality_weight": 0.25,
+    "process_quality_weight": 0.20,
+    "performance_quality_weight": 0.15,
+    "security_quality_weight": 0.15,
+    "accessibility_quality_weight": 0.10,
+    "documentation_quality_weight": 0.10,
+    "functionality_completeness_weight": 0.05,
+
+    "quality_score_ranges": {
+      "excellent": {"min": 95, "max": 100, "description": "Exceeds quality standards significantly"},
+      "good": {"min": 85, "max": 94, "description": "Meets or slightly exceeds quality standards"},
+      "acceptable": {"min": 75, "max": 84, "description": "Meets minimum quality standards"},
+      "needs_improvement": {"min": 60, "max": 74, "description": "Below quality standards, requires attention"},
+      "unacceptable": {"min": 0, "max": 59, "description": "Significantly below quality standards"}
+    }
+  },
+
+  "automated_test_configurations": {
+    "unit_tests": {
+      "frameworks": ["pytest", "jest", "junit", "rspec"],
+      "coverage_tools": ["coverage.py", "nyc", "jacoco", "simplecov"],
+      "reporting_formats": ["html", "xml", "json", "markdown"]
+    },
+    "integration_tests": {
+      "frameworks": ["pytest", "cypress", "selenium", "postman"],
+      "environments": ["staging", "testing", "development"],
+      "parallel_execution": true
+    },
+    "performance_tests": {
+      "tools": ["jmeter", "k6", "locust", "artillery"],
+      "metrics": ["response_time", "throughput", "error_rate", "resource_usage"],
+      "thresholds": {
+        "response_time_p95_max_ms": 2000,
+        "error_rate_max_percent": 1.0
+      }
+    },
+    "security_tests": {
+      "tools": ["owasp_zap", "burp_suite", "nessus", "sonarcloud"],
+      "scan_types": ["sast", "dast", "sca", "container_scanning"],
+      "severity_levels": ["critical", "high", "medium", "low", "info"]
+    },
+    "accessibility_tests": {
+      "tools": ["axe", "wave", "lighthouse", "pa11y"],
+      "standards": ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"],
+      "browsers": ["chrome", "firefox", "safari", "edge"]
+    }
+  },
+
+  "reporting_templates": {
+    "quality_report": {
+      "sections": [
+        "executive_summary",
+        "quality_metrics_overview",
+        "detailed_findings",
+        "recommendations",
+        "action_items"
+      ],
+      "formats": ["markdown", "html", "pdf", "json"],
+      "frequency": "weekly"
+    },
+    "code_review_report": {
+      "sections": [
+        "review_summary",
+        "critical_findings",
+        "quality_score",
+        "recommendations"
+      ],
+      "severity_levels": ["critical", "high", "medium", "low", "info"]
+    },
+    "test_execution_report": {
+      "sections": [
+        "test_summary",
+        "coverage_report",
+        "failure_analysis",
+        "performance_metrics"
+      ],
+      "charts": ["test_pass_rate", "coverage_trend", "defect_trend"]
+    },
+    "security_audit_report": {
+      "sections": [
+        "vulnerability_summary",
+        "risk_assessment",
+        "remediation_plan",
+        "compliance_status"
+      ],
+      "standards": ["owasp_top_10", "iso_27001", "pci_dss"]
+    }
+  },
+
+  "quality_gates": {
+    "pre_commit": {
+      "enabled": true,
+      "checks": ["syntax_validation", "linting", "unit_tests"],
+      "blocking": true
+    },
+    "pre_merge": {
+      "enabled": true,
+      "checks": ["integration_tests", "security_scanning", "code_review"],
+      "blocking": true
+    },
+    "pre_deployment": {
+      "enabled": true,
+      "checks": ["performance_testing", "accessibility_testing", "load_testing"],
+      "blocking": true
+    },
+    "post_deployment": {
+      "enabled": true,
+      "checks": ["monitoring_setup", "rollback_verification", "user_acceptance"],
+      "blocking": false
+    }
+  },
+
+  "alerting_thresholds": {
+    "quality_score_drop": {
+      "threshold": 10,
+      "consecutive_occurrences": 2,
+      "notification_channels": ["slack", "email"]
+    },
+    "test_failure_rate": {
+      "threshold": 5,
+      "time_window_minutes": 60,
+      "notification_channels": ["slack", "email", "sms"]
+    },
+    "security_vulnerability": {
+      "severity_levels": ["critical", "high"],
+      "notification_channels": ["slack", "email", "sms", "pagerduty"]
+    },
+    "performance_degradation": {
+      "threshold_percent": 20,
+      "time_window_minutes": 30,
+      "notification_channels": ["slack", "email"]
+    }
+  },
+
+  "integration_settings": {
+    "workflow_automation": {
+      "enabled": true,
+      "sync_checklists": true,
+      "auto_generate_reports": true,
+      "update_progress_tracking": true
+    },
+    "version_control": {
+      "required_reviews": true,
+      "branch_protection": true,
+      "status_checks": ["ci", "quality_gate"]
+    },
+    "ci_cd_pipeline": {
+      "quality_checks_enabled": true,
+      "automatic_rollbacks": true,
+      "deployment_gates": true
+    }
+  }
+}

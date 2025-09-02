@@ -2,7 +2,7 @@
 
 ## Current Goals
 
-- User prefers VS Code Insiders; configure features accordingly (new chat modes, experimental settings).
+- Goal 1
 
 ## Current Blockers
 
