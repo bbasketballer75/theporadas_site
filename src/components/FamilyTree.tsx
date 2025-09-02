@@ -5,19 +5,42 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FamilyMember, familyMembersService } from '../services/api';
 import { detectBrowser } from '../utils/browserDetection';
 
-interface FamilyTreeProps {
+export default function FamilyTree({
+  onMemberClick,
+  width = 1000,
+  height = 800,
+}: {
+  onMemberClick?: (member: FamilyMember) => void;
   width?: number;
   height?: number;
-  onMemberClick?: (member: FamilyMember) => void;
-}
-
-export function FamilyTree({ width = 800, height = 600, onMemberClick }: FamilyTreeProps) {
+}) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredMembers, setFilteredMembers] = useState<FamilyMember[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   // Browser detection for D3.js compatibility fixes
+
+  // Filter members based on search term
+  const filterMembers = useCallback((members: FamilyMember[], term: string) => {
+    if (!term.trim()) return members;
+
+    const lowerTerm = term.toLowerCase();
+    return members.filter(
+      (member) =>
+        member.name.toLowerCase().includes(lowerTerm) ||
+        member.relationship.toLowerCase().includes(lowerTerm) ||
+        (member.description && member.description.toLowerCase().includes(lowerTerm)) ||
+        (member.birthDate && member.birthDate.toLowerCase().includes(lowerTerm)),
+    );
+  }, []);
+
+  // Update filtered members when search term or family members change
+  useEffect(() => {
+    setFilteredMembers(filterMembers(familyMembers, searchTerm));
+  }, [familyMembers, searchTerm, filterMembers]);
   const browserInfo = React.useMemo(() => detectBrowser(), []);
 
   // Load family members data
@@ -30,7 +53,7 @@ export function FamilyTree({ width = 800, height = 600, onMemberClick }: FamilyT
           setTimeout(() => reject(new Error('API request timed out')), 5000);
         });
         const dataPromise = familyMembersService.getAll();
-        const members = await Promise.race([dataPromise, timeoutPromise]) as FamilyMember[];
+        const members = (await Promise.race([dataPromise, timeoutPromise])) as FamilyMember[];
         setFamilyMembers(members);
         setError(null);
       } catch (err) {
@@ -70,12 +93,12 @@ export function FamilyTree({ width = 800, height = 600, onMemberClick }: FamilyT
 
   // Create the family tree visualization
   useEffect(() => {
-    if (!svgRef.current || familyMembers.length === 0 || loading) return;
+    if (!svgRef.current || filteredMembers.length === 0 || loading) return;
 
     const svg = select(svgRef.current);
     svg.selectAll('*').remove(); // Clear previous content
 
-    const treeData = buildFamilyTree(familyMembers);
+    const treeData = buildFamilyTree(filteredMembers);
     if (!treeData) return;
 
     // Create tree layout
@@ -133,7 +156,7 @@ export function FamilyTree({ width = 800, height = 600, onMemberClick }: FamilyT
       .attr('stroke', '#333')
       .attr('stroke-width', 2)
       .style('cursor', 'pointer')
-      .on('click', (event, d) => {
+      .on('click', (_, d) => {
         if (onMemberClick) {
           onMemberClick(d.data);
         }
@@ -205,7 +228,7 @@ export function FamilyTree({ width = 800, height = 600, onMemberClick }: FamilyT
       .style('z-index', '1000');
 
     node
-      .on('mouseover', function (event, d) {
+      .on('mouseover', function (_, d) {
         const member = d.data;
         tooltip.style('visibility', 'visible').html(`
             <div><strong>${member.name}</strong></div>
@@ -225,7 +248,7 @@ export function FamilyTree({ width = 800, height = 600, onMemberClick }: FamilyT
     return () => {
       tooltip.remove();
     };
-  }, [familyMembers, loading, width, height, buildFamilyTree, onMemberClick]);
+  }, [filteredMembers, loading, width, height, buildFamilyTree, onMemberClick]);
 
   if (loading) {
     return (
@@ -271,8 +294,8 @@ export function FamilyTree({ width = 800, height = 600, onMemberClick }: FamilyT
     <div
       className="family-tree-container"
       style={{ width, height }}
-      data-loading={loading ? "true" : "false"}
-      data-rendered={familyMembers.length > 0 && !loading ? "true" : "false"}
+      data-loading={loading ? 'true' : 'false'}
+      data-rendered={familyMembers.length > 0 && !loading ? 'true' : 'false'}
       data-testid="family-tree"
     >
       <svg

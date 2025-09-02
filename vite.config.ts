@@ -1,5 +1,6 @@
 import react from '@vitejs/plugin-react-swc';
 import { defineConfig } from 'vite';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
   plugins: [react()],
@@ -11,6 +12,7 @@ export default defineConfig({
   build: {
     // Enable code splitting
     rollupOptions: {
+      plugins: process.env.ANALYZE === 'true' ? [visualizer({ filename: 'dist/stats.html', open: true, gzipSize: true, brotliSize: true })] : [],
       output: {
         // Split vendor chunks
         manualChunks: {

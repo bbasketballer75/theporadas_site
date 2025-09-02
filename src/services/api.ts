@@ -1,44 +1,88 @@
-// API service layer for Cloud Run backend
-const API_BASE_URL = 'https://wedding-functions-956393407443.us-central1.run.app';
+/**
+ * API service layer for Cloud Run backend
+ * Provides comprehensive CRUD operations for family data, guest messages, and image processing
+ * with built-in error handling, retries, and timeout management.
+ */
 
-// Family tree data types (same as Firebase version)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+/**
+ * Represents a family member in the family tree
+ * @interface FamilyMember
+ */
 export interface FamilyMember {
+  /** Unique identifier for the family member */
   id?: string;
+  /** Full name of the family member */
   name: string;
+  /** Relationship to the primary family (e.g., 'parent', 'child', 'sibling') */
   relationship: string;
+  /** Birth date in ISO string format */
   birthDate?: string;
+  /** URL to the member's photo */
   photoUrl?: string;
+  /** Additional description or biography */
   description?: string;
+  /** Array of parent member IDs */
   parentIds: string[];
+  /** Array of children member IDs */
   childrenIds: string[];
+  /** Spouse member ID if applicable */
   spouseId?: string;
+  /** Creation timestamp */
   createdAt: Date;
+  /** Last update timestamp */
   updatedAt: Date;
 }
 
+/**
+ * Represents a family tree structure
+ * @interface FamilyTree
+ */
 export interface FamilyTree {
+  /** Unique identifier for the family tree */
   id: string;
+  /** Name of the family tree */
   name: string;
+  /** Array of family members in this tree */
   members: FamilyMember[];
+  /** Creation timestamp */
   createdAt: Date;
+  /** Last update timestamp */
   updatedAt: Date;
 }
 
-// Guest message types
+/**
+ * Represents a guest message from the wedding website
+ * @interface GuestMessage
+ */
 export interface GuestMessage {
+  /** Unique identifier for the message */
   id?: string;
+  /** Name of the guest who sent the message */
   name: string;
+  /** Email address of the guest (optional) */
   email?: string;
+  /** The message content */
   message: string;
+  /** Creation timestamp */
   createdAt: Date;
 }
 
-// API helper functions
-async function apiRequest<T>(
-  endpoint: string,
-  options: any = {},
-  retries: number = 3,
-): Promise<T> {
+/**
+ * Makes an API request with automatic retries, timeout handling, and error normalization
+ * @template T - The expected response type
+ * @param endpoint - API endpoint path (without base URL)
+ * @param options - Fetch options including method, headers, body
+ * @param retries - Number of retry attempts (default: 3)
+ * @returns Promise resolving to the parsed JSON response
+ * @throws Error with normalized error messages
+ * @example
+ * ```typescript
+ * const data = await apiRequest<User[]>('/users', { method: 'GET' });
+ * ```
+ */
+async function apiRequest<T>(endpoint: string, options: RequestInit = {}, retries: number = 3): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
 
   for (let attempt = 1; attempt <= retries; attempt++) {
@@ -89,6 +133,12 @@ async function apiRequest<T>(
   throw new Error('Unexpected error in API request');
 }
 
+/**
+ * Creates a user-friendly error message based on HTTP response status
+ * @param response - The fetch Response object
+ * @param endpoint - The API endpoint that was called
+ * @returns Error with appropriate message for the status code
+ */
 function createHttpError(response: Response, endpoint: string): Error {
   if (response.status === 404) {
     return new Error(`Resource not found: ${endpoint}`);
@@ -108,6 +158,11 @@ function createHttpError(response: Response, endpoint: string): Error {
   return new Error(`Request failed: ${response.status} ${response.statusText}`);
 }
 
+/**
+ * Normalizes any error type to a standard Error object
+ * @param error - The error to normalize
+ * @returns A standard Error object with a message
+ */
 function normalizeError(error: unknown): Error {
   if (error instanceof Error) {
     return error;
@@ -115,11 +170,21 @@ function normalizeError(error: unknown): Error {
   return new Error('Network error occurred');
 }
 
+/**
+ * Calculates exponential backoff delay for retry attempts
+ * @param attempt - The current attempt number (1-based)
+ * @returns Delay in milliseconds (max 5000ms)
+ */
 function calculateRetryDelay(attempt: number): number {
   return Math.min(1000 * Math.pow(2, attempt - 1), 5000);
 }
 
 // Family Members CRUD operations
+/**
+ * Service for managing family member data through the API
+ * Provides CRUD operations for family members with automatic data transformation
+ * @namespace familyMembersService
+ */
 export const familyMembersService = {
   // Get all family members - changed to POST as per backend requirements
   async getAll(): Promise<FamilyMember[]> {
@@ -267,7 +332,9 @@ export const guestMessagesService = {
     } catch (error) {
       // Enhanced error handling for 500 errors
       if (error instanceof Error && error.message.includes('Server error')) {
-        throw new Error('Unable to load guest messages at this time. The server may be experiencing issues. Please try again later.');
+        throw new Error(
+          'Unable to load guest messages at this time. The server may be experiencing issues. Please try again later.',
+        );
       }
       throw error;
     }
