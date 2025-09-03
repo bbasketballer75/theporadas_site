@@ -1,9 +1,0 @@
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);  
-  const retryCountRef = useRef(0);  
-  const maxRetries = 3;  
-  
-  // Loading state variables  
-  const [isLoading, setIsLoading] = useState(true);  
-  const [isLoaded, setIsLoaded] = useState(false);  
-  const [hasError, setHasError] = useState(false);  
-  const [errorMessage, setErrorMessage] = useState(''); 
