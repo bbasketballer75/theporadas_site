@@ -7,6 +7,7 @@ This document provides standardized templates for different types of collaborati
 Use this template when reporting bugs or issues that need to be fixed.
 
 ### Template:
+
 ```
 **Bug Report**
 
@@ -34,7 +35,9 @@ Use this template when reporting bugs or issues that need to be fixed.
 
 **Error Messages:**
 ```
+
 [Copy and paste any error messages or stack traces]
+
 ```
 
 **Severity:**
@@ -52,6 +55,7 @@ Use this template when reporting bugs or issues that need to be fixed.
 ```
 
 ### Example:
+
 ```
 **Bug Report**
 
@@ -79,8 +83,10 @@ Application crashes with null pointer exception
 
 **Error Messages:**
 ```
+
 TypeError: Cannot read property 'length' of null
-    at login (src/auth/login.js:45:12)
+at login (src/auth/login.js:45:12)
+
 ```
 
 **Severity:**
@@ -96,6 +102,7 @@ TypeError: Cannot read property 'length' of null
 Use this template when requesting new features or enhancements.
 
 ### Template:
+
 ```
 **Feature Request**
 
@@ -140,6 +147,7 @@ As a [type of user], I want [goal] so that [benefit]
 ```
 
 ### Example:
+
 ```
 **Feature Request**
 
@@ -178,6 +186,7 @@ As a developer, I want dark mode so that I can work comfortably at night
 Use this template when requesting code review for completed work.
 
 ### Template:
+
 ```
 **Code Review Request**
 
@@ -217,6 +226,7 @@ Use this template when requesting code review for completed work.
 ```
 
 ### Example:
+
 ```
 **Code Review Request**
 
@@ -255,6 +265,7 @@ Used JWT tokens over sessions for stateless authentication. Implemented refresh 
 Use this template when assigning tasks to team members.
 
 ### Template:
+
 ```
 **Task Assignment**
 
@@ -293,6 +304,7 @@ Use this template when assigning tasks to team members.
 Use this template when requesting documentation updates.
 
 ### Template:
+
 ```
 **Documentation Update Request**
 
@@ -321,6 +333,7 @@ Use this template when requesting documentation updates.
 ## Best Practices
 
 ### Template Usage Guidelines:
+
 1. **Always use the appropriate template** for your request type
 2. **Fill in all required fields** marked with [brackets]
 3. **Be specific and detailed** in descriptions
@@ -329,12 +342,14 @@ Use this template when requesting documentation updates.
 6. **Use checklists** for complex requests
 
 ### Integration with Workflow Guide:
+
 - Follow communication guidelines from Section 1 of [`kilo_code_workflow_guide.md`](kilo_code_workflow_guide.md)
 - Use appropriate mode selection from Section 3
 - Follow error handling workflow from Section 4
 - Apply file operation guidelines from Section 5
 
 ### Error Handling:
+
 - If template fields are unclear, reference examples provided
 - For complex requests, break down using task breakdown best practices (Section 2)
 - Use quality assurance checklist from Section 7 before submission
