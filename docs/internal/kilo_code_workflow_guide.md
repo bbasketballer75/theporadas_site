@@ -33,9 +33,10 @@ This document provides comprehensive instructions, rules, and workflows for effe
 - **Resource Assessment**: Consider available tools and time constraints when breaking down tasks.
 
 ### Example Task Breakdown:
+
 ```
 1. Analyze existing code structure
-2. Design new feature architecture  
+2. Design new feature architecture
 3. Implement core functionality
 4. Add error handling
 5. Write unit tests
@@ -77,6 +78,7 @@ This document provides comprehensive instructions, rules, and workflows for effe
 6. **Documentation**: Document the error and resolution for future reference.
 
 ### Common Error Resolution Steps:
+
 - **File Not Found**: Verify full file paths and check if file exists using `list_files`
 - **Tool Parameter Errors**: Double-check all required parameters are provided
 - **Mode Restrictions**: Switch to appropriate mode if file editing is blocked
@@ -99,10 +101,11 @@ This document provides comprehensive instructions, rules, and workflows for effe
 - **File Organization**: Create logical directory structures and follow project conventions for file naming and placement.
 
 ### File Editing Example:
+
 ```
 target_file: c:/Users/Austin/Documents/theporadas_site/src/app.js
 instructions: I am adding error handling to the login function.
-code_edit: 
+code_edit:
 // ... existing code ...
 function login(username, password) {
   try {
@@ -168,20 +171,21 @@ function login(username, password) {
 
 ### Common Issues and Solutions
 
-| Issue | Symptoms | Solution |
-|-------|----------|----------|
-| File Not Found | Tool reports file doesn't exist | Verify full path, use `list_files` to confirm file location |
-| Tool Parameter Error | Tool execution fails with parameter validation error | Check all required parameters are provided with correct types |
-| Mode Restriction Error | File editing blocked | Switch to appropriate mode (e.g., Code mode for file editing) |
-| Terminal Command Fails | Command execution returns error | Verify command syntax, check working directory, ensure dependencies are installed |
-| Search No Results | `search_files` returns empty | Try broader regex patterns, check file extensions, verify directory path |
-| Edit Conflicts | Multiple changes to same file | Make all changes in single `edit_file` call |
-| Path Resolution Issues | Long or complex paths fail | Use full absolute paths, avoid special characters |
-| Memory/Performance Issues | Tool execution is slow or fails | Break large tasks into smaller steps, use targeted searches |
-| MCP Tool Unavailable | External tool access fails | Check MCP server status, verify authentication if required |
-| File Encoding Issues | Special characters display incorrectly | Ensure files are UTF-8 encoded, specify encoding if needed |
+| Issue                     | Symptoms                                             | Solution                                                                          |
+| ------------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------- |
+| File Not Found            | Tool reports file doesn't exist                      | Verify full path, use `list_files` to confirm file location                       |
+| Tool Parameter Error      | Tool execution fails with parameter validation error | Check all required parameters are provided with correct types                     |
+| Mode Restriction Error    | File editing blocked                                 | Switch to appropriate mode (e.g., Code mode for file editing)                     |
+| Terminal Command Fails    | Command execution returns error                      | Verify command syntax, check working directory, ensure dependencies are installed |
+| Search No Results         | `search_files` returns empty                         | Try broader regex patterns, check file extensions, verify directory path          |
+| Edit Conflicts            | Multiple changes to same file                        | Make all changes in single `edit_file` call                                       |
+| Path Resolution Issues    | Long or complex paths fail                           | Use full absolute paths, avoid special characters                                 |
+| Memory/Performance Issues | Tool execution is slow or fails                      | Break large tasks into smaller steps, use targeted searches                       |
+| MCP Tool Unavailable      | External tool access fails                           | Check MCP server status, verify authentication if required                        |
+| File Encoding Issues      | Special characters display incorrectly               | Ensure files are UTF-8 encoded, specify encoding if needed                        |
 
 ### Emergency Procedures:
+
 1. **Tool Failure**: If a tool consistently fails, use `ask_followup_question` to request user assistance
 2. **Data Loss**: Always read files before major edits to preserve original content
 3. **Stuck Tasks**: Break complex tasks into smaller, verifiable steps
