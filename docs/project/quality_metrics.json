@@ -106,13 +106,22 @@
     },
     "feature_development": {
       "complexity": "medium",
-      "required_checks": ["unit_testing", "integration_testing", "security_scanning", "performance_testing"],
+      "required_checks": [
+        "unit_testing",
+        "integration_testing",
+        "security_scanning",
+        "performance_testing"
+      ],
       "quality_score_min": 90,
       "test_coverage_min": 80
     },
     "refactoring": {
       "complexity": "medium",
-      "required_checks": ["regression_testing", "performance_verification", "code_quality_analysis"],
+      "required_checks": [
+        "regression_testing",
+        "performance_verification",
+        "code_quality_analysis"
+      ],
       "quality_score_min": 88,
       "functionality_preservation_required": true
     },
@@ -169,19 +178,35 @@
 
   "scoring_criteria": {
     "code_quality_weight": 0.25,
-    "process_quality_weight": 0.20,
+    "process_quality_weight": 0.2,
     "performance_quality_weight": 0.15,
     "security_quality_weight": 0.15,
-    "accessibility_quality_weight": 0.10,
-    "documentation_quality_weight": 0.10,
+    "accessibility_quality_weight": 0.1,
+    "documentation_quality_weight": 0.1,
     "functionality_completeness_weight": 0.05,
 
     "quality_score_ranges": {
-      "excellent": {"min": 95, "max": 100, "description": "Exceeds quality standards significantly"},
-      "good": {"min": 85, "max": 94, "description": "Meets or slightly exceeds quality standards"},
-      "acceptable": {"min": 75, "max": 84, "description": "Meets minimum quality standards"},
-      "needs_improvement": {"min": 60, "max": 74, "description": "Below quality standards, requires attention"},
-      "unacceptable": {"min": 0, "max": 59, "description": "Significantly below quality standards"}
+      "excellent": {
+        "min": 95,
+        "max": 100,
+        "description": "Exceeds quality standards significantly"
+      },
+      "good": {
+        "min": 85,
+        "max": 94,
+        "description": "Meets or slightly exceeds quality standards"
+      },
+      "acceptable": { "min": 75, "max": 84, "description": "Meets minimum quality standards" },
+      "needs_improvement": {
+        "min": 60,
+        "max": 74,
+        "description": "Below quality standards, requires attention"
+      },
+      "unacceptable": {
+        "min": 0,
+        "max": 59,
+        "description": "Significantly below quality standards"
+      }
     }
   },
 
@@ -229,21 +254,11 @@
       "frequency": "weekly"
     },
     "code_review_report": {
-      "sections": [
-        "review_summary",
-        "critical_findings",
-        "quality_score",
-        "recommendations"
-      ],
+      "sections": ["review_summary", "critical_findings", "quality_score", "recommendations"],
       "severity_levels": ["critical", "high", "medium", "low", "info"]
     },
     "test_execution_report": {
-      "sections": [
-        "test_summary",
-        "coverage_report",
-        "failure_analysis",
-        "performance_metrics"
-      ],
+      "sections": ["test_summary", "coverage_report", "failure_analysis", "performance_metrics"],
       "charts": ["test_pass_rate", "coverage_trend", "defect_trend"]
     },
     "security_audit_report": {

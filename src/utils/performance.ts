@@ -1,5 +1,5 @@
-import { onCLS, onFID, onFCP, onLCP, onTTFB, onINP, Metric } from 'web-vitals';
 import * as Sentry from '@sentry/react';
+import { onCLS, onFID, onFCP, onLCP, onTTFB, onINP, Metric } from 'web-vitals';
 
 // Types for performance metrics
 export interface PerformanceMetric {
@@ -25,7 +25,8 @@ const performanceMetrics: PerformanceMetric[] = [];
 
 // Get rating based on metric value and thresholds
 function getRating(metricName: string, value: number): 'good' | 'needs-improvement' | 'poor' {
-  const thresholds = CORE_WEB_VITALS_THRESHOLDS[metricName as keyof typeof CORE_WEB_VITALS_THRESHOLDS];
+  const thresholds =
+    CORE_WEB_VITALS_THRESHOLDS[metricName as keyof typeof CORE_WEB_VITALS_THRESHOLDS];
   if (!thresholds) return 'good';
 
   if (value <= thresholds.good) return 'good';
@@ -78,42 +79,54 @@ function storeMetric(metric: Metric) {
 export function initCoreWebVitals() {
   // Largest Contentful Paint
   onLCP((metric) => {
-    console.log('LCP:', metric);
+    if (import.meta.env.DEV) {
+      console.log('LCP:', metric);
+    }
     storeMetric(metric);
     reportToSentry(metric);
   });
 
   // First Input Delay
   onFID((metric) => {
-    console.log('FID:', metric);
+    if (import.meta.env.DEV) {
+      console.log('FID:', metric);
+    }
     storeMetric(metric);
     reportToSentry(metric);
   });
 
   // Cumulative Layout Shift
   onCLS((metric) => {
-    console.log('CLS:', metric);
+    if (import.meta.env.DEV) {
+      console.log('CLS:', metric);
+    }
     storeMetric(metric);
     reportToSentry(metric);
   });
 
   // First Contentful Paint
   onFCP((metric) => {
-    console.log('FCP:', metric);
+    if (import.meta.env.DEV) {
+      console.log('FCP:', metric);
+    }
     storeMetric(metric);
     reportToSentry(metric);
   });
 
   // Time to First Byte
   onTTFB((metric) => {
-    console.log('TTFB:', metric);
+    if (import.meta.env.DEV) {
+      console.log('TTFB:', metric);
+    }
     storeMetric(metric);
     reportToSentry(metric);
   });
 
   // Interaction to Next Paint
   onINP((metric) => {
-    console.log('INP:', metric);
+    if (import.meta.env.DEV) {
+      console.log('INP:', metric);
+    }
     storeMetric(metric);
     reportToSentry(metric);
   });
@@ -226,7 +239,8 @@ export function usePerformanceMonitor() {
   return {
     startTiming: (name: string) => monitor.startTiming(name),
     endTiming: (name: string) => monitor.endTiming(name),
-    measureFunctionExecution: <T>(name: string, fn: () => T) => monitor.measureFunctionExecution(name, fn),
+    measureFunctionExecution: <T>(name: string, fn: () => T) =>
+      monitor.measureFunctionExecution(name, fn),
     getMeasures: () => monitor.getMeasures(),
     clear: () => monitor.clear(),
   };

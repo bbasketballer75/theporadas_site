@@ -1,4 +1,0 @@
-
-> theporadas-site@0.0.0 lint
-> eslint . --ext .js,.jsx,.ts,.tsx
-
