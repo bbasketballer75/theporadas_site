@@ -84,9 +84,12 @@ export interface GuestMessage {
  */
 async function apiRequest<T>(endpoint: string, options: RequestInit = {}, retries: number = 3): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
+  console.log('[KILO CODE DEBUG] API Request:', { endpoint, url, method: options.method || 'GET', retries });
 
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
+      console.log(`[KILO CODE DEBUG] Attempt ${attempt}/${retries} for ${endpoint}`);
+
       // Create timeout promise
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error('Request timeout')), 10000); // 10 second timeout
@@ -105,12 +108,24 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}, retrie
       // Race between fetch and timeout
       const response = await Promise.race([fetchPromise, timeoutPromise]);
 
+      console.log('[KILO CODE DEBUG] API Response:', {
+        endpoint,
+        ok: response.ok,
+        status: response.status,
+        statusText: response.statusText,
+        attempt
+      });
+
       if (!response.ok) {
         throw createHttpError(response, endpoint);
       }
 
-      return response.json();
+      const result = await response.json();
+      console.log('[KILO CODE DEBUG] API Success:', { endpoint, result });
+      return result;
     } catch (error) {
+      console.error(`[KILO CODE DEBUG] API Error on attempt ${attempt}:`, { endpoint, error });
+
       // Handle AbortError separately
       if (error instanceof Error && error.name === 'AbortError') {
         throw new Error('Request was cancelled');
@@ -126,6 +141,7 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}, retrie
       }
 
       const delay = calculateRetryDelay(attempt);
+      console.log(`[KILO CODE DEBUG] Retrying ${endpoint} in ${delay}ms`);
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }

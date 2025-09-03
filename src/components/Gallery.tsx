@@ -1,9 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { GalleryItemBase, loadGallery } from '../gallery/loader';
+import {
+  useInteractionPerformance,
+  useMediaPerformance,
+  usePerformanceMonitor,
+} from '../hooks/usePerformanceMonitor';
+import { generateCaption } from '../utils/ollama';
 
 import { ImageUpload } from './ImageUpload';
-import { usePerformanceMonitor, useInteractionPerformance, useMediaPerformance } from '../hooks/usePerformanceMonitor';
 
 interface GalleryProps {
   headingId?: string;
@@ -141,6 +146,7 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
   const [loadedIds, setLoadedIds] = useState<Set<string>>(new Set());
   const [imageStates, setImageStates] = useState<ImageState>({});
   const [modalImageState, setModalImageState] = useState<ImageLoadState>('idle');
+  const [captions, setCaptions] = useState<{ [key: string]: string }>({});
   const openerRef = useRef<HTMLButtonElement | null>(null);
   const modalRef = useRef<HTMLDialogElement | null>(null);
   const timeoutRefs = useRef<{ [key: string]: ReturnType<typeof setTimeout> }>({});
@@ -342,6 +348,11 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
       return () => document.removeEventListener('keydown', onDoc);
     }
   }, [active, items]);
+
+  const generateAICaption = async (imageId: string, description: string) => {
+    const caption = await generateCaption(description);
+    setCaptions((prev) => ({ ...prev, [imageId]: caption }));
+  };
 
   return (
     <div className="gallery" ref={containerRef} aria-labelledby={headingId}>
