@@ -24,7 +24,7 @@ service firebase.storage {
       allow create: if isAuthenticated() && isValidImageFile() && isValidGalleryPath();
 
       // Allow authenticated users to update/delete their own images
-      allow update, delete: if isAuthenticated();
+      allow update, delete: if isAuthenticated() && request.auth.uid == resource.metadata.ownerId;
     }
 
     // Profile photos - authenticated users only
@@ -44,8 +44,8 @@ service firebase.storage {
       // Allow authenticated users to upload family photos
       allow create: if isAuthenticated() && isValidImageFile();
 
-      // Allow authenticated users to update/delete family photos
-      allow update, delete: if isAuthenticated();
+      // Allow authenticated users to update/delete their own family photos
+      allow update, delete: if isAuthenticated() && request.auth.uid == resource.metadata.ownerId;
     }
 
     // Temporary uploads - authenticated users only
