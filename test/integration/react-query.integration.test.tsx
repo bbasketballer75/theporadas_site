@@ -68,12 +68,12 @@ const createWrapper = () => {
 describe('React Query Hooks Integration Tests', () => {
   beforeEach(() => {
     // Set up mock API base URL for tests
-    vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:3001');
+    vi.stubEnv('VITE_API_BASE_URL', '');
 
     // Configure MSW handlers
     server.use(
       // Family Members endpoints
-      http.post('http://localhost:3001/family-member', async ({ request }) => {
+      http.post('/family-member', async ({ request }) => {
         const body = await request.json();
         if (body && Object.keys(body).length === 0) {
           // GET all request (POST with empty body)
@@ -83,7 +83,7 @@ describe('React Query Hooks Integration Tests', () => {
         return HttpResponse.json({ id: 'new-id' });
       }),
 
-      http.get('http://localhost:3001/family-member/:id', ({ params }) => {
+      http.get('/family-member/:id', ({ params }) => {
         const { id } = params;
         if (id === '1') {
           return HttpResponse.json(mockMember);
@@ -91,15 +91,15 @@ describe('React Query Hooks Integration Tests', () => {
         return HttpResponse.json({ error: 'Not found' }, { status: 404 });
       }),
 
-      http.put('http://localhost:3001/family-member/:id', () => {
+      http.put('/family-member/:id', () => {
         return HttpResponse.json({});
       }),
 
-      http.delete('http://localhost:3001/family-member/:id', () => {
+      http.delete('/family-member/:id', () => {
         return HttpResponse.json({});
       }),
 
-      http.get('http://localhost:3001/family-member', ({ request }) => {
+      http.get('/family-member', ({ request }) => {
         const url = new URL(request.url);
         const relationship = url.searchParams.get('relationship');
         if (relationship === 'Father') {
@@ -109,11 +109,11 @@ describe('React Query Hooks Integration Tests', () => {
       }),
 
       // Guest Messages endpoints
-      http.get('http://localhost:3001/guest-messages', () => {
+      http.get('/guest-messages', () => {
         return HttpResponse.json({ messages: [mockMessage] });
       }),
 
-      http.post('http://localhost:3001/guest-message', () => {
+      http.post('/guest-message', () => {
         return HttpResponse.json({ id: 'new-message-id' });
       }),
     );
@@ -146,7 +146,7 @@ describe('React Query Hooks Integration Tests', () => {
 
     it('should handle error states', async () => {
       server.use(
-        http.post('http://localhost:3001/family-member', () => {
+        http.post('/family-member', () => {
           return HttpResponse.json({ error: 'Server error' }, { status: 500 });
         }),
       );
@@ -260,7 +260,7 @@ describe('React Query Hooks Integration Tests', () => {
 
     it('should handle server errors with custom error message', async () => {
       server.use(
-        http.get('http://localhost:3001/guest-messages', () => {
+        http.get('/guest-messages', () => {
           return HttpResponse.json({ error: 'Server error' }, { status: 500 });
         }),
       );
@@ -303,7 +303,7 @@ describe('React Query Hooks Integration Tests', () => {
 
     it('should handle mutation errors', async () => {
       server.use(
-        http.post('http://localhost:3001/guest-message', () => {
+        http.post('/guest-message', () => {
           return HttpResponse.json({ error: 'Validation failed' }, { status: 400 });
         }),
       );
@@ -506,7 +506,7 @@ describe('React Query Hooks Integration Tests', () => {
 
     it('should handle error states with proper error messages', async () => {
       server.use(
-        http.post('http://localhost:3001/family-member', () => {
+        http.post('/family-member', () => {
           return HttpResponse.json({ error: 'Forbidden' }, { status: 403 });
         }),
       );

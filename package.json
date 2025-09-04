@@ -14,6 +14,7 @@
     "build": "npm run images:generate && vite build",
     "build:analyze": "cross-env ANALYZE=true npm run build",
     "build:check-size": "npm run build && node scripts/check-bundle-sizes.mjs",
+    "build:compare-size": "node scripts/compare-bundle-sizes.mjs",
     "analyze": "npm run build:analyze && echo 'Bundle analysis report generated at dist/stats.html'",
     "analyze:full": "npm run build:analyze && node scripts/check-bundle-sizes.mjs",
     "preview": "vite preview",
@@ -69,6 +70,7 @@
     "@playwright/test": "^1.48.2",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/d3": "^7.4.3",
     "@types/d3-hierarchy": "^3.1.7",
     "@types/leaflet": "^1.9.20",
@@ -144,15 +146,6 @@
     "puppeteer": {
       "optional": true
     }
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "eslint --fix --cache --cache-location .eslintcache",
-      "prettier --write"
-    ],
-    "*.{json,md,yml,yaml}": [
-      "prettier --write"
-    ]
   },
   "packageManager": "npm@10.0.0",
   "engines": {

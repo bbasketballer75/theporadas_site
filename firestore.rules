@@ -36,7 +36,7 @@ service cloud.firestore {
       allow read: if true;
       allow create: if isAuthenticated() && isValidFamilyMember();
       allow update: if isAuthenticated() && isValidFamilyMember();
-      allow delete: if isAuthenticated();
+      allow delete: if isAuthenticated() && isOwner(resource.data.ownerId);
     }
 
     // Family Trees Collection
