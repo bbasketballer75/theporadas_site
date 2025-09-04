@@ -9,6 +9,9 @@ import * as Sentry from '@sentry/react';
 // Initialize performance monitoring
 import { initCoreWebVitals } from './utils/performance';
 
+// Initialize PWA Service Worker
+import { registerServiceWorker } from './utils/pwa';
+
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
   integrations: [
@@ -27,6 +30,9 @@ Sentry.init({
 
 // Initialize Core Web Vitals tracking
 initCoreWebVitals();
+
+// Register Service Worker for PWA functionality
+registerServiceWorker();
 
 const rootEl = document.getElementById('root');
 if (!rootEl) throw new Error('Root element #root not found');

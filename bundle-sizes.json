@@ -1,0 +1,91 @@
+{
+  "timestamp": "2025-09-04T00:16:58.594Z",
+  "totalSize": 914258,
+  "totalSizeKB": 892.83,
+  "files": [
+    {
+      "file": "index-DyF7D6dc.js",
+      "pattern": "index-*.js",
+      "size": 613358,
+      "sizeKB": 598.98,
+      "threshold": 500,
+      "exceeded": true,
+      "delta": 98.98
+    },
+    {
+      "file": "react-vendor-DOHx2j1n.js",
+      "pattern": "react-vendor-*.js",
+      "size": 11210,
+      "sizeKB": 10.95,
+      "threshold": 300,
+      "exceeded": false,
+      "delta": -289.05
+    },
+    {
+      "file": "d3-vendor-Cab7XEak.js",
+      "pattern": "d3-vendor-*.js",
+      "size": 54455,
+      "sizeKB": 53.18,
+      "threshold": 200,
+      "exceeded": false,
+      "delta": -146.82
+    },
+    {
+      "file": "firebase-vendor-l0sNRNKZ.js",
+      "pattern": "firebase-vendor-*.js",
+      "size": 1,
+      "sizeKB": 0,
+      "threshold": 250,
+      "exceeded": false,
+      "delta": -250
+    },
+    {
+      "file": "other-vendor-Cyd4LpGB.js",
+      "pattern": "other-vendor-*.js",
+      "size": 1260,
+      "sizeKB": 1.23,
+      "threshold": 150,
+      "exceeded": false,
+      "delta": -148.77
+    },
+    {
+      "file": "Map-DSikf9A3.js",
+      "pattern": "Map-*.js",
+      "size": 168670,
+      "sizeKB": 164.72,
+      "threshold": 200,
+      "exceeded": false,
+      "delta": -35.28
+    },
+    {
+      "file": "FamilyTree-BP5QPxoF.js",
+      "pattern": "FamilyTree-*.js",
+      "size": 6482,
+      "sizeKB": 6.33,
+      "threshold": 100,
+      "exceeded": false,
+      "delta": -93.67
+    },
+    {
+      "file": "index-BiCY72Il.css",
+      "pattern": "*.css",
+      "size": 36974,
+      "sizeKB": 36.11,
+      "threshold": 100,
+      "exceeded": false,
+      "delta": -63.89
+    },
+    {
+      "file": "Map-D06HZyQx.css",
+      "pattern": "*.css",
+      "size": 21848,
+      "sizeKB": 21.34,
+      "threshold": 100,
+      "exceeded": false,
+      "delta": -78.66
+    }
+  ],
+  "exceededCount": 1,
+  "hasWarnings": true,
+  "hasErrors": false
+}

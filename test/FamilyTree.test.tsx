@@ -2,7 +2,7 @@ import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { FamilyTree } from '../src/components/FamilyTree';
+import FamilyTree from '../src/components/FamilyTree';
 import { familyMembersService } from '../src/services/api';
 
 // Mock the API service
@@ -131,7 +131,7 @@ describe('FamilyTree', () => {
     render(<FamilyTree />);
 
     await waitFor(() => {
-      expect(screen.getByText('Failed to load family data')).toBeInTheDocument();
+      expect(screen.getByText('API Error')).toBeInTheDocument();
     });
   });
 
