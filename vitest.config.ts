@@ -15,6 +15,7 @@ export default defineConfig({
     setupFiles: ['./vitest.setup.ts'],
     include: ['test/**/*.{test,spec}.{ts,tsx,js,jsx}'],
     exclude: [...configDefaults.exclude, 'lighthouse/**', 'test/mcp_errors.test.ts'],
+    css: true,
     coverage: light
       ? {
           provider: 'v8',
