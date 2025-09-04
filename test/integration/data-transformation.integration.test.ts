@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setupServer } from 'msw/node';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import {
   familyMembersService,
   familyTreesService,
@@ -47,8 +47,8 @@ describe('Data Transformation and Validation Integration Tests', () => {
       };
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
-          return res(ctx.json(apiResponse));
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.json(apiResponse);
         }),
       );
 
@@ -89,8 +89,8 @@ describe('Data Transformation and Validation Integration Tests', () => {
       };
 
       server.use(
-        rest.get('http://localhost:3001/family-tree', (req, res, ctx) => {
-          return res(ctx.json(apiResponse));
+        http.get('http://localhost:3001/family-tree', () => {
+          return HttpResponse.json(apiResponse);
         }),
       );
 
@@ -117,8 +117,8 @@ describe('Data Transformation and Validation Integration Tests', () => {
       };
 
       server.use(
-        rest.get('http://localhost:3001/guest-messages', (req, res, ctx) => {
-          return res(ctx.json(apiResponse));
+        http.get('http://localhost:3001/guest-messages', () => {
+          return HttpResponse.json(apiResponse);
         }),
       );
 
@@ -149,8 +149,8 @@ describe('Data Transformation and Validation Integration Tests', () => {
       };
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
-          return res(ctx.json(apiResponse));
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.json(apiResponse);
         }),
       );
 
@@ -184,8 +184,8 @@ describe('Data Transformation and Validation Integration Tests', () => {
       };
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
-          return res(ctx.json(apiResponse));
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.json(apiResponse);
         }),
       );
 
@@ -212,8 +212,8 @@ describe('Data Transformation and Validation Integration Tests', () => {
       };
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
-          return res(ctx.json({ members: [invalidMember] }));
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.json({ members: [invalidMember] });
         }),
       );
 
@@ -225,8 +225,8 @@ describe('Data Transformation and Validation Integration Tests', () => {
 
     it('should handle malformed JSON responses', async () => {
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
-          return res(ctx.status(200), ctx.body('invalid json'));
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.text('invalid json', { status: 200 });
         }),
       );
 
@@ -253,8 +253,8 @@ describe('Data Transformation and Validation Integration Tests', () => {
       };
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
-          return res(ctx.json(apiResponse));
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.json(apiResponse);
         }),
       );
 
@@ -271,8 +271,8 @@ describe('Data Transformation and Validation Integration Tests', () => {
       };
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
-          return res(ctx.json(apiResponse));
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.json(apiResponse);
         }),
       );
 
@@ -297,8 +297,8 @@ describe('Data Transformation and Validation Integration Tests', () => {
       };
 
       server.use(
-        rest.get('http://localhost:3001/guest-messages', (req, res, ctx) => {
-          return res(ctx.json(apiResponse));
+        http.get('http://localhost:3001/guest-messages', () => {
+          return HttpResponse.json(apiResponse);
         }),
       );
 
@@ -331,8 +331,8 @@ describe('Data Transformation and Validation Integration Tests', () => {
       };
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
-          return res(ctx.json(apiResponse));
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.json(apiResponse);
         }),
       );
 
@@ -359,8 +359,8 @@ describe('Data Transformation and Validation Integration Tests', () => {
       };
 
       server.use(
-        rest.get('http://localhost:3001/guest-messages', (req, res, ctx) => {
-          return res(ctx.json(apiResponse));
+        http.get('http://localhost:3001/guest-messages', () => {
+          return HttpResponse.json(apiResponse);
         }),
       );
 
@@ -393,8 +393,8 @@ describe('Data Transformation and Validation Integration Tests', () => {
       };
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
-          return res(ctx.json(apiResponse));
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.json(apiResponse);
         }),
       );
 
@@ -426,8 +426,8 @@ describe('Data Transformation and Validation Integration Tests', () => {
       };
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
-          return res(ctx.json(apiResponse));
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.json(apiResponse);
         }),
       );
 
@@ -480,8 +480,8 @@ describe('Data Transformation and Validation Integration Tests', () => {
       };
 
       server.use(
-        rest.get('http://localhost:3001/family-tree', (req, res, ctx) => {
-          return res(ctx.json(apiResponse));
+        http.get('http://localhost:3001/family-tree', () => {
+          return HttpResponse.json(apiResponse);
         }),
       );
 
@@ -517,8 +517,8 @@ describe('Data Transformation and Validation Integration Tests', () => {
       const apiResponse = { members: largeMembers };
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
-          return res(ctx.json(apiResponse));
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.json(apiResponse);
         }),
       );
 
@@ -533,8 +533,8 @@ describe('Data Transformation and Validation Integration Tests', () => {
       const apiResponse = { members: [] };
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
-          return res(ctx.json(apiResponse));
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.json(apiResponse);
         }),
       );
 

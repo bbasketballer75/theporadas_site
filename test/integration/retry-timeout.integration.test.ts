@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setupServer } from 'msw/node';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import {
   familyMembersService,
   guestMessagesService,
@@ -11,7 +11,7 @@ const server = setupServer();
 
 describe('Retry Mechanisms and Timeout Handling Integration Tests', () => {
   beforeEach(() => {
-    vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:3001');
+    vi.stubEnv('VITE_API_BASE_URL', '');
     vi.useFakeTimers();
     server.listen({ onUnhandledRequest: 'error' });
   });
@@ -29,12 +29,12 @@ describe('Retry Mechanisms and Timeout Handling Integration Tests', () => {
       let attemptCount = 0;
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
+        http.post('/family-member', () => {
           attemptCount++;
           if (attemptCount < 3) {
-            return res.networkError('Network error');
+            return HttpResponse.error();
           }
-          return res(ctx.json({ members: [] }));
+          return HttpResponse.json({ members: [] });
         }),
       );
 
@@ -48,9 +48,9 @@ describe('Retry Mechanisms and Timeout Handling Integration Tests', () => {
       let attemptCount = 0;
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
+        http.post('/family-member', () => {
           attemptCount++;
-          return res(ctx.status(400), ctx.json({ error: 'Bad request' }));
+          return HttpResponse.json({ error: 'Bad request' }, { status: 400 });
         }),
       );
 
@@ -62,9 +62,9 @@ describe('Retry Mechanisms and Timeout Handling Integration Tests', () => {
       let attemptCount = 0;
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
+        http.post('/family-member', () => {
           attemptCount++;
-          return res(ctx.status(401), ctx.json({ error: 'Unauthorized' }));
+          return HttpResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }),
       );
 
@@ -76,9 +76,9 @@ describe('Retry Mechanisms and Timeout Handling Integration Tests', () => {
       let attemptCount = 0;
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
+        http.post('/family-member', () => {
           attemptCount++;
-          return res(ctx.status(403), ctx.json({ error: 'Forbidden' }));
+          return HttpResponse.json({ error: 'Forbidden' }, { status: 403 });
         }),
       );
 
@@ -90,12 +90,12 @@ describe('Retry Mechanisms and Timeout Handling Integration Tests', () => {
       let attemptCount = 0;
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
+        http.post('/family-member', () => {
           attemptCount++;
           if (attemptCount < 3) {
-            return res(ctx.status(500), ctx.json({ error: 'Internal server error' }));
+            return HttpResponse.json({ error: 'Internal server error' }, { status: 500 });
           }
-          return res(ctx.json({ members: [] }));
+          return HttpResponse.json({ members: [] });
         }),
       );
 
@@ -109,12 +109,12 @@ describe('Retry Mechanisms and Timeout Handling Integration Tests', () => {
       let attemptCount = 0;
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
+        http.post('/family-member', () => {
           attemptCount++;
           if (attemptCount < 3) {
-            return res(ctx.status(502), ctx.json({ error: 'Bad gateway' }));
+            return HttpResponse.json({ error: 'Bad gateway' }, { status: 502 });
           }
-          return res(ctx.json({ members: [] }));
+          return HttpResponse.json({ members: [] });
         }),
       );
 
@@ -128,12 +128,12 @@ describe('Retry Mechanisms and Timeout Handling Integration Tests', () => {
       let attemptCount = 0;
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
+        http.post('/family-member', () => {
           attemptCount++;
           if (attemptCount < 3) {
-            return res(ctx.status(503), ctx.json({ error: 'Service unavailable' }));
+            return HttpResponse.json({ error: 'Service unavailable' }, { status: 503 });
           }
-          return res(ctx.json({ members: [] }));
+          return HttpResponse.json({ members: [] });
         }),
       );
 
@@ -148,12 +148,12 @@ describe('Retry Mechanisms and Timeout Handling Integration Tests', () => {
       const startTime = Date.now();
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
+        http.post('/family-member', () => {
           attemptCount++;
           if (attemptCount < 3) {
-            return res.networkError('Network error');
+            return HttpResponse.error();
           }
-          return res(ctx.json({ members: [] }));
+          return HttpResponse.json({ members: [] });
         }),
       );
 
@@ -171,19 +171,19 @@ describe('Retry Mechanisms and Timeout Handling Integration Tests', () => {
       const delays: number[] = [];
 
       server.use(
-        rest.post('http://localhost:3001/family-member', async (req, res, ctx) => {
+        http.post('/family-member', async () => {
           attemptCount++;
           const delayStart = Date.now();
 
           if (attemptCount < 4) {
             // Simulate delay before responding with error
             await new Promise(resolve => setTimeout(resolve, 50));
-            return res.networkError('Network error');
+            return HttpResponse.error();
           }
 
           const delayEnd = Date.now();
           delays.push(delayEnd - delayStart);
-          return res(ctx.json({ members: [] }));
+          return HttpResponse.json({ members: [] });
         }),
       );
 
@@ -197,10 +197,10 @@ describe('Retry Mechanisms and Timeout Handling Integration Tests', () => {
   describe('Timeout Handling', () => {
     it('should timeout after 10 seconds', async () => {
       server.use(
-        rest.post('http://localhost:3001/family-member', async (req, res, ctx) => {
+        http.post('/family-member', async () => {
           // Delay longer than the 10-second timeout
           await new Promise(resolve => setTimeout(resolve, 11000));
-          return res(ctx.json({ members: [] }));
+          return HttpResponse.json({ members: [] });
         }),
       );
 
@@ -211,10 +211,10 @@ describe('Retry Mechanisms and Timeout Handling Integration Tests', () => {
       const abortController = new AbortController();
 
       server.use(
-        rest.post('http://localhost:3001/family-member', async (req, res, ctx) => {
+        http.post('/family-member', async () => {
           // Simulate a long-running request
           await new Promise(resolve => setTimeout(resolve, 2000));
-          return res(ctx.json({ members: [] }));
+          return HttpResponse.json({ members: [] });
         }),
       );
 
@@ -231,15 +231,15 @@ describe('Retry Mechanisms and Timeout Handling Integration Tests', () => {
       let attemptCount = 0;
 
       server.use(
-        rest.post('http://localhost:3001/family-member', async (req, res, ctx) => {
+        http.post('/family-member', async () => {
           attemptCount++;
           if (attemptCount < 3) {
             // First two attempts timeout
             await new Promise(resolve => setTimeout(resolve, 11000));
-            return res(ctx.json({ members: [] }));
+            return HttpResponse.json({ members: [] });
           }
           // Third attempt succeeds
-          return res(ctx.json({ members: [] }));
+          return HttpResponse.json({ members: [] });
         }),
       );
 
@@ -255,9 +255,9 @@ describe('Retry Mechanisms and Timeout Handling Integration Tests', () => {
       let failureCount = 0;
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
+        http.post('/family-member', () => {
           failureCount++;
-          return res.networkError('Persistent network error');
+          return HttpResponse.error();
         }),
       );
 
@@ -280,9 +280,9 @@ describe('Retry Mechanisms and Timeout Handling Integration Tests', () => {
       let requestCount = 0;
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
+        http.post('/family-member', () => {
           requestCount++;
-          return res(ctx.json({ members: [] }));
+          return HttpResponse.json({ members: [] });
         }),
       );
 
@@ -296,10 +296,10 @@ describe('Retry Mechanisms and Timeout Handling Integration Tests', () => {
 
     it('should handle connection timeout scenarios', async () => {
       server.use(
-        rest.post('http://localhost:3001/family-member', async (req, res, ctx) => {
+        http.post('/family-member', async () => {
           // Simulate connection establishment delay
           await new Promise(resolve => setTimeout(resolve, 2000));
-          return res(ctx.json({ members: [] }));
+          return HttpResponse.json({ members: [] });
         }),
       );
 
@@ -318,9 +318,9 @@ describe('Retry Mechanisms and Timeout Handling Integration Tests', () => {
       let requestCount = 0;
 
       server.use(
-        rest.post('http://localhost:3001/guest-message', (req, res, ctx) => {
+        http.post('/guest-message', () => {
           requestCount++;
-          return res(ctx.json({ id: `message-${requestCount}` }));
+          return HttpResponse.json({ id: `message-${requestCount}` });
         }),
       );
 
@@ -347,7 +347,7 @@ describe('Retry Mechanisms and Timeout Handling Integration Tests', () => {
       const delays: number[] = [];
 
       server.use(
-        rest.post('http://localhost:3001/family-member', async (req, res, ctx) => {
+        http.post('/family-member', async () => {
           attemptCount++;
           const start = Date.now();
 
@@ -355,10 +355,10 @@ describe('Retry Mechanisms and Timeout Handling Integration Tests', () => {
             await new Promise(resolve => setTimeout(resolve, 100));
             const end = Date.now();
             delays.push(end - start);
-            return res.networkError('Network error');
+            return HttpResponse.error();
           }
 
-          return res(ctx.json({ members: [] }));
+          return HttpResponse.json({ members: [] });
         }),
       );
 
@@ -375,12 +375,12 @@ describe('Retry Mechanisms and Timeout Handling Integration Tests', () => {
       let attemptCount = 0;
 
       server.use(
-        rest.post('http://localhost:3001/family-member', (req, res, ctx) => {
+        http.post('/family-member', () => {
           attemptCount++;
           if (attemptCount < 10) { // More attempts than usual
-            return res.networkError('Network error');
+            return HttpResponse.error();
           }
-          return res(ctx.json({ members: [] }));
+          return HttpResponse.json({ members: [] });
         }),
       );
 

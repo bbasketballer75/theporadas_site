@@ -84,11 +84,15 @@ export interface GuestMessage {
  */
 async function apiRequest<T>(endpoint: string, options: RequestInit = {}, retries: number = 3): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
-  console.log('[KILO CODE DEBUG] API Request:', { endpoint, url, method: options.method || 'GET', retries });
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[KILO CODE DEBUG] API Request:', { endpoint, url, method: options.method || 'GET', retries });
+  }
 
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      console.log(`[KILO CODE DEBUG] Attempt ${attempt}/${retries} for ${endpoint}`);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[KILO CODE DEBUG] Attempt ${attempt}/${retries} for ${endpoint}`);
+      }
 
       // Create timeout promise
       const timeoutPromise = new Promise<never>((_, reject) => {
@@ -108,23 +112,29 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}, retrie
       // Race between fetch and timeout
       const response = await Promise.race([fetchPromise, timeoutPromise]);
 
-      console.log('[KILO CODE DEBUG] API Response:', {
-        endpoint,
-        ok: response.ok,
-        status: response.status,
-        statusText: response.statusText,
-        attempt
-      });
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[KILO CODE DEBUG] API Response:', {
+          endpoint,
+          ok: response.ok,
+          status: response.status,
+          statusText: response.statusText,
+          attempt
+        });
+      }
 
       if (!response.ok) {
         throw createHttpError(response, endpoint);
       }
 
       const result = await response.json();
-      console.log('[KILO CODE DEBUG] API Success:', { endpoint, result });
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[KILO CODE DEBUG] API Success:', { endpoint, result });
+      }
       return result;
     } catch (error) {
-      console.error(`[KILO CODE DEBUG] API Error on attempt ${attempt}:`, { endpoint, error });
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`[KILO CODE DEBUG] API Error on attempt ${attempt}:`, { endpoint, error });
+      }
 
       // Handle AbortError separately
       if (error instanceof Error && error.name === 'AbortError') {
@@ -136,12 +146,19 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}, retrie
         throw new Error('Request timed out after 10 seconds');
       }
 
+      // Do not retry on 4xx client errors, but retry on 5xx server errors
+      if (error instanceof Error && error.message.includes('Request failed')) {
+        throw error;
+      }
+
       if (attempt === retries) {
         throw normalizeError(error);
       }
 
       const delay = calculateRetryDelay(attempt);
-      console.log(`[KILO CODE DEBUG] Retrying ${endpoint} in ${delay}ms`);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[KILO CODE DEBUG] Retrying ${endpoint} in ${delay}ms`);
+      }
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }

@@ -16,6 +16,7 @@ import './designSystem.css';
 import { useHashNavigation } from './hooks/useHashNavigation';
 import { useRoutePerformance } from './hooks/usePerformanceMonitor';
 import { listVideos } from './video/registry';
+import { getInstallStatus } from './utils/pwa';
 
 import * as Sentry from '@sentry/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
