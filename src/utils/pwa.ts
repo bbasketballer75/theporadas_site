@@ -24,7 +24,7 @@ let installPromptShown = false;
  * Register the service worker
  */
 export async function registerServiceWorker(): Promise<void> {
-  if ('serviceWorker' in navigator) {
+  if ('serviceWorker' in navigator && typeof navigator.serviceWorker !== 'undefined') {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js', {
         scope: '/',
@@ -54,7 +54,9 @@ export async function registerServiceWorker(): Promise<void> {
       console.error('[PWA] Service Worker registration failed:', error);
     }
   } else {
-    console.warn('[PWA] Service Workers not supported');
+    if (import.meta.env.DEV) {
+      console.warn('[PWA] Service Workers not supported in this environment');
+    }
   }
 }
 

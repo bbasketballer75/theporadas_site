@@ -75,7 +75,7 @@ export function GalleryGrid({
                     type="button"
                     className="gallery-item"
                     onClick={measureClick(`gallery-item-${it.id}`, (e) => {
-                      onOpenerRef(e.currentTarget as HTMLButtonElement);
+                      onOpenerRef(e.currentTarget);
                       setActive(it);
                     })}
                     aria-label={it.caption ? `${it.caption}` : 'Image'}
