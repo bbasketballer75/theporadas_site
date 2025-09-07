@@ -23,9 +23,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { Suspense } from 'react';
 
 // Lazy load heavy components
-const LazyFamilyTree = React.lazy(() =>
-  import('./components/FamilyTree'),
-);
+const LazyFamilyTree = React.lazy(() => import('./components/FamilyTree'));
 const LazyMap = React.lazy(() => import('./components/Map'));
 
 // Loading fallback component
