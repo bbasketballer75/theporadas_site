@@ -126,6 +126,13 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}, retrie
         throw createHttpError(response, endpoint);
       }
 
+      // Check if response is JSON before parsing
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const textResponse = await response.text();
+        throw new Error(`Expected JSON response but received: ${contentType || 'unknown content type'}. Response: ${textResponse.substring(0, 200)}`);
+      }
+
       const result = await response.json();
       if (process.env.NODE_ENV === 'development') {
         console.log('[KILO CODE DEBUG] API Success:', { endpoint, result });
