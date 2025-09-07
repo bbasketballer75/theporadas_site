@@ -81,7 +81,7 @@ function useFocusTrap(
       };
       document.addEventListener('keydown', handleKey, true);
       return () => document.removeEventListener('keydown', handleKey, true);
-    } else if (openerRef.current) {
+    } else if (openerRef && openerRef.current) {
       openerRef.current.focus();
     }
   }, [active, modalRef, openerRef]);
