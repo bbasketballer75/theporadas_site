@@ -24,7 +24,7 @@ import React, { Suspense } from 'react';
 
 // Lazy load heavy components
 const LazyFamilyTree = React.lazy(() =>
-  import('./components/FamilyTree').then((module) => ({ default: module.FamilyTree })),
+  import('./components/FamilyTree'),
 );
 const LazyMap = React.lazy(() => import('./components/Map'));
 

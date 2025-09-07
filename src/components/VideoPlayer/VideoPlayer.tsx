@@ -287,6 +287,10 @@ export function VideoPlayer(props: VideoPlayerProps) {
   // Select best video source based on browser codec support
   const selectBestSource = useCallback((sources: VideoSource[]): VideoSource | null => {
     if (!sources || sources.length === 0) return null;
+    
+    // Filter out sources with empty or invalid src
+    const validSources = sources.filter(source => source.src && source.src.trim() !== '');
+    if (validSources.length === 0) return null;
 
     // Firefox prefers WebM, Safari prefers MP4 with H.264, Chrome supports both
     const preferredOrder = browserInfo.name === 'firefox'
@@ -296,7 +300,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
       : ['video/mp4', 'video/webm'];
 
     for (const mimeType of preferredOrder) {
-      const source = sources.find(s => s.type === mimeType);
+      const source = validSources.find(s => s.type === mimeType);
       if (source) {
         // Additional codec check for MP4
         if (mimeType === 'video/mp4' && !browserInfo.supportsVideoCodecs.h264) {
@@ -311,7 +315,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
     }
 
     // Fallback to first available source
-    return sources[0];
+    return validSources[0];
   }, [browserInfo]);
 
   // Get the best source for rendering
