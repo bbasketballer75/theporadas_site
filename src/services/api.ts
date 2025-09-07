@@ -4,7 +4,7 @@
  * with built-in error handling, retries, and timeout management.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://wedding-functions-956393407443.us-central1.run.app';
 
 /**
  * Represents a family member in the family tree
@@ -129,8 +129,13 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}, retrie
       // Check if response is JSON before parsing
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
-        const textResponse = await response.text();
-        throw new Error(`Expected JSON response but received: ${contentType || 'unknown content type'}. Response: ${textResponse.substring(0, 200)}`);
+        // If we get HTML, it's likely a 404 or routing issue
+        if (contentType && contentType.includes('text/html')) {
+          throw new Error(`API endpoint not found. Check that the backend service is running and the URL is correct.`);
+        } else {
+          const textResponse = await response.text();
+          throw new Error(`Expected JSON response but received: ${contentType || 'unknown content type'}. Response: ${textResponse.substring(0, 200)}`);
+        }
       }
 
       const result = await response.json();

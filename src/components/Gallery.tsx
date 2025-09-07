@@ -46,7 +46,7 @@ function groupItemsByCategory(items: InternalItem[]) {
 function useFocusTrap(
   active: InternalItem | null,
   modalRef: React.RefObject<HTMLDialogElement | null>,
-  openerRef: React.RefObject<HTMLButtonElement | null>,
+  openerRef: React.RefObject<HTMLButtonElement | null> | null,
 ) {
   useEffect(() => {
     if (active) {
@@ -81,7 +81,7 @@ function useFocusTrap(
       };
       document.addEventListener('keydown', handleKey, true);
       return () => document.removeEventListener('keydown', handleKey, true);
-    } else if (openerRef && openerRef.current) {
+    } else if (openerRef?.current) {
       openerRef.current.focus();
     }
   }, [active, modalRef, openerRef]);
@@ -130,7 +130,7 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [loadedIds, setLoadedIds] = useState<Set<string>>(new Set());
   const [captions, setCaptions] = useState<{ [key: string]: string }>({});
-  const [openerRef, setOpenerRef] = useState<HTMLButtonElement | null>(null);
+  const openerRef = useRef<HTMLButtonElement | null>(null);
   const modalRef = useRef<HTMLDialogElement | null>(null);
 
   // Custom hooks
@@ -185,7 +185,9 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
         handleImageError={handleImageError}
         measureClick={measureClick}
         setActive={setActive}
-        onOpenerRef={setOpenerRef}
+        onOpenerRef={(ref: HTMLButtonElement) => {
+          openerRef.current = ref;
+        }}
       />
       <div className="gallery-upload">
         <ImageUpload

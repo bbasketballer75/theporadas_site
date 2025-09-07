@@ -288,8 +288,13 @@ export function VideoPlayer(props: VideoPlayerProps) {
   const selectBestSource = useCallback((sources: VideoSource[]): VideoSource | null => {
     if (!sources || sources.length === 0) return null;
     
-    // Filter out sources with empty or invalid src
-    const validSources = sources.filter(source => source.src && source.src.trim() !== '');
+    // Filter out sources with empty, null, or invalid src
+    const validSources = sources.filter(source => 
+      source && 
+      source.src && 
+      typeof source.src === 'string' && 
+      source.src.trim() !== ''
+    );
     if (validSources.length === 0) return null;
 
     // Firefox prefers WebM, Safari prefers MP4 with H.264, Chrome supports both
@@ -481,10 +486,10 @@ export function VideoPlayer(props: VideoPlayerProps) {
             preload={browserInfo.name === 'safari' ? 'metadata' : 'auto'}
             crossOrigin={browserInfo.name === 'firefox' ? 'anonymous' : undefined}
           >
-            {bestSource ? (
+            {bestSource && bestSource.src ? (
               <source src={bestSource.src} type={bestSource.type} />
             ) : (
-              resolvedSources?.map((source, index) => (
+              resolvedSources?.filter(source => source.src && source.src.trim() !== '').map((source, index) => (
                 <source key={index} src={source.src} type={source.type} />
               ))
             )}
