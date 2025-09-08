@@ -46,20 +46,15 @@ jobs:
           git rev-list --objects --all | grep -F -f baseline_shas.txt > largest_blob_paths.txt || true
           echo "Top mapped entries:" && head -20 largest_blob_paths.txt || true
 
-      - name: Target list (pre)
+      - name: Extract target list (pre)
         run: |
-          printf "%s\n" \
-            30200ab4e2da2bbc2bcb44f51cc4447f7056fae8 \
-            bf52f84b4f2af2b9234134ee132c3aadbcd80e5f \
-            6624a873c4920cfa1292299928f45334fd37b0c9 \
-            3468993b47ee0ff0c7bc511ab07185ef28288f9e \
-            2ebc57c388733ccc76a78884f146563f06cfa9c1 \
-            a57d0977d6389efb225783cdd6cf042e31ea3160 \
-            25deff980b97d1bd3ff06b19e4e2eed51dd4c64c \
-            a3c16f6c270d9780ac8cd88085f0a351e8cbf674 > target_blobs.txt
+          # Parse TARGET SHAs from the rewrite script to avoid drift between presence checks and actual rewrite.
+          grep -oE 'b"[0-9a-f]{40}"' scripts/large_blob_rewrite.py | sed -E 's/b"([0-9a-f]{40})"/\1/' | sort -u > target_blobs.txt
+          echo "Parsed $(wc -l < target_blobs.txt) target blob SHAs from script:" && cat target_blobs.txt
           while read sha; do
             if git cat-file -t "$sha" >/dev/null 2>&1; then echo "$sha PRESENT"; else echo "$sha MISSING"; fi;
           done < target_blobs.txt > target_presence_pre.txt
+          echo 'Target presence (pre):'
           cat target_presence_pre.txt
 
       - name: Install git-filter-repo
@@ -71,8 +66,18 @@ jobs:
       - name: Destructive rewrite
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true' && github.event.inputs.confirm == 'YES' }}
         run: |
-          echo 'Performing destructive rewrite'
-          python scripts/large_blob_rewrite.py
+          echo 'Preparing destructive rewrite via git filter-repo CLI'
+          # Filter to blobs that are actually present (avoid no-op noise)
+          awk '{ if ($2=="PRESENT") print $1 }' target_presence_pre.txt > present_target_blobs.txt
+          count=$(wc -l < present_target_blobs.txt | tr -d ' ')
+          if [ "$count" -eq 0 ]; then
+            echo 'No target blobs currently present; skipping rewrite.'
+            echo 'SKIPPED' > rewrite_skipped.txt
+            exit 0
+          fi
+          echo "Rewriting to strip $count present target blobs";
+          cat present_target_blobs.txt
+          git filter-repo --force --strip-blobs-with-ids present_target_blobs.txt
 
       - name: Aggressive GC
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true' && github.event.inputs.confirm == 'YES' }}
@@ -99,19 +104,23 @@ jobs:
       - name: Diff report
         run: |
           awk '{print $1":"$2}' baseline_largest_blobs.txt | sort > baseline.tmp
-          awk '{print $1":"$2}' rewrite_largest_blobs.txt | sort > post.tmp
-          comm -23 baseline.tmp post.tmp > removed_blobs.txt || true
-          {
-            echo 'Removed (or shrunk) blobs (may include unreachable yet):';
-            cat removed_blobs.txt;
-            echo 'Top 20 after rewrite:';
-            cat rewrite_largest_blobs.txt;
-            echo 'Target blob presence pre:';
-            cat target_presence_pre.txt;
-            echo 'Target blob presence post:';
-            cat target_presence_post.txt;
-          } > diff_report.txt
-          tail -25 diff_report.txt
+            awk '{print $1":"$2}' rewrite_largest_blobs.txt | sort > post.tmp
+            comm -23 baseline.tmp post.tmp > removed_blobs.txt || true
+            {
+              if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+                echo 'DRY RUN: No destructive rewrite executed. "Removed" list below is a set difference between baseline top-50 and post-run top-20 and does NOT indicate actual deletion.';
+              else
+                echo 'Removed (or shrunk) blobs (may include unreachable yet):';
+              fi
+              cat removed_blobs.txt;
+              echo 'Top 20 after (post enumeration):';
+              cat rewrite_largest_blobs.txt;
+              echo 'Target blob presence pre:';
+              cat target_presence_pre.txt;
+              echo 'Target blob presence post:';
+              cat target_presence_post.txt;
+            } > diff_report.txt
+            tail -40 diff_report.txt
 
       - name: Upload diagnostics
         uses: actions/upload-artifact@v4
@@ -125,6 +134,8 @@ jobs:
             target_presence_post.txt
             pre_rewrite_head.txt
             largest_blob_paths.txt
+            present_target_blobs.txt
+            rewrite_skipped.txt
 
       - name: Force push rewritten history
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true' && github.event.inputs.confirm == 'YES' && github.ref == 'refs/heads/main' }}
