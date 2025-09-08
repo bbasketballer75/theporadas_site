@@ -1,6 +1,6 @@
 name: History Rewrite (Large Blobs)
 
-on:
+on:\n  push:\n    branches: [ main ]
   workflow_dispatch:
     inputs:
       confirm:
