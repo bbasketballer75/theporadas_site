@@ -26,6 +26,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Capture remote URL (pre-rewrite)
+        run: |
+          git config --get remote.origin.url > remote_url.txt || echo '' > remote_url.txt
+          echo "Captured remote URL: $(cat remote_url.txt)"
+
       - name: Pre size + head
         run: |
           git count-objects -vH || true
@@ -136,12 +141,27 @@ jobs:
             largest_blob_paths.txt
             present_target_blobs.txt
             rewrite_skipped.txt
+            remote_url.txt
 
       - name: Force push rewritten history
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true' && github.event.inputs.confirm == 'YES' && github.ref == 'refs/heads/main' }}
         run: |
-          git push --force --all
-          git push --force --tags
+          REMOTE_URL="$(cat remote_url.txt 2>/dev/null || true)"
+          if [ -z "$REMOTE_URL" ]; then
+            REMOTE_URL="$(git config --get remote.origin.url || true)"
+          fi
+          if [ -z "$REMOTE_URL" ]; then
+            echo 'ERROR: Remote URL not found; aborting push for safety.'
+            exit 1
+          fi
+          if ! git remote | grep -q '^origin$'; then
+            echo "Re-adding origin remote $REMOTE_URL"
+            git remote add origin "$REMOTE_URL"
+          fi
+          echo "Force pushing rewritten history to origin/main"
+          git push --force origin HEAD:main
+          echo "Force pushing tags"
+          git push --force origin --tags
 
       - name: Summary
         run: |
