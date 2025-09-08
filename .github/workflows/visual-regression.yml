@@ -31,9 +31,25 @@ jobs:
       - name: Build site
         run: npm run build
       - name: Start preview
-        run: npm run preview &
+        run: |
+          echo 'Starting Vite preview on port 5173...'
+          npm run preview > preview.log 2>&1 &
+          echo $! > preview.pid
+          sleep 2
+          echo 'Preview process started with PID:' $(cat preview.pid)
       - name: Wait for server
-        run: npx wait-on http://localhost:5173
+        run: |
+          npx wait-on --timeout=180000 --interval=500 http://localhost:5173 || (echo 'Initial wait-on failed; printing preview.log' && sed -n '1,200p' preview.log && exit 1)
+          echo 'Server responded. Fetching status:'
+          curl -I http://localhost:5173 || true
+          echo 'First 100 lines of preview.log:'
+          sed -n '1,100p' preview.log || true
+      - name: Upload preview log (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-log
+          path: preview.log
       - name: Download baseline snapshots (from main)
         if: github.event_name == 'pull_request'
         run: |
