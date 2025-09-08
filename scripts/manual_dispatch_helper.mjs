@@ -6,7 +6,7 @@ import { appendFileSync } from 'node:fs';
 
 const ts = new Date().toISOString();
 appendFileSync(
-	'quality-history.jsonl',
-	JSON.stringify({ ts, manual: true, note: 'manual dispatch helper' }) + '\n',
+  'quality-history.jsonl',
+  JSON.stringify({ ts, manual: true, note: 'manual dispatch helper' }) + '\n',
 );
 console.log('[manual-dispatch] Appended manual placeholder entry at', ts);
