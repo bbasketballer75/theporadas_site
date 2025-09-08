@@ -1178,4 +1178,19 @@ Reference: See `SECURITY_NOTES.md` for current posture, compensating controls, a
 
 See `LICENSE` (Apache-2.0 for vendored Lighthouse; site code retains existing license choice).
 
+### Quality History Tracking
+
+Automated `quality-history` workflow appends summary JSON lines to `quality-history.jsonl` containing:
+
+- Commit (short), branch, timestamp
+- Coverage aggregates (lines/statements/functions/branches %) if coverage summary present
+- Lighthouse performance score (0–100) if a report JSON is found
+
+Scripts:
+
+- `scripts/append_quality_history.mjs` – extracts metrics from multiple candidate artifact paths
+- `scripts/analyze_quality_history.mjs` – generates human-readable delta summary (saved to `artifacts/quality-analysis-latest.txt`)
+
+Update candidate paths in `append_quality_history.mjs` if artifact locations change.
+
 <!-- env-dump-diagnostic-marker:1 -->
