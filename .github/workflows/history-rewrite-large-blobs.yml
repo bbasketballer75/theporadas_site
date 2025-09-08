@@ -1,0 +1,141 @@
+name: History Rewrite (Large Blobs)
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type YES to allow force-push'
+        required: true
+        default: 'NO'
+      dry_run:
+        description: 'If true, only report (no rewrite)'
+        required: true
+        default: 'true'
+      size_threshold_mb:
+        description: 'Minimum blob size (MB) to purge'
+        required: true
+        default: '100'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: history-rewrite
+  cancel-in-progress: false
+
+jobs:
+  rewrite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Show initial repo size stats
+        run: |
+          git count-objects -v > before_size.txt
+          cat before_size.txt
+
+      - name: Enumerate large blobs
+        id: find
+        env:
+          THRESHOLD_BYTES: ${{ inputs.size_threshold_mb }}000000
+        run: |
+          echo "Scanning for blobs >= ${THRESHOLD_BYTES} bytes";
+          git rev-list --objects --all > all_objects.txt
+          > large_blobs.txt
+          > large_blob_shas.txt
+          while read sha path; do
+            [ -z "$sha" ] && continue
+            size=$(git cat-file -s "$sha" 2>/dev/null || echo 0)
+            if [ "$size" -ge "$THRESHOLD_BYTES" ]; then
+              echo "$size $sha $path" | tee -a large_blobs.txt
+              echo "$sha" >> large_blob_shas.txt
+            fi
+          done < <(git rev-list --objects --all)
+          sort -nr large_blobs.txt | head -50 | tee top50_large_blobs.txt || true
+          count=$(wc -l < large_blob_shas.txt | tr -d ' ')
+          echo "found_count=$count" >> $GITHUB_OUTPUT
+          if [ "$count" -eq 0 ]; then
+            echo "No blobs exceed threshold.";
+          fi
+
+      - name: Abort early if none & dry-run
+        if: steps.find.outputs.found_count == '0'
+        run: echo "No large blobs detected; nothing to do.";
+
+      - name: Install git-filter-repo
+        if: steps.find.outputs.found_count != '0' && inputs.dry_run == 'false'
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install git-filter-repo
+
+      - name: Rewrite history (purge large blobs)
+        if: steps.find.outputs.found_count != '0' && inputs.dry_run == 'false'
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          if [ "$CONFIRM" != "YES" ]; then
+            echo "CONFIRM not YES. Refusing to rewrite."; exit 1; fi
+          echo "Starting filter-repo purge for $(wc -l < large_blob_shas.txt) blobs";
+          python3 - <<'PY'
+import sys
+try:
+    import git_filter_repo as gfr
+except ImportError:
+    print('git-filter-repo not installed', file=sys.stderr)
+    sys.exit(2)
+with open('large_blob_shas.txt','r') as f:
+    targets={l.strip() for l in f if l.strip()}
+print(f'Purging {len(targets)} blobs')
+
+def blob_cb(blob, metadata):
+    if blob.oid in targets:
+        blob.data=b''
+
+gfr.FilterRepo(blob_callback=blob_cb).run()
+PY
+          echo "Rewrite complete";
+          git count-objects -v > after_size.txt
+
+      - name: Summarize differences
+        if: steps.find.outputs.found_count != '0'
+        run: |
+          if [ -f after_size.txt ]; then
+            echo "Repo size BEFORE:"; cat before_size.txt
+            echo "Repo size AFTER:"; cat after_size.txt
+          else
+            echo "(Dry run) Repo size BEFORE:"; cat before_size.txt
+          fi
+
+      - name: Prepare artifact bundle
+        run: |
+          mkdir artifacts
+          cp -f before_size.txt artifacts/ 2>/dev/null || true
+          [ -f after_size.txt ] && cp -f after_size.txt artifacts/ || true
+          cp -f large_blobs.txt artifacts/ 2>/dev/null || true
+          cp -f large_blob_shas.txt artifacts/ 2>/dev/null || true
+          cp -f top50_large_blobs.txt artifacts/ 2>/dev/null || true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: history-rewrite-diagnostics
+          path: artifacts
+          retention-days: 14
+
+      - name: Force push rewritten history
+        if: inputs.dry_run == 'false' && inputs.confirm == 'YES' && steps.find.outputs.found_count != '0'
+        run: |
+          current_branch=$(git symbolic-ref --short HEAD)
+          echo "Current branch: $current_branch"
+          if [ "$current_branch" != "main" ]; then
+            echo "Not on main; refusing to force push"; exit 1; fi
+          git remote -v
+          git push origin --force --tags
+
+      - name: Post-run note
+        run: |
+          echo "Done. Review artifacts for details.";
