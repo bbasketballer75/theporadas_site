@@ -46,6 +46,11 @@ jobs:
         run: node scripts/analyze_quality_history.mjs > artifacts/quality-analysis-latest.txt
       - name: Regression check (Lighthouse)
         run: npm run quality:regression-check || echo 'Regression check failed or skipped'
+      - name: Regression gating
+        run: npm run quality:regression-check
+        env:
+          MAX_COVERAGE_DROP: '0.5'
+          MAX_PERF_DROP: '3'
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
