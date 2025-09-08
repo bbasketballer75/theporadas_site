@@ -1,0 +1,40 @@
+name: Blob Size Guard
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Scan added blobs
+        env:
+          MAX_BLOB_BYTES: ${{ vars.MAX_BLOB_BYTES || 50000000 }}
+        run: |
+          echo "Threshold: $MAX_BLOB_BYTES bytes";
+          base_ref=${{ github.event.pull_request.base.sha || 'HEAD~1' }}
+          git rev-list --objects --all > all.txt
+          mapfile -t new_objs < <(git rev-list --objects $base_ref..HEAD)
+          viol=0
+          for line in "${new_objs[@]}"; do
+            sha=$(echo "$line" | cut -d' ' -f1)
+            [ -z "$sha" ] && continue
+            size=$(git cat-file -s "$sha" 2>/dev/null || echo 0)
+            if [ "$size" -ge "$MAX_BLOB_BYTES" ]; then
+              path=$(echo "$line" | cut -d' ' -f2-)
+              echo "ERROR: blob $sha size $size path $path exceeds threshold";
+              viol=1
+            fi
+          done
+          if [ "$viol" -ne 0 ]; then
+            echo "Blob size violations detected."; exit 1; fi
+          echo "OK: No violations.";
