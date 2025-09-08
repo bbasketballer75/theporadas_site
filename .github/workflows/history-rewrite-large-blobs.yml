@@ -7,13 +7,13 @@ on:
   workflow_dispatch:
     inputs:
       confirm:
-        description: "Type YES to confirm destructive history rewrite (only for non-dry run)"
+        description: 'Type YES to confirm destructive history rewrite (only for non-dry run)'
         required: false
-        default: ""
+        default: ''
       dry_run:
-        description: "true = diagnostics only; false = allow rewrite (with confirm)"
+        description: 'true = diagnostics only; false = allow rewrite (with confirm)'
         required: false
-        default: "true"
+        default: 'true'
 
 jobs:
   rewrite:
@@ -38,6 +38,14 @@ jobs:
           done | sort -k2 -n | tail -50 > baseline_largest_blobs.txt
           tail -10 baseline_largest_blobs.txt
 
+      - name: Map largest blobs to paths
+        run: |
+          # Extract just the SHA column and map to paths (may list multiple paths if reused)
+          awk '{print $1}' baseline_largest_blobs.txt > baseline_shas.txt
+          # Use rev-list to map SHAs to paths; suppress errors for missing (should not happen here)
+          git rev-list --objects --all | grep -F -f baseline_shas.txt > largest_blob_paths.txt || true
+          echo "Top mapped entries:" && head -20 largest_blob_paths.txt || true
+
       - name: Target list (pre)
         run: |
           printf "%s\n" \
@@ -56,8 +64,9 @@ jobs:
 
       - name: Install git-filter-repo
         run: |
-          pipx install git-filter-repo || pip install --user git-filter-repo
-          python -c "import git_filter_repo; print('git-filter-repo available')"
+          python -m pip install --upgrade pip
+          python -m pip install git-filter-repo
+          python -c "import git_filter_repo, sys; print('git-filter-repo available; version:', getattr(git_filter_repo, '__version__', 'unknown')); print('Python info:', sys.version)"
 
       - name: Destructive rewrite
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true' && github.event.inputs.confirm == 'YES' }}
@@ -115,6 +124,7 @@ jobs:
             target_presence_pre.txt
             target_presence_post.txt
             pre_rewrite_head.txt
+            largest_blob_paths.txt
 
       - name: Force push rewritten history
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true' && github.event.inputs.confirm == 'YES' && github.ref == 'refs/heads/main' }}
