@@ -6,13 +6,27 @@ on:
   schedule:
     - cron: '0 5 * * *'
   workflow_dispatch:
+    inputs:
+      light:
+        description: 'Skip Lighthouse & gating (quick run)'
+        required: false
+        default: 'false'
+      skipLighthouse:
+        description: 'Skip only Lighthouse steps'
+        required: false
+        default: 'false'
 
 permissions:
   contents: write
 
+concurrency:
+  group: quality-history-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   quality:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -26,12 +40,18 @@ jobs:
       - name: Run tests with coverage
         run: npm test -- --coverage
       - name: Run Lighthouse (LHCI)
+        if: ${{ inputs.light != 'true' && inputs.skipLighthouse != 'true' }}
         run: npm run lighthouse:snapshot || echo 'Lighthouse snapshot failed (non-blocking)'
       - name: Lighthouse diff (optional)
+        if: ${{ inputs.light != 'true' && inputs.skipLighthouse != 'true' }}
         run: npm run lighthouse:diff || echo 'Lighthouse diff skipped'
       - name: Export Tavily key (if set)
-        if: secrets.TAVILY_API_KEY != ''
-        run: echo "TAVILY_API_KEY=${{ secrets.TAVILY_API_KEY }}" >> $GITHUB_ENV
+        run: |
+          if [ -n "${{ secrets.TAVILY_API_KEY }}" ]; then
+            echo "TAVILY_API_KEY=${{ secrets.TAVILY_API_KEY }}" >> $GITHUB_ENV
+          else
+            echo 'No Tavily key present.'
+          fi
       - name: Append quality history
         run: node scripts/append_quality_history.mjs
       - name: Show last history entry
@@ -47,10 +67,15 @@ jobs:
       - name: Regression check (Lighthouse)
         run: npm run quality:regression-check || echo 'Regression check failed or skipped'
       - name: Regression gating
+        if: ${{ inputs.light != 'true' }}
         run: npm run quality:regression-check
         env:
           MAX_COVERAGE_DROP: '0.5'
           MAX_PERF_DROP: '3'
+      - name: Lightweight mode notice
+        if: ${{ inputs.light == 'true' }}
+        run: |
+          echo "Lightweight mode enabled: skipped Lighthouse & regression gating."
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
