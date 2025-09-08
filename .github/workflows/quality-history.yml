@@ -34,6 +34,14 @@ jobs:
         run: echo "TAVILY_API_KEY=${{ secrets.TAVILY_API_KEY }}" >> $GITHUB_ENV
       - name: Append quality history
         run: node scripts/append_quality_history.mjs
+      - name: Show last history entry
+        run: |
+          if [ -f quality-history.jsonl ]; then
+            echo 'Last history entry:'
+            tail -n 1 quality-history.jsonl || true
+          else
+            echo 'No quality-history.jsonl present yet.'
+          fi
       - name: Analyze quality history
         run: node scripts/analyze_quality_history.mjs > artifacts/quality-analysis-latest.txt
       - name: Regression check (Lighthouse)
