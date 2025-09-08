@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execSync } from 'node:child_process';
-import { readFileSync, appendFileSync, existsSync, mkdirSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
 function safeReadJSON(p) {
