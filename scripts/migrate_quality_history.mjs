@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { appendFileSync, existsSync, readFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync, rmSync } from 'node:fs';
 
 const legacyPath = 'artifacts/quality-history.jsonl';
 const targetPath = 'quality-history.jsonl';
@@ -45,3 +45,11 @@ for (const line of readFileSync(legacyPath, 'utf8').split(/\r?\n/).filter(Boolea
   }
 }
 console.log(`[migrate-quality] Migrated ${migrated} legacy records -> ${targetPath}`);
+if (migrated > 0) {
+  try {
+    rmSync(legacyPath);
+    console.log('[migrate-quality] Removed legacy file', legacyPath);
+  } catch (e) {
+    console.warn('[migrate-quality] Failed to remove legacy file:', e.message);
+  }
+}
