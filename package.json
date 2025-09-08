@@ -58,7 +58,9 @@
     "sync:scheduled": "node scripts/scheduled-sync.mjs",
     "sync:auto:dry": "DRY_RUN=true node scripts/auto-sync.mjs",
     "sync:scheduled:hourly": "SYNC_INTERVAL_MINUTES=60 node scripts/scheduled-sync.mjs",
-    "sync:scheduled:daily": "SYNC_INTERVAL_MINUTES=1440 node scripts/scheduled-sync.mjs"
+    "sync:scheduled:daily": "SYNC_INTERVAL_MINUTES=1440 node scripts/scheduled-sync.mjs",
+    "quality:regression-check": "node scripts/quality_regression_gate.mjs",
+    "quality:manual-dispatch": "node scripts/manual_dispatch_helper.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
