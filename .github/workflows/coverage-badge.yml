@@ -77,7 +77,7 @@ jobs:
           restore-keys: |
             vitest-${{ runner.os }}-aggregate-
       - name: Download coverage artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: coverage-artifacts
       - name: Arrange coverage summaries
