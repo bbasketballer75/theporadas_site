@@ -1,20 +1,6 @@
 #!/usr/bin/env sh
-
-# Get current branch
-branch=$(git branch --show-current)
-
-# Get remote
-remote=$(git remote | head -1)
-
-if [ -z "$remote" ]; then
-  echo "No remote configured"
-  exit 0
-fi
-
-# Check if there are commits to push
-if git log --oneline ${remote}/${branch}..HEAD 2>/dev/null | grep -q .; then
-  echo "Pushing changes to ${remote}/${branch}..."
-  git push ${remote} ${branch}
-else
-  echo "No changes to push"
-fi
+# Husky pre-push hook
+# Previous version attempted to invoke a nested 'git push' causing recursive
+# executions and failures. This hook is intentionally a no-op placeholder.
+# Add lightweight validations here (lint, tests) if desired, but avoid any push.
+exit 0
