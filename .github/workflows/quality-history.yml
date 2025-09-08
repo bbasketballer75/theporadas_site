@@ -32,6 +32,14 @@ jobs:
       - name: Export Tavily key (if set)
         if: secrets.TAVILY_API_KEY != ''
         run: echo "TAVILY_API_KEY=${{ secrets.TAVILY_API_KEY }}" >> $GITHUB_ENV
+      - name: Migrate legacy quality history (one-time)
+        run: |
+          if [ ! -f quality-history.jsonl ] && [ -f artifacts/quality-history.jsonl ]; then
+            echo 'Running one-time migration of legacy quality history...'
+            node scripts/migrate_quality_history.mjs || echo 'Migration script failed'
+          else
+            echo 'Migration not needed (either already migrated or no legacy file).'
+          fi
       - name: Append quality history
         run: node scripts/append_quality_history.mjs
       - name: Analyze quality history

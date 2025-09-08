@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync, appendFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync } from 'node:fs';
 
 const legacyPath = 'artifacts/quality-history.jsonl';
 const targetPath = 'quality-history.jsonl';
