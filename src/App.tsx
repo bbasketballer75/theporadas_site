@@ -1,3 +1,7 @@
+import * as Sentry from '@sentry/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React, { Suspense } from 'react';
+
 import { BackgroundAudio } from './components/BackgroundAudio';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Gallery } from './components/Gallery';
@@ -16,11 +20,6 @@ import './designSystem.css';
 import { useHashNavigation } from './hooks/useHashNavigation';
 import { useRoutePerformance } from './hooks/usePerformanceMonitor';
 import { listVideos } from './video/registry';
-import { getInstallStatus } from './utils/pwa';
-
-import * as Sentry from '@sentry/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React, { Suspense } from 'react';
 
 // Lazy load heavy components
 const LazyFamilyTree = React.lazy(() => import('./components/FamilyTree'));
@@ -28,7 +27,7 @@ const LazyMap = React.lazy(() => import('./components/Map'));
 
 // Loading fallback component
 const LoadingFallback = ({ component }: { component: string }) => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '400px' }}>
+  <div className="loading-fallback">
     <div>Loading {component}...</div>
   </div>
 );
@@ -62,7 +61,7 @@ function App() {
         <IntroVideo>
           <section className="snap-section hero" aria-label="Welcome">
             <HeroVideo caption="Poradas Wedding Feature">
-              <div className="stack" style={{ textAlign: 'center' }}>
+              <div className="stack hero-center">
                 <h1 className="display">
                   <span className="hero-accent">The Poradas Wedding Videos</span>
                 </h1>
@@ -70,9 +69,9 @@ function App() {
                   A celebration in sage & blush. This is an evolving immersive experience—sections
                   will appear here as they are completed.
                 </p>
-                <div className="stack" style={{ alignItems: 'center' }}>
+                <div className="stack hero-actions">
                   <SiteNav active={hash} />
-                  <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <div className="toggle-row">
                     <MotionToggle />
                     <ThemeToggle />
                   </div>
@@ -160,30 +159,10 @@ function App() {
 // Wrap the App with Sentry ErrorBoundary
 export default Sentry.withErrorBoundary(App, {
   fallback: ({ resetError }: { resetError: () => void }) => (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        padding: '2rem',
-        textAlign: 'center',
-      }}
-    >
+    <div className="error-fallback">
       <h1>Something went wrong</h1>
       <p>We apologize for the inconvenience. Our team has been notified.</p>
-      <button
-        onClick={resetError}
-        style={{
-          padding: '0.5rem 1rem',
-          backgroundColor: '#4ecdc4',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-        }}
-      >
+      <button onClick={resetError} className="error-fallback-button">
         Try Again
       </button>
     </div>

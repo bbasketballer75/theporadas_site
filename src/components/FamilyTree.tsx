@@ -1,12 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
 
-import { FamilyMember, familyMembersService } from '../services/api';
-import { FamilyTreeVisualization } from './FamilyTreeVisualization';
-import { FamilyTreeSearch } from './FamilyTreeSearch';
-import { FamilyTreeControls } from './FamilyTreeControls';
-import { useSearchState } from '../hooks/useSearchState';
 import { useD3Interactions } from '../hooks/useD3Interactions';
+import { useSearchState } from '../hooks/useSearchState';
+import { FamilyMember, familyMembersService } from '../services/api';
+
+import { FamilyTreeControls } from './FamilyTreeControls';
+import { FamilyTreeSearch } from './FamilyTreeSearch';
+import { FamilyTreeVisualization } from './FamilyTreeVisualization';
 
 export default function FamilyTree({
   onMemberClick,

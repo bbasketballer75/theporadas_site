@@ -1,10 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
-import {
-  familyMembersService,
-  guestMessagesService,
-} from '../../src/services/api';
+import { setupServer } from 'msw/node';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { familyMembersService, guestMessagesService } from '../../src/services/api';
 
 // Mock server setup
 const server = setupServer();
@@ -25,11 +23,14 @@ describe('Authentication and Authorization Integration Tests', () => {
   describe('Authentication Required Scenarios', () => {
     it('should handle 401 Unauthorized errors for protected endpoints', async () => {
       server.use(
-        http.post('/family-member', () => {
-          return HttpResponse.json({
-            error: 'Authentication required',
-            message: 'Please provide valid credentials'
-          }, { status: 401 });
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.json(
+            {
+              error: 'Authentication required',
+              message: 'Please provide valid credentials',
+            },
+            { status: 401 },
+          );
         }),
       );
 
@@ -38,11 +39,14 @@ describe('Authentication and Authorization Integration Tests', () => {
 
     it('should handle token expiration scenarios', async () => {
       server.use(
-        http.post('/family-member', () => {
-          return HttpResponse.json({
-            error: 'Token expired',
-            message: 'Your session has expired. Please log in again.'
-          }, { status: 401 });
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.json(
+            {
+              error: 'Token expired',
+              message: 'Your session has expired. Please log in again.',
+            },
+            { status: 401 },
+          );
         }),
       );
 
@@ -51,11 +55,14 @@ describe('Authentication and Authorization Integration Tests', () => {
 
     it('should handle invalid token scenarios', async () => {
       server.use(
-        http.post('/family-member', () => {
-          return HttpResponse.json({
-            error: 'Invalid token',
-            message: 'The provided token is invalid or malformed.'
-          }, { status: 401 });
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.json(
+            {
+              error: 'Invalid token',
+              message: 'The provided token is invalid or malformed.',
+            },
+            { status: 401 },
+          );
         }),
       );
 
@@ -66,13 +73,16 @@ describe('Authentication and Authorization Integration Tests', () => {
   describe('Authorization Scenarios', () => {
     it('should handle 403 Forbidden errors for insufficient permissions', async () => {
       server.use(
-        http.post('/family-member', () => {
-          return HttpResponse.json({
-            error: 'Insufficient permissions',
-            message: 'You do not have permission to access this resource',
-            requiredRole: 'admin',
-            userRole: 'user'
-          }, { status: 403 });
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.json(
+            {
+              error: 'Insufficient permissions',
+              message: 'You do not have permission to access this resource',
+              requiredRole: 'admin',
+              userRole: 'user',
+            },
+            { status: 403 },
+          );
         }),
       );
 
@@ -81,13 +91,16 @@ describe('Authentication and Authorization Integration Tests', () => {
 
     it('should handle role-based access control', async () => {
       server.use(
-        http.delete('/family-member/1', () => {
-          return HttpResponse.json({
-            error: 'Forbidden',
-            message: 'Only administrators can delete family members',
-            action: 'delete_family_member',
-            requiredPermission: 'admin.delete'
-          }, { status: 403 });
+        http.delete('http://localhost:3001/family-member/1', () => {
+          return HttpResponse.json(
+            {
+              error: 'Forbidden',
+              message: 'Only administrators can delete family members',
+              action: 'delete_family_member',
+              requiredPermission: 'admin.delete',
+            },
+            { status: 403 },
+          );
         }),
       );
 
@@ -96,13 +109,16 @@ describe('Authentication and Authorization Integration Tests', () => {
 
     it('should handle resource ownership restrictions', async () => {
       server.use(
-        http.put('/family-member/1', () => {
-          return HttpResponse.json({
-            error: 'Ownership required',
-            message: 'You can only modify your own family members',
-            resourceOwner: 'user-456',
-            currentUser: 'user-123'
-          }, { status: 403 });
+        http.put('http://localhost:3001/family-member/1', () => {
+          return HttpResponse.json(
+            {
+              error: 'Ownership required',
+              message: 'You can only modify your own family members',
+              resourceOwner: 'user-456',
+              currentUser: 'user-123',
+            },
+            { status: 403 },
+          );
         }),
       );
 
@@ -114,15 +130,18 @@ describe('Authentication and Authorization Integration Tests', () => {
   describe('Rate Limiting Scenarios', () => {
     it('should handle 429 Too Many Requests errors', async () => {
       server.use(
-        http.post('/guest-message', () => {
-          return HttpResponse.json({
-            error: 'Rate limit exceeded',
-            message: 'Too many requests. Please try again later.',
-            retryAfter: 60,
-            limit: 100,
-            remaining: 0,
-            resetTime: '2023-01-01T01:00:00Z'
-          }, { status: 429 });
+        http.post('http://localhost:3001/guest-message', () => {
+          return HttpResponse.json(
+            {
+              error: 'Rate limit exceeded',
+              message: 'Too many requests. Please try again later.',
+              retryAfter: 60,
+              limit: 100,
+              remaining: 0,
+              resetTime: '2023-01-01T01:00:00Z',
+            },
+            { status: 429 },
+          );
         }),
       );
 
@@ -136,19 +155,22 @@ describe('Authentication and Authorization Integration Tests', () => {
 
     it('should handle rate limiting with retry headers', async () => {
       server.use(
-        http.post('/guest-message', () => {
-          return HttpResponse.json({
-            error: 'Rate limit exceeded',
-            message: 'API rate limit exceeded. Try again in 5 minutes.'
-          }, {
-            status: 429,
-            headers: {
-              'Retry-After': '300',
-              'X-RateLimit-Limit': '10',
-              'X-RateLimit-Remaining': '0',
-              'X-RateLimit-Reset': '1672538400',
+        http.post('http://localhost:3001/guest-message', () => {
+          return HttpResponse.json(
+            {
+              error: 'Rate limit exceeded',
+              message: 'API rate limit exceeded. Try again in 5 minutes.',
             },
-          });
+            {
+              status: 429,
+              headers: {
+                'Retry-After': '300',
+                'X-RateLimit-Limit': '10',
+                'X-RateLimit-Remaining': '0',
+                'X-RateLimit-Reset': '1672538400',
+              },
+            },
+          );
         }),
       );
 
@@ -164,13 +186,16 @@ describe('Authentication and Authorization Integration Tests', () => {
   describe('Session Management', () => {
     it('should handle session timeout scenarios', async () => {
       server.use(
-        http.post('/family-member', () => {
-          return HttpResponse.json({
-            error: 'Session expired',
-            message: 'Your session has timed out. Please log in again.',
-            sessionDuration: 3600,
-            expiredAt: '2023-01-01T00:00:00Z'
-          }, { status: 401 });
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.json(
+            {
+              error: 'Session expired',
+              message: 'Your session has timed out. Please log in again.',
+              sessionDuration: 3600,
+              expiredAt: '2023-01-01T00:00:00Z',
+            },
+            { status: 401 },
+          );
         }),
       );
 
@@ -179,30 +204,39 @@ describe('Authentication and Authorization Integration Tests', () => {
 
     it('should handle concurrent session conflicts', async () => {
       server.use(
-        http.put('/family-member/1', () => {
-          return HttpResponse.json({
-            error: 'Concurrent modification',
-            message: 'This resource was modified by another session. Please refresh and try again.',
-            lastModified: '2023-01-01T00:05:00Z',
-            modifiedBy: 'user-456'
-          }, { status: 409 });
+        http.put('http://localhost:3001/family-member/1', () => {
+          return HttpResponse.json(
+            {
+              error: 'Concurrent modification',
+              message:
+                'This resource was modified by another session. Please refresh and try again.',
+              lastModified: '2023-01-01T00:05:00Z',
+              modifiedBy: 'user-456',
+            },
+            { status: 409 },
+          );
         }),
       );
 
       const updates = { name: 'Updated Name' };
-      await expect(familyMembersService.update('1', updates)).rejects.toThrow('Request failed: 409 Conflict');
+      await expect(familyMembersService.update('1', updates)).rejects.toThrow(
+        'Request failed: 409 Conflict',
+      );
     });
   });
 
   describe('API Key and Token Validation', () => {
     it('should handle malformed API key errors', async () => {
       server.use(
-        http.post('/family-member', () => {
-          return HttpResponse.json({
-            error: 'Invalid API key',
-            message: 'The provided API key is malformed or invalid.',
-            expectedFormat: 'Bearer <token>'
-          }, { status: 401 });
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.json(
+            {
+              error: 'Invalid API key',
+              message: 'The provided API key is malformed or invalid.',
+              expectedFormat: 'Bearer <token>',
+            },
+            { status: 401 },
+          );
         }),
       );
 
@@ -211,12 +245,15 @@ describe('Authentication and Authorization Integration Tests', () => {
 
     it('should handle missing authorization header', async () => {
       server.use(
-        http.post('/family-member', () => {
-          return HttpResponse.json({
-            error: 'Missing authorization',
-            message: 'Authorization header is required for this endpoint.',
-            requiredHeader: 'Authorization'
-          }, { status: 401 });
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.json(
+            {
+              error: 'Missing authorization',
+              message: 'Authorization header is required for this endpoint.',
+              requiredHeader: 'Authorization',
+            },
+            { status: 401 },
+          );
         }),
       );
 
@@ -228,21 +265,27 @@ describe('Authentication and Authorization Integration Tests', () => {
     it('should handle CORS preflight failures', async () => {
       // Note: MSW handles CORS automatically, but we can test the error handling
       server.use(
-        http.options('/family-member', () => {
-          return HttpResponse.json({
-            error: 'CORS policy violation',
-            message: 'Origin not allowed by CORS policy.'
-          }, { status: 403 });
+        http.options('http://localhost:3001/family-member', () => {
+          return HttpResponse.json(
+            {
+              error: 'CORS policy violation',
+              message: 'Origin not allowed by CORS policy.',
+            },
+            { status: 403 },
+          );
         }),
       );
 
       // This would typically fail at the browser level, but we test the API error handling
       server.use(
-        http.post('/family-member', () => {
-          return HttpResponse.json({
-            error: 'CORS error',
-            message: 'Cross-origin request blocked.'
-          }, { status: 403 });
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.json(
+            {
+              error: 'CORS error',
+              message: 'Cross-origin request blocked.',
+            },
+            { status: 403 },
+          );
         }),
       );
 
@@ -253,12 +296,15 @@ describe('Authentication and Authorization Integration Tests', () => {
   describe('Security Headers and CSRF Protection', () => {
     it('should handle CSRF token validation failures', async () => {
       server.use(
-        http.post('/guest-message', () => {
-          return HttpResponse.json({
-            error: 'CSRF token invalid',
-            message: 'CSRF token validation failed. Please refresh the page.',
-            expectedHeader: 'X-CSRF-Token'
-          }, { status: 403 });
+        http.post('http://localhost:3001/guest-message', () => {
+          return HttpResponse.json(
+            {
+              error: 'CSRF token invalid',
+              message: 'CSRF token validation failed. Please refresh the page.',
+              expectedHeader: 'X-CSRF-Token',
+            },
+            { status: 403 },
+          );
         }),
       );
 
@@ -272,16 +318,21 @@ describe('Authentication and Authorization Integration Tests', () => {
 
     it('should handle missing security headers', async () => {
       server.use(
-        http.post('/family-member', () => {
-          return HttpResponse.json({
-            error: 'Missing security headers',
-            message: 'Required security headers are missing.',
-            missingHeaders: ['X-Requested-With', 'X-API-Key']
-          }, { status: 400 });
+        http.post('http://localhost:3001/family-member', () => {
+          return HttpResponse.json(
+            {
+              error: 'Missing security headers',
+              message: 'Required security headers are missing.',
+              missingHeaders: ['X-Requested-With', 'X-API-Key'],
+            },
+            { status: 400 },
+          );
         }),
       );
 
-      await expect(familyMembersService.getAll()).rejects.toThrow('Request failed: 400 Bad Request');
+      await expect(familyMembersService.getAll()).rejects.toThrow(
+        'Request failed: 400 Bad Request',
+      );
     });
   });
 });

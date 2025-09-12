@@ -94,6 +94,21 @@
         "${workspaceFolder}/scripts/firebase_mcp.ps1"
       ],
       "problemMatcher": []
+    },
+    {
+      "label": "Quality: lint+type+tests",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "npm run lint; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; npm run typecheck; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; npm run test --silent"
+      ],
+      "isBackground": false,
+      "problemMatcher": ["$eslint-stylish"],
+      "group": "build"
     }
   ]
 }

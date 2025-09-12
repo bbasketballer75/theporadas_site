@@ -1,3 +1,4 @@
+/* eslint-env serviceworker */
 const CACHE_NAME = 'poradas-wedding-v1';
 const STATIC_CACHE = 'poradas-wedding-static-v1';
 const DYNAMIC_CACHE = 'poradas-wedding-dynamic-v1';
@@ -12,21 +13,22 @@ const CRITICAL_RESOURCES = [
   '/src/main.tsx',
   '/src/App.tsx',
   '/src/designSystem.css',
-  '/src/skipLinkFocus.ts'
+  '/src/skipLinkFocus.ts',
 ];
 
 // Install event - cache critical resources
 self.addEventListener('install', (event) => {
   console.log('[Service Worker] Installing');
   event.waitUntil(
-    caches.open(STATIC_CACHE)
+    caches
+      .open(STATIC_CACHE)
       .then((cache) => {
         console.log('[Service Worker] Caching critical resources');
         return cache.addAll(CRITICAL_RESOURCES);
       })
       .then(() => {
         return self.skipWaiting();
-      })
+      }),
   );
 });
 
@@ -34,18 +36,21 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   console.log('[Service Worker] Activating');
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
-            console.log('[Service Worker] Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => {
-      return self.clients.claim();
-    })
+    caches
+      .keys()
+      .then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
+              console.log('[Service Worker] Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          }),
+        );
+      })
+      .then(() => {
+        return self.clients.claim();
+      }),
   );
 });
 
@@ -91,7 +96,10 @@ async function cacheFirst(request) {
     console.log('[Service Worker] Cache-first failed:', error);
     // Return offline fallback for critical resources
     if (request.url.includes('/manifest.json') || request.url.includes('icon')) {
-      return caches.match('/manifest.json') || new Response('Offline', { status: 503 });
+      return (
+        (await caches.match('/manifest.json')) ||
+        new Response(`Offline (${CACHE_NAME})`, { status: 503 })
+      );
     }
   }
 }
@@ -112,10 +120,13 @@ async function networkFirst(request) {
       return cachedResponse;
     }
     // Return offline fallback
-    return new Response(JSON.stringify({ error: 'Offline', message: 'Content not available offline' }), {
-      status: 503,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return new Response(
+      JSON.stringify({ error: 'Offline', message: 'Content not available offline' }),
+      {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' },
+      },
+    );
   }
 }
 
@@ -136,16 +147,20 @@ async function staleWhileRevalidate(request) {
 
 // Helper functions
 function isStaticAsset(pathname) {
-  return /\.(css|js|png|jpg|jpeg|svg|ico|woff|woff2|ttf|eot)$/.test(pathname) ||
-         pathname.includes('/assets/') ||
-         pathname.includes('/icon') ||
-         pathname.includes('/manifest.json');
+  return (
+    /\.(css|js|png|jpg|jpeg|svg|ico|woff|woff2|ttf|eot)$/.test(pathname) ||
+    pathname.includes('/assets/') ||
+    pathname.includes('/icon') ||
+    pathname.includes('/manifest.json')
+  );
 }
 
 function isApiRequest(pathname) {
-  return pathname.includes('/api/') ||
-         pathname.includes('firestore.googleapis.com') ||
-         pathname.includes('firebase');
+  return (
+    pathname.includes('/api/') ||
+    pathname.includes('firestore.googleapis.com') ||
+    pathname.includes('firebase')
+  );
 }
 
 // Handle background sync for offline actions
@@ -175,13 +190,11 @@ self.addEventListener('push', (event) => {
       vibrate: [100, 50, 100],
       data: {
         dateOfArrival: Date.now(),
-        primaryKey: 1
-      }
+        primaryKey: 1,
+      },
     };
 
-    event.waitUntil(
-      self.registration.showNotification(data.title, options)
-    );
+    event.waitUntil(self.registration.showNotification(data.title, options));
   }
 });
 
@@ -190,7 +203,5 @@ self.addEventListener('notificationclick', (event) => {
   console.log('[Service Worker] Notification click:', event);
   event.notification.close();
 
-  event.waitUntil(
-    clients.openWindow('/')
-  );
+  event.waitUntil(self.clients.openWindow('/'));
 });

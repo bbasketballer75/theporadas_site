@@ -1,12 +1,14 @@
-import { waitFor, act } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { act, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
 
 describe('main bootstrap', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
   it('mounts App into #root with #appShell present', async () => {
     const root = document.createElement('div');
     root.id = 'root';
     document.body.appendChild(root);
-    vi.resetModules();
     await act(async () => {
       await import('../src/main');
     });
@@ -16,15 +18,10 @@ describe('main bootstrap', () => {
   });
 
   it('throws if #root missing', async () => {
-    // Ensure no root present
     const existing = document.getElementById('root');
     if (existing) existing.remove();
-    await expect(
-      async () =>
-        await act(async () => {
-          vi.resetModules();
-          await import('../src/main');
-        }),
-    ).rejects.toThrow(/Root element/);
+    // Dynamically import with a unique query to avoid module cache
+    const unique = Date.now();
+    await expect(import(`../src/main?raw=${unique}`)).rejects.toThrow(/Root element/);
   });
 });

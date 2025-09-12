@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, it, vi } from 'vitest';
 
 import { Gallery } from '../src/components/Gallery';
 import { GalleryItemBase } from '../src/gallery/loader';

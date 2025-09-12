@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 
-import { execSync, spawn } from 'child_process';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { execSync } from 'child_process';
+// no path/url utilities currently needed
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// determine current script directory if needed in future
+// const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Configuration
 const CONFIG = {
@@ -85,7 +84,9 @@ function commitChanges() {
 
 function pushChanges() {
   console.log('🚀 Pushing changes...');
-  const pushCommand = CONFIG.force ? `git push -f ${CONFIG.remote} ${CONFIG.branch}` : `git push ${CONFIG.remote} ${CONFIG.branch}`;
+  const pushCommand = CONFIG.force
+    ? `git push -f ${CONFIG.remote} ${CONFIG.branch}`
+    : `git push ${CONFIG.remote} ${CONFIG.branch}`;
   if (CONFIG.dryRun) {
     console.log(`[DRY RUN] Would run: ${pushCommand}`);
     return;
@@ -110,7 +111,9 @@ async function autoSync() {
 
   const currentBranch = getCurrentBranch();
   if (currentBranch !== CONFIG.branch) {
-    console.error(`❌ Current branch '${currentBranch}' does not match target branch '${CONFIG.branch}'`);
+    console.error(
+      `❌ Current branch '${currentBranch}' does not match target branch '${CONFIG.branch}'`,
+    );
     process.exit(1);
   }
 
@@ -147,7 +150,7 @@ async function autoSync() {
 }
 
 // Run the sync
-autoSync().catch(error => {
+autoSync().catch((error) => {
   console.error('❌ Unexpected error:', error);
   process.exit(1);
 });

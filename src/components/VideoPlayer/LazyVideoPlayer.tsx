@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
+import './LazyVideoPlayer.css';
 import { VideoPlayer, VideoPlayerProps } from './VideoPlayer';
 
 export interface LazyVideoPlayerProps extends VideoPlayerProps {
@@ -36,33 +37,16 @@ export function LazyVideoPlayer(props: LazyVideoPlayerProps) {
     return () => observer.disconnect();
   }, [rootMargin, visible]);
 
+  const arClass = aspectRatio === '4/3' ? 'ar-4x3' : 'ar-16x9';
   return (
-    <div
-      ref={containerRef}
-      style={{
-        position: 'relative',
-        width: '100%',
-        aspectRatio,
-        display: 'block',
-      }}
-    >
+    <div ref={containerRef} className={`lazy-video-container ${arClass}`}>
       {visible ? (
         <VideoPlayer {...rest} />
       ) : (
         <div
+          className="lazy-video-placeholder"
           role="img"
           aria-label={rest.placeholderLabel || 'Video loading placeholder'}
-          style={{
-            inset: 0,
-            position: 'absolute',
-            background: '#e2e2e2',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 14,
-            color: '#555',
-            fontFamily: 'sans-serif',
-          }}
         >
           {rest.placeholderLabel || 'Loading video'}
         </div>
