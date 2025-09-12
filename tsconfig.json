@@ -12,8 +12,8 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": ["vitest", "react", "react-dom", "@playwright/test"]
+    "types": ["vitest", "react", "react-dom", "@playwright/test", "vite/client"]
   },
-  "include": ["**/*.{ts,tsx,js,jsx}", "**/*.d.ts"],
+  "include": ["**/*.{ts,tsx,js,jsx}", "**/*.d.ts", "test/**/*.d.ts", "./vitest.setup.ts"],
   "exclude": ["dist", "build", "node_modules", "lighthouse", "coverage"]
 }

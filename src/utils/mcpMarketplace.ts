@@ -268,7 +268,10 @@ export class MCPMarketplace {
     return { success: true, result: 'Local tool executed' };
   }
 
-  private async executeBuiltInTool(tool: MCPTool, params: any): Promise<any> {
+  private async executeBuiltInTool(
+    tool: MCPTool,
+    params: Record<string, unknown>,
+  ): Promise<unknown> {
     // Route to appropriate built-in tool handler
     switch (tool.id) {
       case 'file-operations':
@@ -289,32 +292,32 @@ export class MCPMarketplace {
   }
 
   // Built-in tool handlers (placeholders)
-  private async handleFileOperations(params: any): Promise<any> {
+  private async handleFileOperations(params: Record<string, unknown>): Promise<unknown> {
     console.log('File operations:', params);
     return { success: true, message: 'File operation completed' };
   }
 
-  private async handleTerminalCommands(params: any): Promise<any> {
+  private async handleTerminalCommands(params: Record<string, unknown>): Promise<unknown> {
     console.log('Terminal commands:', params);
     return { success: true, message: 'Terminal command executed' };
   }
 
-  private async handleWebBrowser(params: any): Promise<any> {
+  private async handleWebBrowser(params: Record<string, unknown>): Promise<unknown> {
     console.log('Web browser:', params);
     return { success: true, message: 'Web browser action completed' };
   }
 
-  private async handleCodeSearch(params: any): Promise<any> {
+  private async handleCodeSearch(params: Record<string, unknown>): Promise<unknown> {
     console.log('Code search:', params);
     return { success: true, message: 'Code search completed' };
   }
 
-  private async handleGitOperations(params: any): Promise<any> {
+  private async handleGitOperations(params: Record<string, unknown>): Promise<unknown> {
     console.log('Git operations:', params);
     return { success: true, message: 'Git operation completed' };
   }
 
-  private async handleApiClient(params: any): Promise<any> {
+  private async handleApiClient(params: Record<string, unknown>): Promise<unknown> {
     console.log('API client:', params);
     return { success: true, message: 'API request completed' };
   }
@@ -330,7 +333,7 @@ export class MCPMarketplace {
   }
 
   // Validation
-  private validateToolConfig(config: any): boolean {
+  private validateToolConfig(config: Partial<MCPTool>): boolean {
     return !!(
       config.id &&
       config.name &&
@@ -348,8 +351,8 @@ export class MCPMarketplace {
     try {
       const stored = localStorage.getItem('kilo_mcp_tools');
       if (stored) {
-        const customTools = JSON.parse(stored);
-        Object.values(customTools).forEach((tool: any) => {
+        const customTools = JSON.parse(stored) as Record<string, MCPTool>;
+        Object.values(customTools).forEach((tool) => {
           if (!tool.isBuiltIn) {
             this.tools.set(tool.id, tool);
           }

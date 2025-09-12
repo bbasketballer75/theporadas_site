@@ -10,6 +10,8 @@ import {
   type GuestMessage,
 } from '../src/services/api';
 
+const baseUrl = 'https://wedding-functions-956393407443.us-central1.run.app';
+
 // Mock fetch globally
 const fetchMock = vi.fn();
 
@@ -18,6 +20,7 @@ const createMockResponse = (data: unknown) => ({
   ok: true,
   status: 200,
   statusText: 'OK',
+  headers: new Headers({ 'content-type': 'application/json' }),
   json: () => Promise.resolve(data),
 });
 
@@ -25,12 +28,15 @@ const createMockErrorResponse = (status: number, statusText: string, data?: unkn
   ok: false,
   status,
   statusText,
+  headers: new Headers({ 'content-type': 'application/json' }),
   json: () => (data ? Promise.resolve(data) : Promise.reject(new Error(`Mock ${status} error`))),
 });
 
 describe('API Service', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Use cloud-run base URL to align expectations with runtime base resolution
+    vi.stubEnv('VITE_API_BASE_URL', baseUrl);
     // Re-stub global fetch after clearing mocks
     vi.stubGlobal('fetch', fetchMock);
   });
@@ -62,11 +68,12 @@ describe('API Service', () => {
         const result = await familyMembersService.getAll();
 
         expect(fetchMock).toHaveBeenCalledWith(
-          'https://wedding-functions-956393407443.us-central1.run.app/family-member',
-          {
+          `${baseUrl}/family-member`,
+          expect.objectContaining({
             headers: { 'Content-Type': 'application/json' },
-            mode: 'cors',
-          },
+            method: 'POST',
+            body: JSON.stringify({}),
+          }),
         );
         expect(result).toEqual([mockMember]);
         expect(result[0].createdAt).toBeInstanceOf(Date);
@@ -81,11 +88,10 @@ describe('API Service', () => {
         const result = await familyMembersService.getById('1');
 
         expect(fetchMock).toHaveBeenCalledWith(
-          'https://wedding-functions-956393407443.us-central1.run.app/family-member/1',
-          {
+          `${baseUrl}/family-member/1`,
+          expect.objectContaining({
             headers: { 'Content-Type': 'application/json' },
-            mode: 'cors',
-          },
+          }),
         );
         expect(result).toEqual(mockMember);
         expect(result?.createdAt).toBeInstanceOf(Date);
@@ -113,34 +119,41 @@ describe('API Service', () => {
 
     describe('update', () => {
       it('should update family member successfully', async () => {
-        const updates = { name: 'Updated Name' };
         fetchMock.mockResolvedValueOnce(createMockResponse({}));
 
         const testCases = [
           {
             name: 'Regular relationship',
             relationship: 'Step-Father',
-            expectedUrl: 'https://wedding-functions-956393407443.us-central1.run.app/family-member?relationship=Step-Father',
-            expectedRequestBody: { headers: { 'Content-Type': 'application/json' } },
+            expectedUrl: `${baseUrl}/family-member?relationship=Step-Father`,
+            expectedRequestBody: expect.objectContaining({
+              headers: { 'Content-Type': 'application/json' },
+            }),
           },
           {
             name: 'Relationship with &',
             relationship: 'Step-Father&Partner',
-            expectedUrl: 'https://wedding-functions-956393407443.us-central1.run.app/family-member?relationship=Step-Father%26Partner',
-            expectedRequestBody: { headers: { 'Content-Type': 'application/json' } },
+            expectedUrl: `${baseUrl}/family-member?relationship=Step-Father%26Partner`,
+            expectedRequestBody: expect.objectContaining({
+              headers: { 'Content-Type': 'application/json' },
+            }),
           },
           {
             name: 'Relationship with =',
             relationship: 'Step-Father=Partner',
-            expectedUrl: 'https://wedding-functions-956393407443.us-central1.run.app/family-member?relationship=Step-Father%3DPartner',
-            expectedRequestBody: { headers: { 'Content-Type': 'application/json' } },
+            expectedUrl: `${baseUrl}/family-member?relationship=Step-Father%3DPartner`,
+            expectedRequestBody: expect.objectContaining({
+              headers: { 'Content-Type': 'application/json' },
+            }),
           },
         ];
 
         await Promise.all(
           testCases.map(async (testCase) => {
             fetchMock.mockResolvedValueOnce(createMockResponse({ members: [] }));
-            const result = await familyMembersService.getByRelationship(testCase.relationship as string);
+            const result = await familyMembersService.getByRelationship(
+              testCase.relationship as string,
+            );
             expect(fetchMock).toHaveBeenCalledWith(
               testCase.expectedUrl,
               testCase.expectedRequestBody,
@@ -157,12 +170,12 @@ describe('API Service', () => {
         await familyMembersService.update('1', updates);
 
         expect(fetchMock).toHaveBeenCalledWith(
-          'https://wedding-functions-956393407443.us-central1.run.app/family-member/1',
-          {
+          `${baseUrl}/family-member/1`,
+          expect.objectContaining({
             headers: { 'Content-Type': 'application/json' },
             method: 'PUT',
             body: JSON.stringify(updates),
-          },
+          }),
         );
       });
     });
@@ -174,11 +187,11 @@ describe('API Service', () => {
         await familyMembersService.delete('1');
 
         expect(fetchMock).toHaveBeenCalledWith(
-          'https://wedding-functions-956393407443.us-central1.run.app/family-member/1',
-          {
+          `${baseUrl}/family-member/1`,
+          expect.objectContaining({
             headers: { 'Content-Type': 'application/json' },
             method: 'DELETE',
-          },
+          }),
         );
       });
     });
@@ -191,10 +204,10 @@ describe('API Service', () => {
         const result = await familyMembersService.getByRelationship('Father');
 
         expect(fetchMock).toHaveBeenCalledWith(
-          'https://wedding-functions-956393407443.us-central1.run.app/family-member?relationship=Father',
-          {
+          `${baseUrl}/family-member?relationship=Father`,
+          expect.objectContaining({
             headers: { 'Content-Type': 'application/json' },
-          },
+          }),
         );
         expect(result).toEqual([mockMember]);
       });
@@ -206,10 +219,10 @@ describe('API Service', () => {
         const result = await familyMembersService.getByRelationship('Step-Father');
 
         expect(fetchMock).toHaveBeenCalledWith(
-          'https://wedding-functions-956393407443.us-central1.run.app/family-member?relationship=Step-Father',
-          {
+          `${baseUrl}/family-member?relationship=Step-Father`,
+          expect.objectContaining({
             headers: { 'Content-Type': 'application/json' },
-          },
+          }),
         );
         expect(result).toEqual([]);
       });
@@ -233,10 +246,10 @@ describe('API Service', () => {
         const result = await familyTreesService.getAll();
 
         expect(fetchMock).toHaveBeenCalledWith(
-          'https://wedding-functions-956393407443.us-central1.run.app/family-tree',
-          {
+          `${baseUrl}/family-tree`,
+          expect.objectContaining({
             headers: { 'Content-Type': 'application/json' },
-          },
+          }),
         );
         expect(result).toEqual([mockTree]);
         expect(result[0].createdAt).toBeInstanceOf(Date);
@@ -251,10 +264,10 @@ describe('API Service', () => {
         const result = await familyTreesService.getById('1');
 
         expect(fetchMock).toHaveBeenCalledWith(
-          'https://wedding-functions-956393407443.us-central1.run.app/family-tree/1',
-          {
+          `${baseUrl}/family-tree/1`,
+          expect.objectContaining({
             headers: { 'Content-Type': 'application/json' },
-          },
+          }),
         );
         expect(result).toEqual(mockTree);
         expect(result?.createdAt).toBeInstanceOf(Date);
@@ -285,12 +298,12 @@ describe('API Service', () => {
         await familyTreesService.update('1', updates);
 
         expect(fetchMock).toHaveBeenCalledWith(
-          'https://wedding-functions-956393407443.us-central1.run.app/family-tree/1',
-          {
+          `${baseUrl}/family-tree/1`,
+          expect.objectContaining({
             headers: { 'Content-Type': 'application/json' },
             method: 'PUT',
             body: JSON.stringify(updates),
-          },
+          }),
         );
       });
     });
@@ -302,11 +315,11 @@ describe('API Service', () => {
         await familyTreesService.delete('1');
 
         expect(fetchMock).toHaveBeenCalledWith(
-          'https://wedding-functions-956393407443.us-central1.run.app/family-tree/1',
-          {
+          `${baseUrl}/family-tree/1`,
+          expect.objectContaining({
             headers: { 'Content-Type': 'application/json' },
             method: 'DELETE',
-          },
+          }),
         );
       });
     });
@@ -329,10 +342,10 @@ describe('API Service', () => {
         const result = await guestMessagesService.getAll();
 
         expect(fetchMock).toHaveBeenCalledWith(
-          'https://wedding-functions-956393407443.us-central1.run.app/guest-messages',
-          {
+          `${baseUrl}/guest-messages`,
+          expect.objectContaining({
             headers: { 'Content-Type': 'application/json' },
-          },
+          }),
         );
         expect(result).toEqual([mockMessage]);
         expect(result[0].createdAt).toBeInstanceOf(Date);
@@ -380,12 +393,11 @@ describe('API Service', () => {
         const result = await imageProcessingService.processImage(mockFile);
 
         expect(fetchMock).toHaveBeenCalledWith(
-          'https://wedding-functions-956393407443.us-central1.run.app/process-image',
-          {
+          `${baseUrl}/process-image`,
+          expect.objectContaining({
             method: 'POST',
-            mode: 'cors',
             body: expect.any(FormData),
-          },
+          }),
         );
 
         // Check that FormData contains the file

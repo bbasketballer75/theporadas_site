@@ -2,7 +2,7 @@
 // Vite can bundle it without relying on Node's fs at runtime.
 // If the file is missing or not an array, we gracefully fall back to empty list.
 // (Generation of gallery.index.json is handled outside this module.)
-import rawData from '../../content/gallery.index.json';
+import rawData from '../../content/gallery.index.json' with { type: 'json' };
 
 export interface GalleryItemBase {
   id: string;

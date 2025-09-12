@@ -1,5 +1,5 @@
-import React from 'react';
 import { select } from 'd3';
+import React from 'react';
 
 interface FamilyTreeControlsProps {
   svgRef: React.RefObject<SVGSVGElement>;
@@ -63,11 +63,7 @@ export function FamilyTreeControls({ svgRef, width, height }: FamilyTreeControls
         >
           Zoom Out
         </button>
-        <button
-          type="button"
-          onClick={handleResetView}
-          data-testid="reset-view"
-        >
+        <button type="button" onClick={handleResetView} data-testid="reset-view">
           Reset View
         </button>
       </div>

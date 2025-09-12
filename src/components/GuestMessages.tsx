@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { GuestMessage, guestMessagesService } from '../services/api';
 import './GuestMessages.css';
@@ -53,7 +53,7 @@ export function GuestMessages() {
     return recentSubmissions.length >= MAX_MESSAGES_PER_HOUR;
   };
 
-  const cleanOldSubmissions = () => {
+  const cleanOldSubmissions = useCallback(() => {
     try {
       const now = Date.now();
       const submissions = getStoredSubmissions();
@@ -64,7 +64,7 @@ export function GuestMessages() {
     } catch (error) {
       console.error('Failed to clean submissions:', error);
     }
-  };
+  }, [RATE_LIMIT_WINDOW_MS, STORAGE_KEY]);
 
   // Load guest messages
   useEffect(() => {
@@ -89,7 +89,7 @@ export function GuestMessages() {
     };
 
     loadMessages();
-  }, []);
+  }, [cleanOldSubmissions]);
 
   // Validation functions
   const validateName = (name: string) => {
@@ -212,35 +212,15 @@ export function GuestMessages() {
 
   if (loading) {
     return (
-      <div className="guest-messages-loading" style={{ padding: '20px', textAlign: 'center' }}>
-        <div style={{ display: 'inline-block', marginBottom: '10px' }}>
-          <div
-            style={{
-              width: '40px',
-              height: '40px',
-              border: '4px solid #f3f3f3',
-              borderTop: '4px solid #4ecdc4',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite',
-            }}
-          />
-          <style>{`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}</style>
-        </div>
-        <div>Loading guest messages...</div>
+      <div className="loading-container" data-testid="guest-loading">
+        <div className="loading-spinner" />
+        <div className="loading-text">Loading guest messages...</div>
       </div>
     );
   }
 
   return (
-    <div
-      className="guest-messages"
-      style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}
-    >
+    <div className="guest-messages">
       {/* Screen reader announcements for dynamic content */}
       <div aria-live="polite" aria-atomic="true" className="sr-only">
         {loading && 'Loading guest messages...'}
@@ -256,41 +236,17 @@ export function GuestMessages() {
         {fieldErrors.email && `Email error: ${fieldErrors.email}`}
         {fieldErrors.message && `Message error: ${fieldErrors.message}`}
       </div>
-
-      <h3 style={{ marginBottom: '30px', color: '#333' }}>Guest Messages</h3>
+      <h3>Guest Messages</h3>
 
       {/* Message Form */}
-      <div
-        className="message-form"
-        style={{
-          marginBottom: '40px',
-          padding: '20px',
-          border: '1px solid #ddd',
-          borderRadius: '8px',
-        }}
-      >
-        <h3 style={{ marginBottom: '20px', color: '#555' }}>Leave a Message</h3>
+      <div className="message-form">
+        <h3>Leave a Message</h3>
 
-        {error && (
-          <div
-            style={{
-              color: 'red',
-              marginBottom: '15px',
-              padding: '10px',
-              backgroundColor: '#ffe6e6',
-              borderRadius: '4px',
-            }}
-          >
-            {error}
-          </div>
-        )}
+        {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit} data-testid="guest-form">
-          <div style={{ marginBottom: '15px' }}>
-            <label
-              htmlFor="guestName"
-              style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}
-            >
+          <div className="form-group">
+            <label htmlFor="guestName" className="form-label">
               Your Name *
             </label>
             <input
@@ -301,28 +257,14 @@ export function GuestMessages() {
               required
               maxLength={100}
               data-testid="guest-name"
-              style={{
-                width: '100%',
-                padding: '10px',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                fontSize: '14px',
-                boxSizing: 'border-box',
-              }}
+              className="form-input"
               placeholder="Enter your name"
             />
-            {fieldErrors.name && (
-              <div style={{ color: 'red', fontSize: '12px', marginTop: '5px' }}>
-                {fieldErrors.name}
-              </div>
-            )}
+            {fieldErrors.name && <div className="error-message">{fieldErrors.name}</div>}
           </div>
 
-          <div style={{ marginBottom: '15px' }}>
-            <label
-              htmlFor="guestEmail"
-              style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}
-            >
+          <div className="form-group">
+            <label htmlFor="guestEmail" className="form-label">
               Email (optional)
             </label>
             <input
@@ -332,28 +274,14 @@ export function GuestMessages() {
               onChange={(e) => setGuestEmail(e.target.value)}
               maxLength={254}
               data-testid="guest-email"
-              style={{
-                width: '100%',
-                padding: '10px',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                fontSize: '14px',
-                boxSizing: 'border-box',
-              }}
+              className="form-input"
               placeholder="your.email@example.com"
             />
-            {fieldErrors.email && (
-              <div style={{ color: 'red', fontSize: '12px', marginTop: '5px' }}>
-                {fieldErrors.email}
-              </div>
-            )}
+            {fieldErrors.email && <div className="error-message">{fieldErrors.email}</div>}
           </div>
 
-          <div style={{ marginBottom: '20px' }}>
-            <label
-              htmlFor="message"
-              style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}
-            >
+          <div className="form-group">
+            <label htmlFor="message" className="form-label">
               Your Message *
             </label>
             <textarea
@@ -364,39 +292,17 @@ export function GuestMessages() {
               rows={4}
               maxLength={1000}
               data-testid="guest-message"
-              style={{
-                width: '100%',
-                padding: '10px',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                fontSize: '14px',
-                boxSizing: 'border-box',
-                resize: 'vertical',
-              }}
+              className="form-textarea"
               placeholder="Share your well wishes, memories, or congratulations..."
             />
-            {fieldErrors.message && (
-              <div style={{ color: 'red', fontSize: '12px', marginTop: '5px' }}>
-                {fieldErrors.message}
-              </div>
-            )}
+            {fieldErrors.message && <div className="error-message">{fieldErrors.message}</div>}
           </div>
 
           <button
             type="submit"
             disabled={submitting}
             data-testid="guest-submit"
-            style={{
-              backgroundColor: submitting ? '#ccc' : '#4ecdc4',
-              color: 'white',
-              padding: '12px 24px',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '16px',
-              fontWeight: '500',
-              cursor: submitting ? 'not-allowed' : 'pointer',
-              transition: 'background-color 0.2s',
-            }}
+            className="form-submit"
           >
             {submitting ? 'Sending...' : 'Send Message'}
           </button>
@@ -405,89 +311,44 @@ export function GuestMessages() {
 
       {/* Messages List */}
       <div className="messages-list" data-testid="guest-messages">
-        <h3 style={{ marginBottom: '20px', color: '#555' }}>
-          Messages from Guests ({messages.length})
-        </h3>
+        <h3>Messages from Guests ({messages.length})</h3>
 
         {messages.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#666', fontStyle: 'italic' }}>
-            No messages yet. Be the first to leave a message!
-          </div>
+          <div className="messages-empty">No messages yet. Be the first to leave a message!</div>
         ) : (
           <>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div className="messages-container">
               {currentMessages.map((message) => (
-                <div
-                  key={message.id}
-                  style={{
-                    padding: '20px',
-                    border: '1px solid #eee',
-                    borderRadius: '8px',
-                    backgroundColor: '#fafafa',
-                  }}
-                >
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      marginBottom: '10px',
-                    }}
-                  >
-                    <div style={{ fontWeight: '600', color: '#333' }}>{message.name}</div>
-                    <div style={{ fontSize: '12px', color: '#666' }}>
-                      {formatDate(message.createdAt)}
-                    </div>
+                <div key={message.id} className="message-item">
+                  <div className="message-header">
+                    <div className="message-author">{message.name}</div>
+                    <div className="message-timestamp">{formatDate(message.createdAt)}</div>
                   </div>
-                  <div style={{ color: '#555', lineHeight: '1.5' }}>{message.message}</div>
+                  <div className="message-content">{message.message}</div>
                 </div>
               ))}
             </div>
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <nav
-                aria-label="Guest messages pagination"
-                style={{
-                  marginTop: '30px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  gap: '10px',
-                }}
-              >
+              <nav aria-label="Guest messages pagination" className="pagination">
                 <button
                   onClick={handlePrevPage}
                   disabled={currentPage === 1}
                   aria-label="Previous page"
-                  style={{
-                    padding: '8px 16px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    backgroundColor: currentPage === 1 ? '#f5f5f5' : '#fff',
-                    color: currentPage === 1 ? '#ccc' : '#333',
-                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                  }}
+                  className="page-button"
                 >
                   Previous
                 </button>
 
-                <div style={{ display: 'flex', gap: '5px' }}>
+                <div className="pagination-pages">
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                     <button
                       key={page}
                       onClick={() => handlePageChange(page)}
                       aria-label={`Go to page ${page}`}
                       aria-current={page === currentPage ? 'page' : undefined}
-                      style={{
-                        padding: '8px 12px',
-                        border: '1px solid #ccc',
-                        borderRadius: '4px',
-                        backgroundColor: page === currentPage ? '#4ecdc4' : '#fff',
-                        color: page === currentPage ? '#fff' : '#333',
-                        cursor: 'pointer',
-                        fontWeight: page === currentPage ? 'bold' : 'normal',
-                      }}
+                      className={`page-button ${page === currentPage ? 'page-button--active' : ''}`}
                     >
                       {page}
                     </button>
@@ -498,14 +359,7 @@ export function GuestMessages() {
                   onClick={handleNextPage}
                   disabled={currentPage === totalPages}
                   aria-label="Next page"
-                  style={{
-                    padding: '8px 16px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    backgroundColor: currentPage === totalPages ? '#f5f5f5' : '#fff',
-                    color: currentPage === totalPages ? '#ccc' : '#333',
-                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                  }}
+                  className="page-button"
                 >
                   Next
                 </button>

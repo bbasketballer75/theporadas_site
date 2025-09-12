@@ -1,13 +1,11 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import {
   familyMembersService,
   familyTreesService,
   guestMessagesService,
-  type FamilyMember,
-  type FamilyTree,
-  type GuestMessage,
 } from '../../src/services/api';
 
 // Mock server setup
@@ -316,7 +314,7 @@ describe('Data Transformation and Validation Integration Tests', () => {
         members: [
           {
             id: '1',
-            name: 'José María O\'Connor-Smith',
+            name: "José María O'Connor-Smith",
             relationship: 'Father & Husband',
             birthDate: '1980-01-01',
             photoUrl: 'https://example.com/photo.jpg',
@@ -339,7 +337,7 @@ describe('Data Transformation and Validation Integration Tests', () => {
       const result = await familyMembersService.getAll();
 
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe('José María O\'Connor-Smith');
+      expect(result[0].name).toBe("José María O'Connor-Smith");
       expect(result[0].relationship).toBe('Father & Husband');
       expect(result[0].description).toContain('special chars');
     });
@@ -500,19 +498,21 @@ describe('Data Transformation and Validation Integration Tests', () => {
 
   describe('Response Size Handling', () => {
     it('should handle large response payloads', async () => {
-      const largeMembers = Array(1000).fill(null).map((_, index) => ({
-        id: `${index + 1}`,
-        name: `Member ${index + 1}`,
-        relationship: 'Child',
-        birthDate: '2000-01-01',
-        photoUrl: `https://example.com/photo${index + 1}.jpg`,
-        description: `Description for member ${index + 1}`,
-        parentIds: [],
-        childrenIds: [],
-        spouseId: undefined,
-        createdAt: '2023-01-01T10:30:00.000Z',
-        updatedAt: '2023-01-01T15:45:00.000Z',
-      }));
+      const largeMembers = Array(1000)
+        .fill(null)
+        .map((_, index) => ({
+          id: `${index + 1}`,
+          name: `Member ${index + 1}`,
+          relationship: 'Child',
+          birthDate: '2000-01-01',
+          photoUrl: `https://example.com/photo${index + 1}.jpg`,
+          description: `Description for member ${index + 1}`,
+          parentIds: [],
+          childrenIds: [],
+          spouseId: undefined,
+          createdAt: '2023-01-01T10:30:00.000Z',
+          updatedAt: '2023-01-01T15:45:00.000Z',
+        }));
 
       const apiResponse = { members: largeMembers };
 

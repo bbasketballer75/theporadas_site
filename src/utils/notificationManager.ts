@@ -168,7 +168,14 @@ export class NotificationManager {
 
   private initAudio(): void {
     try {
-      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const w = window as unknown as {
+        AudioContext?: typeof AudioContext;
+        webkitAudioContext?: typeof AudioContext;
+      };
+      const Ctor = w.AudioContext || w.webkitAudioContext;
+      if (Ctor) {
+        this.audioContext = new Ctor();
+      }
     } catch (error) {
       console.warn('Audio context not supported:', error);
     }

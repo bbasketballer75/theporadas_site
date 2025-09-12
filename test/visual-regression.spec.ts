@@ -14,7 +14,7 @@ test.describe('Visual Regression Tests', () => {
       // Wait for images to load
       await page.waitForFunction(() => {
         const images = document.querySelectorAll('#gallery img');
-        return Array.from(images).every(img => img.complete && img.naturalHeight > 0);
+        return Array.from(images).every((img) => img.complete && img.naturalHeight > 0);
       });
 
       // Take screenshot of gallery grid
@@ -22,8 +22,8 @@ test.describe('Visual Regression Tests', () => {
         fullPage: false,
         mask: [
           page.locator('[data-testid="photo"]').locator('[data-loading="true"]'),
-          page.locator('[data-testid="photo"]').locator('[data-error="true"]')
-        ]
+          page.locator('[data-testid="photo"]').locator('[data-error="true"]'),
+        ],
       });
     });
 
@@ -45,9 +45,7 @@ test.describe('Visual Regression Tests', () => {
         // Take screenshot of modal
         await expect(modal).toHaveScreenshot('gallery-modal.png', {
           fullPage: false,
-          mask: [
-            page.locator('.gallery-modal-content [data-loading="true"]')
-          ]
+          mask: [page.locator('.gallery-modal-content [data-loading="true"]')],
         });
       }
     });
@@ -59,7 +57,7 @@ test.describe('Visual Regression Tests', () => {
       await expect(gallery).toBeVisible();
 
       await expect(gallery).toHaveScreenshot('gallery-mobile.png', {
-        fullPage: false
+        fullPage: false,
       });
     });
 
@@ -70,7 +68,7 @@ test.describe('Visual Regression Tests', () => {
       await expect(gallery).toBeVisible();
 
       await expect(gallery).toHaveScreenshot('gallery-tablet.png', {
-        fullPage: false
+        fullPage: false,
       });
     });
   });
@@ -81,38 +79,47 @@ test.describe('Visual Regression Tests', () => {
       await page.waitForLoadState('networkidle');
 
       // Wait for family tree container to appear (may show loading or error state)
-      await page.waitForSelector('[data-testid="family-tree"], .family-tree-loading, .family-tree-error', { timeout: 10000 });
+      await page.waitForSelector(
+        '[data-testid="family-tree"], .family-tree-loading, .family-tree-error',
+        { timeout: 10000 },
+      );
     });
 
     test('family tree container matches baseline', async ({ page }) => {
-      const familyTreeContainer = page.locator('[data-testid="family-tree"], .family-tree-loading, .family-tree-error').first();
+      const familyTreeContainer = page
+        .locator('[data-testid="family-tree"], .family-tree-loading, .family-tree-error')
+        .first();
       await expect(familyTreeContainer).toBeVisible();
 
       // Take screenshot of the family tree area (loading, error, or rendered state)
       await expect(familyTreeContainer).toHaveScreenshot('family-tree-container.png', {
-        fullPage: false
+        fullPage: false,
       });
     });
 
     test('family tree responsive layout on mobile', async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 667 });
 
-      const familyTreeContainer = page.locator('[data-testid="family-tree"], .family-tree-loading, .family-tree-error').first();
+      const familyTreeContainer = page
+        .locator('[data-testid="family-tree"], .family-tree-loading, .family-tree-error')
+        .first();
       await expect(familyTreeContainer).toBeVisible();
 
       await expect(familyTreeContainer).toHaveScreenshot('family-tree-mobile.png', {
-        fullPage: false
+        fullPage: false,
       });
     });
 
     test('family tree responsive layout on tablet', async ({ page }) => {
       await page.setViewportSize({ width: 768, height: 1024 });
 
-      const familyTreeContainer = page.locator('[data-testid="family-tree"], .family-tree-loading, .family-tree-error').first();
+      const familyTreeContainer = page
+        .locator('[data-testid="family-tree"], .family-tree-loading, .family-tree-error')
+        .first();
       await expect(familyTreeContainer).toBeVisible();
 
       await expect(familyTreeContainer).toHaveScreenshot('family-tree-tablet.png', {
-        fullPage: false
+        fullPage: false,
       });
     });
   });
@@ -130,7 +137,7 @@ test.describe('Visual Regression Tests', () => {
 
       // Take screenshot of navigation area
       await expect(navigation).toHaveScreenshot('navigation-area.png', {
-        fullPage: false
+        fullPage: false,
       });
     });
 
@@ -144,7 +151,7 @@ test.describe('Visual Regression Tests', () => {
 
       // Take screenshot with navigation state
       await expect(navigation).toHaveScreenshot('navigation-gallery-section.png', {
-        fullPage: false
+        fullPage: false,
       });
     });
 
@@ -155,7 +162,7 @@ test.describe('Visual Regression Tests', () => {
       await expect(navigation).toBeVisible();
 
       await expect(navigation).toHaveScreenshot('navigation-mobile-layout.png', {
-        fullPage: false
+        fullPage: false,
       });
     });
 
@@ -166,7 +173,7 @@ test.describe('Visual Regression Tests', () => {
       await expect(navigation).toBeVisible();
 
       await expect(navigation).toHaveScreenshot('navigation-tablet-layout.png', {
-        fullPage: false
+        fullPage: false,
       });
     });
   });
@@ -182,8 +189,8 @@ test.describe('Visual Regression Tests', () => {
         fullPage: false,
         mask: [
           page.locator('[data-loading="true"]'),
-          page.locator('[data-testid="photo"][data-error="true"]')
-        ]
+          page.locator('[data-testid="photo"][data-error="true"]'),
+        ],
       });
     });
 
@@ -198,8 +205,8 @@ test.describe('Visual Regression Tests', () => {
         fullPage: false,
         mask: [
           page.locator('[data-loading="true"]'),
-          page.locator('[data-testid="photo"][data-error="true"]')
-        ]
+          page.locator('[data-testid="photo"][data-error="true"]'),
+        ],
       });
     });
 
@@ -211,7 +218,7 @@ test.describe('Visual Regression Tests', () => {
       await expect(familyTreeSection).toBeVisible();
 
       await expect(familyTreeSection).toHaveScreenshot('family-tree-section-layout.png', {
-        fullPage: false
+        fullPage: false,
       });
     });
   });

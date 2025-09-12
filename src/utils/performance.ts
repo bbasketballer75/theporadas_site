@@ -1,5 +1,7 @@
-import * as Sentry from '@sentry/react';
-import { onCLS, onFCP, onLCP, onTTFB, onINP, Metric } from 'web-vitals';
+import { Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
+
+import { IS_DEV } from './env';
+import { addBreadcrumb, captureMessage, setMeasurement } from './sentryClient';
 
 // Types for performance metrics
 export interface PerformanceMetric {
@@ -22,6 +24,21 @@ export const CORE_WEB_VITALS_THRESHOLDS = {
 // Performance metrics storage
 const performanceMetrics: PerformanceMetric[] = [];
 
+// Safe performance helpers
+interface PerformanceWithMemory extends Performance {
+  memory?: { usedJSHeapSize?: number };
+}
+
+function getPerf(): PerformanceWithMemory | undefined {
+  // Guard for non-DOM environments
+  return typeof performance !== 'undefined' ? (performance as PerformanceWithMemory) : undefined;
+}
+
+function now(): number {
+  const perf = getPerf();
+  return perf && typeof perf.now === 'function' ? perf.now() : Date.now();
+}
+
 // Get rating based on metric value and thresholds
 function getRating(metricName: string, value: number): 'good' | 'needs-improvement' | 'poor' {
   const thresholds =
@@ -38,7 +55,7 @@ function reportToSentry(metric: Metric) {
   const rating = getRating(metric.name, metric.value);
 
   // Create a performance metric event
-  Sentry.addBreadcrumb({
+  void addBreadcrumb({
     category: 'performance',
     message: `${metric.name}: ${metric.value}ms (${rating})`,
     level: rating === 'poor' ? 'warning' : 'info',
@@ -51,9 +68,7 @@ function reportToSentry(metric: Metric) {
   });
 
   // Send as a measurement if supported
-  if (Sentry.setMeasurement) {
-    Sentry.setMeasurement(metric.name, metric.value, 'millisecond');
-  }
+  void setMeasurement(metric.name, metric.value, 'millisecond');
 }
 
 // Store metric locally for analysis
@@ -81,8 +96,9 @@ const MAX_MEMORY_HISTORY = 10;
 
 // Check for memory leaks
 function checkMemoryLeaks() {
-  if ('memory' in performance) {
-    const currentMemory = (performance as any).memory.usedJSHeapSize;
+  const perf = getPerf();
+  const currentMemory = perf?.memory?.usedJSHeapSize;
+  if (typeof currentMemory === 'number') {
     memoryHistory.push(currentMemory);
 
     if (memoryHistory.length > MAX_MEMORY_HISTORY) {
@@ -95,8 +111,9 @@ function checkMemoryLeaks() {
       const increasing = recent.every((mem, i) => i === 0 || mem >= recent[i - 1]);
       const growthRate = (recent[recent.length - 1] - recent[0]) / recent[0];
 
-      if (increasing && growthRate > 0.1) { // 10% growth over last 5 checks
-        Sentry.captureMessage('Potential memory leak detected', {
+      if (increasing && growthRate > 0.1) {
+        // 10% growth over last 5 checks
+        void captureMessage('Potential memory leak detected', {
           level: 'warning',
           extra: {
             memoryHistory: [...memoryHistory],
@@ -105,7 +122,7 @@ function checkMemoryLeaks() {
           },
         });
 
-        if (import.meta.env.DEV) {
+        if (IS_DEV) {
           console.warn('🚨 Potential memory leak detected:', {
             memoryHistory: [...memoryHistory],
             growthRate,
@@ -122,8 +139,9 @@ function initLongTaskMonitoring() {
   if ('PerformanceObserver' in window) {
     const observer = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        if (entry.duration > 50) { // Long task threshold
-          Sentry.addBreadcrumb({
+        if (entry.duration > 50) {
+          // Long task threshold
+          void addBreadcrumb({
             category: 'performance',
             message: `Long task: ${entry.duration.toFixed(2)}ms`,
             level: 'warning',
@@ -133,7 +151,7 @@ function initLongTaskMonitoring() {
             },
           });
 
-          if (import.meta.env.DEV) {
+          if (IS_DEV) {
             console.warn('🐌 Long task detected:', entry.duration.toFixed(2) + 'ms');
           }
         }
@@ -147,15 +165,16 @@ function initLongTaskMonitoring() {
 // Monitor frame drops (if supported)
 function initFrameDropMonitoring() {
   if ('requestAnimationFrame' in window) {
-    let lastTime = performance.now();
+    let lastTime = now();
     let frameCount = 0;
     let droppedFrames = 0;
 
     const checkFrameRate = () => {
-      const currentTime = performance.now();
+      const currentTime = now();
       const deltaTime = currentTime - lastTime;
 
-      if (deltaTime > 16.67 * 2) { // More than 2 frames missed (at 60fps)
+      if (deltaTime > 16.67 * 2) {
+        // More than 2 frames missed (at 60fps)
         droppedFrames++;
       }
 
@@ -165,15 +184,16 @@ function initFrameDropMonitoring() {
       if (frameCount >= 60) {
         const dropRate = (droppedFrames / frameCount) * 100;
 
-        if (dropRate > 10) { // More than 10% frame drops
-          Sentry.addBreadcrumb({
+        if (dropRate > 10) {
+          // More than 10% frame drops
+          void addBreadcrumb({
             category: 'performance',
             message: `High frame drop rate: ${dropRate.toFixed(1)}%`,
             level: 'warning',
             data: { dropRate, droppedFrames, frameCount },
           });
 
-          if (import.meta.env.DEV) {
+          if (IS_DEV) {
             console.warn('🎬 High frame drop rate:', dropRate.toFixed(1) + '%');
           }
         }
@@ -194,17 +214,16 @@ function initFrameDropMonitoring() {
 export function initCoreWebVitals() {
   // Largest Contentful Paint
   onLCP((metric) => {
-    if (import.meta.env.DEV) {
+    if (IS_DEV) {
       console.log('LCP:', metric);
     }
     storeMetric(metric);
     reportToSentry(metric);
   });
 
-
   // Cumulative Layout Shift
   onCLS((metric) => {
-    if (import.meta.env.DEV) {
+    if (IS_DEV) {
       console.log('CLS:', metric);
     }
     storeMetric(metric);
@@ -213,7 +232,7 @@ export function initCoreWebVitals() {
 
   // First Contentful Paint
   onFCP((metric) => {
-    if (import.meta.env.DEV) {
+    if (IS_DEV) {
       console.log('FCP:', metric);
     }
     storeMetric(metric);
@@ -222,7 +241,7 @@ export function initCoreWebVitals() {
 
   // Time to First Byte
   onTTFB((metric) => {
-    if (import.meta.env.DEV) {
+    if (IS_DEV) {
       console.log('TTFB:', metric);
     }
     storeMetric(metric);
@@ -231,7 +250,7 @@ export function initCoreWebVitals() {
 
   // Interaction to Next Paint (replaces FID)
   onINP((metric) => {
-    if (import.meta.env.DEV) {
+    if (IS_DEV) {
       console.log('INP:', metric);
     }
     storeMetric(metric);
@@ -302,12 +321,12 @@ export class PerformanceMonitor {
     if ('mark' in performance) {
       try {
         performance.mark(name + '-start');
-      } catch (error) {
-        // Fallback to performance.now()
-        this.marks.set(name, performance.now());
+      } catch {
+        // Fallback to timestamp helper
+        this.marks.set(name, now());
       }
     } else {
-      this.marks.set(name, performance.now());
+      this.marks.set(name, now());
     }
   }
 
@@ -327,18 +346,18 @@ export class PerformanceMonitor {
         performance.clearMarks(name + '-start');
         performance.clearMarks(name + '-end');
         performance.clearMeasures(name);
-      } catch (error) {
-        // Fallback to performance.now()
+      } catch {
+        // Fallback to timestamp helper
         const startTime = this.marks.get(name);
         if (!startTime) return null;
-        duration = performance.now() - startTime;
+        duration = now() - startTime;
         this.marks.delete(name);
       }
     } else {
       // Fallback for older browsers
       const startTime = this.marks.get(name);
       if (!startTime) return null;
-      duration = performance.now() - startTime;
+      duration = now() - startTime;
       this.marks.delete(name);
     }
 
@@ -346,7 +365,7 @@ export class PerformanceMonitor {
 
     // Report to Sentry if duration is significant (>100ms)
     if (duration > 100) {
-      Sentry.addBreadcrumb({
+      void addBreadcrumb({
         category: 'user-interaction',
         message: `User interaction "${name}": ${duration.toFixed(2)}ms`,
         level: duration > 1000 ? 'warning' : 'info',
@@ -398,7 +417,7 @@ export function usePerformanceMonitor() {
 
 // Development utilities
 export function logPerformanceInDev() {
-  if (import.meta.env.DEV) {
+  if (IS_DEV) {
     console.group('🚀 Performance Metrics');
     console.table(getPerformanceMetrics());
     console.log('Summary:', getPerformanceSummary());

@@ -1,11 +1,5 @@
 #!/usr/bin/env node
-
-import { spawn } from 'child_process';
-import { fileURLToPath } from 'url';
-import path from 'path';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
+import { execSync, spawn } from 'child_process';
 // Configuration
 const CONFIG = {
   intervalMinutes: parseInt(process.env.SYNC_INTERVAL_MINUTES || '60'), // Default 1 hour
@@ -39,7 +33,6 @@ function isWithinSchedule() {
 
 function hasUncommittedChanges() {
   try {
-    const { execSync } = require('child_process');
     const status = execSync('git status --porcelain', { encoding: 'utf8' });
     return status.trim().length > 0;
   } catch {
@@ -83,15 +76,21 @@ function performScheduledSync() {
   syncProcess.on('close', (code) => {
     if (code === 0) {
       if (!CONFIG.quiet) {
-        console.log(`✅ [${new Date().toISOString()}] Scheduled sync #${runCount} completed successfully`);
+        console.log(
+          `✅ [${new Date().toISOString()}] Scheduled sync #${runCount} completed successfully`,
+        );
       }
     } else {
-      console.error(`❌ [${new Date().toISOString()}] Scheduled sync #${runCount} failed with code ${code}`);
+      console.error(
+        `❌ [${new Date().toISOString()}] Scheduled sync #${runCount} failed with code ${code}`,
+      );
     }
 
     // Check if we've reached max runs
     if (CONFIG.maxRuns && runCount >= CONFIG.maxRuns) {
-      console.log(`🎯 [${new Date().toISOString()}] Reached maximum runs (${CONFIG.maxRuns}), stopping scheduler`);
+      console.log(
+        `🎯 [${new Date().toISOString()}] Reached maximum runs (${CONFIG.maxRuns}), stopping scheduler`,
+      );
       if (intervalId) {
         clearInterval(intervalId);
         intervalId = null;
@@ -101,7 +100,10 @@ function performScheduledSync() {
   });
 
   syncProcess.on('error', (error) => {
-    console.error(`❌ [${new Date().toISOString()}] Failed to start scheduled sync #${runCount}:`, error.message);
+    console.error(
+      `❌ [${new Date().toISOString()}] Failed to start scheduled sync #${runCount}:`,
+      error.message,
+    );
   });
 }
 
@@ -137,7 +139,7 @@ function startScheduler() {
 // Safety check
 function isGitRepository() {
   try {
-    require('child_process').execSync('git rev-parse --git-dir', { stdio: 'ignore' });
+    execSync('git rev-parse --git-dir', { stdio: 'ignore' });
     return true;
   } catch {
     return false;

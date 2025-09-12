@@ -7,6 +7,7 @@ This document provides comprehensive documentation for the wedding website's API
 ## Architecture
 
 The API layer consists of:
+
 - **Service Layer** (`src/services/api.ts`): Low-level API calls with error handling and retries
 - **React Query Hooks** (`src/hooks/useApi.ts`): High-level hooks for data fetching and mutations
 - **Type Definitions**: TypeScript interfaces for all data structures
@@ -17,17 +18,17 @@ The API layer consists of:
 
 ```typescript
 interface FamilyMember {
-  id?: string;                    // Unique identifier
-  name: string;                   // Full name
-  relationship: string;           // Relationship type (parent, child, sibling, etc.)
-  birthDate?: string;             // ISO date string
-  photoUrl?: string;              // Photo URL
-  description?: string;           // Biography/description
-  parentIds: string[];            // Array of parent member IDs
-  childrenIds: string[];          // Array of children member IDs
-  spouseId?: string;              // Spouse member ID
-  createdAt: Date;                // Creation timestamp
-  updatedAt: Date;                // Last update timestamp
+  id?: string; // Unique identifier
+  name: string; // Full name
+  relationship: string; // Relationship type (parent, child, sibling, etc.)
+  birthDate?: string; // ISO date string
+  photoUrl?: string; // Photo URL
+  description?: string; // Biography/description
+  parentIds: string[]; // Array of parent member IDs
+  childrenIds: string[]; // Array of children member IDs
+  spouseId?: string; // Spouse member ID
+  createdAt: Date; // Creation timestamp
+  updatedAt: Date; // Last update timestamp
 }
 ```
 
@@ -35,11 +36,11 @@ interface FamilyMember {
 
 ```typescript
 interface FamilyTree {
-  id: string;                     // Unique identifier
-  name: string;                   // Tree name
-  members: FamilyMember[];        // Array of family members
-  createdAt: Date;                // Creation timestamp
-  updatedAt: Date;                // Last update timestamp
+  id: string; // Unique identifier
+  name: string; // Tree name
+  members: FamilyMember[]; // Array of family members
+  createdAt: Date; // Creation timestamp
+  updatedAt: Date; // Last update timestamp
 }
 ```
 
@@ -47,11 +48,11 @@ interface FamilyTree {
 
 ```typescript
 interface GuestMessage {
-  id?: string;                    // Unique identifier
-  name: string;                   // Guest name
-  email?: string;                 // Guest email (optional)
-  message: string;                // Message content
-  createdAt: Date;                // Creation timestamp
+  id?: string; // Unique identifier
+  name: string; // Guest name
+  email?: string; // Guest email (optional)
+  message: string; // Message content
+  createdAt: Date; // Creation timestamp
 }
 ```
 
@@ -60,81 +61,98 @@ interface GuestMessage {
 ### Family Members Service
 
 #### `getAll(): Promise<FamilyMember[]>`
+
 Retrieves all family members from the API.
 
 **Returns:** Array of family members with dates converted to Date objects
 
 **Example:**
+
 ```typescript
 const members = await familyMembersService.getAll();
 ```
 
 #### `getById(id: string): Promise<FamilyMember | null>`
+
 Retrieves a specific family member by ID.
 
 **Parameters:**
+
 - `id`: Family member ID
 
 **Returns:** Family member object or null if not found
 
 **Example:**
+
 ```typescript
 const member = await familyMembersService.getById('member-123');
 ```
 
 #### `add(member): Promise<string>`
+
 Creates a new family member.
 
 **Parameters:**
+
 - `member`: Family member data (excluding id, createdAt, updatedAt)
 
 **Returns:** ID of the created member
 
 **Example:**
+
 ```typescript
 const memberId = await familyMembersService.add({
   name: 'John Doe',
   relationship: 'parent',
   parentIds: [],
-  childrenIds: []
+  childrenIds: [],
 });
 ```
 
 #### `update(id, updates): Promise<void>`
+
 Updates an existing family member.
 
 **Parameters:**
+
 - `id`: Family member ID
 - `updates`: Partial family member data
 
 **Example:**
+
 ```typescript
 await familyMembersService.update('member-123', {
   name: 'Jane Doe',
-  description: 'Updated bio'
+  description: 'Updated bio',
 });
 ```
 
 #### `delete(id): Promise<void>`
+
 Deletes a family member.
 
 **Parameters:**
+
 - `id`: Family member ID
 
 **Example:**
+
 ```typescript
 await familyMembersService.delete('member-123');
 ```
 
 #### `getByRelationship(relationship): Promise<FamilyMember[]>`
+
 Retrieves family members by relationship type.
 
 **Parameters:**
+
 - `relationship`: Relationship type to filter by
 
 **Returns:** Array of family members with the specified relationship
 
 **Example:**
+
 ```typescript
 const parents = await familyMembersService.getByRelationship('parent');
 ```
@@ -142,43 +160,51 @@ const parents = await familyMembersService.getByRelationship('parent');
 ### Guest Messages Service
 
 #### `getAll(): Promise<GuestMessage[]>`
+
 Retrieves all guest messages.
 
 **Returns:** Array of guest messages with dates converted to Date objects
 
 **Example:**
+
 ```typescript
 const messages = await guestMessagesService.getAll();
 ```
 
 #### `add(message): Promise<string>`
+
 Creates a new guest message.
 
 **Parameters:**
+
 - `message`: Guest message data (excluding id, createdAt)
 
 **Returns:** ID of the created message
 
 **Example:**
+
 ```typescript
 const messageId = await guestMessagesService.add({
   name: 'John Smith',
   email: 'john@example.com',
-  message: 'Congratulations on your wedding!'
+  message: 'Congratulations on your wedding!',
 });
 ```
 
 ### Image Processing Service
 
 #### `processImage(imageFile): Promise<{ processedUrl: string }>`
+
 Processes an uploaded image file.
 
 **Parameters:**
+
 - `imageFile`: File object to process
 
 **Returns:** Object containing the processed image URL
 
 **Example:**
+
 ```typescript
 const result = await imageProcessingService.processImage(imageFile);
 console.log('Processed image URL:', result.processedUrl);
@@ -189,16 +215,19 @@ console.log('Processed image URL:', result.processedUrl);
 ### Query Hooks
 
 #### `useFamilyMembers()`
+
 Fetches all family members with caching.
 
 **Returns:** Query object with `data`, `isLoading`, `error`, etc.
 
 **Cache Settings:**
+
 - Stale time: 5 minutes
 - GC time: 10 minutes
 - Retries: 3
 
 **Example:**
+
 ```typescript
 const { data: members, isLoading, error } = useFamilyMembers();
 
@@ -215,40 +244,49 @@ return (
 ```
 
 #### `useFamilyMember(id)`
+
 Fetches a specific family member by ID.
 
 **Parameters:**
+
 - `id`: Family member ID
 
 **Returns:** Query object with single member data
 
 **Example:**
+
 ```typescript
 const { data: member, isLoading } = useFamilyMember('member-123');
 ```
 
 #### `useFamilyMembersByRelationship(relationship)`
+
 Fetches family members by relationship type.
 
 **Parameters:**
+
 - `relationship`: Relationship type to filter by
 
 **Returns:** Query object with filtered members
 
 **Example:**
+
 ```typescript
 const { data: parents } = useFamilyMembersByRelationship('parent');
 ```
 
 #### `useGuestMessages()`
+
 Fetches all guest messages.
 
 **Cache Settings:**
+
 - Stale time: 2 minutes (shorter for frequently changing data)
 - GC time: 5 minutes
 - Retries: 3
 
 **Example:**
+
 ```typescript
 const { data: messages, isLoading } = useGuestMessages();
 ```
@@ -256,11 +294,13 @@ const { data: messages, isLoading } = useGuestMessages();
 ### Mutation Hooks
 
 #### `useAddFamilyMember()`
+
 Adds a new family member with automatic cache invalidation.
 
 **Returns:** Mutation object with `mutate`, `isPending`, `error`, etc.
 
 **Example:**
+
 ```typescript
 const addMember = useAddFamilyMember();
 
@@ -271,28 +311,32 @@ const handleSubmit = (memberData) => {
     },
     onError: (error) => {
       console.error('Failed to add member:', error);
-    }
+    },
   });
 };
 ```
 
 #### `useUpdateFamilyMember()`
+
 Updates an existing family member.
 
 **Example:**
+
 ```typescript
 const updateMember = useUpdateFamilyMember();
 
 updateMember.mutate({
   id: 'member-123',
-  updates: { name: 'Updated Name' }
+  updates: { name: 'Updated Name' },
 });
 ```
 
 #### `useDeleteFamilyMember()`
+
 Deletes a family member.
 
 **Example:**
+
 ```typescript
 const deleteMember = useDeleteFamilyMember();
 
@@ -300,15 +344,17 @@ deleteMember.mutate('member-123');
 ```
 
 #### `useAddGuestMessage()`
+
 Adds a new guest message.
 
 **Example:**
+
 ```typescript
 const addMessage = useAddGuestMessage();
 
 addMessage.mutate({
   name: 'John Doe',
-  message: 'Best wishes!'
+  message: 'Best wishes!',
 });
 ```
 
@@ -317,6 +363,7 @@ addMessage.mutate({
 The API layer includes comprehensive error handling:
 
 ### HTTP Error Codes
+
 - `404`: Resource not found
 - `429`: Too many requests (rate limited)
 - `500`: Server error
@@ -324,32 +371,38 @@ The API layer includes comprehensive error handling:
 - `401`: Authentication required
 
 ### Automatic Retries
+
 - Failed requests are automatically retried up to 3 times
 - Exponential backoff delay (1s, 2s, 4s)
 - Maximum delay capped at 5 seconds
 
 ### Timeout Handling
+
 - Requests timeout after 10 seconds
 - Timeout errors are properly handled and reported
 
 ## Best Practices
 
 ### Data Fetching
+
 1. Use React Query hooks instead of direct service calls for caching benefits
 2. Handle loading and error states in your components
 3. Use appropriate cache times based on data change frequency
 
 ### Error Handling
+
 1. Always check for error states in your components
 2. Provide user-friendly error messages
 3. Handle network errors gracefully
 
 ### Performance
+
 1. Use the appropriate query keys for cache invalidation
 2. Consider data dependencies when invalidating queries
 3. Use optimistic updates for better UX when appropriate
 
 ### Type Safety
+
 1. Use the provided TypeScript interfaces
 2. Leverage type inference from React Query hooks
 3. Validate data at runtime when necessary
@@ -460,3 +513,4 @@ const GuestBook: React.FC = () => {
 };
 
 export default GuestBook;
+```

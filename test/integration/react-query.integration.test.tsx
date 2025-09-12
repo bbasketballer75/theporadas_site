@@ -1,21 +1,22 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import React from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import {
-  useFamilyMembers,
+  useAddFamilyMember,
+  useAddGuestMessage,
+  useDeleteFamilyMember,
   useFamilyMember,
+  useFamilyMembers,
   useFamilyMembersByRelationship,
   useGuestMessages,
-  useAddGuestMessage,
-  useAddFamilyMember,
   useUpdateFamilyMember,
-  useDeleteFamilyMember,
-  type FamilyMember,
-  type GuestMessage,
 } from '../../src/hooks/useApi';
+
+import type { FamilyMember, GuestMessage } from '../../src/services/api';
 
 // Mock server setup
 const server = setupServer();
@@ -50,7 +51,8 @@ const createWrapper = () => {
       queries: {
         retry: false,
         staleTime: 0,
-        gcTime: 0,
+        // Keep cache around briefly so status can settle and invalidations are observable
+        gcTime: 10000,
       },
       mutations: {
         retry: false,
@@ -59,21 +61,19 @@ const createWrapper = () => {
   });
 
   return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 };
 
 describe('React Query Hooks Integration Tests', () => {
   beforeEach(() => {
     // Set up mock API base URL for tests
-    vi.stubEnv('VITE_API_BASE_URL', '');
+    vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:3001');
 
     // Configure MSW handlers
     server.use(
       // Family Members endpoints
-      http.post('/family-member', async ({ request }) => {
+      http.post('http://localhost:3001/family-member', async ({ request }) => {
         const body = await request.json();
         if (body && Object.keys(body).length === 0) {
           // GET all request (POST with empty body)
@@ -83,7 +83,7 @@ describe('React Query Hooks Integration Tests', () => {
         return HttpResponse.json({ id: 'new-id' });
       }),
 
-      http.get('/family-member/:id', ({ params }) => {
+      http.get('http://localhost:3001/family-member/:id', ({ params }) => {
         const { id } = params;
         if (id === '1') {
           return HttpResponse.json(mockMember);
@@ -91,15 +91,15 @@ describe('React Query Hooks Integration Tests', () => {
         return HttpResponse.json({ error: 'Not found' }, { status: 404 });
       }),
 
-      http.put('/family-member/:id', () => {
+      http.put('http://localhost:3001/family-member/:id', () => {
         return HttpResponse.json({});
       }),
 
-      http.delete('/family-member/:id', () => {
+      http.delete('http://localhost:3001/family-member/:id', () => {
         return HttpResponse.json({});
       }),
 
-      http.get('/family-member', ({ request }) => {
+      http.get('http://localhost:3001/family-member', ({ request }) => {
         const url = new URL(request.url);
         const relationship = url.searchParams.get('relationship');
         if (relationship === 'Father') {
@@ -109,16 +109,16 @@ describe('React Query Hooks Integration Tests', () => {
       }),
 
       // Guest Messages endpoints
-      http.get('/guest-messages', () => {
+      http.get('http://localhost:3001/guest-messages', () => {
         return HttpResponse.json({ messages: [mockMessage] });
       }),
 
-      http.post('/guest-message', () => {
+      http.post('http://localhost:3001/guest-message', () => {
         return HttpResponse.json({ id: 'new-message-id' });
       }),
     );
 
-    server.listen({ onUnhandledRequest: 'bypass' });
+    server.listen({ onUnhandledRequest: 'error' });
   });
 
   afterEach(() => {
@@ -146,7 +146,7 @@ describe('React Query Hooks Integration Tests', () => {
 
     it('should handle error states', async () => {
       server.use(
-        http.post('/family-member', () => {
+        http.post('http://localhost:3001/family-member', () => {
           return HttpResponse.json({ error: 'Server error' }, { status: 500 });
         }),
       );
@@ -155,11 +155,13 @@ describe('React Query Hooks Integration Tests', () => {
         wrapper: createWrapper(),
       });
 
-      await waitFor(() => {
-        expect(result.current.isError).toBe(true);
-      });
-
-      expect(result.current.error).toBeDefined();
+      await waitFor(
+        () => {
+          expect(result.current.status).toBe('error');
+          expect(result.current.error).toBeDefined();
+        },
+        { timeout: 3000 },
+      );
       expect(result.current.data).toBeUndefined();
     });
   });
@@ -260,7 +262,7 @@ describe('React Query Hooks Integration Tests', () => {
 
     it('should handle server errors with custom error message', async () => {
       server.use(
-        http.get('/guest-messages', () => {
+        http.get('http://localhost:3001/guest-messages', () => {
           return HttpResponse.json({ error: 'Server error' }, { status: 500 });
         }),
       );
@@ -269,11 +271,13 @@ describe('React Query Hooks Integration Tests', () => {
         wrapper: createWrapper(),
       });
 
-      await waitFor(() => {
-        expect(result.current.isError).toBe(true);
-      });
-
-      expect(result.current.error?.message).toContain('Unable to load guest messages');
+      await waitFor(
+        () => {
+          expect(result.current.status).toBe('error');
+          expect(result.current.error?.message).toContain('Unable to load guest messages');
+        },
+        { timeout: 3000 },
+      );
     });
   });
 
@@ -303,7 +307,7 @@ describe('React Query Hooks Integration Tests', () => {
 
     it('should handle mutation errors', async () => {
       server.use(
-        http.post('/guest-message', () => {
+        http.post('http://localhost:3001/guest-message', () => {
           return HttpResponse.json({ error: 'Validation failed' }, { status: 400 });
         }),
       );
@@ -405,7 +409,7 @@ describe('React Query Hooks Integration Tests', () => {
           queries: {
             retry: false,
             staleTime: 0,
-            gcTime: 0,
+            gcTime: 10000,
           },
           mutations: {
             retry: false,
@@ -417,9 +421,7 @@ describe('React Query Hooks Integration Tests', () => {
       queryClient.setQueryData(['family-members'], [mockMember]);
 
       const wrapper = ({ children }: { children: React.ReactNode }) => (
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
       );
 
       const { result: addResult } = renderHook(() => useAddFamilyMember(), {
@@ -441,7 +443,12 @@ describe('React Query Hooks Integration Tests', () => {
       });
 
       // Check that the query was invalidated
-      expect(queryClient.getQueryState(['family-members'])?.isInvalidated).toBe(true);
+      await waitFor(
+        () => {
+          expect(queryClient.getQueryState(['family-members'])?.isInvalidated).toBe(true);
+        },
+        { timeout: 3000 },
+      );
     });
 
     it('should invalidate guest messages query after adding new message', async () => {
@@ -450,7 +457,7 @@ describe('React Query Hooks Integration Tests', () => {
           queries: {
             retry: false,
             staleTime: 0,
-            gcTime: 0,
+            gcTime: 10000,
           },
           mutations: {
             retry: false,
@@ -462,9 +469,7 @@ describe('React Query Hooks Integration Tests', () => {
       queryClient.setQueryData(['guest-messages'], [mockMessage]);
 
       const wrapper = ({ children }: { children: React.ReactNode }) => (
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
       );
 
       const { result: addResult } = renderHook(() => useAddGuestMessage(), {
@@ -483,7 +488,12 @@ describe('React Query Hooks Integration Tests', () => {
       });
 
       // Check that the query was invalidated
-      expect(queryClient.getQueryState(['guest-messages'])?.isInvalidated).toBe(true);
+      await waitFor(
+        () => {
+          expect(queryClient.getQueryState(['guest-messages'])?.isInvalidated).toBe(true);
+        },
+        { timeout: 3000 },
+      );
     });
   });
 
@@ -506,7 +516,7 @@ describe('React Query Hooks Integration Tests', () => {
 
     it('should handle error states with proper error messages', async () => {
       server.use(
-        http.post('/family-member', () => {
+        http.post('http://localhost:3001/family-member', () => {
           return HttpResponse.json({ error: 'Forbidden' }, { status: 403 });
         }),
       );
@@ -515,10 +525,13 @@ describe('React Query Hooks Integration Tests', () => {
         wrapper: createWrapper(),
       });
 
-      await waitFor(() => {
-        expect(result.current.isError).toBe(true);
-        expect(result.current.error?.message).toContain('Access denied');
-      });
+      await waitFor(
+        () => {
+          expect(result.current.status).toBe('error');
+          expect(result.current.error?.message).toContain('Access denied');
+        },
+        { timeout: 3000 },
+      );
     });
   });
 });

@@ -1,6 +1,7 @@
 import React from 'react';
-import { FamilyMember } from '../services/api';
+
 import { useD3Interactions } from '../hooks/useD3Interactions';
+import { FamilyMember } from '../services/api';
 
 interface FamilyTreeVisualizationProps {
   filteredMembers: FamilyMember[];

@@ -1,30 +1,31 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
+
 import { usePerformanceMonitor as useMonitor } from '../utils/performance';
 
 export function usePerformanceMonitor(componentName: string) {
   const monitor = useMonitor();
-  const renderStartRef = useRef<number>();
+  const renderStartRef = useRef<number | null>(null);
 
   useEffect(() => {
     // Track component mount time
-    const mountTime = performance.now();
+    const _mountTime = Date.now();
     monitor.startTiming(`${componentName}-mount`);
 
     return () => {
       // Track component unmount time
-      const unmountTime = performance.now();
+      const _unmountTime = Date.now();
       monitor.endTiming(`${componentName}-mount`);
     };
   }, [componentName, monitor]);
 
   useEffect(() => {
     // Track render time
-    if (renderStartRef.current) {
-      const renderTime = performance.now() - renderStartRef.current;
+    if (renderStartRef.current != null) {
+      const _renderTime = Date.now() - renderStartRef.current;
       monitor.startTiming(`${componentName}-render`);
       monitor.endTiming(`${componentName}-render`);
     }
-    renderStartRef.current = performance.now();
+    renderStartRef.current = Date.now();
   });
 
   const measureInteraction = (interactionName: string, callback: () => void) => {
@@ -39,7 +40,10 @@ export function usePerformanceMonitor(componentName: string) {
     }
   };
 
-  const measureAsyncInteraction = async (interactionName: string, callback: () => Promise<any>) => {
+  const measureAsyncInteraction = async (
+    interactionName: string,
+    callback: () => Promise<unknown>,
+  ) => {
     monitor.startTiming(`${componentName}-${interactionName}`);
     try {
       const result = await callback();
@@ -99,7 +103,7 @@ export function useInteractionPerformance() {
   };
 
   const measureKeyPress = (elementName: string, callback?: () => void) => {
-    return (event: React.KeyboardEvent) => {
+    return (_event: React.KeyboardEvent) => {
       monitor.startTiming(`keypress-${elementName}`);
       if (callback) {
         callback();
@@ -111,7 +115,7 @@ export function useInteractionPerformance() {
   };
 
   const measureScroll = (elementName: string, callback?: () => void) => {
-    return (event: React.UIEvent) => {
+    return (_event: React.UIEvent) => {
       monitor.startTiming(`scroll-${elementName}`);
       if (callback) {
         callback();
@@ -133,10 +137,7 @@ export function useInteractionPerformance() {
 export function useApiPerformance() {
   const monitor = useMonitor();
 
-  const measureApiCall = async <T>(
-    endpoint: string,
-    apiCall: () => Promise<T>
-  ): Promise<T> => {
+  const measureApiCall = async <T>(endpoint: string, apiCall: () => Promise<T>): Promise<T> => {
     monitor.startTiming(`api-${endpoint}`);
     try {
       const result = await apiCall();

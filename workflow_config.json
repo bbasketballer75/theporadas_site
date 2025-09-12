@@ -1,34 +1,12 @@
 {
-  "team_members": [
-    "Kilo Code",
-    "Developer 1",
-    "Developer 2"
-  ],
+  "team_members": ["Kilo Code", "Developer 1", "Developer 2"],
   "default_complexity": "medium",
   "working_hours_per_day": 8,
   "timezone": "America/New_York",
   "project_name": "Kilo Code Project",
   "checklist_templates": {
-    "simple": [
-      "requirements",
-      "implementation",
-      "testing",
-      "documentation"
-    ],
-    "medium": [
-      "planning",
-      "development",
-      "testing",
-      "deployment",
-      "documentation"
-    ],
-    "complex": [
-      "strategy",
-      "design",
-      "implementation",
-      "testing",
-      "deployment",
-      "maintenance"
-    ]
+    "simple": ["requirements", "implementation", "testing", "documentation"],
+    "medium": ["planning", "development", "testing", "deployment", "documentation"],
+    "complex": ["strategy", "design", "implementation", "testing", "deployment", "maintenance"]
   }
 }

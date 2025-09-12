@@ -40,10 +40,13 @@ test.describe('Video Player Component', () => {
     if (await playButton.isVisible()) {
       await playButton.click();
       // Wait for video to start playing using readyState
-      await page.waitForFunction(() => {
-        const video = document.querySelector('[data-testid="video-element"]') as HTMLVideoElement;
-        return video && video.readyState >= 2 && !video.paused;
-      }, { timeout: 10000 });
+      await page.waitForFunction(
+        () => {
+          const video = document.querySelector('[data-testid="video-element"]') as HTMLVideoElement;
+          return video && video.readyState >= 2 && !video.paused;
+        },
+        { timeout: 10000 },
+      );
 
       // Check if video is playing (paused should be false)
       const isPaused = await video.evaluate((el: HTMLVideoElement) => el.paused);
@@ -74,19 +77,25 @@ test.describe('Video Player Component', () => {
     if (await progressBar.isVisible()) {
       // Wait for video to be ready
       const video = page.getByTestId('video-element').first();
-      await page.waitForFunction(() => {
-        const video = document.querySelector('[data-testid="video-element"]') as HTMLVideoElement;
-        return video && video.readyState >= 3; // HAVE_FUTURE_DATA
-      }, { timeout: 10000 });
+      await page.waitForFunction(
+        () => {
+          const video = document.querySelector('[data-testid="video-element"]') as HTMLVideoElement;
+          return video && video.readyState >= 3; // HAVE_FUTURE_DATA
+        },
+        { timeout: 10000 },
+      );
 
       // Seek to 50%
       await progressBar.fill('50');
 
       // Wait for seek to complete
-      await page.waitForFunction(() => {
-        const video = document.querySelector('[data-testid="video-element"]') as HTMLVideoElement;
-        return video && Math.abs(video.currentTime - video.duration * 0.5) < 1;
-      }, { timeout: 5000 });
+      await page.waitForFunction(
+        () => {
+          const video = document.querySelector('[data-testid="video-element"]') as HTMLVideoElement;
+          return video && Math.abs(video.currentTime - video.duration * 0.5) < 1;
+        },
+        { timeout: 5000 },
+      );
 
       const currentTime = await video.evaluate((el: HTMLVideoElement) => el.currentTime);
       const duration = await video.evaluate((el: HTMLVideoElement) => el.duration);
@@ -106,10 +115,13 @@ test.describe('Video Player Component', () => {
 
       // Wait for volume change to take effect
       const video = page.getByTestId('video-element').first();
-      await page.waitForFunction(() => {
-        const video = document.querySelector('[data-testid="video-element"]') as HTMLVideoElement;
-        return video && video.volume === 0.5;
-      }, { timeout: 2000 });
+      await page.waitForFunction(
+        () => {
+          const video = document.querySelector('[data-testid="video-element"]') as HTMLVideoElement;
+          return video && video.volume === 0.5;
+        },
+        { timeout: 2000 },
+      );
 
       const volume = await video.evaluate((el: HTMLVideoElement) => el.volume);
       expect(volume).toBe(0.5);
@@ -126,10 +138,14 @@ test.describe('Video Player Component', () => {
       await muteButton.click();
 
       // Wait for mute state to change
-      await page.waitForFunction((initial) => {
-        const video = document.querySelector('[data-testid="video-element"]') as HTMLVideoElement;
-        return video && video.muted !== initial;
-      }, initialMuted, { timeout: 2000 });
+      await page.waitForFunction(
+        (initial) => {
+          const video = document.querySelector('[data-testid="video-element"]') as HTMLVideoElement;
+          return video && video.muted !== initial;
+        },
+        initialMuted,
+        { timeout: 2000 },
+      );
 
       const newMuted = await video.evaluate((el: HTMLVideoElement) => el.muted);
       expect(initialMuted).not.toBe(newMuted);
@@ -148,7 +164,10 @@ test.describe('Video Player Component', () => {
       // Check if video container is in fullscreen
       const videoContainer = page.getByTestId('video-player');
       const isFullscreen = await videoContainer.evaluate((el) => {
-        return document.fullscreenElement === el || (el as HTMLElement & { webkitFullscreenElement?: Element }).webkitFullscreenElement === el;
+        return (
+          document.fullscreenElement === el ||
+          (el as HTMLElement & { webkitFullscreenElement?: Element }).webkitFullscreenElement === el
+        );
       });
 
       // Fullscreen might not work in headless mode, but button should respond
@@ -161,19 +180,24 @@ test.describe('Video Player Component', () => {
 
     if (await qualitySelector.isVisible()) {
       // Get initial quality
-      const initialQuality = await qualitySelector.inputValue() || await qualitySelector.textContent();
+      const initialQuality =
+        (await qualitySelector.inputValue()) || (await qualitySelector.textContent());
 
       // Change quality
       await qualitySelector.selectOption({ index: 1 }); // Select second option
 
       // Wait for quality change to complete
-      await page.waitForFunction(() => {
-        const video = document.querySelector('[data-testid="video-element"]') as HTMLVideoElement;
-        return video && video.readyState >= 2; // HAVE_CURRENT_DATA
-      }, { timeout: 10000 });
+      await page.waitForFunction(
+        () => {
+          const video = document.querySelector('[data-testid="video-element"]') as HTMLVideoElement;
+          return video && video.readyState >= 2; // HAVE_CURRENT_DATA
+        },
+        { timeout: 10000 },
+      );
 
       // Quality should have changed
-      const newQuality = await qualitySelector.inputValue() || await qualitySelector.textContent();
+      const newQuality =
+        (await qualitySelector.inputValue()) || (await qualitySelector.textContent());
       expect(initialQuality).not.toBe(newQuality);
     }
   });
@@ -212,10 +236,13 @@ test.describe('Video Player Component', () => {
 
     // Wait for video to be ready
     const video = page.getByTestId('video-element').first();
-    await page.waitForFunction(() => {
-      const video = document.querySelector('[data-testid="video-element"]') as HTMLVideoElement;
-      return video && video.readyState >= 3; // HAVE_FUTURE_DATA
-    }, { timeout: 15000 });
+    await page.waitForFunction(
+      () => {
+        const video = document.querySelector('[data-testid="video-element"]') as HTMLVideoElement;
+        return video && video.readyState >= 3; // HAVE_FUTURE_DATA
+      },
+      { timeout: 15000 },
+    );
 
     // Check ready state
     await expect(videoContainer).toHaveAttribute('data-ready', 'true');
@@ -235,24 +262,30 @@ test.describe('Video Player Component', () => {
     await expect(videoContainer).toHaveAttribute('data-loading', 'true');
 
     // Wait for video to load
-    await page.waitForFunction(() => {
-      const video = document.querySelector('[data-testid="video-element"]') as HTMLVideoElement;
-      return video && video.readyState >= 2; // HAVE_CURRENT_DATA
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        const video = document.querySelector('[data-testid="video-element"]') as HTMLVideoElement;
+        return video && video.readyState >= 2; // HAVE_CURRENT_DATA
+      },
+      { timeout: 10000 },
+    );
   });
 
   test('retry mechanism works on load failure', async ({ page }) => {
     // Mock network failure
-    await page.route('**/*.{mp4,webm,ogg}', route => route.abort());
+    await page.route('**/*.{mp4,webm,ogg}', (route) => route.abort());
 
     const videoContainer = page.getByTestId('video-player');
     const retryButton = page.getByTestId('video-retry');
 
     // Wait for error state
-    await page.waitForFunction(() => {
-      const container = document.querySelector('[data-testid="video-player"]');
-      return container && container.getAttribute('data-error') === 'true';
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        const container = document.querySelector('[data-testid="video-player"]');
+        return container && container.getAttribute('data-error') === 'true';
+      },
+      { timeout: 10000 },
+    );
 
     await expect(videoContainer).toHaveAttribute('data-error', 'true');
     await expect(retryButton).toBeVisible();
@@ -263,26 +296,32 @@ test.describe('Video Player Component', () => {
     await retryButton.click();
 
     // Wait for retry to work
-    await page.waitForFunction(() => {
-      const container = document.querySelector('[data-testid="video-player"]');
-      return container && container.getAttribute('data-error') === 'false';
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        const container = document.querySelector('[data-testid="video-player"]');
+        return container && container.getAttribute('data-error') === 'false';
+      },
+      { timeout: 10000 },
+    );
 
     await expect(videoContainer).toHaveAttribute('data-error', 'false');
   });
 
   test('error states are handled properly', async ({ page }) => {
     // Mock network failure
-    await page.route('**/*.{mp4,webm,ogg}', route => route.abort());
+    await page.route('**/*.{mp4,webm,ogg}', (route) => route.abort());
 
     const videoContainer = page.getByTestId('video-player');
     const errorMessage = page.getByTestId('video-error');
 
     // Wait for error state
-    await page.waitForFunction(() => {
-      const container = document.querySelector('[data-testid="video-player"]');
-      return container && container.getAttribute('data-error') === 'true';
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        const container = document.querySelector('[data-testid="video-player"]');
+        return container && container.getAttribute('data-error') === 'true';
+      },
+      { timeout: 10000 },
+    );
 
     await expect(videoContainer).toHaveAttribute('data-error', 'true');
     await expect(errorMessage).toBeVisible();
@@ -291,8 +330,8 @@ test.describe('Video Player Component', () => {
 
   test('timeout scenario handling', async ({ page }) => {
     // Mock slow network
-    await page.route('**/*.{mp4,webm,ogg}', async route => {
-      await new Promise(resolve => setTimeout(resolve, 35000)); // Exceed timeout
+    await page.route('**/*.{mp4,webm,ogg}', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 35000)); // Exceed timeout
       await route.fulfill({ status: 200, body: 'mock video data' });
     });
 
@@ -300,10 +339,13 @@ test.describe('Video Player Component', () => {
     const errorMessage = page.getByTestId('video-error');
 
     // Wait for timeout error
-    await page.waitForFunction(() => {
-      const container = document.querySelector('[data-testid="video-player"]');
-      return container && container.getAttribute('data-error') === 'true';
-    }, { timeout: 40000 });
+    await page.waitForFunction(
+      () => {
+        const container = document.querySelector('[data-testid="video-player"]');
+        return container && container.getAttribute('data-error') === 'true';
+      },
+      { timeout: 40000 },
+    );
 
     await expect(videoContainer).toHaveAttribute('data-error', 'true');
     await expect(errorMessage).toBeVisible();
@@ -313,7 +355,7 @@ test.describe('Video Player Component', () => {
   test('network failure recovery', async ({ page }) => {
     // Mock intermittent network failure
     let requestCount = 0;
-    await page.route('**/*.{mp4,webm,ogg}', route => {
+    await page.route('**/*.{mp4,webm,ogg}', (route) => {
       requestCount++;
       if (requestCount <= 2) {
         route.abort();
@@ -326,10 +368,13 @@ test.describe('Video Player Component', () => {
     const retryButton = page.getByTestId('video-retry');
 
     // Wait for initial error
-    await page.waitForFunction(() => {
-      const container = document.querySelector('[data-testid="video-player"]');
-      return container && container.getAttribute('data-error') === 'true';
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        const container = document.querySelector('[data-testid="video-player"]');
+        return container && container.getAttribute('data-error') === 'true';
+      },
+      { timeout: 10000 },
+    );
 
     await expect(videoContainer).toHaveAttribute('data-error', 'true');
 
@@ -337,10 +382,13 @@ test.describe('Video Player Component', () => {
     await retryButton.click();
 
     // Wait for successful load
-    await page.waitForFunction(() => {
-      const container = document.querySelector('[data-testid="video-player"]');
-      return container && container.getAttribute('data-error') === 'false';
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        const container = document.querySelector('[data-testid="video-player"]');
+        return container && container.getAttribute('data-error') === 'false';
+      },
+      { timeout: 10000 },
+    );
 
     await expect(videoContainer).toHaveAttribute('data-error', 'false');
   });
@@ -362,10 +410,15 @@ test.describe('Video Player Component', () => {
       if (await playButton.isVisible()) {
         await playButton.click();
         // Wait for video to start playing
-        await page.waitForFunction(() => {
-          const video = document.querySelector('[data-testid="video-element"]') as HTMLVideoElement;
-          return video && video.readyState >= 2 && !video.paused;
-        }, { timeout: 10000 });
+        await page.waitForFunction(
+          () => {
+            const video = document.querySelector(
+              '[data-testid="video-element"]',
+            ) as HTMLVideoElement;
+            return video && video.readyState >= 2 && !video.paused;
+          },
+          { timeout: 10000 },
+        );
       }
     });
   });

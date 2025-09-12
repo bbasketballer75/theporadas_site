@@ -1,6 +1,5 @@
-import { render, fireEvent } from '@testing-library/react';
-import React from 'react';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { fireEvent, render } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { MotionToggle } from '../src/components/MotionToggle';
 
@@ -48,14 +47,12 @@ describe('MotionToggle', () => {
 
   it('sets data-motion attribute and tolerates localStorage errors', () => {
     setSystemPref(false);
-    const setItem = vi.spyOn(window.localStorage.__proto__, 'setItem').mockImplementation(() => {
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new Error('fail');
     });
-    const removeItem = vi
-      .spyOn(window.localStorage.__proto__, 'removeItem')
-      .mockImplementation(() => {
-        throw new Error('fail');
-      });
+    const removeItem = vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+      throw new Error('fail');
+    });
     const { getByRole } = render(<MotionToggle />);
     const btn = getByRole('button');
     fireEvent.click(btn); // reduce

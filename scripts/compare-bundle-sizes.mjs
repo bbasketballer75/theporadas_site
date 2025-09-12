@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
 import fs from 'fs';
-import path from 'path';
 
-function formatBytes(bytes) {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
+// kept for future use if raw byte reporting is added
+// function formatBytes(bytes) {
+//   if (bytes === 0) return '0 Bytes';
+//   const k = 1024;
+//   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+//   const i = Math.floor(Math.log(bytes) / Math.log(k));
+//   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+// }
 
 function formatDelta(delta) {
   const sign = delta >= 0 ? '+' : '';
@@ -35,7 +35,7 @@ function compareBundleSizes(currentPath, baselinePath) {
 
   // Create a map of baseline files for easy lookup
   const baselineMap = new Map();
-  baseline.files.forEach(file => {
+  baseline.files.forEach((file) => {
     baselineMap.set(file.file, file);
   });
 
@@ -44,7 +44,7 @@ function compareBundleSizes(currentPath, baselinePath) {
   let increasedCount = 0;
   let decreasedCount = 0;
 
-  current.files.forEach(currentFile => {
+  current.files.forEach((currentFile) => {
     const baselineFile = baselineMap.get(currentFile.file);
     if (baselineFile) {
       const delta = currentFile.sizeKB - baselineFile.sizeKB;
@@ -59,7 +59,7 @@ function compareBundleSizes(currentPath, baselinePath) {
         baselineSize: baselineFile.sizeKB,
         delta,
         exceeded: currentFile.exceeded,
-        baselineExceeded: baselineFile.exceeded
+        baselineExceeded: baselineFile.exceeded,
       });
     } else {
       // New file
@@ -70,7 +70,7 @@ function compareBundleSizes(currentPath, baselinePath) {
         delta: currentFile.sizeKB,
         exceeded: currentFile.exceeded,
         baselineExceeded: false,
-        isNew: true
+        isNew: true,
       });
       totalDelta += currentFile.sizeKB;
       increasedCount++;
@@ -78,8 +78,8 @@ function compareBundleSizes(currentPath, baselinePath) {
   });
 
   // Check for removed files
-  baseline.files.forEach(baselineFile => {
-    const exists = current.files.some(f => f.file === baselineFile.file);
+  baseline.files.forEach((baselineFile) => {
+    const exists = current.files.some((f) => f.file === baselineFile.file);
     if (!exists) {
       comparisons.push({
         file: baselineFile.file,
@@ -88,7 +88,7 @@ function compareBundleSizes(currentPath, baselinePath) {
         delta: -baselineFile.sizeKB,
         exceeded: false,
         baselineExceeded: baselineFile.exceeded,
-        isRemoved: true
+        isRemoved: true,
       });
       totalDelta -= baselineFile.sizeKB;
       decreasedCount++;
@@ -106,11 +106,16 @@ function compareBundleSizes(currentPath, baselinePath) {
   console.log('| File | Current | Baseline | Change | Status |');
   console.log('|------|---------|----------|--------|--------|');
 
-  comparisons.forEach(comp => {
-    const status = comp.isNew ? '🆕 New' :
-                   comp.isRemoved ? '🗑️ Removed' :
-                   comp.delta > 0 ? '📈 Increased' :
-                   comp.delta < 0 ? '📉 Decreased' : '➡️ Unchanged';
+  comparisons.forEach((comp) => {
+    const status = comp.isNew
+      ? '🆕 New'
+      : comp.isRemoved
+        ? '🗑️ Removed'
+        : comp.delta > 0
+          ? '📈 Increased'
+          : comp.delta < 0
+            ? '📉 Decreased'
+            : '➡️ Unchanged';
 
     const currentSize = comp.isRemoved ? '-' : `${comp.currentSize}KB`;
     const baselineSize = comp.isNew ? '-' : `${comp.baselineSize}KB`;
@@ -127,13 +132,13 @@ function compareBundleSizes(currentPath, baselinePath) {
   console.log(`Files unchanged: ${comparisons.length - increasedCount - decreasedCount}`);
 
   // Check for threshold violations
-  const currentExceeded = current.files.filter(f => f.exceeded);
-  const baselineExceeded = baseline.files.filter(f => f.exceeded);
+  const currentExceeded = current.files.filter((f) => f.exceeded);
+  const baselineExceeded = baseline.files.filter((f) => f.exceeded);
 
   if (currentExceeded.length > 0) {
     console.log('');
     console.log('🚨 Current Threshold Violations:');
-    currentExceeded.forEach(file => {
+    currentExceeded.forEach((file) => {
       console.log(`  - ${file.file}: ${file.sizeKB}KB (threshold: ${file.threshold}KB)`);
     });
   }
@@ -156,7 +161,7 @@ function compareBundleSizes(currentPath, baselinePath) {
     unchangedCount: comparisons.length - increasedCount - decreasedCount,
     currentViolations: currentExceeded.length,
     baselineViolations: baselineExceeded.length,
-    comparisons
+    comparisons,
   };
 
   fs.writeFileSync('bundle-size-comparison.json', JSON.stringify(comparisonResult, null, 2));

@@ -46,7 +46,9 @@ test.describe('Guestbook Component', () => {
 
     // Should show validation errors or prevent submission
     const errorMessage = page.locator('.error-message, [role="alert"]');
-    await expect(errorMessage.or(page.locator('input:invalid')).or(page.locator('textarea:invalid'))).toBeVisible();
+    await expect(
+      errorMessage.or(page.locator('input:invalid')).or(page.locator('textarea:invalid')),
+    ).toBeVisible();
   });
 
   test('handles long message input', async ({ page }) => {

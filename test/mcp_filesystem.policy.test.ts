@@ -1,5 +1,57 @@
+import { spawn, type ChildProcessWithoutNullStreams } from 'child_process';
+import { mkdtempSync, writeFileSync } from 'fs';
+import process from 'node:process';
+import { tmpdir } from 'os';
+import { join } from 'path';
+
+import { describe, expect, it } from 'vitest';
+
+interface RpcEnvelope {
+  jsonrpc?: string;
+  id?: number;
+  method?: string;
+  params?: Record<string, unknown>;
+  result?: Record<string, any>;
+  error?: { code?: number; message?: string };
+}
+
+function rpc(serverPath: string, env: Record<string, string>) {
+  const child: ChildProcessWithoutNullStreams = spawn('node', [serverPath], { env });
+  let stdout = '';
+  child.stdout.on('data', (d) => {
+    stdout += d.toString();
+  });
+  function send(msg: unknown) {
+    child.stdin.write(JSON.stringify(msg) + '\n');
+  }
+  function next<T = RpcEnvelope>(predicate: (o: RpcEnvelope) => boolean): Promise<T> {
+    return new Promise((resolve, reject) => {
+      const start = Date.now();
+      const tick = setInterval(() => {
+        const lines = stdout.split('\n').filter(Boolean);
+        for (const line of lines) {
+          try {
+            const obj: RpcEnvelope = JSON.parse(line);
+            if (predicate(obj)) {
+              clearInterval(tick);
+              return resolve(obj as T);
+            }
+          } catch {
+            // ignore parse errors
+          }
+        }
+        if (Date.now() - start > 5000) {
+          clearInterval(tick);
+          (reject as (reason?: unknown) => void)(new Error('Timeout waiting for message'));
+        }
+      }, 25);
+    });
+  }
+  return { send, next, child };
+}
+
 describe('filesystem policy & errors', () => {
-  it.skip('enforces allowlist, size limit, mkdir/delete, traversal, stat', async () => {
+  it('enforces allowlist, size limit, mkdir/delete, traversal, stat', async () => {
     const root = mkdtempSync(join(tmpdir(), 'fs-pol-'));
     writeFileSync(join(root, 'seed.txt'), 'hello');
     const serverPath = join(process.cwd(), 'scripts', 'mcp_filesystem.mjs');

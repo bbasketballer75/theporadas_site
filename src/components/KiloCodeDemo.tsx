@@ -369,7 +369,6 @@ export function KiloCodeDemo() {
                     type="checkbox"
                     checked={notificationManager.getConfig().enabled}
                     onChange={(e) => {
-                      const config = notificationManager.getConfig();
                       notificationManager.updateConfig({ enabled: e.target.checked });
                     }}
                     className="mr-2"
@@ -390,7 +389,6 @@ export function KiloCodeDemo() {
                     type="checkbox"
                     checked={notificationManager.getConfig().soundEnabled}
                     onChange={(e) => {
-                      const config = notificationManager.getConfig();
                       notificationManager.updateConfig({ soundEnabled: e.target.checked });
                     }}
                     className="mr-2"

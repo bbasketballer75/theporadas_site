@@ -1,5 +1,4 @@
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
-import React from 'react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ThemeToggle } from '../src/components/ThemeToggle';
@@ -46,7 +45,7 @@ describe('ThemeToggle', () => {
   });
 
   it('tolerates localStorage setItem failure on toggle', () => {
-    const setItem = vi.spyOn(window.localStorage.__proto__, 'setItem').mockImplementation(() => {
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new Error('fail');
     });
     render(<ThemeToggle />);

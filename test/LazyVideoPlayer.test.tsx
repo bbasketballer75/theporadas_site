@@ -8,7 +8,7 @@ interface IOEntry {
 }
 type IOCallback = (entries: IOEntry[]) => void;
 // Preserve original reference for cleanup
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 const origIO: any = (globalThis as unknown as { IntersectionObserver?: unknown })
   .IntersectionObserver;
 

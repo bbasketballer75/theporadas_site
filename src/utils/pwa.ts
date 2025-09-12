@@ -49,7 +49,6 @@ export async function registerServiceWorker(): Promise<void> {
       navigator.serviceWorker.addEventListener('message', (event) => {
         console.log('[PWA] Service Worker message:', event.data);
       });
-
     } catch (error) {
       console.error('[PWA] Service Worker registration failed:', error);
     }
@@ -250,8 +249,8 @@ function hideInstallPrompt(): void {
  * Check if app is running in standalone mode (installed PWA)
  */
 export function isStandalone(): boolean {
-  return window.matchMedia('(display-mode: standalone)').matches ||
-         (window.navigator as any).standalone === true;
+  const nav = window.navigator as Navigator & { standalone?: boolean };
+  return window.matchMedia('(display-mode: standalone)').matches || nav.standalone === true;
 }
 
 /**

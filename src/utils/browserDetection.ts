@@ -58,7 +58,9 @@ export function detectBrowser(): BrowserInfo {
   }
 
   // Platform detection
-  const isIOS = /iPad|iPhone|iPod/.test(platform) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 2 && /MacIntel/.test(platform));
+  const isIOS =
+    /iPad|iPhone|iPod/.test(platform) ||
+    ((navigator.maxTouchPoints ?? 0) > 2 && /MacIntel/.test(platform));
   const isAndroid = /Android/.test(ua);
   const isMobile = isIOS || isAndroid || /Mobi|Android/i.test(ua);
 
@@ -72,14 +74,24 @@ export function detectBrowser(): BrowserInfo {
     }
   })();
 
-  const supportsWebRTC = !!(window.RTCPeerConnection || window.webkitRTCPeerConnection);
-  const supportsWebAudio = !!(window.AudioContext || (window as any).webkitAudioContext);
+  const supportsWebRTC = !!(
+    window.RTCPeerConnection ||
+    (window as unknown as { webkitRTCPeerConnection?: unknown }).webkitRTCPeerConnection
+  );
+  const supportsWebAudio = !!(
+    (window as unknown as { AudioContext?: unknown; webkitAudioContext?: unknown }).AudioContext ||
+    (window as unknown as { webkitAudioContext?: unknown }).webkitAudioContext
+  );
 
   // Video codec detection
   const video = document.createElement('video');
   const supportsVideoCodecs = {
-    h264: !!(video.canPlayType && video.canPlayType('video/mp4; codecs="avc1.42E01E"').replace(/no/, '')),
-    webm: !!(video.canPlayType && video.canPlayType('video/webm; codecs="vp8, vorbis"').replace(/no/, '')),
+    h264: !!(
+      video.canPlayType && video.canPlayType('video/mp4; codecs="avc1.42E01E"').replace(/no/, '')
+    ),
+    webm: !!(
+      video.canPlayType && video.canPlayType('video/webm; codecs="vp8, vorbis"').replace(/no/, '')
+    ),
     ogg: !!(video.canPlayType && video.canPlayType('video/ogg; codecs="theora"').replace(/no/, '')),
   };
 
@@ -89,7 +101,9 @@ export function detectBrowser(): BrowserInfo {
     mp3: !!(audio.canPlayType && audio.canPlayType('audio/mpeg;').replace(/no/, '')),
     aac: !!(audio.canPlayType && audio.canPlayType('audio/aac;').replace(/no/, '')),
     ogg: !!(audio.canPlayType && audio.canPlayType('audio/ogg; codecs="vorbis"').replace(/no/, '')),
-    webm: !!(audio.canPlayType && audio.canPlayType('audio/webm; codecs="vorbis"').replace(/no/, '')),
+    webm: !!(
+      audio.canPlayType && audio.canPlayType('audio/webm; codecs="vorbis"').replace(/no/, '')
+    ),
   };
 
   return {
@@ -166,7 +180,10 @@ export function applyBrowserFixes(): void {
     // Prevent zoom on input focus
     const viewport = document.querySelector('meta[name=viewport]');
     if (viewport && !viewport.getAttribute('content')?.includes('user-scalable=no')) {
-      viewport.setAttribute('content', viewport.getAttribute('content')?.trim() + ', user-scalable=no');
+      viewport.setAttribute(
+        'content',
+        viewport.getAttribute('content')?.trim() + ', user-scalable=no',
+      );
     }
   }
-};
+}

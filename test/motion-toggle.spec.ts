@@ -16,19 +16,19 @@ test.describe('Motion Toggle Component', () => {
     const body = page.locator('body');
 
     // Get initial motion state
-    const initialClass = await body.getAttribute('class') || '';
-    const initialDataMotion = await body.getAttribute('data-motion') || '';
+    const initialClass = (await body.getAttribute('class')) || '';
+    const initialDataMotion = (await body.getAttribute('data-motion')) || '';
 
     // Click toggle
     await motionToggle.click();
     await page.waitForTimeout(200);
 
     // Check if motion preference changed
-    const newClass = await body.getAttribute('class') || '';
-    const newDataMotion = await body.getAttribute('data-motion') || '';
+    const newClass = (await body.getAttribute('class')) || '';
+    const newDataMotion = (await body.getAttribute('data-motion')) || '';
 
     // At least one of these should have changed
-    const motionChanged = (initialClass !== newClass) || (initialDataMotion !== newDataMotion);
+    const motionChanged = initialClass !== newClass || initialDataMotion !== newDataMotion;
     expect(motionChanged).toBe(true);
   });
 
@@ -48,8 +48,8 @@ test.describe('Motion Toggle Component', () => {
     const body = page.locator('body');
 
     // Get initial state
-    const initialDataMotion = await body.getAttribute('data-motion') || '';
-    const initialClass = await body.getAttribute('class') || '';
+    const initialDataMotion = (await body.getAttribute('data-motion')) || '';
+    const initialClass = (await body.getAttribute('class')) || '';
 
     // Toggle motion
     await motionToggle.click();
@@ -60,11 +60,12 @@ test.describe('Motion Toggle Component', () => {
     await page.waitForLoadState('networkidle');
 
     // Check if motion preference persisted
-    const reloadedDataMotion = await body.getAttribute('data-motion') || '';
-    const reloadedClass = await body.getAttribute('class') || '';
+    const reloadedDataMotion = (await body.getAttribute('data-motion')) || '';
+    const reloadedClass = (await body.getAttribute('class')) || '';
 
     // Motion preference should be the same as after toggle
-    const motionPersisted = (initialDataMotion !== reloadedDataMotion) || (initialClass !== reloadedClass);
+    const motionPersisted =
+      initialDataMotion !== reloadedDataMotion || initialClass !== reloadedClass;
     expect(motionPersisted).toBe(true);
   });
 
@@ -93,13 +94,15 @@ test.describe('Motion Toggle Component', () => {
     const body = page.locator('body');
 
     // Should respect system preference initially
-    const initialMotion = await body.getAttribute('data-motion') || await body.getAttribute('class') || '';
+    const initialMotion =
+      (await body.getAttribute('data-motion')) || (await body.getAttribute('class')) || '';
 
     // Toggle should still work
     await motionToggle.click();
     await page.waitForTimeout(200);
 
-    const newMotion = await body.getAttribute('data-motion') || await body.getAttribute('class') || '';
+    const newMotion =
+      (await body.getAttribute('data-motion')) || (await body.getAttribute('class')) || '';
     expect(initialMotion).not.toBe(newMotion);
   });
 
@@ -108,7 +111,9 @@ test.describe('Motion Toggle Component', () => {
 
     // Check for motion icons
     const motionIcon = page.locator('.motion-icon, .animation-icon, [data-testid="motion-icon"]');
-    const noMotionIcon = page.locator('.no-motion-icon, .reduced-motion-icon, [data-testid="no-motion-icon"]');
+    const noMotionIcon = page.locator(
+      '.no-motion-icon, .reduced-motion-icon, [data-testid="no-motion-icon"]',
+    );
 
     // At least one icon should be visible
     await expect(motionIcon.or(noMotionIcon)).toBeVisible();
@@ -118,7 +123,7 @@ test.describe('Motion Toggle Component', () => {
     await page.waitForTimeout(200);
 
     // The icon state should have changed
-    const iconChanged = await motionIcon.isVisible() !== await noMotionIcon.isVisible();
+    const iconChanged = (await motionIcon.isVisible()) !== (await noMotionIcon.isVisible());
     expect(iconChanged).toBe(true);
   });
 
@@ -132,11 +137,12 @@ test.describe('Motion Toggle Component', () => {
     // Check if animations are reduced (this might be hard to test directly)
     // Look for CSS that disables animations
     const body = page.locator('body');
-    const bodyClass = await body.getAttribute('class') || '';
-    const hasReducedMotion = bodyClass.includes('reduced-motion') || bodyClass.includes('no-motion');
+    const bodyClass = (await body.getAttribute('class')) || '';
+    const hasReducedMotion =
+      bodyClass.includes('reduced-motion') || bodyClass.includes('no-motion');
 
     // Or check for data attribute
-    const dataMotion = await body.getAttribute('data-motion') || '';
+    const dataMotion = (await body.getAttribute('data-motion')) || '';
     const hasReducedMotionData = dataMotion === 'reduced' || dataMotion === 'none';
 
     expect(hasReducedMotion || hasReducedMotionData).toBe(true);
@@ -147,7 +153,8 @@ test.describe('Motion Toggle Component', () => {
     const body = page.locator('body');
 
     // Get initial state
-    const initialMotion = await body.getAttribute('data-motion') || await body.getAttribute('class') || '';
+    const initialMotion =
+      (await body.getAttribute('data-motion')) || (await body.getAttribute('class')) || '';
 
     // Toggle multiple times
     for (let i = 0; i < 4; i++) {
@@ -156,7 +163,8 @@ test.describe('Motion Toggle Component', () => {
     }
 
     // Should be back to initial state (even number of toggles)
-    const finalMotion = await body.getAttribute('data-motion') || await body.getAttribute('class') || '';
+    const finalMotion =
+      (await body.getAttribute('data-motion')) || (await body.getAttribute('class')) || '';
     expect(initialMotion).toBe(finalMotion);
   });
 
@@ -192,7 +200,8 @@ test.describe('Motion Toggle Component', () => {
       await page.waitForTimeout(200);
 
       const body = page.locator('body');
-      const motionChanged = await body.getAttribute('data-motion') || await body.getAttribute('class');
+      const motionChanged =
+        (await body.getAttribute('data-motion')) || (await body.getAttribute('class'));
       expect(motionChanged).toBeTruthy();
     });
   });

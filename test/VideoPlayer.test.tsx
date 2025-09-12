@@ -64,7 +64,7 @@ describe('VideoPlayer', () => {
       srclang: 'en',
     };
     // Cast through unknown then to VideoPlayer prop expectation to avoid explicit any
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- needed to inject deprecated field
+
     const legacyTracks = [legacy as unknown as any];
     render(<VideoPlayer caption="Warn" src="video.mp4" tracks={legacyTracks} />);
     expect(warnSpy).toHaveBeenCalledWith(

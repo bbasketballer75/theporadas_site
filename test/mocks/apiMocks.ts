@@ -1,4 +1,5 @@
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
+
 import type { FamilyMember, FamilyTree, GuestMessage } from '../../src/services/api';
 
 // Mock data
@@ -64,133 +65,140 @@ function getStatusText(status: number): string {
 // Mock API handlers
 export const createApiHandlers = (baseUrl: string) => [
   // Family Members endpoints
-  rest.post(`${baseUrl}/family-member`, async (req, res, ctx) => {
-    const body = await req.json();
+  http.post(`${baseUrl}/family-member`, async ({ request }) => {
+    const body = await request.json().catch(() => ({}));
 
     // Handle GET all (POST with empty body)
     if (body && Object.keys(body).length === 0) {
-      return res(ctx.json({ members: [mockFamilyMember] }));
+      return HttpResponse.json({ members: [mockFamilyMember] });
     }
 
     // Handle ADD request
-    return res(ctx.json({ id: 'new-id' }));
+    return HttpResponse.json({ id: 'new-id' });
   }),
 
-  rest.get(`${baseUrl}/family-member/:id`, (req, res, ctx) => {
-    const { id } = req.params;
+  http.get(`${baseUrl}/family-member/:id`, ({ params }) => {
+    const { id } = params as { id?: string };
     if (id === '1') {
-      return res(ctx.json(mockFamilyMember));
+      return HttpResponse.json(mockFamilyMember);
     }
     if (id === 'not-found') {
-      return res(ctx.status(404), ctx.json({ error: 'Not found' }));
+      return HttpResponse.json({ error: 'Not found' }, { status: 404 });
     }
-    return res(ctx.status(404), ctx.json({ error: 'Not found' }));
+    return HttpResponse.json({ error: 'Not found' }, { status: 404 });
   }),
 
-  rest.put(`${baseUrl}/family-member/:id`, (req, res, ctx) => {
-    return res(ctx.json({}));
+  http.put(`${baseUrl}/family-member/:id`, () => {
+    return HttpResponse.json({});
   }),
 
-  rest.delete(`${baseUrl}/family-member/:id`, (req, res, ctx) => {
-    return res(ctx.json({}));
+  http.delete(`${baseUrl}/family-member/:id`, () => {
+    return HttpResponse.json({});
   }),
 
-  rest.get(`${baseUrl}/family-member`, (req, res, ctx) => {
-    const relationship = req.url.searchParams.get('relationship');
+  http.get(`${baseUrl}/family-member`, ({ request }) => {
+    const url = new URL(request.url);
+    const relationship = url.searchParams.get('relationship');
     if (relationship === 'Father') {
-      return res(ctx.json({ members: [mockFamilyMember] }));
+      return HttpResponse.json({ members: [mockFamilyMember] });
     }
     if (relationship === 'empty') {
-      return res(ctx.json({ members: [] }));
+      return HttpResponse.json({ members: [] });
     }
-    return res(ctx.json({ members: [] }));
+    return HttpResponse.json({ members: [] });
   }),
 
   // Family Trees endpoints
-  rest.get(`${baseUrl}/family-tree`, (req, res, ctx) => {
-    return res(ctx.json({ trees: [mockFamilyTree] }));
+  http.get(`${baseUrl}/family-tree`, () => {
+    return HttpResponse.json({ trees: [mockFamilyTree] });
   }),
 
-  rest.get(`${baseUrl}/family-tree/:id`, (req, res, ctx) => {
-    const { id } = req.params;
+  http.get(`${baseUrl}/family-tree/:id`, ({ params }) => {
+    const { id } = params as { id?: string };
     if (id === '1') {
-      return res(ctx.json(mockFamilyTree));
+      return HttpResponse.json(mockFamilyTree);
     }
-    return res(ctx.status(404), ctx.json({ error: 'Not found' }));
+    return HttpResponse.json({ error: 'Not found' }, { status: 404 });
   }),
 
-  rest.post(`${baseUrl}/family-tree`, (req, res, ctx) => {
-    return res(ctx.json({ id: 'new-tree-id' }));
+  http.post(`${baseUrl}/family-tree`, () => {
+    return HttpResponse.json({ id: 'new-tree-id' });
   }),
 
-  rest.put(`${baseUrl}/family-tree/:id`, (req, res, ctx) => {
-    return res(ctx.json({}));
+  http.put(`${baseUrl}/family-tree/:id`, () => {
+    return HttpResponse.json({});
   }),
 
-  rest.delete(`${baseUrl}/family-tree/:id`, (req, res, ctx) => {
-    return res(ctx.json({}));
+  http.delete(`${baseUrl}/family-tree/:id`, () => {
+    return HttpResponse.json({});
   }),
 
   // Guest Messages endpoints
-  rest.get(`${baseUrl}/guest-messages`, (req, res, ctx) => {
-    return res(ctx.json({ messages: [mockGuestMessage] }));
+  http.get(`${baseUrl}/guest-messages`, () => {
+    return HttpResponse.json({ messages: [mockGuestMessage] });
   }),
 
-  rest.post(`${baseUrl}/guest-message`, (req, res, ctx) => {
-    return res(ctx.json({ id: 'new-message-id' }));
+  http.post(`${baseUrl}/guest-message`, () => {
+    return HttpResponse.json({ id: 'new-message-id' });
   }),
 
   // Image Processing endpoint
-  rest.post(`${baseUrl}/process-image`, (req, res, ctx) => {
-    return res(ctx.json({ processedUrl: 'https://example.com/processed.jpg' }));
+  http.post(`${baseUrl}/process-image`, () => {
+    return HttpResponse.json({ processedUrl: 'https://example.com/processed.jpg' });
   }),
 ];
 
 // Error scenario handlers
 export const createErrorHandlers = (baseUrl: string) => [
   // Network errors
-  rest.post(`${baseUrl}/family-member`, (req, res, ctx) => {
-    return res.networkError('Network error');
+  http.post(`${baseUrl}/family-member`, () => {
+    return HttpResponse.error();
   }),
 
   // Timeout simulation
-  rest.post(`${baseUrl}/timeout-test`, async (req, res, ctx) => {
-    await new Promise(resolve => setTimeout(resolve, 11000)); // Longer than timeout
-    return res(ctx.json({}));
+  http.post(`${baseUrl}/timeout-test`, async () => {
+    await new Promise((resolve) => setTimeout(resolve, 11000)); // Longer than timeout
+    return HttpResponse.json({});
   }),
 
   // Authentication errors
-  rest.post(`${baseUrl}/auth-test`, (req, res, ctx) => {
-    return res(ctx.status(401), ctx.json({ error: 'Unauthorized' }));
+  http.post(`${baseUrl}/auth-test`, () => {
+    return HttpResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }),
 
   // Authorization errors
-  rest.post(`${baseUrl}/forbidden-test`, (req, res, ctx) => {
-    return res(ctx.status(403), ctx.json({ error: 'Forbidden' }));
+  http.post(`${baseUrl}/forbidden-test`, () => {
+    return HttpResponse.json({ error: 'Forbidden' }, { status: 403 });
   }),
 
   // Rate limiting
-  rest.post(`${baseUrl}/rate-limit-test`, (req, res, ctx) => {
-    return res(ctx.status(429), ctx.json({ error: 'Rate limited' }));
+  http.post(`${baseUrl}/rate-limit-test`, () => {
+    return HttpResponse.json({ error: 'Rate limited' }, { status: 429 });
   }),
 
   // Server errors
-  rest.post(`${baseUrl}/server-error-test`, (req, res, ctx) => {
-    return res(ctx.status(500), ctx.json({ error: 'Internal server error' }));
+  http.post(`${baseUrl}/server-error-test`, () => {
+    return HttpResponse.json({ error: 'Internal server error' }, { status: 500 });
   }),
 
   // Validation errors
-  rest.post(`${baseUrl}/validation-test`, (req, res, ctx) => {
-    return res(ctx.status(400), ctx.json({ error: 'Validation failed', details: ['Name is required'] }));
+  http.post(`${baseUrl}/validation-test`, () => {
+    return HttpResponse.json(
+      { error: 'Validation failed', details: ['Name is required'] },
+      { status: 400 },
+    );
   }),
 ];
 
 // Utility functions for testing
-export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+export const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export const simulateNetworkDelay = (handler: any, delayMs: number = 100) => {
-  return async (req: any, res: any, ctx: any) => {
+export const simulateNetworkDelay = <T extends object>(
+  handler: (args: T) => Response | Promise<Response>,
+  delayMs: number = 100,
+) => {
+  return async (args: T) => {
     await delay(delayMs);
-    return handler(req, res, ctx);
+    return handler(args);
   };
 };

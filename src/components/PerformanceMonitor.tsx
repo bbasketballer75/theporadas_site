@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { getPerformanceMetrics, getPerformanceSummary, logPerformanceInDev } from '../utils/performance';
+
+import {
+  getPerformanceMetrics,
+  getPerformanceSummary,
+  logPerformanceInDev,
+} from '../utils/performance';
 
 interface PerformanceMonitorProps {
   showInProduction?: boolean;
@@ -37,22 +42,31 @@ export function PerformanceMonitor({ showInProduction = false }: PerformanceMoni
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   return (
-    <div style={{
-      position: 'fixed',
-      bottom: '20px',
-      right: '20px',
-      zIndex: 9999,
-      fontSize: '12px',
-      fontFamily: 'monospace',
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-      color: 'white',
-      padding: '10px',
-      borderRadius: '5px',
-      maxWidth: '400px',
-      maxHeight: '300px',
-      overflow: 'auto',
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+    <div
+      style={{
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        zIndex: 9999,
+        fontSize: '12px',
+        fontFamily: 'monospace',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        color: 'white',
+        padding: '10px',
+        borderRadius: '5px',
+        maxWidth: '400px',
+        maxHeight: '300px',
+        overflow: 'auto',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '10px',
+        }}
+      >
         <strong>Performance Monitor</strong>
         <button
           onClick={toggleVisibility}
@@ -73,7 +87,10 @@ export function PerformanceMonitor({ showInProduction = false }: PerformanceMoni
         <>
           <div style={{ marginBottom: '10px' }}>
             <div>Total Metrics: {summary.total}</div>
-            <div>Good: {summary.good} | Needs Improvement: {summary.needsImprovement} | Poor: {summary.poor}</div>
+            <div>
+              Good: {summary.good} | Needs Improvement: {summary.needsImprovement} | Poor:{' '}
+              {summary.poor}
+            </div>
           </div>
 
           <div style={{ marginBottom: '10px' }}>
@@ -88,11 +105,18 @@ export function PerformanceMonitor({ showInProduction = false }: PerformanceMoni
           <div>
             <strong>Recent Metrics:</strong>
             {metrics.slice(-5).map((metric, index) => (
-              <div key={index} style={{
-                marginLeft: '10px',
-                color: metric.rating === 'good' ? '#4CAF50' :
-                       metric.rating === 'needs-improvement' ? '#FF9800' : '#F44336'
-              }}>
+              <div
+                key={index}
+                style={{
+                  marginLeft: '10px',
+                  color:
+                    metric.rating === 'good'
+                      ? '#4CAF50'
+                      : metric.rating === 'needs-improvement'
+                        ? '#FF9800'
+                        : '#F44336',
+                }}
+              >
                 {metric.name}: {metric.value.toFixed(2)}ms ({metric.rating})
               </div>
             ))}

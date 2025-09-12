@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+
 import { detectBrowser } from '../utils/browserDetection';
 
 interface BackgroundAudioProps {
@@ -24,6 +25,7 @@ export function BackgroundAudio({ src, autoPlay = false, loop = true }: Backgrou
 
   // Browser detection for compatibility fixes
   const browserInfo = React.useMemo(() => detectBrowser(), []);
+  const browserName = browserInfo.name;
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -41,13 +43,13 @@ export function BackgroundAudio({ src, autoPlay = false, loop = true }: Backgrou
     if (autoPlay) {
       // Browser-specific auto-play handling
       const canAutoPlay = () => {
-        if (browserInfo.name === 'chrome' || browserInfo.name === 'edge') {
+        if (browserName === 'chrome' || browserName === 'edge') {
           // Chrome/Edge have strict auto-play policies
           return false; // Require user interaction
-        } else if (browserInfo.name === 'firefox') {
+        } else if (browserName === 'firefox') {
           // Firefox allows auto-play with user interaction history
           return document.hasFocus();
-        } else if (browserInfo.name === 'safari') {
+        } else if (browserName === 'safari') {
           // Safari requires user gesture for auto-play
           return false;
         }
@@ -69,7 +71,7 @@ export function BackgroundAudio({ src, autoPlay = false, loop = true }: Backgrou
       audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, [autoPlay]);
+  }, [autoPlay, browserName]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -88,18 +90,7 @@ export function BackgroundAudio({ src, autoPlay = false, loop = true }: Backgrou
       }, 15000);
     };
 
-    const handleCanPlay = () => {
-      if (timeoutRef.current !== null) {
-        window.clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
-      setIsLoading(false);
-      setIsLoaded(true);
-      setHasError(false);
-      setErrorMessage('');
-    };
-
-    const handleCanPlayThrough = () => {
+    const markLoadReady = () => {
       if (timeoutRef.current !== null) {
         window.clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
@@ -145,8 +136,8 @@ export function BackgroundAudio({ src, autoPlay = false, loop = true }: Backgrou
 
     // Add event listeners
     audio.addEventListener('loadstart', handleLoadStart);
-    audio.addEventListener('canplay', handleCanPlay);
-    audio.addEventListener('canplaythrough', handleCanPlayThrough);
+    audio.addEventListener('canplay', markLoadReady);
+    audio.addEventListener('canplaythrough', markLoadReady);
     audio.addEventListener('error', handleError);
     audio.addEventListener('stalled', handleStalled);
     audio.addEventListener('waiting', handleWaiting);
@@ -159,8 +150,8 @@ export function BackgroundAudio({ src, autoPlay = false, loop = true }: Backgrou
         window.clearTimeout(timeoutRef.current);
       }
       audio.removeEventListener('loadstart', handleLoadStart);
-      audio.removeEventListener('canplay', handleCanPlay);
-      audio.removeEventListener('canplaythrough', handleCanPlayThrough);
+      audio.removeEventListener('canplay', markLoadReady);
+      audio.removeEventListener('canplaythrough', markLoadReady);
       audio.removeEventListener('error', handleError);
       audio.removeEventListener('stalled', handleStalled);
       audio.removeEventListener('waiting', handleWaiting);
@@ -219,10 +210,10 @@ export function BackgroundAudio({ src, autoPlay = false, loop = true }: Backgrou
         <track kind="captions" src="" label="No captions available" />
       </audio>
       {isLoading && (
-        <div className="audio-loading" data-testid="audio-loading" role="status" aria-live="polite">
+        <output className="audio-loading" data-testid="audio-loading" aria-live="polite">
           <div className="audio-spinner" aria-hidden="true"></div>
           <span className="sr-only">Loading audio...</span>
-        </div>
+        </output>
       )}
       {hasError && (
         <div className="audio-error" data-testid="audio-error">

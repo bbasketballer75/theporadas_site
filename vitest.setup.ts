@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 // Unconditional canvas mock (prevents jsdom "Not implemented: HTMLCanvasElement.prototype.getContext")
 if (typeof window !== 'undefined') {
@@ -6,11 +6,10 @@ if (typeof window !== 'undefined') {
     window.HTMLCanvasElement ||
     (class extends window.HTMLElement {} as typeof window.HTMLCanvasElement);
   if (!window.HTMLCanvasElement) window.HTMLCanvasElement = ctor;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   (window.HTMLCanvasElement.prototype as any).getContext = (type: string) => {
     if (type === '2d') {
       return {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         measureText: (text: string): any => ({ width: text.length * 8 }),
       };
     }
@@ -20,7 +19,6 @@ if (typeof window !== 'undefined') {
 
 // Provide a basic matchMedia mock for components relying on prefers-reduced-motion
 if (typeof window !== 'undefined' && !window.matchMedia) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).matchMedia = (query: string): MediaQueryList => ({
     matches: false,
     media: query,
@@ -54,13 +52,17 @@ if (typeof window !== 'undefined' && !('IntersectionObserver' in window)) {
       };
       this.cb([entry as IntersectionObserverEntry], this);
     }
-    unobserve() {}
-    disconnect() {}
+    unobserve() {
+      return;
+    }
+    disconnect() {
+      return;
+    }
     takeRecords(): IntersectionObserverEntry[] {
       return [];
     }
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   (window as any).IntersectionObserver =
     MockIntersectionObserver as unknown as typeof IntersectionObserver;
 }

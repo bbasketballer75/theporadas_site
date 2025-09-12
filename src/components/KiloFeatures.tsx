@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { AutoApprovalRule } from '../utils/autoApprovalManager';
 import { MCPTool } from '../utils/mcpMarketplace';
@@ -12,7 +12,7 @@ interface ModeSelectorProps {
 
 export function ModeSelector({ modeManager, onModeChange }: ModeSelectorProps) {
   const [currentMode, setCurrentMode] = useState(modeManager.getCurrentMode());
-  const [allModes, setAllModes] = useState(modeManager.getAllModes());
+  const allModes = useMemo(() => modeManager.getAllModes(), [modeManager]);
 
   const handleModeChange = (modeId: string) => {
     if (modeManager.setMode(modeId)) {
