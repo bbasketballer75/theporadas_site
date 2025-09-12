@@ -1,5 +1,22 @@
 import { act, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+// Mock heavy/side-effect components BEFORE importing main
+vi.mock('../src/components/BackgroundAudio', () => ({
+  BackgroundAudio: () => null,
+}));
+vi.mock('../src/components/PerformanceMonitor', () => ({
+  PerformanceMonitor: () => null,
+}));
+vi.mock('../src/components/GuestMessages', () => ({
+  GuestMessages: () => null,
+}));
+vi.mock('../src/components/VideoPlayer/VideoPlayer', () => ({
+  VideoPlayer: () => null,
+}));
+vi.mock('../src/video/registry', () => ({
+  listVideos: () => [],
+}));
 
 describe('main bootstrap', () => {
   afterEach(() => {
