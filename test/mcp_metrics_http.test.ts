@@ -22,9 +22,12 @@ function getFreePort(): Promise<number> {
   });
 }
 
-async function waitForReady(proc: ChildProcessWithoutNullStreams, timeoutMs = 4000) {
+async function waitForReady(
+  proc: ChildProcessWithoutNullStreams,
+  timeoutMs = 4000,
+): Promise<{ port?: number }> {
   const lines: string[] = [];
-  return await new Promise<void>((resolve, reject) => {
+  return await new Promise<{ port?: number }>((resolve, reject) => {
     const to = setTimeout(
       () => reject(new Error('timeout waiting for ready: ' + lines.join('\n'))),
       timeoutMs,
@@ -35,8 +38,16 @@ async function waitForReady(proc: ChildProcessWithoutNullStreams, timeoutMs = 40
         if (!line.trim()) continue;
         lines.push(line);
         if (line.includes('"type":"ready"')) {
+          try {
+            const msg = JSON.parse(line);
+            clearTimeout(to);
+            resolve({ port: msg.port });
+            return;
+          } catch {
+            // fallthrough
+          }
           clearTimeout(to);
-          resolve();
+          resolve({});
         }
       }
     });
@@ -59,15 +70,16 @@ describe('MCP harness HTTP metrics', () => {
       MCP_ERROR_METRICS: '1',
     };
     const proc = spawn('node', ['scripts/mcp_test_metrics.mjs'], { env });
-    await waitForReady(proc);
+    const ready = await waitForReady(proc);
     // trigger a success + error call via RPC over stdin/stdout
     proc.stdin.write('{"jsonrpc":"2.0","id":1,"method":"ok/ping"}\n');
     proc.stdin.write('{"jsonrpc":"2.0","id":2,"method":"err/fail"}\n');
     // Allow a brief tick for metrics to accumulate
     await new Promise((r) => setTimeout(r, 150));
-    const metrics = await fetch(`http://127.0.0.1:${port}/metrics`).then((r) => r.text());
+    const realPort = ready.port ?? port;
+    const metrics = await fetch(`http://127.0.0.1:${realPort}/metrics`).then((r) => r.text());
     try {
-      expect(metrics).toMatch(/mcp_errors_total [0-9]+/);
+      expect(metrics).toMatch(/mcp_errors_total \d+/);
       expect(metrics).toMatch(/mcp_method_calls_total{method="ok\/ping"} 1/);
       expect(metrics).toMatch(/mcp_method_calls_total{method="err\/fail"} 1/);
       expect(metrics).toMatch(/mcp_method_errors_total{method="err\/fail"} 1/);
