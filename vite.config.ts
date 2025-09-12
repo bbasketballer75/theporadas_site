@@ -38,8 +38,6 @@ export default defineConfig({
             'firebase/storage',
             'firebase/auth',
           ],
-          // Other large dependencies
-          'other-vendor': ['mssql'],
         },
         // Optimize chunk file names
         chunkFileNames: 'assets/[name]-[hash].js',
