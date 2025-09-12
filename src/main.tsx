@@ -1,10 +1,11 @@
-import * as Sentry from '@sentry/react';
 import { createRoot } from 'react-dom/client';
 
 import App from './App';
 import './skipLinkFocus';
+import { VITE_SENTRY_DSN } from './utils/env';
 import { initCoreWebVitals } from './utils/performance';
 import { registerServiceWorker } from './utils/pwa';
+import { initSentry } from './utils/sentryClient';
 
 const isTestRuntime =
   (globalThis as unknown as { process?: { env?: Record<string, string | undefined> } }).process?.env
@@ -14,21 +15,8 @@ const isTestRuntime =
   Boolean((import.meta as unknown as { vitest?: boolean }).vitest);
 
 if (!isTestRuntime) {
-  Sentry.init({
-    dsn: import.meta.env.VITE_SENTRY_DSN,
-    integrations: [
-      Sentry.browserTracingIntegration(),
-      Sentry.replayIntegration({
-        maskAllText: true,
-        blockAllMedia: true,
-      }),
-    ],
-    // Performance Monitoring
-    tracesSampleRate: 1.0,
-    // Session Replay
-    replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 1.0,
-  });
+  // Initialize Sentry lazily to keep main bundle slim
+  initSentry(VITE_SENTRY_DSN);
 
   // Initialize Core Web Vitals tracking
   initCoreWebVitals();
@@ -39,4 +27,16 @@ if (!isTestRuntime) {
 
 const rootEl = document.getElementById('root');
 if (!rootEl) throw new Error('Root element #root not found');
-createRoot(rootEl).render(<App />);
+const root = createRoot(rootEl);
+root.render(<App />);
+
+// Provide a cleanup hook during tests to avoid work after teardown
+if (isTestRuntime) {
+  (globalThis as unknown as { __unmountApp?: () => void }).__unmountApp = () => {
+    try {
+      root.unmount();
+    } catch {
+      // no-op in case root already unmounted
+    }
+  };
+}
