@@ -1,4 +1,3 @@
-import * as Sentry from '@sentry/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { Suspense } from 'react';
 
@@ -156,15 +155,4 @@ function App() {
   );
 }
 
-// Wrap the App with Sentry ErrorBoundary
-export default Sentry.withErrorBoundary(App, {
-  fallback: ({ resetError }: { resetError: () => void }) => (
-    <div className="error-fallback">
-      <h1>Something went wrong</h1>
-      <p>We apologize for the inconvenience. Our team has been notified.</p>
-      <button onClick={resetError} className="error-fallback-button">
-        Try Again
-      </button>
-    </div>
-  ),
-});
+export default App;

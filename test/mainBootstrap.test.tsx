@@ -16,10 +16,13 @@ vi.mock('../src/components/VideoPlayer/VideoPlayer', () => ({
 }));
 vi.mock('../src/video/registry', () => ({
   listVideos: () => [],
+  getVideo: () => undefined,
 }));
 
 describe('main bootstrap', () => {
   afterEach(() => {
+    // Unmount React root if it was mounted during the test
+    (globalThis as unknown as { __unmountApp?: () => void }).__unmountApp?.();
     document.body.innerHTML = '';
   });
   it('mounts App into #root with #appShell present', async () => {
