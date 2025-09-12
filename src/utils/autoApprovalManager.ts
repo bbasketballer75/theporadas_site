@@ -10,6 +10,13 @@ export interface AutoApprovalRule {
   lastUsed?: Date;
 }
 
+type RiskLevel = 'low' | 'medium' | 'high';
+type Action = {
+  type: string;
+  params?: Record<string, unknown>;
+  context?: Record<string, unknown>;
+};
+
 export interface ApprovalCondition {
   type: 'file_pattern' | 'command_pattern' | 'size_limit' | 'content_check' | 'user_trust';
   operator: 'equals' | 'contains' | 'matches' | 'less_than' | 'greater_than';
@@ -41,7 +48,13 @@ export class AutoApprovalManager {
 
   private actionCount = 0;
   private lastResetTime = Date.now();
-  private actionLog: any[] = [];
+  private actionLog: Array<{
+    timestamp: Date;
+    action: Action;
+    rule: { id: string; name: string } | null;
+    approved: boolean;
+    riskLevel: RiskLevel;
+  }> = [];
 
   constructor() {
     this.loadRules();
@@ -101,7 +114,7 @@ export class AutoApprovalManager {
   }
 
   // Auto-approval decision making
-  shouldAutoApprove(action: { type: string; params: any; context?: any }): {
+  shouldAutoApprove(action: Action): {
     approved: boolean;
     reason: string;
     ruleId?: string;
@@ -164,22 +177,29 @@ export class AutoApprovalManager {
   }
 
   // Risk assessment
-  private assessRiskLevel(action: any, rule: AutoApprovalRule): 'low' | 'medium' | 'high' {
+  private assessRiskLevel(action: Action, rule: AutoApprovalRule): RiskLevel {
     // Combine rule risk with action-specific risk assessment
     const actionRisk = this.assessActionRisk(action);
     return this.combineRiskLevels(rule.riskLevel, actionRisk);
   }
 
-  private assessActionRisk(action: any): 'low' | 'medium' | 'high' {
+  private assessActionRisk(action: Action): RiskLevel {
     switch (action.type) {
       case 'file_read':
         return 'low';
-      case 'file_write':
-        return action.params?.content?.length > 10000 ? 'medium' : 'low';
+      case 'file_write': {
+        const contentLen =
+          typeof action.params?.content === 'string' ? action.params.content.length : 0;
+        return contentLen > 10000 ? 'medium' : 'low';
+      }
       case 'terminal_command':
-        return this.assessCommandRisk(action.params?.command);
+        return this.assessCommandRisk(
+          typeof action.params?.command === 'string' ? action.params.command : '',
+        );
       case 'web_request':
-        return this.assessWebRequestRisk(action.params?.url);
+        return this.assessWebRequestRisk(
+          typeof action.params?.url === 'string' ? action.params.url : '',
+        );
       case 'api_call':
         return 'medium';
       default:
@@ -187,7 +207,7 @@ export class AutoApprovalManager {
     }
   }
 
-  private assessCommandRisk(command: string): 'low' | 'medium' | 'high' {
+  private assessCommandRisk(command: string): RiskLevel {
     if (!command) return 'high';
 
     const cmd = command.toLowerCase();
@@ -210,7 +230,7 @@ export class AutoApprovalManager {
     return 'medium';
   }
 
-  private assessWebRequestRisk(url: string): 'low' | 'medium' | 'high' {
+  private assessWebRequestRisk(url: string): RiskLevel {
     if (!url) return 'high';
 
     try {
@@ -228,7 +248,7 @@ export class AutoApprovalManager {
     }
   }
 
-  private assessDefaultRisk(action: any): number {
+  private assessDefaultRisk(action: Action): number {
     const riskMap = {
       low: 1,
       medium: 2,
@@ -238,16 +258,16 @@ export class AutoApprovalManager {
     return riskMap[this.assessActionRisk(action)] || 2;
   }
 
-  private getRiskThreshold(threshold: string): number {
+  private getRiskThreshold(threshold: RiskLevel): number {
     const thresholds = {
       low: 1,
       medium: 2,
       high: 3,
     };
-    return thresholds[threshold] || 2;
+    return thresholds[threshold] ?? 2;
   }
 
-  private combineRiskLevels(ruleRisk: string, actionRisk: string): 'low' | 'medium' | 'high' {
+  private combineRiskLevels(ruleRisk: RiskLevel, actionRisk: RiskLevel): RiskLevel {
     const riskValues = { low: 1, medium: 2, high: 3 };
     const combined = Math.max(riskValues[ruleRisk], riskValues[actionRisk]);
 
@@ -257,7 +277,7 @@ export class AutoApprovalManager {
   }
 
   // Rule matching
-  private matchesRule(action: any, rule: AutoApprovalRule): boolean {
+  private matchesRule(action: Action, rule: AutoApprovalRule): boolean {
     if (action.type !== rule.actionType) {
       return false;
     }
@@ -265,56 +285,84 @@ export class AutoApprovalManager {
     return rule.conditions.every((condition) => this.matchesCondition(action, condition));
   }
 
-  private matchesCondition(action: any, condition: ApprovalCondition): boolean {
+  private matchesCondition(action: Action, condition: ApprovalCondition): boolean {
     const { type, operator, value, caseSensitive = false } = condition;
-    let targetValue: any;
+    const targetValue = this.getConditionTarget(action, type);
+    return this.evaluateCondition(operator, targetValue, value, caseSensitive);
+  }
 
-    // Extract value based on condition type
+  private getConditionTarget(action: Action, type: ApprovalCondition['type']): string | number {
     switch (type) {
-      case 'file_pattern':
-        targetValue = action.params?.filePath || '';
-        break;
-      case 'command_pattern':
-        targetValue = action.params?.command || '';
-        break;
-      case 'size_limit':
-        targetValue = action.params?.size || action.params?.content?.length || 0;
-        break;
-      case 'content_check':
-        targetValue = action.params?.content || '';
-        break;
-      case 'user_trust':
-        targetValue = action.context?.userTrustLevel || 'unknown';
-        break;
-      default:
-        return false;
-    }
-
-    // Apply case sensitivity
-    if (typeof targetValue === 'string' && !caseSensitive) {
-      targetValue = targetValue.toLowerCase();
-      if (typeof value === 'string') {
-        let mutableValue = value;
+      case 'file_pattern': {
+        const filePath = action.params?.filePath;
+        return typeof filePath === 'string' ? filePath : '';
       }
-    }
-
-    // Apply operator
-    switch (operator) {
-      case 'equals':
-        return targetValue === mutableValue;
-      case 'contains':
-        return typeof targetValue === 'string' && targetValue.includes(mutableValue as string);
-      case 'matches':
-        return (
-          typeof targetValue === 'string' && new RegExp(mutableValue as string).test(targetValue)
-        );
-      case 'less_than':
-        return typeof targetValue === 'number' && targetValue < (mutableValue as number);
-      case 'greater_than':
-        return typeof targetValue === 'number' && targetValue > (mutableValue as number);
+      case 'command_pattern': {
+        const command = action.params?.command;
+        return typeof command === 'string' ? command : '';
+      }
+      case 'size_limit': {
+        const size = action.params?.size;
+        if (typeof size === 'number') return size;
+        const content = action.params?.content;
+        if (typeof content === 'string') return content.length;
+        return 0;
+      }
+      case 'content_check': {
+        const content = action.params?.content;
+        return typeof content === 'string' ? content : '';
+      }
+      case 'user_trust': {
+        const trust = action.context?.userTrustLevel;
+        return typeof trust === 'string' ? trust : 'unknown';
+      }
       default:
-        return false;
+        return '';
     }
+  }
+
+  private evaluateCondition(
+    operator: ApprovalCondition['operator'],
+    target: string | number,
+    value: string | number,
+    caseSensitive: boolean,
+  ): boolean {
+    if (operator === 'equals') return target === (value as typeof target);
+    if (typeof target === 'string')
+      return this.evaluateStringCondition(operator, target, value, caseSensitive);
+    if (typeof target === 'number') return this.evaluateNumberCondition(operator, target, value);
+    return false;
+  }
+
+  private evaluateStringCondition(
+    operator: ApprovalCondition['operator'],
+    target: string,
+    value: string | number,
+    caseSensitive: boolean,
+  ): boolean {
+    if (operator === 'contains') {
+      if (typeof value !== 'string') return false;
+      const a = caseSensitive ? target : target.toLowerCase();
+      const b = caseSensitive ? value : value.toLowerCase();
+      return a.includes(b);
+    }
+    if (operator === 'matches') {
+      const flags = caseSensitive ? undefined : 'i';
+      const re = new RegExp(String(value), flags);
+      return re.test(target);
+    }
+    return false;
+  }
+
+  private evaluateNumberCondition(
+    operator: ApprovalCondition['operator'],
+    target: number,
+    value: string | number,
+  ): boolean {
+    if (typeof value !== 'number') return false;
+    if (operator === 'less_than') return target < value;
+    if (operator === 'greater_than') return target > value;
+    return false;
   }
 
   // Rate limiting
@@ -336,7 +384,7 @@ export class AutoApprovalManager {
   }
 
   // Logging
-  private logAction(action: any, rule: AutoApprovalRule | null, approved: boolean): void {
+  private logAction(action: Action, rule: AutoApprovalRule | null, approved: boolean): void {
     if (!this.config.logAllActions && approved) {
       return; // Only log rejections unless configured to log all
     }
@@ -451,11 +499,12 @@ export class AutoApprovalManager {
       const stored = localStorage.getItem('kilo_auto_approval_rules');
       if (stored) {
         const rules = JSON.parse(stored);
-        Object.values(rules).forEach((rule: any) => {
-          this.rules.set(rule.id, {
-            ...rule,
-            createdAt: new Date(rule.createdAt),
-            lastUsed: rule.lastUsed ? new Date(rule.lastUsed) : undefined,
+        Object.values(rules).forEach((rule: unknown) => {
+          const r = rule as AutoApprovalRule;
+          this.rules.set(r.id, {
+            ...r,
+            createdAt: new Date(r.createdAt),
+            lastUsed: r.lastUsed ? new Date(r.lastUsed) : undefined,
           });
         });
       }

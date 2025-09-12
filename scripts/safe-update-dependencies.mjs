@@ -15,7 +15,7 @@ function log(message, type = 'info') {
     success: '\x1b[32m',
     error: '\x1b[31m',
     warning: '\x1b[33m',
-    reset: '\x1b[0m'
+    reset: '\x1b[0m',
   };
   console.log(`${colors[type]}[${timestamp}] ${message}${colors.reset}`);
 }
@@ -44,7 +44,7 @@ function runCommand(command, description) {
     const result = execSync(command, {
       cwd: PROJECT_ROOT,
       stdio: 'inherit',
-      encoding: 'utf8'
+      encoding: 'utf8',
     });
     log(`${description} completed successfully`, 'success');
     return { success: true, output: result };
@@ -76,7 +76,7 @@ function runTests() {
     { cmd: 'npm run lint', desc: 'Linting' },
     { cmd: 'npm run typecheck', desc: 'Type checking' },
     { cmd: 'npm run test', desc: 'Unit tests' },
-    { cmd: 'npm run build', desc: 'Build' }
+    { cmd: 'npm run build', desc: 'Build' },
   ];
 
   for (const { cmd, desc } of commands) {
@@ -96,7 +96,7 @@ function generateReport(updates, success, target) {
     updates: Object.keys(updates).length,
     updatedPackages: updates,
     success,
-    rollback: !success
+    rollback: !success,
   };
 
   const reportPath = join(PROJECT_ROOT, 'dependency-update-report.json');
@@ -145,7 +145,6 @@ async function main() {
     // Step 6: Generate success report
     generateReport(updates, true, target);
     log('Dependency update completed successfully!', 'success');
-
   } catch (error) {
     log(`Dependency update failed: ${error.message}`, 'error');
 
@@ -163,7 +162,7 @@ async function main() {
   }
 }
 
-main().catch(error => {
+main().catch((error) => {
   log(`Unexpected error: ${error.message}`, 'error');
   process.exit(1);
 });

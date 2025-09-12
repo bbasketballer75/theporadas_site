@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
 import { GalleryItemBase } from '../gallery/loader';
 
@@ -15,7 +15,10 @@ interface GalleryGridProps {
   imageStates: { [key: string]: string };
   handleImageLoad: (imageId: string) => void;
   handleImageError: (imageId: string) => void;
-  measureClick: (id: string, handler: () => void) => () => void;
+  measureClick: (
+    id: string,
+    handler?: (event: React.MouseEvent) => void,
+  ) => (event: React.MouseEvent) => void;
   setActive: (item: InternalItem) => void;
   onOpenerRef: (ref: HTMLButtonElement) => void;
 }
@@ -48,16 +51,6 @@ export function GalleryGrid({
 }: GalleryGridProps) {
   return (
     <>
-      <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        .gallery-item {
-          position: relative;
-          overflow: hidden;
-        }
-      `}</style>
       {Object.entries(groupedItems).map(([category, categoryItems]) => (
         <section key={category} className="gallery-section">
           <h3 className="gallery-section-title">{categoryNames[category] || category}</h3>
@@ -75,7 +68,7 @@ export function GalleryGrid({
                     type="button"
                     className="gallery-item"
                     onClick={measureClick(`gallery-item-${it.id}`, (e) => {
-                      onOpenerRef(e.currentTarget);
+                      onOpenerRef(e.currentTarget as HTMLButtonElement);
                       setActive(it);
                     })}
                     aria-label={it.caption ? `${it.caption}` : 'Image'}
@@ -103,29 +96,9 @@ export function GalleryGrid({
                         : {})}
                     />
                     {!showFull && (
-                      <div
-                        style={{
-                          position: 'absolute',
-                          top: '50%',
-                          left: '50%',
-                          transform: 'translate(-50%, -50%)',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          gap: '8px',
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: '24px',
-                            height: '24px',
-                            border: '2px solid #f3f3f3',
-                            borderTop: '2px solid #4ecdc4',
-                            borderRadius: '50%',
-                            animation: 'spin 1s linear infinite',
-                          }}
-                        />
-                        <span style={{ fontSize: '12px', color: '#666' }}>Loading...</span>
+                      <div className="gallery-thumb-overlay">
+                        <div className="gallery-thumb-spinner" />
+                        <span className="gallery-thumb-text">Loading...</span>
                       </div>
                     )}
                   </button>
