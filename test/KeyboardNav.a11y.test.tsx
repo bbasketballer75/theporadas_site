@@ -1,16 +1,59 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-import App from '../src/App';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { formatViolations, runAxe } from './utils/axeHelper';
 
-// Mock IntroVideo to skip the intro overlay
+// Mock heavy/side-effect components BEFORE importing App to keep test deterministic
+vi.mock('@sentry/react', () => ({
+  withErrorBoundary: (Comp: any) => Comp,
+  addBreadcrumb: () => {},
+  setMeasurement: () => {},
+  captureMessage: () => {},
+}));
 vi.mock('../src/components/IntroVideo', () => ({
   IntroVideo: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
+vi.mock('../src/components/BackgroundAudio', () => ({
+  BackgroundAudio: () => null,
+}));
+vi.mock('../src/components/PerformanceMonitor', () => ({
+  PerformanceMonitor: () => null,
+}));
+vi.mock('../src/components/GuestMessages', () => ({
+  GuestMessages: () => <div data-testid="guest-messages-mock" />,
+}));
+vi.mock('../src/components/VideoPlayer/VideoPlayer', () => ({
+  VideoPlayer: () => <div data-testid="video-player-mock" />,
+}));
+vi.mock('../src/video/registry', () => {
+  const hero = {
+    id: 'hero',
+    title: 'Hero',
+    caption: 'Hero',
+    poster: '',
+    placeholderLabel: 'Loading hero video',
+    quality: [] as any[],
+    tracks: [] as any[],
+    chapters: [] as any[],
+  };
+  return {
+    getVideo: (id: string) => (id === 'hero' ? hero : undefined),
+    listVideos: () => [],
+  };
+});
+vi.mock('../src/components/FamilyTree', () => ({
+  default: () => <div data-testid="family-tree-mock" />,
+}));
+vi.mock('../src/components/Map', () => ({
+  default: () => <div data-testid="map-mock" />,
+}));
+
+let AppComp: React.ComponentType;
+beforeAll(async () => {
+  AppComp = (await import('../src/App')).default as React.ComponentType;
+});
 
 async function testThemeToggleActivation(
   user: ReturnType<typeof userEvent.setup>,
@@ -28,7 +71,7 @@ describe('Keyboard navigation a11y', () => {
   });
 
   it('tabs to motion & theme toggles then nav link; preserves a11y', async () => {
-    render(<App />);
+    render(<AppComp />);
     const motion = await screen.findByTestId('motion-toggle');
     const theme = await screen.findByTestId('theme-toggle');
     const firstNav = (await screen.findAllByRole('link', { name: /our story/i }))[0];
@@ -76,7 +119,7 @@ describe('Keyboard navigation a11y', () => {
   }
 
   it('reverse (Shift+Tab) traverses back through discovered elements', async () => {
-    render(<App />);
+    render(<AppComp />);
 
     // Use the same manual focus approach as the first test
     const motionToggle = document.querySelector('.motion-toggle') as HTMLElement;
