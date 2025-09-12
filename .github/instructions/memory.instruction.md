@@ -48,6 +48,11 @@ Collaboration Style:
 - Always open with actionable answer, end with clear next actions.
 - Ask only when a blocker (credentials/assets) prevents autonomous progress.
 
+Copilot Surfaces & Extensions:
+
+- Enable Copilot Chat, Inline, and Autocomplete; use suggestions across the workspace.
+- Prefer project-relevant extensions (ESLint, Prettier, Vitest, Playwright, MSW tooling, Markdown linting, AI Toolkit) and activate optional tool categories (GitHub, Vercel, SonarQube, Notion, Canva, MSSQL, VS Code API docs) as needed.
+
 Pending Asset Needs (awaiting user):
 
 - Final wedding video source(s), photo set, family tree data, guest list, visual brand (colors, fonts, logo SVG).

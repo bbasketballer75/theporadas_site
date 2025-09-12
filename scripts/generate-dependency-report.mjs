@@ -14,7 +14,7 @@ function log(message, type = 'info') {
     success: '\x1b[32m',
     error: '\x1b[31m',
     warning: '\x1b[33m',
-    reset: '\x1b[0m'
+    reset: '\x1b[0m',
   };
   console.log(`${colors[type]}[${timestamp}] ${message}${colors.reset}`);
 }
@@ -24,7 +24,7 @@ function runCommand(command) {
     return execSync(command, {
       cwd: PROJECT_ROOT,
       encoding: 'utf8',
-      stdio: 'pipe'
+      stdio: 'pipe',
     });
   } catch (error) {
     return error.stdout || '';
@@ -58,8 +58,9 @@ function getPackageInfo() {
     version: packageJson.version,
     dependencies: Object.keys(packageJson.dependencies || {}),
     devDependencies: Object.keys(packageJson.devDependencies || {}),
-    totalDeps: Object.keys(packageJson.dependencies || {}).length +
-               Object.keys(packageJson.devDependencies || {}).length
+    totalDeps:
+      Object.keys(packageJson.dependencies || {}).length +
+      Object.keys(packageJson.devDependencies || {}).length,
   };
 }
 
@@ -113,8 +114,8 @@ function generateMarkdownReport(outdated, audit, packageInfo) {
     report += 'Consider updating minor versions for bug fixes and improvements:\n';
     report += '```bash\nnpm run deps:safe-update\n```\n\n';
 
-    const majorUpdates = Object.entries(outdated).filter(([_, info]) =>
-      info.current.split('.')[0] !== info.latest.split('.')[0]
+    const majorUpdates = Object.entries(outdated).filter(
+      ([, info]) => info.current.split('.')[0] !== info.latest.split('.')[0],
     );
 
     if (majorUpdates.length > 0) {
@@ -170,17 +171,18 @@ async function main() {
     // Output for GitHub Actions
     console.log(`::set-output name=report-path::${reportPath}`);
     console.log(`::set-output name=outdated-count::${Object.keys(outdated).length}`);
-    console.log(`::set-output name=vulnerabilities::${Object.keys(audit.vulnerabilities || {}).length}`);
+    console.log(
+      `::set-output name=vulnerabilities::${Object.keys(audit.vulnerabilities || {}).length}`,
+    );
 
     log('Dependency report generated successfully', 'success');
-
   } catch (error) {
     log(`Failed to generate report: ${error.message}`, 'error');
     process.exit(1);
   }
 }
 
-main().catch(error => {
+main().catch((error) => {
   log(`Unexpected error: ${error.message}`, 'error');
   process.exit(1);
 });
