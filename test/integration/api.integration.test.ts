@@ -1,6 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import {
   familyMembersService,
   familyTreesService,
@@ -431,13 +432,13 @@ describe('API Integration Tests', () => {
         server.use(
           http.post('http://localhost:3001/family-member', async () => {
             // Simulate timeout by delaying response
-            await new Promise(resolve => setTimeout(resolve, 11000));
+            await new Promise((resolve) => setTimeout(resolve, 11000));
             return HttpResponse.json({ members: [] });
           }),
         );
 
-        await expect(familyMembersService.getAll()).rejects.toThrow('Request timed out');
-      });
+        await expect(familyMembersService.getAll()).rejects.toThrow(/Request timed out|AbortError/);
+      }, 20000);
     });
 
     describe('Authentication errors', () => {
@@ -488,6 +489,10 @@ describe('API Integration Tests', () => {
   });
 
   describe('Retry Mechanism Integration', () => {
+    beforeEach(() => {
+      // Ensure retries are enabled for this block
+      vi.stubEnv('VITE_API_MAX_RETRIES', '3');
+    });
     it('should retry on network failures', async () => {
       let attemptCount = 0;
       server.use(

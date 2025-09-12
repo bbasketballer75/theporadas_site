@@ -30,7 +30,7 @@ async function waitForServer(url, maxAttempts = 30) {
       // Server not ready yet
     }
     console.log(`Waiting for server... (attempt ${attempt}/${maxAttempts})`);
-    await new Promise(r => setTimeout(r, 1000)); // Wait 1 second between attempts
+    await new Promise((r) => setTimeout(r, 1000)); // Wait 1 second between attempts
   }
   throw new Error('Server failed to start within the expected time');
 }

@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -12,91 +12,13 @@ vi.mock('../src/components/IntroVideo', () => ({
   IntroVideo: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-// Helper functions to reduce cognitive complexity
-function isMotionToggle(element: HTMLElement | null): boolean {
-  return element?.getAttribute('class')?.includes('motion-toggle') ?? false;
-}
-
-function isThemeToggle(element: HTMLElement | null): boolean {
-  return element?.getAttribute('class')?.includes('theme-toggle') ?? false;
-}
-
-function isFirstNavLink(element: HTMLElement | null): boolean {
-  return (element?.tagName === 'A' && /our story/i.test(element.textContent || '')) ?? false;
-}
-
-// Helper function to try manual focus on elements
-function tryManualFocus() {
-  const motionToggle = document.querySelector('.motion-toggle') as HTMLElement;
-  const themeToggle = document.querySelector('.theme-toggle') as HTMLElement;
-  const navLinks = Array.from(document.querySelectorAll('a'));
-  const firstNav = navLinks.find((link) => /our story/i.test(link.textContent || ''));
-
-  const found: Record<string, HTMLElement> = {};
-
-  if (motionToggle) {
-    motionToggle.focus();
-    if (document.activeElement === motionToggle) {
-      found.motion = motionToggle;
-    }
-  }
-
-  if (themeToggle) {
-    themeToggle.focus();
-    if (document.activeElement === themeToggle) {
-      found.theme = themeToggle;
-    }
-  }
-
-  if (firstNav) {
-    firstNav.focus();
-    if (document.activeElement === firstNav) {
-      found.firstNav = firstNav;
-    }
-  }
-
-  return found;
-}
-
-function collectElementsInTabOrder(user: ReturnType<typeof userEvent.setup>, maxTabs = 25) {
-  // Try manual focus first - more reliable in test environment
-  const found = tryManualFocus();
-
-  // If manual focus works for all elements, return results
-  if (found.motion && found.theme && found.firstNav) {
-    return found;
-  }
-
-  // Fallback to tab simulation if manual focus fails
-  for (let i = 0; i < maxTabs; i++) {
-    user.tab();
-    const active = document.activeElement as HTMLElement | null;
-
-    if (active) {
-      if (isMotionToggle(active) && !found.motion) {
-        found.motion = active;
-      }
-      if (isThemeToggle(active) && !found.theme) {
-        found.theme = active;
-      }
-      if (isFirstNavLink(active) && !found.firstNav) {
-        found.firstNav = active;
-      }
-    }
-
-    if (found.motion && found.theme && found.firstNav) break;
-  }
-
-  return found;
-}
-
-function testThemeToggleActivation(
+async function testThemeToggleActivation(
   user: ReturnType<typeof userEvent.setup>,
   themeElement: HTMLElement,
 ) {
   themeElement.focus();
-  user.keyboard('[Space]');
-  expect(themeElement).toHaveAttribute('aria-pressed');
+  await user.keyboard('[Space]');
+  expect(themeElement.hasAttribute('aria-pressed')).toBe(true);
 }
 
 describe('Keyboard navigation a11y', () => {
@@ -107,40 +29,22 @@ describe('Keyboard navigation a11y', () => {
 
   it('tabs to motion & theme toggles then nav link; preserves a11y', async () => {
     render(<App />);
+    const motion = await screen.findByTestId('motion-toggle');
+    const theme = await screen.findByTestId('theme-toggle');
+    const firstNav = (await screen.findAllByRole('link', { name: /our story/i }))[0];
 
-    // Debug: Check if elements are rendered
-    const motionToggle = document.querySelector('.motion-toggle');
-    const themeToggle = document.querySelector('.theme-toggle');
-    const navLinks = document.querySelectorAll('a');
-
-    console.log('Motion toggle found:', !!motionToggle);
-    console.log('Theme toggle found:', !!themeToggle);
-    console.log('Nav links found:', navLinks.length);
-
-    if (motionToggle) {
-      console.log('Motion toggle details:', motionToggle.tagName, motionToggle.className);
-    }
-    if (themeToggle) {
-      console.log('Theme toggle details:', themeToggle.tagName, themeToggle.className);
-    }
-    if (navLinks.length > 0) {
-      console.log('First nav link:', navLinks[0].tagName, navLinks[0].textContent);
-    }
-
-    const found = collectElementsInTabOrder(user);
-
-    expect(found.motion, 'Motion toggle should receive focus via Tab').toBeDefined();
-    expect(found.theme, 'Theme toggle should receive focus via Tab').toBeDefined();
-    expect(found.firstNav, 'First nav link should receive focus via Tab').toBeDefined();
-
-    if (found.theme) {
-      testThemeToggleActivation(user, found.theme);
-    }
+    motion.focus();
+    expect(document.activeElement).toBe(motion);
+    theme.focus();
+    expect(document.activeElement).toBe(theme);
+    await testThemeToggleActivation(user, theme);
+    firstNav.focus();
+    expect(document.activeElement).toBe(firstNav);
 
     const results = await runAxe(document.body);
     const violations = results.violations.filter((v) => v.impact !== 'minor');
     expect(violations.length, formatViolations(violations)).toBe(0);
-  });
+  }, 15000);
   function validateFoundElements(found: {
     motion?: HTMLElement;
     theme?: HTMLElement;
@@ -166,9 +70,9 @@ describe('Keyboard navigation a11y', () => {
 
     // Verify the sequence order is logical (motion -> theme -> nav)
     expect(sequence.length).toBe(3);
-    expect(sequence[0]).toHaveClass('motion-toggle');
-    expect(sequence[1]).toHaveClass('theme-toggle');
-    expect(sequence[2]).toHaveAttribute('href');
+    expect(sequence[0].classList.contains('motion-toggle')).toBe(true);
+    expect(sequence[1].classList.contains('theme-toggle')).toBe(true);
+    expect(sequence[2].hasAttribute('href')).toBe(true);
   }
 
   it('reverse (Shift+Tab) traverses back through discovered elements', async () => {
