@@ -83,11 +83,7 @@ function buildMetricsText() {
 // Optional HTTP server for /metrics
 let server;
 if (process.env.MCP_PROM_METRICS === '1') {
-  const port = Number(process.env.MCP_HEALTH_PORT || 0);
-  if (!port) {
-    // If metrics requested but no port, pick a random port on localhost
-    // Not strictly needed for tests that always set MCP_HEALTH_PORT
-  }
+  const listenPort = Number(process.env.MCP_HEALTH_PORT || 0);
   server = http.createServer((req, res) => {
     if (req.url === '/metrics') {
       const body = buildMetricsText();
@@ -98,11 +94,15 @@ if (process.env.MCP_PROM_METRICS === '1') {
       res.end('not found');
     }
   });
-  server.listen(port, '127.0.0.1');
+  server.listen(listenPort, '127.0.0.1', () => {
+    const addr = server.address();
+    const port = typeof addr === 'object' && addr ? addr.port : listenPort;
+    process.stdout.write(JSON.stringify({ type: 'ready', port }) + '\n');
+  });
+} else {
+  // Emit ready sentinel even if metrics are disabled
+  process.stdout.write(JSON.stringify({ type: 'ready' }) + '\n');
 }
-
-// Emit ready sentinel
-process.stdout.write(JSON.stringify({ type: 'ready' }) + '\n');
 
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', (chunk) => {
