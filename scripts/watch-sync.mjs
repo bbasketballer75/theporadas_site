@@ -1,18 +1,16 @@
 #!/usr/bin/env node
 
+import { execSync, spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { spawn } from 'child_process';
-import { fileURLToPath } from 'url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 // Configuration
 const CONFIG = {
   watchPath: process.env.WATCH_PATH || '.',
   debounceMs: parseInt(process.env.DEBOUNCE_MS || '1000'),
   maxWaitMs: parseInt(process.env.MAX_WAIT_MS || '5000'),
-  excludePatterns: (process.env.EXCLUDE_PATTERNS || 'node_modules,.git,dist,build,.next').split(',').filter(Boolean),
+  excludePatterns: (process.env.EXCLUDE_PATTERNS || 'node_modules,.git,dist,build,.next')
+    .split(',')
+    .filter(Boolean),
   includePatterns: (process.env.INCLUDE_PATTERNS || '').split(',').filter(Boolean),
   quiet: process.env.QUIET === 'true',
 };
@@ -20,7 +18,7 @@ const CONFIG = {
 // Debounce mechanism
 let debounceTimer = null;
 let lastSyncTime = 0;
-let pendingChanges = new Set();
+// track recent changes if needed for future batching
 
 function shouldExclude(filePath) {
   const relativePath = path.relative(process.cwd(), filePath);
@@ -31,7 +29,6 @@ function shouldExclude(filePath) {
       return true;
     }
   }
-
   // Check include patterns (if specified, only include matching files)
   if (CONFIG.includePatterns.length > 0) {
     let shouldInclude = false;
@@ -73,7 +70,6 @@ function triggerSync() {
 
 function performSync() {
   lastSyncTime = Date.now();
-  pendingChanges.clear();
 
   if (!CONFIG.quiet) {
     console.log(`🔄 [${new Date().toISOString()}] Triggering auto-sync...`);
@@ -118,9 +114,6 @@ function handleFileChange(eventType, filename) {
   } catch {
     // File might have been deleted, still process
   }
-
-  pendingChanges.add(filePath);
-
   if (!CONFIG.quiet) {
     console.log(`📁 [${new Date().toISOString()}] Detected change: ${filename}`);
   }
@@ -161,7 +154,6 @@ function startWatching() {
       watcher.close();
       process.exit(0);
     });
-
   } catch (error) {
     console.error('❌ Failed to start watcher:', error.message);
     process.exit(1);
@@ -171,7 +163,7 @@ function startWatching() {
 // Safety check
 function isGitRepository() {
   try {
-    require('child_process').execSync('git rev-parse --git-dir', { stdio: 'ignore' });
+    execSync('git rev-parse --git-dir', { stdio: 'ignore' });
     return true;
   } catch {
     return false;

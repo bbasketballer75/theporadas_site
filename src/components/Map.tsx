@@ -1,13 +1,12 @@
 import L from 'leaflet';
+import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
+import 'leaflet-geosearch/dist/geosearch.css';
 import 'leaflet/dist/leaflet.css';
 import React, { useEffect, useState } from 'react';
 import { MapContainer, Marker, Popup } from 'react-leaflet';
 import './map.css';
 
 import { detectBrowser } from '../utils/browserDetection';
-
-import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
-import 'leaflet-geosearch/dist/geosearch.css';
 
 // Custom Cached Tile Layer for offline support
 class CachedTileLayer extends L.GridLayer {
@@ -22,40 +21,31 @@ class CachedTileLayer extends L.GridLayer {
   createTile(coords: L.Coords, done: L.DoneCallback): HTMLElement {
     const tile = document.createElement('img');
     tile.alt = '';
-
     const url = this.getTileUrl(coords);
 
-    // Try to get from cache first
-    caches.open(this.cacheName).then((cache) => {
-      cache.match(url).then((response) => {
-        if (response) {
-          // Use cached tile
-          response.blob().then((blob) => {
-            const objectUrl = URL.createObjectURL(blob);
-            tile.src = objectUrl;
-            done(undefined, tile);
-          });
-        } else {
-          // Fetch and cache
-          fetch(url)
-            .then((response) => {
-              if (response.ok) {
-                cache.put(url, response.clone());
-                response.blob().then((blob) => {
-                  const objectUrl = URL.createObjectURL(blob);
-                  tile.src = objectUrl;
-                  done(undefined, tile);
-                });
-              } else {
-                done(new Error('Failed to load tile'), tile);
-              }
-            })
-            .catch((error) => {
-              done(error, tile);
-            });
+    (async () => {
+      try {
+        const cache = await caches.open(this.cacheName);
+        const cached = await cache.match(url);
+        if (cached) {
+          const blob = await cached.blob();
+          tile.src = URL.createObjectURL(blob);
+          done(undefined, tile);
+          return;
         }
-      });
-    });
+        const resp = await fetch(url);
+        if (!resp.ok) {
+          done(new Error('Failed to load tile'), tile);
+          return;
+        }
+        cache.put(url, resp.clone());
+        const blob = await resp.blob();
+        tile.src = URL.createObjectURL(blob);
+        done(undefined, tile);
+      } catch (error) {
+        done(error as Error, tile);
+      }
+    })();
 
     return tile;
   }
@@ -81,7 +71,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-const Map: React.FC = () => {
+const SiteMap: React.FC = () => {
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -117,7 +107,7 @@ const Map: React.FC = () => {
         // Firefox may need different accuracy settings
         return {
           ...baseOptions,
-          enableHighAccuracy: browserInfo.isMobile ? false : true, // Disable high accuracy on mobile Firefox
+          enableHighAccuracy: !browserInfo.isMobile, // Disable high accuracy on mobile Firefox
         };
       } else if (browserInfo.isIOS) {
         // iOS devices may need special handling
@@ -171,7 +161,9 @@ const Map: React.FC = () => {
 
       // Add search control
       const provider = new OpenStreetMapProvider();
-      const searchControl = new (GeoSearchControl as any)({
+      // GeoSearchControl typings are not exported; instantiate and cast for Leaflet
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const searchControl: any = new (GeoSearchControl as unknown as new (...args: any[]) => any)({
         provider: provider,
         style: 'bar',
         showMarker: true,
@@ -188,11 +180,7 @@ const Map: React.FC = () => {
   }, [map]);
 
   if (loading) {
-    return (
-      <div role="status" aria-live="polite">
-        Loading map...
-      </div>
-    );
+    return <output aria-live="polite">Loading map...</output>;
   }
 
   if (error) {
@@ -204,11 +192,7 @@ const Map: React.FC = () => {
   }
 
   if (!position) {
-    return (
-      <div role="status" aria-live="polite">
-        Unable to retrieve your location.
-      </div>
-    );
+    return <output aria-live="polite">Unable to retrieve your location.</output>;
   }
 
   return (
@@ -237,4 +221,4 @@ const Map: React.FC = () => {
   );
 };
 
-export default Map;
+export default SiteMap;

@@ -14,9 +14,6 @@
     "jsx": "react-jsx",
     "types": ["vitest", "react", "react-dom", "@playwright/test"]
   },
-  "include": [
-    "src/services/api.ts",
-    "src/hooks/useApi.ts"
-  ],
+  "include": ["src/services/api.ts", "src/hooks/useApi.ts"],
   "exclude": ["node_modules", "dist", "build", "coverage", "test"]
 }

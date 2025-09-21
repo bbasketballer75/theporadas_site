@@ -19,7 +19,7 @@ test.describe('Map Component', () => {
   test('handles geolocation permission granted', async ({ page, context }) => {
     // Mock geolocation
     await context.grantPermissions(['geolocation']);
-    await context.setGeolocation({ latitude: 40.7128, longitude: -74.0060 }); // NYC coordinates
+    await context.setGeolocation({ latitude: 40.7128, longitude: -74.006 }); // NYC coordinates
 
     // Reload to trigger geolocation
     await page.reload();
@@ -56,21 +56,24 @@ test.describe('Map Component', () => {
   });
 
   test('map responds to zoom controls', async ({ page }) => {
-     const zoomInButton = page.getByTestId('zoom-in').first();
+    const zoomInButton = page.getByTestId('zoom-in').first();
 
-     if (await zoomInButton.isVisible()) {
-        await zoomInButton.click();
-        // Wait for zoom animation to complete
-        await page.waitForFunction(() => {
+    if (await zoomInButton.isVisible()) {
+      await zoomInButton.click();
+      // Wait for zoom animation to complete
+      await page.waitForFunction(
+        () => {
           const map = document.querySelector('[data-testid="map"]');
           return map && !map.classList.contains('leaflet-zoom-anim');
-        }, { timeout: 2000 });
+        },
+        { timeout: 2000 },
+      );
 
-        const mapElement = page.getByTestId('map').or(page.locator('canvas, .map-container, iframe'));
-        await expect(mapElement.first()).toBeVisible();
-        // Map should still be visible after zoom
-      }
-   });
+      const mapElement = page.getByTestId('map').or(page.locator('canvas, .map-container, iframe'));
+      await expect(mapElement.first()).toBeVisible();
+      // Map should still be visible after zoom
+    }
+  });
 
   test('displays location information', async ({ page }) => {
     const locationInfo = page.getByTestId('location-info');

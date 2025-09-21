@@ -60,7 +60,11 @@
     "sync:scheduled:hourly": "SYNC_INTERVAL_MINUTES=60 node scripts/scheduled-sync.mjs",
     "sync:scheduled:daily": "SYNC_INTERVAL_MINUTES=1440 node scripts/scheduled-sync.mjs",
     "quality:regression-check": "node scripts/quality_regression_gate.mjs",
-    "quality:manual-dispatch": "node scripts/manual_dispatch_helper.mjs"
+    "quality:manual-dispatch": "node scripts/manual_dispatch_helper.mjs",
+    "mcp:start": "node scripts/mcp_supervisor.mjs",
+    "mcp:start:bg": "node scripts/mcp_supervisor.mjs &",
+    "mcp:status": "node scripts/mcp_status.mjs",
+    "mcp:test": "node scripts/mcp_supervisor.mjs --only tavily --max-restarts 0 --exit-code-on-giveup 1"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
@@ -118,6 +122,10 @@
     "vitest-axe": "^0.1.0"
   },
   "dependencies": {
+    "@modelcontextprotocol/server-memory": "^2025.8.4",
+    "@modelcontextprotocol/server-puppeteer": "^2025.5.12",
+    "@modelcontextprotocol/server-sequential-thinking": "^2025.7.1",
+    "@notionhq/notion-mcp-server": "^1.9.0",
     "@sentry/react": "^10.8.0",
     "@tanstack/react-query": "^5.85.8",
     "@xenova/transformers": "^2.17.2",
@@ -127,6 +135,7 @@
     "firebase": "^12.2.1",
     "leaflet": "^1.9.4",
     "leaflet-geosearch": "^4.2.0",
+    "mcp-sqlite": "^1.0.7",
     "mssql": "^11.0.1",
     "node-fetch": "^3.3.2",
     "openai": "^4.52.7",
@@ -158,5 +167,10 @@
   },
   "overrides": {
     "tmp": "^0.2.4"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }
