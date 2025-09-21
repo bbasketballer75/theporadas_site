@@ -111,10 +111,14 @@
   // MCP (Model Context Protocol) server support
   "chat.mcp.access": "all",
   "chat.mcp.discovery.enabled": {
-    "claude-desktop": true,
-    "windsurf": true,
-    "cursor-global": true,
+    "claude-desktop": false,
+    "windsurf": false,
+    "cursor-global": false,
     "cursor-workspace": true
   },
-  "chat.mcp.autostart": "newAndOutdated"
+  "chat.mcp.autostart": "newAndOutdated",
+  // Ensure all MCP tools are available in all chat modes
+  "chat.agent.maxTools": 128,
+  "github.copilot.chat.agent.enabled": true,
+  "github.copilot.chat.agent.mode": true
 }

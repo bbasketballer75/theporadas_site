@@ -71,3 +71,7 @@ Next Logical Foundation Tasks (suggested queue):
 5. Add security header middleware & CSP hardening iteration.
 
 (Maintain and prune as tasks complete; update when scope shifts.)
+
+## Memory Bank Mode
+
+Default mode: "code" - Optimized for coding tasks, implementation, and technical development.
