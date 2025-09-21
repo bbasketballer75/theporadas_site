@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 // Minimal Tavily MCP mock server supporting optional mode and mock scenarios
+import { config } from 'dotenv';
+
+// Load environment variables from .env file
+config();
+
 const OPTIONAL = process.env.TAVILY_OPTIONAL === '1';
 const API_KEY = process.env.TAVILY_API_KEY || '';
 const SCENARIO = (process.env.TAVILY_MOCK_SCENARIO || 'success').toLowerCase();

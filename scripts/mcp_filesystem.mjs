@@ -2,6 +2,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { config } from 'dotenv';
+
+// Load environment variables from .env file
+config();
+
 const ROOT = process.env.MCP_FS_ROOT || process.cwd();
 const SERVER_NAME = 'fs';
 const MAX_BYTES = parseInt(process.env.MCP_FS_MAX_BYTES || '1048576', 10); // 1MB default

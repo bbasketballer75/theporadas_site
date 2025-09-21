@@ -2,7 +2,8 @@
 
 /* Main container */
 .family-tree-container {
-  width: 100%;
+  width: var(--family-tree-width, 100%);
+  height: var(--family-tree-height, 600px);
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
@@ -265,6 +266,8 @@
 
 /* Loading state */
 .family-tree-loading {
+  width: var(--family-tree-width, 100%);
+  height: var(--family-tree-height, 400px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -316,6 +319,8 @@
 
 /* Error state */
 .family-tree-error {
+  width: var(--family-tree-width, 100%);
+  height: var(--family-tree-height, 400px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -354,6 +359,8 @@
 
 /* Empty state */
 .family-tree-empty {
+  width: var(--family-tree-width, 100%);
+  height: var(--family-tree-height, 400px);
   display: flex;
   flex-direction: column;
   align-items: center;

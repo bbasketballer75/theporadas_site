@@ -13,7 +13,6 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
-    threads: false,
     // Avoid inlining expect/jest-dom to prevent double-registration across runs
     include: ['test/**/*.{test,spec}.{ts,tsx,js,jsx}'],
     exclude: [

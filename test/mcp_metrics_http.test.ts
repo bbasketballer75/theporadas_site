@@ -1,9 +1,9 @@
 /* global process */
-import { spawn, ChildProcessWithoutNullStreams } from 'node:child_process';
+import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 import { once } from 'node:events';
 import http from 'node:http';
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 function getFreePort(): Promise<number> {
   return new Promise((resolve, reject) => {

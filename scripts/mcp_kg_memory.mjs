@@ -2,6 +2,11 @@
 /* Minimal KG memory RPC server */
 import process from 'node:process';
 
+import { config } from 'dotenv';
+
+// Load environment variables from .env file
+config();
+
 const MAX = Number(process.env.MCP_KG_MAX_TRIPLES || 1000);
 let count = 0;
 

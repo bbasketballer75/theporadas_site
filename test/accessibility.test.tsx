@@ -1,14 +1,14 @@
 import { render } from '@testing-library/react';
 import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import App from '../src/App';
 
-import { runAxe, formatViolations } from './utils/axeHelper';
+import { formatViolations, runAxe } from './utils/axeHelper';
 
 // Mock complex components to avoid timeouts and async issues
 vi.mock('../src/components/FamilyTree', () => ({
-  FamilyTree: () => <div data-testid="family-tree">Family Tree</div>,
+  default: () => <div data-testid="family-tree">Family Tree</div>,
 }));
 
 vi.mock('../src/components/GuestMessages', () => ({

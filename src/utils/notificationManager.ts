@@ -133,9 +133,10 @@ export class NotificationManager {
 
   // Task completion notifications
   taskCompleted(taskName: string, details?: string): string {
+    const detailText = details ? `: ${details}` : '';
     return this.success(
       'Task Completed',
-      `${taskName} has been completed successfully${details ? `: ${details}` : ''}`,
+      `${taskName} has been completed successfully${detailText}`,
       {
         label: 'View Details',
         callback: () => {
@@ -146,7 +147,8 @@ export class NotificationManager {
   }
 
   taskFailed(taskName: string, error?: string): string {
-    return this.error('Task Failed', `${taskName} failed${error ? `: ${error}` : ''}`, {
+    const errorText = error ? `: ${error}` : '';
+    return this.error('Task Failed', `${taskName} failed${errorText}`, {
       label: 'Retry',
       callback: () => {
         console.log(`Retrying task: ${taskName}`);

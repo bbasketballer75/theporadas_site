@@ -1,12 +1,11 @@
-import { render, fireEvent, waitFor, act } from '@testing-library/react';
-import React from 'react';
+import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
-  VideoPlayer,
   QualitySource,
-  VideoTrackDef,
+  VideoPlayer,
   VideoPlayerEventPayload,
+  VideoTrackDef,
 } from '../src/components/VideoPlayer/VideoPlayer';
 
 // Minimal typing for the NetworkInformation subset we need.
@@ -144,7 +143,7 @@ describe('VideoPlayer quality heuristics', () => {
   it('renders placeholder when no src/sources/qualitySources provided', () => {
     render(<VideoPlayer />);
     expect(document.querySelector('video')).toBeNull();
-    const placeholder = document.querySelector('[aria-label="Sample (placeholder)"]');
+    const placeholder = document.querySelector('img[alt="Sample (placeholder)"]');
     expect(placeholder).not.toBeNull();
   });
 
