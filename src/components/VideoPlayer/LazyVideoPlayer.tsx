@@ -43,13 +43,11 @@ export function LazyVideoPlayer(props: LazyVideoPlayerProps) {
       {visible ? (
         <VideoPlayer {...rest} />
       ) : (
-        <div
+        <img
+          src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDMTMuMSAyIDE0IDIuOSAxNCA0VjE2QzE0IDE3LjEgMTMuMSAxOCA5LjUgMTJDOS41IDE4IDggMTcuMSAxNiAxNkMxNiAxNC45IDE2LjkgMTQgMTggMTRIMTJDMTguMSAxNCAxOSAxNC45IDE5IDE2VjE4QzE5IDE5LjEgMTguMSAyMCAxNyAyMEgxN0MxNS45IDIwIDE1IDE5LjEgMTUgMThWNFoiIGZpbGw9IiM5Q0E0QUYiLz4KPC9zdmc+"
+          alt={rest.placeholderLabel || 'Video loading placeholder'}
           className="lazy-video-placeholder"
-          role="img"
-          aria-label={rest.placeholderLabel || 'Video loading placeholder'}
-        >
-          {rest.placeholderLabel || 'Loading video'}
-        </div>
+        />
       )}
     </div>
   );

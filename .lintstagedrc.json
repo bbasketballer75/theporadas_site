@@ -1,4 +1,7 @@
 {
-  "*.{js,jsx,ts,tsx}": ["eslint --fix --cache --cache-location .eslintcache", "prettier --write"],
-  "*.{json,md,yml,yaml}": ["prettier --write"]
+  "[*.{js,jsx,ts,tsx},!playwright-report/trace/**,!playwright-report/data/**]": [
+    "eslint --fix --cache --cache-location .eslintcache",
+    "prettier --write"
+  ],
+  "[*.{json,md,yml,yaml},!playwright-report/trace/**,!playwright-report/data/**]": ["prettier --write"]
 }

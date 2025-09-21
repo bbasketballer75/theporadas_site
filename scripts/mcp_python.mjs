@@ -11,6 +11,11 @@
 */
 import process from 'node:process';
 
+import { config } from 'dotenv';
+
+// Load environment variables from .env file
+config();
+
 const metrics = {
   total: 0,
   byCode: Object.create(null),

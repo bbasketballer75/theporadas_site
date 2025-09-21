@@ -83,32 +83,35 @@
       "problemMatcher": []
     },
     {
-      "label": "Firebase: Start MCP (stdio)",
+      "label": "MCP: Start Supervisor (Background)",
       "type": "process",
-      "command": "pwsh",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}/scripts/firebase_mcp.ps1"
-      ],
+      "command": "node",
+      "args": ["${workspaceFolder}/scripts/mcp_supervisor.mjs"],
+      "isBackground": true,
+      "runOptions": {
+        "runOn": "folderOpen"
+      },
+      "presentation": {
+        "echo": false,
+        "reveal": "never",
+        "focus": false,
+        "panel": "dedicated"
+      },
       "problemMatcher": []
     },
     {
-      "label": "Quality: lint+type+tests",
-      "type": "shell",
-      "command": "pwsh",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-Command",
-        "npm run lint; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; npm run typecheck; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; npm run test --silent"
-      ],
-      "isBackground": false,
-      "problemMatcher": ["$eslint-stylish"],
-      "group": "build"
+      "label": "MCP: Start Supervisor (Manual)",
+      "type": "process",
+      "command": "node",
+      "args": ["${workspaceFolder}/scripts/mcp_supervisor.mjs"],
+      "isBackground": true,
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
     }
   ]
 }
