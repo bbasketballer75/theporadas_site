@@ -4,6 +4,10 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import process from 'node:process';
 
+import { config } from 'dotenv';
+
+config();
+
 function log(obj) {
   try {
     process.stdout.write(JSON.stringify({ type: 'supervisor', ...obj }) + '\n');
@@ -23,18 +27,35 @@ let backoffMax = 10;
 let maxUptimeMs = null;
 let logFile = null;
 
-for (let i = 0; i < args.length; i++) {
+let i = 0;
+while (i < args.length) {
   const a = args[i];
-  if (a === '--only') only = args[++i] || null;
-  else if (a === '--config') cfgPath = args[++i] || null;
-  else if (a === '--max-restarts') maxRestarts = Number(args[++i] || '0');
-  else if (a === '--exit-code-on-giveup') exitOnGiveUp = Number(args[++i] || '0');
-  else if (a === '--backoff-ms') {
-    const v = (args[++i] || '5-10').split('-');
+  if (a === '--only') {
+    only = args[i + 1] || null;
+    i += 2; // Skip current and next arg
+  } else if (a === '--config') {
+    cfgPath = args[i + 1] || null;
+    i += 2; // Skip current and next arg
+  } else if (a === '--max-restarts') {
+    maxRestarts = Number(args[i + 1] || '0');
+    i += 2; // Skip current and next arg
+  } else if (a === '--exit-code-on-giveup') {
+    exitOnGiveUp = Number(args[i + 1] || '0');
+    i += 2; // Skip current and next arg
+  } else if (a === '--backoff-ms') {
+    const v = (args[i + 1] || '5-10').split('-');
     backoffMin = Number(v[0]);
     backoffMax = Number(v[1] || v[0]);
-  } else if (a === '--max-uptime-ms') maxUptimeMs = Number(args[++i] || '0');
-  else if (a === '--log-file') logFile = args[++i] || null;
+    i += 2; // Skip current and next arg
+  } else if (a === '--max-uptime-ms') {
+    maxUptimeMs = Number(args[i + 1] || '0');
+    i += 2; // Skip current and next arg
+  } else if (a === '--log-file') {
+    logFile = args[i + 1] || null;
+    i += 2; // Skip current and next arg
+  } else {
+    i++; // Move to next arg
+  }
 }
 
 const base = [
@@ -69,6 +90,38 @@ const state = new Map();
 let readyCount = 0;
 let gaveUpCount = 0;
 let exitCode = 0;
+
+function parseServerOutput(line, st, s, startAt) {
+  try {
+    const obj = JSON.parse(line);
+    if (obj.type === 'ready' || obj.method === 'fs/ready') {
+      if (!st.ready) {
+        st.ready = true;
+        st.readyLatencyMs = Date.now() - startAt;
+        readyCount++;
+        log({ event: 'ready', server: s.name });
+        if (readyCount === servers.length) {
+          const caps = {};
+          for (const sv of servers) caps[sv.name] = { methods: ['placeholder'] };
+          log({ event: 'capabilities', servers: caps });
+        }
+      }
+    }
+  } catch {
+    // ignore non-JSON
+  }
+}
+
+function processServerLines(buf, st, s, startAt) {
+  let idx;
+  while ((idx = buf.indexOf('\n')) !== -1) {
+    const line = buf.slice(0, idx).trim();
+    buf = buf.slice(idx + 1);
+    if (!line) continue;
+    parseServerOutput(line, st, s, startAt);
+  }
+  return buf;
+}
 
 function randBackoff() {
   return Math.max(
@@ -113,30 +166,7 @@ function startServer(s) {
   let buf = '';
   child.stdout.on('data', (d) => {
     buf += d.toString();
-    let idx;
-    while ((idx = buf.indexOf('\n')) !== -1) {
-      const line = buf.slice(0, idx).trim();
-      buf = buf.slice(idx + 1);
-      if (!line) continue;
-      try {
-        const obj = JSON.parse(line);
-        if (obj.type === 'ready' || obj.method === 'fs/ready') {
-          if (!st.ready) {
-            st.ready = true;
-            st.readyLatencyMs = Date.now() - startAt;
-            readyCount++;
-            log({ event: 'ready', server: s.name });
-            if (readyCount === servers.length) {
-              const caps = {};
-              for (const sv of servers) caps[sv.name] = { methods: ['placeholder'] };
-              log({ event: 'capabilities', servers: caps });
-            }
-          }
-        }
-      } catch {
-        // ignore non-JSON
-      }
-    }
+    buf = processServerLines(buf, st, s, startAt);
   });
   child.on('close', (code) => {
     st.child = null;
@@ -175,38 +205,40 @@ function finish() {
   process.exit(exitCode);
 }
 
-function maybeFinish() {
-  if (!maxUptimeMs) return finish();
+function emitMaxUptimeEvents() {
+  for (const s of servers) {
+    const st = state.get(s.name);
+    if (st && !st.maxUptimeReached) {
+      st.maxUptimeReached = true;
+      log({ event: 'max-uptime-reached', server: s.name });
+    }
+  }
+}
+
+function calculateMaxRemainingTime() {
   const now = Date.now();
   let maxRemaining = 0;
   for (const s of servers) {
     const st = state.get(s.name);
-    if (!st) continue;
-    if (st.maxUptimeReached) continue;
+    if (!st || st.maxUptimeReached) continue;
     if (st.deadlineAt && st.deadlineAt > now) {
       maxRemaining = Math.max(maxRemaining, st.deadlineAt - now);
     }
   }
+  return maxRemaining;
+}
+
+function maybeFinish() {
+  if (!maxUptimeMs) return finish();
+
+  const maxRemaining = calculateMaxRemainingTime();
   if (maxRemaining <= 0) {
-    // safety: emit any missing events, then finish now
-    for (const s of servers) {
-      const st = state.get(s.name);
-      if (st && !st.maxUptimeReached) {
-        st.maxUptimeReached = true;
-        log({ event: 'max-uptime-reached', server: s.name });
-      }
-    }
+    emitMaxUptimeEvents();
     return finish();
   }
+
   setTimeout(() => {
-    // ensure events are emitted
-    for (const s of servers) {
-      const st = state.get(s.name);
-      if (st && !st.maxUptimeReached) {
-        st.maxUptimeReached = true;
-        log({ event: 'max-uptime-reached', server: s.name });
-      }
-    }
+    emitMaxUptimeEvents();
     finish();
   }, maxRemaining);
 }

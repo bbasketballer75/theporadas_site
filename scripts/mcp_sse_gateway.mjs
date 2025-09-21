@@ -2,6 +2,11 @@
 import http from 'node:http';
 import url from 'node:url';
 
+import { config } from 'dotenv';
+
+// Load environment variables from .env file
+config();
+
 const PORT = parseInt(process.env.MCP_SSE_PORT || '39400', 10);
 const HEARTBEAT_MS = parseInt(process.env.MCP_SSE_HEARTBEAT_MS || '10000', 10);
 const AUTH_TOKEN = process.env.MCP_SSE_AUTH_TOKEN || '';

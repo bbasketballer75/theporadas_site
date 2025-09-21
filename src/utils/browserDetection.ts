@@ -31,40 +31,114 @@ export function detectBrowser(): BrowserInfo {
   const ua = navigator.userAgent;
   const platform = navigator.platform;
 
-  // Browser detection
+  const browserInfo = detectBrowserNameAndVersion(ua);
+  const platformInfo = detectPlatform(platform, ua);
+  const featureSupport = detectFeatureSupport();
+
+  return {
+    ...browserInfo,
+    ...platformInfo,
+    ...featureSupport,
+  };
+}
+
+/**
+ * Detect browser name and version from user agent
+ */
+function detectBrowserNameAndVersion(ua: string): Pick<BrowserInfo, 'name' | 'version'> {
   let name: BrowserInfo['name'] = 'unknown';
   let version = '0';
 
-  if (ua.includes('Chrome') && !ua.includes('Edg')) {
+  if (isChrome(ua)) {
     name = 'chrome';
-    const match = ua.match(/Chrome\/(\d+)/);
-    version = match ? match[1] : '0';
-  } else if (ua.includes('Firefox')) {
+    version = extractVersion(ua, /Chrome\/(\d+)/);
+  } else if (isFirefox(ua)) {
     name = 'firefox';
-    const match = ua.match(/Firefox\/(\d+)/);
-    version = match ? match[1] : '0';
-  } else if (ua.includes('Safari') && !ua.includes('Chrome')) {
+    version = extractVersion(ua, /Firefox\/(\d+)/);
+  } else if (isSafari(ua)) {
     name = 'safari';
-    const match = ua.match(/Version\/(\d+)/);
-    version = match ? match[1] : '0';
-  } else if (ua.includes('Edg')) {
+    version = extractVersion(ua, /Version\/(\d+)/);
+  } else if (isEdge(ua)) {
     name = 'edge';
-    const match = ua.match(/Edg\/(\d+)/);
-    version = match ? match[1] : '0';
-  } else if (ua.includes('Opera') || ua.includes('OPR')) {
+    version = extractVersion(ua, /Edg\/(\d+)/);
+  } else if (isOpera(ua)) {
     name = 'opera';
-    const match = ua.match(/(?:Opera|OPR)\/(\d+)/);
-    version = match ? match[1] : '0';
+    version = extractVersion(ua, /(?:Opera|OPR)\/(\d+)/);
   }
 
-  // Platform detection
+  return { name, version };
+}
+
+/**
+ * Check if user agent indicates Chrome
+ */
+function isChrome(ua: string): boolean {
+  return ua.includes('Chrome') && !ua.includes('Edg');
+}
+
+/**
+ * Check if user agent indicates Firefox
+ */
+function isFirefox(ua: string): boolean {
+  return ua.includes('Firefox');
+}
+
+/**
+ * Check if user agent indicates Safari
+ */
+function isSafari(ua: string): boolean {
+  return ua.includes('Safari') && !ua.includes('Chrome');
+}
+
+/**
+ * Check if user agent indicates Edge
+ */
+function isEdge(ua: string): boolean {
+  return ua.includes('Edg');
+}
+
+/**
+ * Check if user agent indicates Opera
+ */
+function isOpera(ua: string): boolean {
+  return ua.includes('Opera') || ua.includes('OPR');
+}
+
+/**
+ * Extract version from user agent using regex
+ */
+function extractVersion(ua: string, regex: RegExp): string {
+  const match = ua.match(regex);
+  return match ? match[1] : '0';
+}
+
+/**
+ * Detect platform information
+ */
+function detectPlatform(
+  platform: string,
+  ua: string,
+): Pick<BrowserInfo, 'isMobile' | 'isIOS' | 'isAndroid'> {
   const isIOS =
     /iPad|iPhone|iPod/.test(platform) ||
     ((navigator.maxTouchPoints ?? 0) > 2 && /MacIntel/.test(platform));
   const isAndroid = /Android/.test(ua);
   const isMobile = isIOS || isAndroid || /Mobi|Android/i.test(ua);
 
-  // Feature detection
+  return { isMobile, isIOS, isAndroid };
+}
+
+/**
+ * Detect feature support
+ */
+function detectFeatureSupport(): Pick<
+  BrowserInfo,
+  | 'supportsWebGL'
+  | 'supportsWebRTC'
+  | 'supportsWebAudio'
+  | 'supportsVideoCodecs'
+  | 'supportsAudioCodecs'
+> {
   const supportsWebGL = (() => {
     try {
       const canvas = document.createElement('canvas');
@@ -83,9 +157,20 @@ export function detectBrowser(): BrowserInfo {
     (window as unknown as { webkitAudioContext?: unknown }).webkitAudioContext
   );
 
-  // Video codec detection
+  const supportsVideoCodecs = detectVideoCodecs();
+  const supportsAudioCodecs = detectAudioCodecs();
+
+  return {
+    supportsWebGL,
+    supportsWebRTC,
+    supportsWebAudio,
+    supportsVideoCodecs,
+    supportsAudioCodecs,
+  };
+}
+function detectVideoCodecs(): BrowserInfo['supportsVideoCodecs'] {
   const video = document.createElement('video');
-  const supportsVideoCodecs = {
+  return {
     h264: !!(
       video.canPlayType && video.canPlayType('video/mp4; codecs="avc1.42E01E"').replace(/no/, '')
     ),
@@ -94,29 +179,20 @@ export function detectBrowser(): BrowserInfo {
     ),
     ogg: !!(video.canPlayType && video.canPlayType('video/ogg; codecs="theora"').replace(/no/, '')),
   };
+}
 
-  // Audio codec detection
+/**
+ * Detect audio codec support
+ */
+function detectAudioCodecs(): BrowserInfo['supportsAudioCodecs'] {
   const audio = document.createElement('audio');
-  const supportsAudioCodecs = {
+  return {
     mp3: !!(audio.canPlayType && audio.canPlayType('audio/mpeg;').replace(/no/, '')),
     aac: !!(audio.canPlayType && audio.canPlayType('audio/aac;').replace(/no/, '')),
     ogg: !!(audio.canPlayType && audio.canPlayType('audio/ogg; codecs="vorbis"').replace(/no/, '')),
     webm: !!(
       audio.canPlayType && audio.canPlayType('audio/webm; codecs="vorbis"').replace(/no/, '')
     ),
-  };
-
-  return {
-    name,
-    version,
-    isMobile,
-    isIOS,
-    isAndroid,
-    supportsWebGL,
-    supportsWebRTC,
-    supportsWebAudio,
-    supportsVideoCodecs,
-    supportsAudioCodecs,
   };
 }
 

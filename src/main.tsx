@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import './skipLinkFocus';
 import { VITE_SENTRY_DSN } from './utils/env';
+import './utils/msw'; // MSW setup for Playwright tests
 import { initCoreWebVitals } from './utils/performance';
 import { registerServiceWorker } from './utils/pwa';
 import { initSentry } from './utils/sentryClient';

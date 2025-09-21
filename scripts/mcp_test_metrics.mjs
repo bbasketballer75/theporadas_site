@@ -11,6 +11,11 @@
  */
 import http from 'node:http';
 
+import { config } from 'dotenv';
+
+// Load environment variables from .env file
+config();
+
 const state = {
   methods: {
     'ok/ping': { calls: 0, errors: 0 },
@@ -58,6 +63,105 @@ function takeToken(key) {
 
 function listMethods() {
   return Object.keys(state.methods);
+}
+
+function handleRateLimitExceeded(id, method) {
+  const code = 3000;
+  recordError(code);
+  incMethod(method, false);
+  const err = {
+    jsonrpc: '2.0',
+    id,
+    error: {
+      code,
+      message: 'Rate limit exceeded',
+      data: { domain: 'rate-limit', symbol: 'E_RL_EXCEEDED' },
+    },
+  };
+  process.stdout.write(JSON.stringify(err) + '\n');
+}
+
+function handlePing(id, msg) {
+  incMethod('ok/ping', true);
+  const result = { ok: true, echo: msg.params?.msg ?? null };
+  process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id, result }) + '\n');
+}
+
+function handleFail(id, method) {
+  incMethod(method, false);
+  const code = 1001;
+  if (process.env.MCP_ERROR_METRICS === '1') recordError(code);
+  const error = { code, message: 'Intentional failure', data: { domain: 'test' } };
+  process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id, error }) + '\n');
+}
+
+function handleErrorStats(id, method) {
+  incMethod(method, true);
+  const total = Object.values(state.errors).reduce((a, b) => a + Number(b), 0);
+  const result = { total, ...state.errors };
+  process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id, result }) + '\n');
+}
+
+function handleMetrics(id, method) {
+  incMethod(method, true);
+  const result = { methods: state.methods };
+  process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id, result }) + '\n');
+}
+
+function handlePromMetrics(id, method) {
+  incMethod(method, true);
+  const body = buildMetricsText();
+  const result = { body };
+  process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id, result }) + '\n');
+}
+
+function handleListMethods(id, method) {
+  incMethod(method, true);
+  const result = { methods: listMethods() };
+  process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id, result }) + '\n');
+}
+
+function handleUnknownMethod(id, method) {
+  incMethod(method, false);
+  const code = -32601;
+  if (process.env.MCP_ERROR_METRICS === '1') recordError(code);
+  const error = { code, message: 'Method not found' };
+  process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id, error }) + '\n');
+}
+
+function processMessage(msg) {
+  const { id, method } = msg;
+  if (!method) return;
+
+  const key = rlMode === 'global' ? 'global' : method;
+  if (rlEnabled && !takeToken(key)) {
+    handleRateLimitExceeded(id, method);
+    return;
+  }
+
+  switch (method) {
+    case 'ok/ping':
+      handlePing(id, msg);
+      break;
+    case 'err/fail':
+      handleFail(id, method);
+      break;
+    case 'sys/errorStats':
+      handleErrorStats(id, method);
+      break;
+    case 'sys/metrics':
+      handleMetrics(id, method);
+      break;
+    case 'sys/promMetrics':
+      handlePromMetrics(id, method);
+      break;
+    case 'sys/listMethods':
+      handleListMethods(id, method);
+      break;
+    default:
+      handleUnknownMethod(id, method);
+      break;
+  }
 }
 
 function buildMetricsText() {
@@ -114,74 +218,7 @@ process.stdin.on('data', (chunk) => {
     } catch {
       continue;
     }
-    const { id, method } = msg;
-    if (!method) continue;
-
-    const key = rlMode === 'global' ? 'global' : method;
-    if (rlEnabled && !takeToken(key)) {
-      const code = 3000; // rate-limit exceeded
-      recordError(code);
-      incMethod(method, false);
-      const err = {
-        jsonrpc: '2.0',
-        id,
-        error: {
-          code,
-          message: 'Rate limit exceeded',
-          data: { domain: 'rate-limit', symbol: 'E_RL_EXCEEDED' },
-        },
-      };
-      process.stdout.write(JSON.stringify(err) + '\n');
-      continue;
-    }
-
-    if (method === 'ok/ping') {
-      incMethod(method, true);
-      const result = { ok: true, echo: msg.params?.msg ?? null };
-      process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id, result }) + '\n');
-      continue;
-    }
-    if (method === 'err/fail') {
-      incMethod(method, false);
-      const code = 1001;
-      if (process.env.MCP_ERROR_METRICS === '1') recordError(code);
-      const error = { code, message: 'Intentional failure', data: { domain: 'test' } };
-      process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id, error }) + '\n');
-      continue;
-    }
-    if (method === 'sys/errorStats') {
-      incMethod(method, true);
-      const total = Object.values(state.errors).reduce((a, b) => a + Number(b), 0);
-      const result = { total, ...state.errors };
-      process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id, result }) + '\n');
-      continue;
-    }
-    if (method === 'sys/metrics') {
-      incMethod(method, true);
-      const result = { methods: state.methods };
-      process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id, result }) + '\n');
-      continue;
-    }
-    if (method === 'sys/promMetrics') {
-      incMethod(method, true);
-      const body = buildMetricsText();
-      const result = { body };
-      process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id, result }) + '\n');
-      continue;
-    }
-    if (method === 'sys/listMethods') {
-      incMethod(method, true);
-      const result = { methods: listMethods() };
-      process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id, result }) + '\n');
-      continue;
-    }
-
-    // Unknown method
-    incMethod(method, false);
-    const code = -32601;
-    if (process.env.MCP_ERROR_METRICS === '1') recordError(code);
-    const error = { code, message: 'Method not found' };
-    process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id, error }) + '\n');
+    processMessage(msg);
   }
 });
 
