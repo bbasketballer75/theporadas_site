@@ -1,0 +1,107 @@
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: wedding-sql
+    environment:
+      ACCEPT_EULA: 'Y'
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:-DevLocalStr0ng!Pass}
+      MSSQL_PID: 'Developer'
+    ports:
+      - '14333:1433'
+    volumes:
+      - mssql_data:/var/opt/mssql
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P '${MSSQL_SA_PASSWORD}' -Q 'SELECT 1' || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+  mcp_tavily:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-tavily
+    environment:
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-changeme}
+      NODE_ENV: production
+      MCP_HEALTH_PORT: 3010
+      MCP_SERVER_NAME: tavily
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
+    command: ['scripts/mcp_tavily.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3010/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+  mcp_notion:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-notion
+    environment:
+      NOTION_API_KEY: ${NOTION_API_KEY:-changeme}
+      NODE_ENV: production
+      MCP_HEALTH_PORT: 3011
+      MCP_SERVER_NAME: notion
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
+    command: ['scripts/mcp_notion.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3011/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+  mcp_mem0:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-mem0
+    environment:
+      MEM0_API_KEY: ${MEM0_API_KEY:-changeme}
+      NODE_ENV: production
+      MCP_HEALTH_PORT: 3012
+      MCP_SERVER_NAME: mem0
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
+    command: ['scripts/mcp_mem0.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3012/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+  mcp_sqlserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-sqlserver
+    depends_on:
+      - mssql
+    environment:
+      SQLSERVER_CONNECTION_STRING: 'Server=mssql,1433;Database=master;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=true;'
+      NODE_ENV: production
+      MCP_HEALTH_PORT: 3013
+      MCP_SERVER_NAME: sqlserver
+      MCP_PROM_METRICS: 1
+      MCP_ERROR_METRICS: 1
+    command: ['scripts/mcp_sqlserver.mjs']
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3013/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+volumes:
+  mssql_data:
+    driver: local

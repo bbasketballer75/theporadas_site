@@ -88,9 +88,6 @@
       "command": "node",
       "args": ["${workspaceFolder}/scripts/mcp_supervisor.mjs"],
       "isBackground": true,
-      "runOptions": {
-        "runOn": "folderOpen"
-      },
       "presentation": {
         "echo": false,
         "reveal": "never",
@@ -112,6 +109,21 @@
         "panel": "dedicated"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "Automate MCP server dependencies (Node, npm, Docker, Python, uvx)",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "$ErrorActionPreference = 'Stop'; if (-not (Get-Command node -ErrorAction SilentlyContinue)) { Write-Host 'Installing Node.js...'; Invoke-WebRequest -Uri 'https://nodejs.org/dist/v20.11.1/node-v20.11.1-x64.msi' -OutFile 'nodejs.msi'; Start-Process 'msiexec.exe' -ArgumentList '/i nodejs.msi /quiet' -Wait; Remove-Item 'nodejs.msi'; }; if (-not (Get-Command npm -ErrorAction SilentlyContinue)) { Write-Host 'npm should be installed with Node.js.' }; if (-not (Get-Command docker -ErrorAction SilentlyContinue)) { Write-Host 'Please install Docker Desktop from https://www.docker.com/products/docker-desktop and start it.' }; if (-not (Get-Command python -ErrorAction SilentlyContinue)) { Write-Host 'Installing Python...'; Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.12.2/python-3.12.2-amd64.exe' -OutFile 'python-installer.exe'; Start-Process 'python-installer.exe' -ArgumentList '/quiet InstallAllUsers=1 PrependPath=1' -Wait; Remove-Item 'python-installer.exe'; }; npm install -g uvx; npm install @upstash/context7-mcp @modelcontextprotocol/server-sequential-thinking @modelcontextprotocol/server-memory @modelcontextprotocol/server-brave-search @modelcontextprotocol/server-puppeteer @notionhq/notion-mcp-server tavily-mcp@0.2.3 mcp-sqlite"
+      ],
+      "isBackground": false,
+      "problemMatcher": ["$tsc"],
+      "group": "build"
     }
   ]
 }
