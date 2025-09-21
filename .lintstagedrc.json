@@ -3,5 +3,7 @@
     "eslint --fix --cache --cache-location .eslintcache",
     "prettier --write"
   ],
-  "[*.{json,md,yml,yaml},!playwright-report/trace/**,!playwright-report/data/**]": ["prettier --write"]
+  "[*.{json,md,yml,yaml},!playwright-report/trace/**,!playwright-report/data/**]": [
+    "prettier --write"
+  ]
 }
