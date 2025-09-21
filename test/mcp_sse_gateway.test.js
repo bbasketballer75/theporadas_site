@@ -38,7 +38,8 @@ function fetchSSEChunk(path, headers = {}) {
           return reject(new Error('Wrong content-type ' + res.headers['content-type']));
         }
         let collected = '';
-        setTimeout(() => resolve(collected), 250);
+        // Give a bit more time to collect non-heartbeat events
+        setTimeout(() => resolve(collected), 500);
         res.on('data', (chunk) => {
           collected += chunk.toString();
         });

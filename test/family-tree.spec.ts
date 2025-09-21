@@ -12,7 +12,11 @@ test.describe('Family Tree Component', () => {
     await container.waitFor({ state: 'visible' });
     await page.waitForFunction(() => {
       const container = document.querySelector('[data-testid="family-tree"]');
-      return container && container.getAttribute('data-loading') === 'false' && container.getAttribute('data-rendered') === 'true';
+      return (
+        container &&
+        container.getAttribute('data-loading') === 'false' &&
+        container.getAttribute('data-rendered') === 'true'
+      );
     });
     // Wait for D3 rendering to complete by checking for SVG content
     await page.waitForFunction(() => {
@@ -31,7 +35,9 @@ test.describe('Family Tree Component', () => {
     await expect(page.locator('svg')).toBeVisible();
 
     // Ensure SVG has content
-    await expect(page.locator('svg *')).toHaveCount(await page.locator('svg *').count() > 0 ? await page.locator('svg *').count() : 1);
+    await expect(page.locator('svg *')).toHaveCount(
+      (await page.locator('svg *').count()) > 0 ? await page.locator('svg *').count() : 1,
+    );
   });
 
   test('displays tree nodes and connections', async ({ page }) => {
@@ -56,13 +62,18 @@ test.describe('Family Tree Component', () => {
       await nodes.first().click();
 
       // Wait for interaction feedback - node should remain visible and potentially show tooltip or selection
-      await page.waitForFunction(() => {
-        const tooltip = document.querySelector('.family-tree-tooltip') as HTMLElement;
-        return tooltip && tooltip.style.visibility === 'visible';
-      }, { timeout: 1000 }).catch(() => {
-        // If no tooltip appears, just ensure node is still interactive
-        return true;
-      });
+      await page
+        .waitForFunction(
+          () => {
+            const tooltip = document.querySelector('.family-tree-tooltip') as HTMLElement;
+            return tooltip && tooltip.style.visibility === 'visible';
+          },
+          { timeout: 1000 },
+        )
+        .catch(() => {
+          // If no tooltip appears, just ensure node is still interactive
+          return true;
+        });
 
       // Node should respond (might show details, highlight, etc.)
       // Details might be optional, but interaction should work
@@ -80,10 +91,15 @@ test.describe('Family Tree Component', () => {
       await zoomInButton.click();
 
       // Wait for zoom to complete by checking SVG transform or data-rendered attribute
-      await page.waitForFunction(() => {
-        const svg = document.querySelector('svg g');
-        return svg && svg.getAttribute('transform') && svg.getAttribute('transform')!.includes('scale');
-      }, { timeout: 1000 });
+      await page.waitForFunction(
+        () => {
+          const svg = document.querySelector('svg g');
+          return (
+            svg && svg.getAttribute('transform') && svg.getAttribute('transform')!.includes('scale')
+          );
+        },
+        { timeout: 1000 },
+      );
 
       const svg = page.locator('svg');
       await expect(svg).toBeVisible();
@@ -93,10 +109,13 @@ test.describe('Family Tree Component', () => {
       await zoomOutButton.click();
 
       // Wait for zoom to complete
-      await page.waitForFunction(() => {
-        const svg = document.querySelector('svg g');
-        return svg && svg.getAttribute('transform');
-      }, { timeout: 1000 });
+      await page.waitForFunction(
+        () => {
+          const svg = document.querySelector('svg g');
+          return svg && svg.getAttribute('transform');
+        },
+        { timeout: 1000 },
+      );
 
       const svg = page.locator('svg');
       await expect(svg).toBeVisible();
@@ -115,10 +134,13 @@ test.describe('Family Tree Component', () => {
     await page.mouse.up();
 
     // Wait for drag to complete and SVG to stabilize
-    await page.waitForFunction(() => {
-      const svg = document.querySelector('svg g');
-      return svg && svg.getAttribute('transform');
-    }, { timeout: 1000 });
+    await page.waitForFunction(
+      () => {
+        const svg = document.querySelector('svg g');
+        return svg && svg.getAttribute('transform');
+      },
+      { timeout: 1000 },
+    );
 
     // Tree should still be visible after drag
     await expect(svg).toBeVisible();
@@ -151,21 +173,35 @@ test.describe('Family Tree Component', () => {
         await zoomInButton.click();
 
         // Wait for zoom to complete
-        await page.waitForFunction(() => {
-          const svg = document.querySelector('svg g');
-          return svg && svg.getAttribute('transform') && svg.getAttribute('transform')!.includes('scale');
-        }, { timeout: 1000 });
+        await page.waitForFunction(
+          () => {
+            const svg = document.querySelector('svg g');
+            return (
+              svg &&
+              svg.getAttribute('transform') &&
+              svg.getAttribute('transform')!.includes('scale')
+            );
+          },
+          { timeout: 1000 },
+        );
       }
 
       // Then reset
       await resetButton.click();
 
       // Wait for reset to complete by checking SVG transform returns to center
-      await page.waitForFunction(() => {
-        const svg = document.querySelector('svg g');
-        const transform = svg?.getAttribute('transform') || '';
-        return transform.includes('translate') && !transform.includes('scale(0.8)') && !transform.includes('scale(1.2)');
-      }, { timeout: 1000 });
+      await page.waitForFunction(
+        () => {
+          const svg = document.querySelector('svg g');
+          const transform = svg?.getAttribute('transform') || '';
+          return (
+            transform.includes('translate') &&
+            !transform.includes('scale(0.8)') &&
+            !transform.includes('scale(1.2)')
+          );
+        },
+        { timeout: 1000 },
+      );
 
       const svg = page.locator('svg');
       await expect(svg).toBeVisible();
@@ -205,10 +241,18 @@ test.describe('Family Tree Component', () => {
     await page.keyboard.press('Tab');
 
     // Wait for focus to move to an interactive element
-    await page.waitForFunction(() => {
-      const focusedElement = document.activeElement;
-      return focusedElement && (focusedElement.tagName === 'BUTTON' || focusedElement.closest('svg') || focusedElement.getAttribute('tabindex') !== null);
-    }, { timeout: 1000 });
+    await page.waitForFunction(
+      () => {
+        const focusedElement = document.activeElement;
+        return (
+          focusedElement &&
+          (focusedElement.tagName === 'BUTTON' ||
+            focusedElement.closest('svg') ||
+            focusedElement.getAttribute('tabindex') !== null)
+        );
+      },
+      { timeout: 1000 },
+    );
 
     // Should be able to navigate to interactive elements
     const focusedElement = page.locator(':focus');
@@ -224,10 +268,13 @@ test.describe('Family Tree Component', () => {
     await page.setViewportSize({ width: 800, height: 600 });
 
     // Wait for resize to complete and SVG to adjust
-    await page.waitForFunction(() => {
-      const svg = document.querySelector('svg');
-      return svg && svg.getBoundingClientRect().width > 0;
-    }, { timeout: 1000 });
+    await page.waitForFunction(
+      () => {
+        const svg = document.querySelector('svg');
+        return svg && svg.getBoundingClientRect().width > 0;
+      },
+      { timeout: 1000 },
+    );
 
     // Tree should still be visible and responsive
     await expect(svg).toBeVisible();
@@ -254,10 +301,13 @@ test.describe('Family Tree Component', () => {
       await svg.click({ position: { x: 100, y: 100 } });
 
       // Wait for touch interaction to complete
-      await page.waitForFunction(() => {
-        const svg = document.querySelector('svg');
-        return svg && svg.getBoundingClientRect().width > 0;
-      }, { timeout: 1000 });
+      await page.waitForFunction(
+        () => {
+          const svg = document.querySelector('svg');
+          return svg && svg.getBoundingClientRect().width > 0;
+        },
+        { timeout: 1000 },
+      );
 
       await expect(svg).toBeVisible();
     });
@@ -282,10 +332,17 @@ test.describe('Family Tree Component', () => {
         await zoomInButton.click();
 
         // Wait for zoom to complete on tablet
-        await page.waitForFunction(() => {
-          const svg = document.querySelector('svg g');
-          return svg && svg.getAttribute('transform') && svg.getAttribute('transform')!.includes('scale');
-        }, { timeout: 1000 });
+        await page.waitForFunction(
+          () => {
+            const svg = document.querySelector('svg g');
+            return (
+              svg &&
+              svg.getAttribute('transform') &&
+              svg.getAttribute('transform')!.includes('scale')
+            );
+          },
+          { timeout: 1000 },
+        );
 
         await expect(svg).toBeVisible();
       }

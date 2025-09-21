@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
 import { GalleryItemBase } from '../gallery/loader';
 
@@ -15,7 +15,10 @@ interface GalleryModalProps {
   handleModalImageError: () => void;
   handleModalImageTimeout: () => void;
   startModalImageLoad: () => void;
-  measureClick: (id: string, handler: () => void) => () => void;
+  measureClick: (
+    id: string,
+    handler?: (event: React.MouseEvent) => void,
+  ) => (event: React.MouseEvent) => void;
   setActive: (item: InternalItem | null) => void;
   modalRef: React.RefObject<HTMLDialogElement | null>;
   retryModalImage: () => void;
@@ -26,15 +29,15 @@ export function GalleryModal({
   modalImageState,
   handleModalImageLoad,
   handleModalImageError,
-  handleModalImageTimeout,
-  startModalImageLoad,
+  handleModalImageTimeout: _unusedHandleModalImageTimeout,
+  startModalImageLoad: _unusedStartModalImageLoad,
   measureClick,
   setActive,
   modalRef,
   retryModalImage,
 }: GalleryModalProps) {
-
   if (!active) return null;
+  // Intentionally unused hooks provided by parent for future extensibility
 
   return (
     <dialog
@@ -55,83 +58,23 @@ export function GalleryModal({
         <button
           className="gallery-close"
           onClick={measureClick('gallery-modal-close', () => setActive(null))}
-          aria-label="Close gallery modal"
+          aria-label="Close"
           type="button"
-          style={{
-            position: 'absolute',
-            top: '10px',
-            right: '10px',
-            background: 'rgba(0, 0, 0, 0.5)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '50%',
-            width: '40px',
-            height: '40px',
-            fontSize: '20px',
-            cursor: 'pointer',
-            zIndex: 1000,
-          }}
         >
           ×
         </button>
         {modalImageState === 'loading' && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '8px',
-              zIndex: 10,
-            }}
-          >
-            <div
-              style={{
-                width: '32px',
-                height: '32px',
-                border: '3px solid #f3f3f3',
-                borderTop: '3px solid #4ecdc4',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite',
-              }}
-            />
-            <span style={{ fontSize: '14px', color: '#666' }}>Loading image...</span>
+          <div className="gallery-loading-overlay">
+            <div className="gallery-loading-spinner" />
+            <span className="gallery-loading-text">Loading image...</span>
           </div>
         )}
         {(modalImageState === 'error' || modalImageState === 'timeout') && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '12px',
-              zIndex: 10,
-              backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              padding: '20px',
-              borderRadius: '8px',
-            }}
-          >
-            <span style={{ fontSize: '16px', color: '#666' }}>
+          <div className="gallery-error-overlay">
+            <span className="gallery-error-text">
               {modalImageState === 'timeout' ? 'Image load timeout' : 'Failed to load image'}
             </span>
-            <button
-              onClick={retryModalImage}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#4ecdc4',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-              }}
-            >
+            <button onClick={retryModalImage} className="gallery-error-retry">
               Retry
             </button>
           </div>
@@ -141,10 +84,7 @@ export function GalleryModal({
           alt={active.caption || ''}
           onLoad={handleModalImageLoad}
           onError={handleModalImageError}
-          style={{
-            opacity: modalImageState === 'loaded' ? 1 : 0.3,
-            transition: 'opacity 0.3s ease-in-out',
-          }}
+          className={`modal-image ${modalImageState === 'loaded' ? 'is-loaded' : 'is-loading'}`}
         />
         {active.caption && (
           <p className="gallery-caption" data-testid="photo-caption">

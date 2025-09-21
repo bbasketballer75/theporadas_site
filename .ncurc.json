@@ -1,16 +1,7 @@
 {
   "target": "minor",
-  "filter": [
-    "!@types/*",
-    "!eslint*",
-    "!typescript"
-  ],
-  "reject": [
-    "react",
-    "react-dom",
-    "@types/react",
-    "@types/react-dom"
-  ],
+  "filter": ["!@types/*", "!eslint*", "!typescript"],
+  "reject": ["react", "react-dom", "@types/react", "@types/react-dom"],
   "timeout": 60000,
   "registry": "https://registry.npmjs.org",
   "concurrency": 4,

@@ -249,7 +249,7 @@ test.describe('Navigation Component', () => {
 
       // On desktop, navigation should be fully visible
       const navLinks = page.getByTestId('nav-link');
-      await expect(navLinks).toHaveCount(await navLinks.count() > 0 ? await navLinks.count() : 1);
+      await expect(navLinks).toHaveCount((await navLinks.count()) > 0 ? await navLinks.count() : 1);
 
       // Test that all links are clickable
       const firstLink = navLinks.first();
@@ -257,4 +257,3 @@ test.describe('Navigation Component', () => {
     });
   });
 });
-
