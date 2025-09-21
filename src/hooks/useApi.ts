@@ -7,6 +7,13 @@ import {
   guestMessagesService,
 } from '../services/api';
 
+const envRef = (globalThis as unknown as { process?: { env?: Record<string, string | undefined> } })
+  .process?.env;
+const isTestRuntime: boolean =
+  Boolean((import.meta as unknown as { vitest?: boolean }).vitest) ||
+  envRef?.VITEST === '1' ||
+  envRef?.NODE_ENV === 'test';
+
 /**
  * React Query hooks for API data management with caching and performance optimization
  * Provides hooks for family members, guest messages, and related operations
@@ -28,7 +35,7 @@ export const useFamilyMembers = () => {
     queryFn: () => familyMembersService.getAll(),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
-    retry: 3,
+    retry: isTestRuntime ? false : 3,
   });
 };
 
@@ -48,7 +55,7 @@ export const useFamilyMember = (id: string) => {
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
-    retry: 3,
+    retry: isTestRuntime ? false : 3,
   });
 };
 
@@ -68,7 +75,7 @@ export const useFamilyMembersByRelationship = (relationship: string) => {
     enabled: !!relationship,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
-    retry: 3,
+    retry: isTestRuntime ? false : 3,
   });
 };
 
@@ -86,7 +93,7 @@ export const useGuestMessages = () => {
     queryFn: () => guestMessagesService.getAll(),
     staleTime: 2 * 60 * 1000, // 2 minutes (guest messages change more frequently)
     gcTime: 5 * 60 * 1000, // 5 minutes
-    retry: 3,
+    retry: isTestRuntime ? false : 3,
   });
 };
 

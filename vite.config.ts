@@ -1,18 +1,28 @@
 import react from '@vitejs/plugin-react-swc';
-import { defineConfig } from 'vite';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [react()],
   server: {
     fs: {
-      deny: ['lighthouse/**']
-    }
+      deny: ['lighthouse/**'],
+    },
   },
   build: {
     // Enable code splitting
     rollupOptions: {
-      plugins: process.env.ANALYZE === 'true' ? [visualizer({ filename: 'dist/stats.html', open: true, gzipSize: true, brotliSize: true })] : [],
+      plugins:
+        process.env.ANALYZE === 'true'
+          ? [
+              visualizer({
+                filename: 'dist/stats.html',
+                open: true,
+                gzipSize: true,
+                brotliSize: true,
+              }),
+            ]
+          : [],
       output: {
         // Split vendor chunks
         manualChunks: {
@@ -28,8 +38,6 @@ export default defineConfig({
             'firebase/storage',
             'firebase/auth',
           ],
-          // Other large dependencies
-          'other-vendor': ['mssql'],
         },
         // Optimize chunk file names
         chunkFileNames: 'assets/[name]-[hash].js',

@@ -1,12 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
 
-import { FamilyMember, familyMembersService } from '../services/api';
-import { FamilyTreeVisualization } from './FamilyTreeVisualization';
-import { FamilyTreeSearch } from './FamilyTreeSearch';
-import { FamilyTreeControls } from './FamilyTreeControls';
-import { useSearchState } from '../hooks/useSearchState';
 import { useD3Interactions } from '../hooks/useD3Interactions';
+import { useSearchState } from '../hooks/useSearchState';
+import { FamilyMember, familyMembersService } from '../services/api';
+
+import { FamilyTreeControls } from './FamilyTreeControls';
+import { FamilyTreeSearch } from './FamilyTreeSearch';
+import { FamilyTreeVisualization } from './FamilyTreeVisualization';
 
 export default function FamilyTree({
   onMemberClick,
@@ -52,7 +52,12 @@ export default function FamilyTree({
     return (
       <div
         className="family-tree-loading"
-        style={{ width, height, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        style={
+          {
+            '--family-tree-width': `${width}px`,
+            '--family-tree-height': `${height}px`,
+          } as React.CSSProperties
+        }
       >
         <div>Loading family tree...</div>
       </div>
@@ -63,14 +68,12 @@ export default function FamilyTree({
     return (
       <div
         className="family-tree-error"
-        style={{
-          width,
-          height,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'red',
-        }}
+        style={
+          {
+            '--family-tree-width': `${width}px`,
+            '--family-tree-height': `${height}px`,
+          } as React.CSSProperties
+        }
       >
         <div>{error}</div>
       </div>
@@ -81,7 +84,12 @@ export default function FamilyTree({
     return (
       <div
         className="family-tree-empty"
-        style={{ width, height, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        style={
+          {
+            '--family-tree-width': `${width}px`,
+            '--family-tree-height': `${height}px`,
+          } as React.CSSProperties
+        }
       >
         <div>No family members found</div>
       </div>
@@ -91,7 +99,12 @@ export default function FamilyTree({
   return (
     <div
       className="family-tree-container"
-      style={{ width, height }}
+      style={
+        {
+          '--family-tree-width': `${width}px`,
+          '--family-tree-height': `${height}px`,
+        } as React.CSSProperties
+      }
       data-loading={loading ? 'true' : 'false'}
       data-rendered={familyMembers.length > 0 && !loading ? 'true' : 'false'}
       data-testid="family-tree"

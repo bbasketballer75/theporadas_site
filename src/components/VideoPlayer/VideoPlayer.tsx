@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import './VideoPlayer.css';
 import { detectBrowser } from '../../utils/browserDetection';
+import './VideoPlayer.css';
 
 export interface VideoSource {
   src: string;
@@ -84,7 +84,7 @@ export interface QualitySource extends VideoSource {
   default?: boolean;
 }
 
-export const ReadyAndLoadedVideoState = "ReadyAndLoadedVideoState";
+export const ReadyAndLoadedVideoState = 'ReadyAndLoadedVideoState';
 
 export function VideoPlayer(props: VideoPlayerProps) {
   const {
@@ -126,6 +126,21 @@ export function VideoPlayer(props: VideoPlayerProps) {
     };
   }, [loadingTimeout, retryTimeout]);
 
+  // Warn on deprecated track.srclang usage
+  useEffect(() => {
+    const mode = (globalThis as unknown as { __VIDEOPLAYER_MODE__?: string }).__VIDEOPLAYER_MODE__;
+    const isProd = mode === 'production';
+    if (
+      !isProd &&
+      tracks &&
+      tracks.some((t) => typeof t.srclang === 'string' && t.srclang.length > 0)
+    ) {
+      if (typeof console !== 'undefined' && console.warn) {
+        console.warn("[VideoPlayer] 'srclang' prop is deprecated; use 'srcLang' instead.");
+      }
+    }
+  }, [tracks]);
+
   // Handle loading timeout
   const handleLoadingTimeout = useCallback(() => {
     if (isLoading && loadAttempts < maxRetries) {
@@ -133,7 +148,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
       setIsLoading(false);
       // Trigger retry after a delay
       const retryId = setTimeout(() => {
-        setLoadAttempts(prev => prev + 1);
+        setLoadAttempts((prev) => prev + 1);
         setHasError(false);
         setIsLoading(true);
         // Force reload by changing src temporarily
@@ -143,10 +158,8 @@ export function VideoPlayer(props: VideoPlayerProps) {
           video.src = '';
           video.load();
           setTimeout(() => {
-            if (video) {
-              video.src = currentSrc;
-              video.load();
-            }
+            video.src = currentSrc;
+            video.load();
           }, 100);
         }
       }, 2000); // 2 second delay before retry
@@ -197,57 +210,65 @@ export function VideoPlayer(props: VideoPlayerProps) {
     }
   }, [loadingTimeout]);
 
+  // Extract quality source selection logic to reduce cognitive complexity
+  const useQualitySourceSelection = (
+    qualitySources?: QualitySource[],
+    preferHighestQuality?: boolean,
+  ) => {
+    return useMemo<QualitySource | undefined>(() => {
+      if (!qualitySources || qualitySources.length === 0) return undefined;
+      if (preferHighestQuality) {
+        return [...qualitySources].sort((a, b) => b.height - a.height)[0];
+      }
+      const sorted = [...qualitySources].sort((a, b) => b.height - a.height);
+
+      // Gather signals
+      const rawConnection =
+        typeof navigator !== 'undefined' &&
+        (navigator as unknown as { connection?: unknown }).connection
+          ? (navigator as unknown as { connection?: unknown }).connection
+          : undefined;
+      interface NetInfo {
+        saveData?: boolean;
+        downlink?: number; // Mbps
+      }
+      const connection: NetInfo = (rawConnection || {}) as NetInfo;
+      const saveData: boolean = !!connection.saveData;
+      const downlink: number | undefined =
+        typeof connection.downlink === 'number' ? connection.downlink : undefined; // Mbps
+      const viewportH = typeof window !== 'undefined' ? window.innerHeight || 0 : 0;
+
+      // Establish target resolution based on viewport height (simple mapping).
+      let targetHeight = 480;
+      if (viewportH >= 900) targetHeight = 1080;
+      else if (viewportH >= 720) targetHeight = 720;
+      else if (viewportH >= 540) targetHeight = 540;
+
+      // If save-data requested, clamp target lower.
+      if (saveData) targetHeight = Math.min(targetHeight, 480);
+
+      // Filter candidates under or equal to targetHeight (fallback to smallest if none)
+      let candidates = sorted.filter((q) => q.height <= targetHeight);
+      if (candidates.length === 0) candidates = [sorted[sorted.length - 1]]; // smallest
+
+      // If connection downlink present & bitrate data exists, prefer medium that fits budget.
+      if (downlink && downlink > 0) {
+        const mbpsBudget = downlink * (saveData ? 0.6 : 0.85);
+        // Convert candidate bitrate to Mbps and filter under budget
+        const bitrateFiltered = candidates.filter((c) => {
+          if (!c.bitrateKbps) return true; // unknown bitrate -> keep
+          return c.bitrateKbps / 1000 <= mbpsBudget;
+        });
+        if (bitrateFiltered.length) candidates = bitrateFiltered;
+      }
+
+      // Prefer highest resolution within candidates.
+      return candidates.sort((a, b) => b.height - a.height)[0];
+    }, [qualitySources, preferHighestQuality]);
+  };
+
   // Quality selection heuristic – choose ONE best source when qualitySources provided.
-  const selectedQualitySource = useMemo<QualitySource | undefined>(() => {
-    if (!qualitySources || qualitySources.length === 0) return undefined;
-    if (preferHighestQuality) {
-      return [...qualitySources].sort((a, b) => b.height - a.height)[0];
-    }
-    const sorted = [...qualitySources].sort((a, b) => b.height - a.height);
-
-    // Gather signals
-    const rawConnection =
-      typeof navigator !== 'undefined' &&
-      (navigator as unknown as { connection?: unknown }).connection
-        ? (navigator as unknown as { connection?: unknown }).connection
-        : undefined;
-    interface NetInfo {
-      saveData?: boolean;
-      downlink?: number; // Mbps
-    }
-    const connection: NetInfo = (rawConnection || {}) as NetInfo;
-    const saveData: boolean = !!connection.saveData;
-    const downlink: number | undefined =
-      typeof connection.downlink === 'number' ? connection.downlink : undefined; // Mbps
-    const viewportH = typeof window !== 'undefined' ? window.innerHeight || 0 : 0;
-
-    // Establish target resolution based on viewport height (simple mapping).
-    let targetHeight = 480;
-    if (viewportH >= 900) targetHeight = 1080;
-    else if (viewportH >= 720) targetHeight = 720;
-    else if (viewportH >= 540) targetHeight = 540;
-
-    // If save-data requested, clamp target lower.
-    if (saveData) targetHeight = Math.min(targetHeight, 480);
-
-    // Filter candidates under or equal to targetHeight (fallback to smallest if none)
-    let candidates = sorted.filter((q) => q.height <= targetHeight);
-    if (candidates.length === 0) candidates = [sorted[sorted.length - 1]]; // smallest
-
-    // If connection downlink present & bitrate data exists, prefer medium that fits budget.
-    if (downlink && downlink > 0) {
-      const mbpsBudget = downlink * (saveData ? 0.6 : 0.85);
-      // Convert candidate bitrate to Mbps and filter under budget
-      const bitrateFiltered = candidates.filter((c) => {
-        if (!c.bitrateKbps) return true; // unknown bitrate -> keep
-        return c.bitrateKbps / 1000 <= mbpsBudget;
-      });
-      if (bitrateFiltered.length) candidates = bitrateFiltered;
-    }
-
-    // Prefer highest resolution within candidates.
-    return candidates.sort((a, b) => b.height - a.height)[0];
-  }, [qualitySources, preferHighestQuality]);
+  const selectedQualitySource = useQualitySourceSelection(qualitySources, preferHighestQuality);
 
   // Merge single src into sources list for rendering (ignored if qualitySources active)
   const resolvedSources = useMemo<VideoSource[] | undefined>(() => {
@@ -284,55 +305,17 @@ export function VideoPlayer(props: VideoPlayerProps) {
     [onEvent, chapterIndex],
   );
 
-  // Select best video source based on browser codec support
-  const selectBestSource = useCallback((sources: VideoSource[]): VideoSource | null => {
-    if (!sources || sources.length === 0) return null;
-    
-    // Filter out sources with empty, null, or invalid src
-    const validSources = sources.filter(source => 
-      source && 
-      source.src && 
-      typeof source.src === 'string' && 
-      source.src.trim() !== ''
-    );
-    if (validSources.length === 0) return null;
-
-    // Firefox prefers WebM, Safari prefers MP4 with H.264, Chrome supports both
-    const preferredOrder = browserInfo.name === 'firefox'
-      ? ['video/webm', 'video/mp4']
-      : browserInfo.name === 'safari'
-      ? ['video/mp4', 'video/webm']
-      : ['video/mp4', 'video/webm'];
-
-    for (const mimeType of preferredOrder) {
-      const source = validSources.find(s => s.type === mimeType);
-      if (source) {
-        // Additional codec check for MP4
-        if (mimeType === 'video/mp4' && !browserInfo.supportsVideoCodecs.h264) {
-          continue;
-        }
-        // Additional codec check for WebM
-        if (mimeType === 'video/webm' && !browserInfo.supportsVideoCodecs.webm) {
-          continue;
-        }
-        return source;
-      }
-    }
-
-    // Fallback to first available source
-    return validSources[0];
-  }, [browserInfo]);
+  // (Removed selectBestSource as we now render all provided sources in non-quality mode.)
 
   // Get the best source for rendering
+  // Determine rendering strategy:
+  // - If qualitySources provided: choose a single best and set <video src> directly
+  // - If plain sources/src provided: render multiple <source> children (no direct src)
+  const qualityMode = Boolean(qualitySources && qualitySources.length);
   const bestSource = useMemo(() => {
-    if (selectedQualitySource) {
-      return selectedQualitySource;
-    }
-    if (resolvedSources && resolvedSources.length > 0) {
-      return selectBestSource(resolvedSources);
-    }
+    if (qualityMode) return selectedQualitySource ?? null;
     return null;
-  }, [selectedQualitySource, resolvedSources, selectBestSource]);
+  }, [qualityMode, selectedQualitySource]);
 
   const handleSelectChapter = useCallback(
     (idx: number) => {
@@ -377,7 +360,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
       if (loadAttempts < maxRetries) {
         // Trigger retry
         const retryId = setTimeout(() => {
-          setLoadAttempts(prev => prev + 1);
+          setLoadAttempts((prev) => prev + 1);
           setHasError(false);
           setIsLoading(true);
           // Force reload
@@ -386,10 +369,8 @@ export function VideoPlayer(props: VideoPlayerProps) {
             el.src = '';
             el.load();
             setTimeout(() => {
-              if (el) {
-                el.src = currentSrc;
-                el.load();
-              }
+              el.src = currentSrc;
+              el.load();
             }, 100);
           }
         }, 2000);
@@ -457,7 +438,41 @@ export function VideoPlayer(props: VideoPlayerProps) {
 
     listeners.forEach(([evt, fn]) => el.addEventListener(evt, fn));
     return () => listeners.forEach(([evt, fn]) => el.removeEventListener(evt, fn));
-  }, [emit, startLoadingTimeout, clearLoadingTimeout, checkReadyState, loadAttempts, maxRetries, browserInfo.name, isLoading]);
+  }, [
+    emit,
+    startLoadingTimeout,
+    clearLoadingTimeout,
+    checkReadyState,
+    loadAttempts,
+    maxRetries,
+    browserInfo.name,
+    isLoading,
+  ]);
+
+  // Compute placeholder accessible name
+  // Format time as MM:SS
+  const formatTime = useCallback((timeInSeconds: number): string => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = Math.floor(timeInSeconds % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }, []);
+
+  // Get formatted time display
+  const timeDisplay = useMemo(() => {
+    if (!duration) return '0:00 / 0:00';
+    return `${formatTime(currentTime)} / ${formatTime(duration)}`;
+  }, [duration, currentTime, formatTime]);
+
+  // Compute placeholder accessible name
+  const placeholderName = useMemo(() => {
+    if (placeholderLabel) return placeholderLabel;
+    if (caption) return `${caption} (placeholder)`;
+    return 'Sample (placeholder)';
+  }, [placeholderLabel, caption]);
+
+  const hasPlayable = Boolean(
+    bestSource || (!qualityMode && resolvedSources && resolvedSources.length > 0),
+  );
 
   return (
     <section
@@ -467,12 +482,15 @@ export function VideoPlayer(props: VideoPlayerProps) {
       data-ready={!isLoading && !hasError ? 'true' : 'false'}
       data-error={hasError ? 'true' : 'false'}
     >
-      {bestSource ? (
-        <>
+      {hasPlayable ? (
+        <figure>
           {isLoading && (
             <div className="video-loading-indicator" data-testid="video-loading-indicator">
               <div className="loading-spinner"></div>
-              <span>Loading video... {loadAttempts > 0 && `(Attempt ${loadAttempts + 1}/${maxRetries + 1})`}</span>
+              <span>
+                Loading video...{' '}
+                {loadAttempts > 0 && `(Attempt ${loadAttempts + 1}/${maxRetries + 1})`}
+              </span>
             </div>
           )}
           <video
@@ -485,17 +503,23 @@ export function VideoPlayer(props: VideoPlayerProps) {
             data-testid="video-element"
             preload={browserInfo.name === 'safari' ? 'metadata' : 'auto'}
             crossOrigin={browserInfo.name === 'firefox' ? 'anonymous' : undefined}
+            // In quality mode, set direct src to chosen source
+            {...(qualityMode && bestSource?.src ? { src: bestSource.src } : {})}
           >
-            {bestSource && bestSource.src ? (
-              <source src={bestSource.src} type={bestSource.type} />
-            ) : (
-              resolvedSources?.filter(source => source.src && source.src.trim() !== '').map((source, index) => (
-                <source key={index} src={source.src} type={source.type} />
-              ))
-            )}
-            {tracks?.map((track, index) => (
+            {/* In non-quality mode, render all provided sources */}
+            {!qualityMode &&
+              resolvedSources
+                ?.filter((source) => source.src && source.src.trim() !== '')
+                .map((source) => (
+                  <source
+                    key={`${source.type || 'unknown'}:${source.src}`}
+                    src={source.src}
+                    type={source.type}
+                  />
+                ))}
+            {tracks?.map((track) => (
               <track
-                key={index}
+                key={`${track.kind}:${track.src}`}
                 kind={track.kind}
                 src={track.src}
                 srcLang={track.srcLang || track.srclang}
@@ -505,15 +529,20 @@ export function VideoPlayer(props: VideoPlayerProps) {
             ))}
             Your browser does not support the video tag.
           </video>
-        </>
+          {/* Expose selected quality label in DOM for tests/UX */}
+          {qualityMode && selectedQualitySource?.label ? (
+            <span className="video-quality-label">{selectedQualitySource.label}</span>
+          ) : null}
+          {caption ? <figcaption>{caption}</figcaption> : null}
+        </figure>
       ) : (
-        <div
-          className="video-placeholder"
-          role="img"
-          aria-label={placeholderLabel || 'Video loading placeholder'}
-          data-testid="video-loading"
-        >
-          {placeholderLabel || 'Loading video...'}
+        <div className="video-placeholder" data-testid="video-loading">
+          <img
+            src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDMTMuMSAyIDE0IDIuOSAxNCA0VjE2QzE0IDE3LjEgMTMuMSAxOCA5LjUgMTJDOS41IDE4IDggMTcuMSAxNiAxNkMxNiAxNC45IDE2LjkgMTQgMTggMTRIMTJDMTguMSAxNCAxOSAxNC45IDE5IDE2VjE4QzE5IDE5LjEgMTguMSAyMCAxNyAyMEgxN0MxNS45IDIwIDE1IDE5LjEgMTUgMThWNFoiIGZpbGw9IiM5Q0E0QUYiLz4KPC9zdmc+"
+            alt={placeholderName}
+            className="video-placeholder-icon"
+          />
+          <span>{placeholderLabel || 'Loading video...'}</span>
         </div>
       )}
 
@@ -540,24 +569,15 @@ export function VideoPlayer(props: VideoPlayerProps) {
           </button>
 
           <div className="video-progress" data-testid="progress">
-            <div
-              className="video-progress-bar"
-              style={{
-                width: duration ? `${((currentTime || 0) / duration) * 100}%` : '0%'
-              }}
+            <progress
+              className="video-progress-meter"
+              value={duration ? Math.max(0, Math.min(currentTime, duration)) : 0}
+              max={duration ?? 0}
+              aria-label="Video progress"
             />
           </div>
 
-          <div className="video-time">
-            {duration ? (
-              <>
-                {Math.floor((currentTime || 0) / 60)}:{Math.floor((currentTime || 0) % 60).toString().padStart(2, '0')} /{' '}
-                {Math.floor(duration / 60)}:{Math.floor(duration % 60).toString().padStart(2, '0')}
-              </>
-            ) : (
-              '0:00 / 0:00'
-            )}
-          </div>
+          <div className="video-time">{timeDisplay}</div>
 
           <div className="volume-control">
             <button
@@ -613,10 +633,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
 
       {/* Error handling */}
       {hasError && (
-        <div
-          className="video-error"
-          data-testid="video-error"
-        >
+        <div className="video-error" data-testid="video-error">
           <div className="error-content">
             <span>Video failed to load</span>
             {loadAttempts >= maxRetries ? (
@@ -630,12 +647,12 @@ export function VideoPlayer(props: VideoPlayerProps) {
 
       {/* Chapters */}
       {showChapters && chapters && chapters.length > 0 && (
-        <nav className="chapters-nav" aria-label="Video chapters">
+        <nav className="chapters-nav" aria-label="Chapters">
           <ol className="chapters-list">
             {chapters.map((c, i) => {
               const active = i === chapterIndex;
               return (
-                <li key={i}>
+                <li key={`${c.title}:${c.start}`}>
                   <button
                     type="button"
                     className={`chapter-button ${active ? 'active' : ''}`}
@@ -661,6 +678,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
           </ol>
         </nav>
       )}
+      {!hasPlayable && caption ? <p className="video-caption">{caption}</p> : null}
     </section>
   );
 }

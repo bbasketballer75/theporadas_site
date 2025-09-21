@@ -107,5 +107,14 @@
   "workbench.editor.showTabs": "multiple",
   "workbench.quickOpen.closeOnFocusLost": false,
   "python-envs.defaultEnvManager": "ms-python.python:system",
-  "python-envs.pythonProjects": []
+  "python-envs.pythonProjects": [],
+  // MCP (Model Context Protocol) server support
+  "chat.mcp.access": "all",
+  "chat.mcp.discovery.enabled": {
+    "claude-desktop": true,
+    "windsurf": true,
+    "cursor-global": true,
+    "cursor-workspace": true
+  },
+  "chat.mcp.autostart": "newAndOutdated"
 }

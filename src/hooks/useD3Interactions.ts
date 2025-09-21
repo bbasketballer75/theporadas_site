@@ -1,5 +1,6 @@
 import { hierarchy, linkVertical, select, tree, zoom } from 'd3';
 import { useCallback, useEffect, useRef } from 'react';
+
 import { FamilyMember } from '../services/api';
 
 export function useD3Interactions(
@@ -72,10 +73,12 @@ export function useD3Interactions(
       .enter()
       .append('path')
       .attr('class', 'link')
-      .attr('d', (d: any) => {
-        const linkGenerator = linkVertical()
-          .x((d: any) => d.x)
-          .y((d: any) => d.y);
+      .attr('d', (d) => {
+        const linkGenerator = linkVertical<{ x: number; y: number }>()
+          .x((p) => p.x)
+          .y((p) => p.y);
+        // d3-hierarchy link has source/target with x/y
+        // @ts-expect-error d typing from d3 selection; both shapes have x/y
         return linkGenerator(d);
       })
       .attr('fill', 'none')

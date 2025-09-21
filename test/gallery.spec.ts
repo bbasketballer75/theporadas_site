@@ -15,7 +15,7 @@ test.describe('Gallery Component', () => {
     await expect(photos.first()).toBeVisible();
 
     // Should have multiple photos
-    await expect(photos).toHaveCount(await photos.count() > 0 ? await photos.count() : 1);
+    await expect(photos).toHaveCount((await photos.count()) > 0 ? await photos.count() : 1);
   });
 
   test('photo thumbnails are clickable and open modal', async ({ page }) => {
@@ -240,7 +240,7 @@ test.describe('Gallery Component', () => {
   test.describe('image loading and error handling', () => {
     test('handles image load errors gracefully', async ({ page }) => {
       // Intercept image requests and make them fail
-      await page.route('**/assets/wedding/**', route => route.abort());
+      await page.route('**/assets/wedding/**', (route) => route.abort());
 
       const photoThumbnail = page.getByTestId('photo').first();
       await expect(photoThumbnail).toBeVisible();
@@ -251,8 +251,8 @@ test.describe('Gallery Component', () => {
 
     test('handles slow image loads with timeout', async ({ page }) => {
       // Intercept image requests and delay them
-      await page.route('**/assets/wedding/**', async route => {
-        await new Promise(resolve => setTimeout(resolve, 9000)); // Delay longer than timeout
+      await page.route('**/assets/wedding/**', async (route) => {
+        await new Promise((resolve) => setTimeout(resolve, 9000)); // Delay longer than timeout
         await route.continue();
       });
 
@@ -266,8 +266,8 @@ test.describe('Gallery Component', () => {
 
     test('shows loading indicators during image load', async ({ page }) => {
       // Intercept image requests and delay them
-      await page.route('**/assets/wedding/**', async route => {
-        await new Promise(resolve => setTimeout(resolve, 2000));
+      await page.route('**/assets/wedding/**', async (route) => {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
         await route.continue();
       });
 
@@ -284,7 +284,7 @@ test.describe('Gallery Component', () => {
 
     test('modal handles image load errors', async ({ page }) => {
       // Intercept modal image requests and make them fail
-      await page.route('**/assets/wedding/**', route => route.abort());
+      await page.route('**/assets/wedding/**', (route) => route.abort());
 
       const photoThumbnail = page.getByTestId('photo').first();
       if (await photoThumbnail.isVisible()) {
@@ -300,8 +300,8 @@ test.describe('Gallery Component', () => {
 
     test('modal handles slow loads with loading indicator', async ({ page }) => {
       // Intercept modal image requests and delay them
-      await page.route('**/assets/wedding/**', async route => {
-        await new Promise(resolve => setTimeout(resolve, 3000));
+      await page.route('**/assets/wedding/**', async (route) => {
+        await new Promise((resolve) => setTimeout(resolve, 3000));
         await route.continue();
       });
 
@@ -323,7 +323,7 @@ test.describe('Gallery Component', () => {
 
     test('retry functionality works for failed images', async ({ page }) => {
       // First make images fail
-      await page.route('**/assets/wedding/**', route => route.abort());
+      await page.route('**/assets/wedding/**', (route) => route.abort());
 
       const photoThumbnail = page.getByTestId('photo').first();
       await expect(photoThumbnail).toBeVisible();

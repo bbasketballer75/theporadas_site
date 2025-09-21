@@ -1,4 +1,20 @@
-/* Gallery Component Responsive Styles */
+/* Shared gallery styles for grid and modal */
+
+@keyframes gallery-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.gallery-section {
+  margin-block: 1rem;
+}
+.gallery-section-title {
+  margin: 0 0 0.75rem;
+}
 
 /* Main gallery container */
 .gallery {
@@ -6,91 +22,77 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  /* Browser-specific prefixes */
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -ms-box-sizing: border-box;
   box-sizing: border-box;
 }
 
-/* Gallery grid */
+/* Grid */
 .gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 16px;
   list-style: none;
   padding: 0;
   margin: 0;
-  /* Browser-specific prefixes */
-  display: -webkit-flex;
-  display: -moz-flex;
-  display: -ms-flex;
-  display: flex;
-  -webkit-flex-wrap: wrap;
-  -moz-flex-wrap: wrap;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-  -webkit-justify-content: space-between;
-  -moz-justify-content: space-between;
-  -ms-justify-content: space-between;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.gallery-grid-item {
+  position: relative;
 }
 
-/* Gallery item */
+/* Thumbnails */
 .gallery-item {
   position: relative;
   overflow: hidden;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  display: block;
+  width: 100%;
+  border: 0;
   background: #f5f5f5;
-  border: 2px solid transparent;
-  /* Browser-specific prefixes */
-  -webkit-border-radius: 8px;
-  -moz-border-radius: 8px;
-  -ms-border-radius: 8px;
-  -webkit-transition: all 0.3s ease;
-  -moz-transition: all 0.3s ease;
-  -ms-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-  -webkit-transform: translateZ(0);
-  -moz-transform: translateZ(0);
-  -ms-transform: translateZ(0);
-  transform: translateZ(0);
+  padding: 0;
+  cursor: pointer;
+  border-radius: 8px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
-
-.gallery-item:hover,
-.gallery-item:focus-visible {
+.gallery-item:focus-visible,
+.gallery-item:hover {
   transform: scale(1.02);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   border-color: #4ecdc4;
-  /* Transform and box-shadow prefixes */
-  -webkit-transform: scale(1.02);
-  -moz-transform: scale(1.02);
-  -ms-transform: scale(1.02);
-  transform: scale(1.02);
-  -webkit-box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  -moz-box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  -ms-box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
-
 .gallery-item img {
   width: 100%;
   height: 200px;
   object-fit: cover;
+  display: block;
   transition: opacity 0.3s ease;
-  /* Browser-specific prefixes */
-  -webkit-transition: opacity 0.3s ease;
-  -moz-transition: opacity 0.3s ease;
-  -ms-transition: opacity 0.3s ease;
-  transition: opacity 0.3s ease;
-  -webkit-object-fit: cover;
-  -moz-object-fit: cover;
-  -ms-object-fit: cover;
-  object-fit: cover;
 }
 
-/* Gallery modal */
+/* In-grid loading affordances */
+.gallery-thumb-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.gallery-thumb-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #4ecdc4;
+  border-radius: 50%;
+  animation: gallery-spin 1s linear infinite;
+}
+.gallery-thumb-text {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Modal shell */
 .gallery-modal {
   position: fixed;
   top: 0;
@@ -102,22 +104,114 @@
   padding: 0;
   margin: 0;
   z-index: 10000;
-  /* Browser-specific prefixes */
   -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
 }
-
 .gallery-modal::backdrop {
   background: rgba(0, 0, 0, 0.8);
 }
+.gallery-modal-content {
+  position: relative;
+  padding: 1rem;
+  background: #fff;
+  width: min(96vw, 1200px);
+  max-height: 96vh;
+  margin: 2vh auto;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.gallery-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  border: 0;
+}
+.gallery-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 1000;
+}
 
+/* Modal loading/error */
+.gallery-loading-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+}
+.gallery-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #4ecdc4;
+  border-radius: 50%;
+  animation: gallery-spin 1s linear infinite;
+}
+.gallery-loading-text {
+  font-size: 14px;
+  color: #666;
+}
+.gallery-error-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 8px;
+}
+.gallery-error-retry {
+  padding: 8px 16px;
+  background: #4ecdc4;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Modal image/caption */
+.modal-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: opacity 0.3s ease-in-out;
+}
+.modal-image.is-loading {
+  opacity: 0.3;
+}
+.modal-image.is-loaded {
+  opacity: 1;
+}
+.gallery-caption {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+/* Image constraints inside modal */
 .gallery-modal img {
   max-width: 90vw;
-  max-height: 90vh;
+  max-height: 70vh;
   object-fit: contain;
-  /* Browser-specific prefixes */
-  -webkit-object-fit: contain;
-  -moz-object-fit: contain;
-  -ms-object-fit: contain;
-  object-fit: contain;
+  display: block;
+  margin: 0 auto;
 }
