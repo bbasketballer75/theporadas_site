@@ -29,7 +29,7 @@
     "lint:md": "markdownlint \"**/*.md\" --ignore lighthouse --ignore lighthouse/** --ignore docs/video/** -c .markdownlint.jsonc && markdownlint \"docs/video/**/*.md\" -c docs/video/.markdownlint.jsonc",
     "lh:build": "cd lighthouse && yarn build-devtools",
     "lh:build:full": "cd lighthouse && cross-env LH_DISABLE_ZLIB_SHIMS=1 yarn build-devtools",
-    "verify": "npm run lint && npm run typecheck && npm run csp:verify && npm run test",
+    "verify": "npm run lint && npm run typecheck && node scripts/verify_csp_diff.mjs && npm run test",
     "changelog:unreleased": "conventional-changelog -p angular -u -o CHANGELOG.md",
     "changelog:release": "conventional-changelog -p angular -r 0 -o CHANGELOG.md && git add CHANGELOG.md",
     "changelog:print": "conventional-changelog -p angular -r 0",
@@ -122,12 +122,15 @@
     "vitest-axe": "^0.1.0"
   },
   "dependencies": {
+    "@mem0/mcp-server": "^0.0.1",
+    "@modelcontextprotocol/server-brave-search": "^0.6.2",
     "@modelcontextprotocol/server-memory": "^2025.8.4",
     "@modelcontextprotocol/server-puppeteer": "^2025.5.12",
     "@modelcontextprotocol/server-sequential-thinking": "^2025.7.1",
     "@notionhq/notion-mcp-server": "^1.9.0",
     "@sentry/react": "^10.8.0",
     "@tanstack/react-query": "^5.85.8",
+    "@upstash/context7-mcp": "^1.0.17",
     "@xenova/transformers": "^2.17.2",
     "axios": "^1.11.0",
     "chromadb": "^1.8.1",
@@ -145,6 +148,7 @@
     "react-leaflet": "^5.0.0",
     "react-window": "^2.0.2",
     "react-window-infinite-loader": "^1.0.10",
+    "tavily-mcp": "^0.2.3",
     "typescript": "^5.5.4",
     "web-vitals": "^5.1.0"
   },
