@@ -114,10 +114,26 @@ interface MCPToolPanelProps {
 
 export function MCPToolPanel({ tools, onToggleTool, onExecuteTool }: MCPToolPanelProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [toolResults, setToolResults] = useState<
+    Record<string, { result?: unknown; error?: string }>
+  >({});
   const categories = ['All', ...new Set(tools.map((tool) => tool.category))];
 
   const filteredTools =
     selectedCategory === 'All' ? tools : tools.filter((tool) => tool.category === selectedCategory);
+
+  const handleExecute = async (toolId: string) => {
+    setToolResults((prev) => ({ ...prev, [toolId]: { result: undefined, error: undefined } }));
+    try {
+      const result = await onExecuteTool(toolId);
+      setToolResults((prev) => ({ ...prev, [toolId]: { result, error: undefined } }));
+    } catch (err: any) {
+      setToolResults((prev) => ({
+        ...prev,
+        [toolId]: { result: undefined, error: err?.message || 'Unknown error' },
+      }));
+    }
+  };
 
   return (
     <div className="mcp-tool-panel bg-white rounded-lg shadow-md p-4">
@@ -141,61 +157,90 @@ export function MCPToolPanel({ tools, onToggleTool, onExecuteTool }: MCPToolPane
 
       {/* Tools Grid */}
       <div className="grid grid-cols-1 gap-3 max-h-96 overflow-y-auto">
-        {filteredTools.map((tool) => (
-          <div key={tool.id} className="border border-gray-200 rounded-lg p-3">
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex-1">
-                <h4 className="font-medium text-sm">{tool.name}</h4>
-                <p className="text-xs text-gray-600 mt-1">{tool.description}</p>
-                <div className="flex items-center mt-2 space-x-2">
-                  <span className="text-xs bg-gray-100 px-2 py-1 rounded">v{tool.version}</span>
-                  <span className="text-xs text-gray-500">by {tool.author}</span>
-                  {tool.isBuiltIn && (
-                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                      Built-in
-                    </span>
-                  )}
+        {filteredTools.map((tool) => {
+          const resultObj = toolResults[tool.id] || {};
+          return (
+            <div key={tool.id} className="border border-gray-200 rounded-lg p-3">
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex-1">
+                  <h4 className="font-medium text-sm">{tool.name}</h4>
+                  <p className="text-xs text-gray-600 mt-1">{tool.description}</p>
+                  <div className="flex items-center mt-2 space-x-2">
+                    <span className="text-xs bg-gray-100 px-2 py-1 rounded">v{tool.version}</span>
+                    <span className="text-xs text-gray-500">by {tool.author}</span>
+                    {tool.isBuiltIn && (
+                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                        Built-in
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2 ml-4">
+                  <button
+                    onClick={() => handleExecute(tool.id)}
+                    disabled={!tool.isEnabled}
+                    className={`px-3 py-1 text-xs rounded ${
+                      tool.isEnabled
+                        ? 'bg-green-500 text-white hover:bg-green-600'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                  >
+                    Execute
+                  </button>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={tool.isEnabled}
+                      onChange={(e) => onToggleTool(tool.id, e.target.checked)}
+                      className="mr-2"
+                    />
+                    <span className="text-xs">Enabled</span>
+                  </label>
                 </div>
               </div>
-              <div className="flex items-center space-x-2 ml-4">
-                <button
-                  onClick={() => onExecuteTool(tool.id)}
-                  disabled={!tool.isEnabled}
-                  className={`px-3 py-1 text-xs rounded ${
-                    tool.isEnabled
-                      ? 'bg-green-500 text-white hover:bg-green-600'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
-                >
-                  Execute
-                </button>
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={tool.isEnabled}
-                    onChange={(e) => onToggleTool(tool.id, e.target.checked)}
-                    className="mr-2"
-                  />
-                  <span className="text-xs">Enabled</span>
-                </label>
-              </div>
-            </div>
 
-            {/* Capabilities */}
-            <div className="mt-2">
-              <div className="flex flex-wrap gap-1">
-                {tool.capabilities.map((capability) => (
-                  <span
-                    key={capability}
-                    className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
-                  >
-                    {capability}
-                  </span>
-                ))}
+              {/* Capabilities */}
+              <div className="mt-2">
+                <div className="flex flex-wrap gap-1">
+                  {tool.capabilities.map((capability) => (
+                    <span
+                      key={capability}
+                      className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
+                    >
+                      {capability}
+                    </span>
+                  ))}
+                </div>
               </div>
+
+              {/* Tool Execution Result */}
+              {resultObj.result !== undefined && (
+                <div className="mt-3 p-2 bg-gray-50 border rounded">
+                  <h5 className="font-semibold text-xs mb-1">Result:</h5>
+                  {typeof resultObj.result === 'string' ? (
+                    <pre className="text-xs whitespace-pre-wrap">{resultObj.result}</pre>
+                  ) : resultObj.result &&
+                    typeof resultObj.result === 'object' &&
+                    'content' in resultObj.result ? (
+                    <pre className="text-xs whitespace-pre-wrap">
+                      {String(resultObj.result.content)}
+                    </pre>
+                  ) : (
+                    <pre className="text-xs whitespace-pre-wrap">
+                      {JSON.stringify(resultObj.result, null, 2)}
+                    </pre>
+                  )}
+                </div>
+              )}
+              {resultObj.error && (
+                <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded">
+                  <h5 className="font-semibold text-xs mb-1 text-red-700">Error:</h5>
+                  <pre className="text-xs whitespace-pre-wrap text-red-700">{resultObj.error}</pre>
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

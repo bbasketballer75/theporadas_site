@@ -20,7 +20,7 @@ function log(obj) {
 const args = process.argv.slice(2);
 let only = null;
 let cfgPath = null;
-let maxRestarts = 0;
+let maxRestarts = 10;
 let exitOnGiveUp = 0;
 let backoffMin = 5;
 let backoffMax = 10;
@@ -60,7 +60,11 @@ while (i < args.length) {
 
 const base = [
   { name: 'fs', cmd: process.execPath, args: [resolve('scripts/mcp_filesystem.mjs')] },
+  { name: 'kg_memory', cmd: process.execPath, args: [resolve('scripts/mcp_kg_memory.mjs')] },
+  { name: 'memory_bank', cmd: process.execPath, args: [resolve('scripts/mcp_memory_bank.mjs')] },
+  { name: 'python', cmd: process.execPath, args: [resolve('scripts/mcp_python.mjs')] },
   { name: 'tavily', cmd: process.execPath, args: [resolve('scripts/mcp_tavily.mjs')] },
+  { name: 'test_metrics', cmd: process.execPath, args: [resolve('scripts/mcp_test_metrics.mjs')] },
 ];
 
 if (process.env.MCP_INCLUDE_SSE === '1') {
@@ -159,7 +163,7 @@ function startServer(s) {
     }, remaining);
   }
   const startAt = Date.now();
-  const child = spawn(s.cmd, s.args, { env: process.env, stdio: ['ignore', 'pipe', 'pipe'] });
+  const child = spawn(s.cmd, s.args, { env: process.env, stdio: ['pipe', 'pipe', 'pipe'] });
   st.spawns++;
   st.child = child;
   state.set(s.name, st);

@@ -42,7 +42,7 @@ services:
       start_period: 15s
   mcp_notion:
     build:
-      context: .
+      context: ..
       dockerfile: Dockerfile.mcp
     container_name: mcp-notion
     environment:
@@ -62,7 +62,7 @@ services:
       start_period: 15s
   mcp_mem0:
     build:
-      context: .
+      context: ..
       dockerfile: Dockerfile.mcp
     container_name: mcp-mem0
     environment:
@@ -82,7 +82,7 @@ services:
       start_period: 15s
   mcp_sqlserver:
     build:
-      context: .
+      context: ..
       dockerfile: Dockerfile.mcp
     container_name: mcp-sqlserver
     depends_on:

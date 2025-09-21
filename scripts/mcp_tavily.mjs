@@ -112,3 +112,19 @@ process.stdin.on('data', (chunk) => {
     }
   }
 });
+
+// Keep the process alive by preventing exit when stdin closes
+process.stdin.on('close', () => {
+  // Don't exit immediately, let the process stay alive for tests
+  setTimeout(() => process.exit(0), 100);
+});
+
+// Additional keep-alive mechanism
+const keepAlive = setInterval(() => {
+  // Keep alive
+}, 1000);
+
+// Clean up on exit
+process.on('exit', () => {
+  clearInterval(keepAlive);
+});
