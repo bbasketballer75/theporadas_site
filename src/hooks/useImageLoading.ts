@@ -8,10 +8,15 @@ interface ImageState {
   [key: string]: ImageLoadState;
 }
 
+type PerformanceMonitor = {
+  startTiming: (label: string) => void;
+  endTiming: (label: string) => void;
+};
+
 interface UseImageLoadingProps {
   items: GalleryItemBase[];
-  performanceMonitor: any; // From usePerformanceMonitor
-  active: any; // InternalItem | null
+  performanceMonitor: PerformanceMonitor; // From usePerformanceMonitor
+  active: { id: string } | null; // InternalItem | null (narrowed to minimal shape)
 }
 
 export function useImageLoading({ items, performanceMonitor, active }: UseImageLoadingProps) {
@@ -26,11 +31,11 @@ export function useImageLoading({ items, performanceMonitor, active }: UseImageL
       for (let i = 1; i <= count; i++) {
         const nextIndex = (currentIndex + i) % items.length;
         const nextItem = items[nextIndex];
-        if (nextItem && !(nextItem as any).loaded) {
+        if (nextItem && !(nextItem as unknown as { loaded?: boolean }).loaded) {
           const img = new Image();
           img.src = nextItem.src;
           img.onload = () => {
-            (nextItem as any).loaded = true;
+            (nextItem as unknown as { loaded?: boolean }).loaded = true;
           };
         }
       }
@@ -137,10 +142,12 @@ export function useImageLoading({ items, performanceMonitor, active }: UseImageL
 
   // Cleanup timeouts on unmount
   useEffect(() => {
+    const timeouts = timeoutRefs.current;
+    const modalTimeout = modalTimeoutRef.current;
     return () => {
-      Object.values(timeoutRefs.current).forEach(clearTimeout);
-      if (modalTimeoutRef.current) {
-        clearTimeout(modalTimeoutRef.current);
+      Object.values(timeouts).forEach(clearTimeout);
+      if (modalTimeout) {
+        clearTimeout(modalTimeout);
       }
     };
   }, []);

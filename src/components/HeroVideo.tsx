@@ -8,7 +8,6 @@ import { QualitySource } from './VideoPlayer/VideoPlayer';
 
 export interface HeroVideoProps {
   qualitySources?: QualitySource[];
-  src?: string;
   poster?: string;
   caption?: string;
   children?: React.ReactNode;
@@ -38,12 +37,7 @@ export function HeroVideo({ qualitySources, poster, caption, children }: HeroVid
   const shouldAutoplay = motionPref === 'no-preference';
 
   return (
-    <div
-      className="hero-video-shell"
-      ref={videoWrapperRef}
-      role="region"
-      aria-label={effectiveCaption}
-    >
+    <section className="hero-video-shell" ref={videoWrapperRef} aria-label={effectiveCaption}>
       <LazyVideoPlayer
         qualitySources={ladder}
         preferHighestQuality
@@ -58,6 +52,6 @@ export function HeroVideo({ qualitySources, poster, caption, children }: HeroVid
         playsInline
       />
       <div className="hero-video-overlay">{children}</div>
-    </div>
+    </section>
   );
 }

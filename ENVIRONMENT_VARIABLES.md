@@ -7,29 +7,35 @@ This document lists all environment variables defined in `.env`, organized by se
 These variables are essential for core functionality and must be set for the respective services to work.
 
 ### NOTION_API_KEY
+
 **Purpose:** Internal integration token for Notion API access, enabling database queries and page operations.
 
-**How to obtain:** 
+**How to obtain:**
+
 1. Go to [Notion Developers](https://developers.notion.com/)
 2. Create a new integration
-3. Copy the API key (starts with 'secret_')
+3. Copy the API key (starts with 'secret\_')
 
 **Example:** `NOTION_API_KEY=secret_abc123def456ghi789`
 
-**Security Notes:** 
+**Security Notes:**
+
 - Never commit this to version control
 - Rotate regularly (every 6-12 months)
 - Use least privilege - only grant necessary database/page access
 
-**Setup Instructions:** 
+**Setup Instructions:**
+
 1. Create Notion integration at developers.notion.com
 2. Share relevant pages/databases with the integration
 3. Set the environment variable in your deployment environment
 
 ### TAVILY_API_KEY
+
 **Purpose:** API key for Tavily search service, used for web search and content extraction.
 
 **How to obtain:**
+
 1. Sign up at [Tavily](https://tavily.com/)
 2. Navigate to API keys section
 3. Generate a new API key
@@ -37,19 +43,23 @@ These variables are essential for core functionality and must be set for the res
 **Example:** `TAVILY_API_KEY=tvly-abc123def456ghi789`
 
 **Security Notes:**
+
 - Store securely, never in plain text files
 - Monitor usage to detect unauthorized access
 - Use separate keys for development/production
 
 **Setup Instructions:**
+
 1. Create account at tavily.com
 2. Generate API key in dashboard
 3. Set variable before running search-related features
 
 ### MEM0_API_KEY
+
 **Purpose:** API key for Mem0 memory service, enabling persistent memory storage and retrieval.
 
 **How to obtain:**
+
 1. Register at [Mem0](https://mem0.ai/)
 2. Access API keys in your account settings
 3. Create a new key
@@ -57,19 +67,23 @@ These variables are essential for core functionality and must be set for the res
 **Example:** `MEM0_API_KEY=m0-abc123def456ghi789`
 
 **Security Notes:**
+
 - Encrypt in transit and at rest
 - Implement rate limiting on API calls
 - Audit access logs regularly
 
 **Setup Instructions:**
+
 1. Sign up for Mem0 service
 2. Generate API key
 3. Configure variable for memory operations
 
 ### SQLSERVER_CONNECTION_STRING
+
 **Purpose:** Connection string for SQL Server database access.
 
 **How to obtain:**
+
 1. Set up SQL Server instance (local or cloud)
 2. Configure database credentials
 3. Construct connection string with server, database, user, and password
@@ -77,11 +91,13 @@ These variables are essential for core functionality and must be set for the res
 **Example:** `SQLSERVER_CONNECTION_STRING=Server=localhost,1433;Database=WeddingApp;User Id=sa;Password=YourPassword123;`
 
 **Security Notes:**
+
 - Use parameterized queries to prevent SQL injection
 - Encrypt connection strings in production
 - Use managed identities when possible instead of passwords
 
 **Setup Instructions:**
+
 1. Install/configure SQL Server
 2. Create database and user
 3. Construct secure connection string
@@ -92,9 +108,11 @@ These variables are essential for core functionality and must be set for the res
 These variables enable additional features but are not required for core functionality.
 
 ### GITHUB_TOKEN
+
 **Purpose:** GitHub personal access token for repository operations and API access.
 
 **How to obtain:**
+
 1. Go to GitHub Settings > Developer settings > Personal access tokens
 2. Generate new token with 'repo' scope
 3. Copy the token
@@ -102,16 +120,19 @@ These variables enable additional features but are not required for core functio
 **Example:** `GITHUB_TOKEN=REDACTED_GITHUB_PAT`
 
 **Security Notes:**
+
 - Use fine-grained tokens with minimal scopes
 - Rotate tokens every 30-90 days
 - Never share tokens in public repositories
 
 **Setup Instructions:**
+
 1. Create GitHub PAT with required scopes
 2. Store securely (consider using GitHub secrets for CI/CD)
 3. Set variable for GitHub API operations
 
 ### GH_TOKEN
+
 **Purpose:** Alternative GitHub token variable (used by some tooling).
 
 **How to obtain:** Same as GITHUB_TOKEN above.
@@ -127,6 +148,7 @@ These variables enable additional features but are not required for core functio
 Configuration for MCP (Model Context Protocol) servers and tooling.
 
 ### MCP_FS_ROOT
+
 **Purpose:** Root directory for filesystem sandbox, restricting file access to a specific path.
 
 **How to obtain:** Define the desired sandbox directory path.
@@ -134,16 +156,19 @@ Configuration for MCP (Model Context Protocol) servers and tooling.
 **Example:** `MCP_FS_ROOT=./mcp_fs_sandbox`
 
 **Security Notes:**
+
 - Keep as restrictive as possible
 - Use absolute paths for production
 - Regularly audit accessed files
 
 **Setup Instructions:**
+
 1. Create the sandbox directory
 2. Set path relative to project root
 3. Ensure proper permissions
 
 ### MCP_MEMORY_BANK_DIR
+
 **Purpose:** Directory for memory bank storage.
 
 **How to obtain:** Specify the memory storage directory.
@@ -151,15 +176,18 @@ Configuration for MCP (Model Context Protocol) servers and tooling.
 **Example:** `MCP_MEMORY_BANK_DIR=memory-bank`
 
 **Security Notes:**
+
 - Ensure directory has appropriate permissions
 - Consider encryption for sensitive data
 
 **Setup Instructions:**
+
 1. Create the directory
 2. Set relative path
 3. Configure backup procedures
 
 ### MCP_PYTHON_BIN
+
 **Purpose:** Path to Python binary for MCP operations.
 
 **How to obtain:** System Python path or virtual environment path.
@@ -167,15 +195,18 @@ Configuration for MCP (Model Context Protocol) servers and tooling.
 **Example:** `MCP_PYTHON_BIN=python` or `MCP_PYTHON_BIN=/usr/bin/python3`
 
 **Security Notes:**
+
 - Use system Python or trusted virtual environment
 - Avoid user-writable Python installations
 
 **Setup Instructions:**
+
 1. Install Python if needed
 2. Verify Python version compatibility
 3. Set correct path
 
 ### MCP_PY_TIMEOUT_MS
+
 **Purpose:** Timeout for Python operations in milliseconds.
 
 **How to obtain:** Set based on expected operation duration.
@@ -187,6 +218,7 @@ Configuration for MCP (Model Context Protocol) servers and tooling.
 **Setup Instructions:** Adjust based on performance requirements.
 
 ### MCP_PW_SESSION_LIMIT
+
 **Purpose:** Maximum concurrent Playwright sessions.
 
 **How to obtain:** Set based on system resources.
@@ -198,6 +230,7 @@ Configuration for MCP (Model Context Protocol) servers and tooling.
 **Setup Instructions:** Tune based on available memory/CPU.
 
 ### MCP_PW_NAV_TIMEOUT_MS
+
 **Purpose:** Navigation timeout for Playwright in milliseconds.
 
 **How to obtain:** Set based on page load times.
@@ -209,6 +242,7 @@ Configuration for MCP (Model Context Protocol) servers and tooling.
 **Setup Instructions:** Adjust for slow-loading pages.
 
 ### MCP_PT_SESSION_LIMIT
+
 **Purpose:** Maximum concurrent Puppeteer sessions.
 
 **How to obtain:** Set based on system resources.
@@ -220,6 +254,7 @@ Configuration for MCP (Model Context Protocol) servers and tooling.
 **Setup Instructions:** Tune based on available resources.
 
 ### MCP_PT_NAV_TIMEOUT_MS
+
 **Purpose:** Navigation timeout for Puppeteer in milliseconds.
 
 **How to obtain:** Set based on page load times.
@@ -231,6 +266,7 @@ Configuration for MCP (Model Context Protocol) servers and tooling.
 **Setup Instructions:** Adjust for slow-loading pages.
 
 ### MCP_KG_MAX_TRIPLES
+
 **Purpose:** Maximum triples for knowledge graph.
 
 **How to obtain:** Set based on memory constraints.
@@ -242,6 +278,7 @@ Configuration for MCP (Model Context Protocol) servers and tooling.
 **Setup Instructions:** Adjust based on use case.
 
 ### MCP_MAX_LINE_LEN
+
 **Purpose:** Maximum line length for processing.
 
 **How to obtain:** Set based on file size limits.
@@ -253,6 +290,7 @@ Configuration for MCP (Model Context Protocol) servers and tooling.
 **Setup Instructions:** Tune for expected file sizes.
 
 ### MCP_ERROR_METRICS
+
 **Purpose:** Enable error telemetry (0=disabled, 1=enabled).
 
 **How to obtain:** Set to 1 for monitoring, 0 to disable.
@@ -264,6 +302,7 @@ Configuration for MCP (Model Context Protocol) servers and tooling.
 **Setup Instructions:** Enable for debugging, disable in production.
 
 ### MCP_ERRORS_VERBOSE
+
 **Purpose:** Verbose error reporting mode.
 
 **How to obtain:** Set to 'summary' or 'full'.
@@ -279,6 +318,7 @@ Configuration for MCP (Model Context Protocol) servers and tooling.
 Coverage and performance thresholds for quality assurance.
 
 ### GATE_MIN_STATEMENTS
+
 **Purpose:** Minimum statement coverage percentage required.
 
 **How to obtain:** Based on project history and requirements.
@@ -290,6 +330,7 @@ Coverage and performance thresholds for quality assurance.
 **Setup Instructions:** Gradually increase from current baseline.
 
 ### GATE_MIN_BRANCHES
+
 **Purpose:** Minimum branch coverage percentage required.
 
 **How to obtain:** Based on project history.
@@ -301,6 +342,7 @@ Coverage and performance thresholds for quality assurance.
 **Setup Instructions:** Adjust based on code complexity.
 
 ### GATE_MIN_FUNCTIONS
+
 **Purpose:** Minimum function coverage percentage required.
 
 **How to obtain:** Based on project history.
@@ -312,6 +354,7 @@ Coverage and performance thresholds for quality assurance.
 **Setup Instructions:** Tune via historical data.
 
 ### GATE_MIN_LINES
+
 **Purpose:** Minimum line coverage percentage required.
 
 **How to obtain:** Based on project history.
@@ -323,6 +366,7 @@ Coverage and performance thresholds for quality assurance.
 **Setup Instructions:** Gradually improve over time.
 
 ### GATE_LH_CATEGORY_TOLERANCE
+
 **Purpose:** Tolerance for Lighthouse category scores.
 
 **How to obtain:** Set based on acceptable performance variance.
@@ -334,6 +378,7 @@ Coverage and performance thresholds for quality assurance.
 **Setup Instructions:** Adjust for score stability.
 
 ### GATE_TOKEN_MAX_NET
+
 **Purpose:** Maximum net token change allowed.
 
 **How to obtain:** Based on project size and CI constraints.
@@ -345,6 +390,7 @@ Coverage and performance thresholds for quality assurance.
 **Setup Instructions:** Set based on typical PR sizes.
 
 ### LH_ALLOWED_DELTA
+
 **Purpose:** Allowed delta for Lighthouse metrics.
 
 **How to obtain:** Based on performance stability.
@@ -356,6 +402,7 @@ Coverage and performance thresholds for quality assurance.
 **Setup Instructions:** Tune for metric variance.
 
 ### LH_METRIC_REGRESSION_PCT
+
 **Purpose:** Percentage threshold for metric regression.
 
 **How to obtain:** Based on acceptable performance degradation.
@@ -367,6 +414,7 @@ Coverage and performance thresholds for quality assurance.
 **Setup Instructions:** Set based on performance requirements.
 
 ### LH_MIN_GZIP_DELTA_BYTES
+
 **Purpose:** Minimum gzip size delta in bytes.
 
 **How to obtain:** Based on bundle size monitoring.
@@ -378,6 +426,7 @@ Coverage and performance thresholds for quality assurance.
 **Setup Instructions:** Adjust for size tracking.
 
 ### LH_MIN_GZIP_DELTA_PCT
+
 **Purpose:** Minimum gzip size delta percentage.
 
 **How to obtain:** Based on bundle size requirements.
@@ -389,6 +438,7 @@ Coverage and performance thresholds for quality assurance.
 **Setup Instructions:** Tune for percentage changes.
 
 ### LH_MIN_RAW_DELTA_BYTES
+
 **Purpose:** Minimum raw size delta in bytes.
 
 **How to obtain:** Based on asset size monitoring.
@@ -400,6 +450,7 @@ Coverage and performance thresholds for quality assurance.
 **Setup Instructions:** Adjust for raw size tracking.
 
 ### LH_MIN_RAW_DELTA_PCT
+
 **Purpose:** Minimum raw size delta percentage.
 
 **How to obtain:** Based on asset size requirements.
@@ -411,6 +462,7 @@ Coverage and performance thresholds for quality assurance.
 **Setup Instructions:** Tune for percentage changes.
 
 ### MAX_STATEMENT_DROP
+
 **Purpose:** Maximum allowed statement coverage drop.
 
 **How to obtain:** Based on quality requirements.
@@ -422,6 +474,7 @@ Coverage and performance thresholds for quality assurance.
 **Setup Instructions:** Set based on acceptable degradation.
 
 ### MAX_BRANCH_DROP
+
 **Purpose:** Maximum allowed branch coverage drop.
 
 **How to obtain:** Based on quality requirements.
@@ -433,6 +486,7 @@ Coverage and performance thresholds for quality assurance.
 **Setup Instructions:** Adjust for branch complexity.
 
 ### MAX_FUNCTION_DROP
+
 **Purpose:** Maximum allowed function coverage drop.
 
 **How to obtain:** Based on quality requirements.
@@ -444,6 +498,7 @@ Coverage and performance thresholds for quality assurance.
 **Setup Instructions:** Tune based on function coverage.
 
 ### MAX_LINE_DROP
+
 **Purpose:** Maximum allowed line coverage drop.
 
 **How to obtain:** Based on quality requirements.
@@ -455,6 +510,7 @@ Coverage and performance thresholds for quality assurance.
 **Setup Instructions:** Set based on line coverage goals.
 
 ### PER_FILE_WARN_DROP
+
 **Purpose:** Per-file warning threshold for coverage drop.
 
 **How to obtain:** Based on file-level quality standards.
@@ -466,6 +522,7 @@ Coverage and performance thresholds for quality assurance.
 **Setup Instructions:** Adjust for file-specific warnings.
 
 ### PER_FILE_FAIL_DROP
+
 **Purpose:** Per-file failure threshold for coverage drop.
 
 **How to obtain:** Based on strict quality requirements.
@@ -481,6 +538,7 @@ Coverage and performance thresholds for quality assurance.
 Configuration for accessibility testing and axe-core integration.
 
 ### A11Y_INCLUDE_BEST_PRACTICES
+
 **Purpose:** Include axe-core best practice rules.
 
 **How to obtain:** Set to true for comprehensive accessibility testing.
@@ -492,6 +550,7 @@ Configuration for accessibility testing and axe-core integration.
 **Setup Instructions:** Enable for enhanced accessibility coverage.
 
 ### A11Y_BEST_OUTPUT
+
 **Purpose:** Enable output of best practice violations.
 
 **How to obtain:** Set to true to generate violation reports.
@@ -503,6 +562,7 @@ Configuration for accessibility testing and axe-core integration.
 **Setup Instructions:** Enable for detailed reporting.
 
 ### A11Y_BEST_OUTPUT_PATH
+
 **Purpose:** Path for best practice violation output file.
 
 **How to obtain:** Specify desired output file path.
@@ -514,6 +574,7 @@ Configuration for accessibility testing and axe-core integration.
 **Setup Instructions:** Create artifacts directory if needed.
 
 ### A11Y_BEST_ENFORCE
+
 **Purpose:** Enforce best practice rules as failures.
 
 **How to obtain:** Set to true to fail builds on violations.
@@ -525,6 +586,7 @@ Configuration for accessibility testing and axe-core integration.
 **Setup Instructions:** Start with false, enable when ready.
 
 ### A11Y_THRESHOLD_HEADING_ORDER
+
 **Purpose:** Threshold for heading order violations.
 
 **How to obtain:** Set based on acceptable violation count.
@@ -536,6 +598,7 @@ Configuration for accessibility testing and axe-core integration.
 **Setup Instructions:** Set to 0 for strict enforcement.
 
 ### A11Y_THRESHOLD_REGION
+
 **Purpose:** Threshold for region violations.
 
 **How to obtain:** Set based on acceptable violation count.
@@ -551,6 +614,7 @@ Configuration for accessibility testing and axe-core integration.
 Configuration for test coverage and reporting.
 
 ### COVERAGE_A11Y_SILENT
+
 **Purpose:** Suppress accessibility coverage output.
 
 **How to obtain:** Set to true to reduce log noise.
@@ -562,6 +626,7 @@ Configuration for test coverage and reporting.
 **Setup Instructions:** Set to true in CI environments.
 
 ### COVERAGE_A11Y_STRICT
+
 **Purpose:** Enable strict accessibility coverage checking.
 
 **How to obtain:** Set to true for rigorous testing.
@@ -573,6 +638,7 @@ Configuration for test coverage and reporting.
 **Setup Instructions:** Enable for production builds.
 
 ### COVERAGE_HTML
+
 **Purpose:** Path to specific coverage HTML file to patch.
 
 **How to obtain:** Specify coverage report file path.
@@ -588,6 +654,7 @@ Configuration for test coverage and reporting.
 Debug and performance tuning flags.
 
 ### DEBUG
+
 **Purpose:** Enable debug mode.
 
 **How to obtain:** Set to any value to enable.
@@ -599,6 +666,7 @@ Debug and performance tuning flags.
 **Setup Instructions:** Use only for development debugging.
 
 ### CI
+
 **Purpose:** Indicate CI environment.
 
 **How to obtain:** Set automatically by CI systems.
@@ -610,6 +678,7 @@ Debug and performance tuning flags.
 **Setup Instructions:** Let CI system set this.
 
 ### FORCE
+
 **Purpose:** Force operations.
 
 **How to obtain:** Set when needed to override checks.
@@ -621,6 +690,7 @@ Debug and performance tuning flags.
 **Setup Instructions:** Only set when necessary.
 
 ### SNAPSHOT_UPDATE
+
 **Purpose:** Update test snapshots.
 
 **How to obtain:** Set during snapshot updates.
@@ -632,6 +702,7 @@ Debug and performance tuning flags.
 **Setup Instructions:** Use with test commands.
 
 ### INTERNAL_LANTERN_USE_TRACE
+
 **Purpose:** Use trace data in Lantern.
 
 **How to obtain:** Set for performance analysis.
@@ -643,6 +714,7 @@ Debug and performance tuning flags.
 **Setup Instructions:** Enable for detailed tracing.
 
 ### LH_DISABLE_ZLIB_SHIMS
+
 **Purpose:** Disable zlib shims in Lighthouse.
 
 **How to obtain:** Set to disable compression shims.
@@ -654,6 +726,7 @@ Debug and performance tuning flags.
 **Setup Instructions:** Set if compression issues occur.
 
 ### LH_FPS_TEST
+
 **Purpose:** Enable FPS testing.
 
 **How to obtain:** Set for frame rate analysis.
@@ -665,6 +738,7 @@ Debug and performance tuning flags.
 **Setup Instructions:** Enable for performance testing.
 
 ### LANTERN_DEBUG
+
 **Purpose:** Enable Lantern debug mode.
 
 **How to obtain:** Set for debugging Lantern operations.
@@ -676,6 +750,7 @@ Debug and performance tuning flags.
 **Setup Instructions:** Use for troubleshooting.
 
 ### PRINT_WORST
+
 **Purpose:** Print worst-case performance data.
 
 **How to obtain:** Set to analyze bottlenecks.
@@ -687,6 +762,7 @@ Debug and performance tuning flags.
 **Setup Instructions:** Enable for performance analysis.
 
 ### OOPIFS
+
 **Purpose:** Enable out-of-process iframes.
 
 **How to obtain:** Set for iframe isolation.
@@ -698,6 +774,7 @@ Debug and performance tuning flags.
 **Setup Instructions:** Enable for security isolation.
 
 ### USE_NPM_LINK
+
 **Purpose:** Use npm link for development.
 
 **How to obtain:** Set for local package development.
@@ -713,6 +790,7 @@ Debug and performance tuning flags.
 Server configuration for local development.
 
 ### LH_PORT
+
 **Purpose:** Port for Lighthouse development server.
 
 **How to obtain:** Choose available port number.
@@ -724,6 +802,7 @@ Server configuration for local development.
 **Setup Instructions:** Use default or set to available port.
 
 ### FIREBASE_MCP_CHECK_TIMEOUT_MS
+
 **Purpose:** Timeout for Firebase MCP checks.
 
 **How to obtain:** Set based on network conditions.
@@ -739,6 +818,7 @@ Server configuration for local development.
 Database configuration for development.
 
 ### DB_NAME
+
 **Purpose:** Database name for development.
 
 **How to obtain:** Set desired database name.
@@ -750,6 +830,7 @@ Database configuration for development.
 **Setup Instructions:** Match your database setup.
 
 ### DB_USER
+
 **Purpose:** Database username.
 
 **How to obtain:** Create database user.
@@ -761,13 +842,15 @@ Database configuration for development.
 **Setup Instructions:** Create user with appropriate permissions.
 
 ### DB_PASSWORD
+
 **Purpose:** Database password.
 
 **How to obtain:** Generate secure password.
 
 **Example:** `DB_PASSWORD=YourSecurePassword123!`
 
-**Security Notes:** 
+**Security Notes:**
+
 - Never commit to version control
 - Use password manager
 - Rotate regularly
@@ -775,6 +858,7 @@ Database configuration for development.
 **Setup Instructions:** Set strong, unique password.
 
 ### DB_PORT
+
 **Purpose:** Database port.
 
 **How to obtain:** Use default SQL Server port or custom.
@@ -786,6 +870,7 @@ Database configuration for development.
 **Setup Instructions:** Match your SQL Server configuration.
 
 ### DB_HOST
+
 **Purpose:** Database host.
 
 **How to obtain:** Set to localhost or remote host.
@@ -801,6 +886,7 @@ Database configuration for development.
 Planned features and integrations.
 
 ### ANALYZER_JSON_OUTPUT
+
 **Purpose:** Path for analyzer JSON output.
 
 **How to obtain:** Specify output file path.
@@ -812,6 +898,7 @@ Planned features and integrations.
 **Setup Instructions:** Create artifacts directory.
 
 ### CONTEXT7_API_KEY
+
 **Purpose:** API key for Context7 service.
 
 **How to obtain:** Will be provided when service is integrated.
@@ -827,9 +914,11 @@ Planned features and integrations.
 Configuration for GitHub App integration.
 
 ### GITHUB_APP_ID
+
 **Purpose:** GitHub App numeric ID.
 
-**How to obtain:** 
+**How to obtain:**
+
 1. Go to GitHub App settings
 2. Copy the App ID number
 
@@ -840,9 +929,11 @@ Configuration for GitHub App integration.
 **Setup Instructions:** Obtain from GitHub App dashboard.
 
 ### GITHUB_INSTALLATION_ID
+
 **Purpose:** GitHub App installation ID.
 
-**How to obtain:** 
+**How to obtain:**
+
 1. Install the GitHub App
 2. Copy the installation ID
 
@@ -853,26 +944,31 @@ Configuration for GitHub App integration.
 **Setup Instructions:** Get from installation URL or API.
 
 ### GITHUB_APP_PRIVATE_KEY
+
 **Purpose:** Private key for GitHub App authentication.
 
-**How to obtain:** 
+**How to obtain:**
+
 1. Generate private key in GitHub App settings
 2. Download the .pem file
 3. Convert to single line with \n escapes
 
 **Example:** `GITHUB_APP_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA...\n-----END RSA PRIVATE KEY-----"`
 
-**Security Notes:** 
+**Security Notes:**
+
 - Never commit to version control
 - Store as secret in deployment environment
 - Rotate keys regularly
 
-**Setup Instructions:** 
+**Setup Instructions:**
+
 1. Generate private key in GitHub App
 2. Convert to environment variable format
 3. Set in secure environment
 
 ### GITHUB_REPOSITORY
+
 **Purpose:** Target GitHub repository for operations.
 
 **How to obtain:** Set to your repository in format owner/repo.

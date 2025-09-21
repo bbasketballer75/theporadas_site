@@ -1,19 +1,14 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { GalleryItemBase, loadGallery } from '../gallery/loader';
-import {
-  useInteractionPerformance,
-  useMediaPerformance,
-  usePerformanceMonitor,
-} from '../hooks/usePerformanceMonitor';
-import { generateCaption } from '../utils/ollama';
+import { useImageLoading } from '../hooks/useImageLoading';
+import { useKeyboard } from '../hooks/useKeyboard';
+import { useModal } from '../hooks/useModal';
+import { useInteractionPerformance, usePerformanceMonitor } from '../hooks/usePerformanceMonitor';
 
-import { ImageUpload } from './ImageUpload';
 import { GalleryGrid } from './GalleryGrid';
 import { GalleryModal } from './GalleryModal';
-import { useImageLoading } from '../hooks/useImageLoading';
-import { useModal } from '../hooks/useModal';
-import { useKeyboard } from '../hooks/useKeyboard';
+import { ImageUpload } from './ImageUpload';
 
 interface GalleryProps {
   headingId?: string;
@@ -41,7 +36,6 @@ function groupItemsByCategory(items: InternalItem[]) {
   );
 }
 
-
 // Extract focus trap logic
 function useFocusTrap(
   active: InternalItem | null,
@@ -50,8 +44,12 @@ function useFocusTrap(
 ) {
   useEffect(() => {
     if (active) {
-      // Focus the close button after modal mounts
-      const closeBtn = modalRef.current?.querySelector<HTMLButtonElement>('button.gallery-close');
+      // Focus the close/backdrop button after modal mounts
+      const closeBackdrop = modalRef.current?.querySelector<HTMLButtonElement>(
+        'button[aria-label="Close gallery modal"]',
+      );
+      const closeBtn =
+        closeBackdrop || modalRef.current?.querySelector<HTMLButtonElement>('button.gallery-close');
       closeBtn?.focus();
 
       const handleKey = (e: KeyboardEvent) => {
@@ -123,13 +121,11 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
   // Performance monitoring hooks
   const performanceMonitor = usePerformanceMonitor('Gallery');
   const { measureClick } = useInteractionPerformance();
-  const { measureMediaLoad } = useMediaPerformance();
 
   const all = loadGallery();
   const items: InternalItem[] = all.slice(0, maxInitial).map((g) => ({ ...g }));
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [loadedIds, setLoadedIds] = useState<Set<string>>(new Set());
-  const [captions, setCaptions] = useState<{ [key: string]: string }>({});
   const openerRef = useRef<HTMLButtonElement | null>(null);
   const modalRef = useRef<HTMLDialogElement | null>(null);
 
@@ -140,7 +136,7 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
     modalImageState,
     handleImageLoad,
     handleImageError,
-    handleImageTimeout,
+    handleImageTimeout: _handleImageTimeout,
     handleModalImageLoad,
     handleModalImageError,
     handleModalImageTimeout,
@@ -148,7 +144,6 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
     retryModalImage,
   } = useImageLoading({ items, performanceMonitor, active });
   useKeyboard({ active, items, setActive });
-
 
   // Group items by category
   const groupedItems = groupItemsByCategory(items);
@@ -167,12 +162,6 @@ export function Gallery({ headingId, maxInitial = 24 }: GalleryProps) {
   // Use custom hooks for complex logic
   useProgressiveImageLoading(containerRef, items.length, setLoadedIds);
   useFocusTrap(active, modalRef, openerRef);
-
-
-  const generateAICaption = async (imageId: string, description: string) => {
-    const caption = await generateCaption(description);
-    setCaptions((prev) => ({ ...prev, [imageId]: caption }));
-  };
 
   return (
     <div className="gallery" ref={containerRef} aria-labelledby={headingId}>

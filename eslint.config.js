@@ -23,6 +23,8 @@ export default [
       'lighthouse/**',
       '**/.vscode/**',
       'functions/venv/**',
+      'playwright-report/trace/**',
+      'playwright-report/data/**',
     ],
   },
   {
@@ -53,7 +55,7 @@ export default [
       },
       'import/resolver': {
         typescript: { alwaysTryTypes: true },
-        node: { extensions: ['.js', '.jsx', '.ts', '.tsx', '.d.ts'] },
+        node: { extensions: ['.js', '.jsx', '.ts', '.tsx', '.d.ts', '.mjs', '.css'] },
       },
     },
     rules: {
@@ -113,11 +115,56 @@ export default [
   },
   // Vitest test file overrides enabling globals
   {
-    files: ['**/*.test.{js,jsx,ts,tsx}', '**/__tests__/**/*.{js,jsx,ts,tsx}', '**/vitest.setup.*'],
+    files: [
+      '**/*.test.{js,jsx,ts,tsx,mjs}',
+      '**/__tests__/**/*.{js,jsx,ts,tsx,mjs}',
+      '**/vitest.setup.*',
+      'test/**/*.{js,jsx,ts,tsx,mjs}',
+    ],
     languageOptions: {
       globals: vitestPlugin.environments?.env?.globals || {},
     },
+    plugins: {
+      '@typescript-eslint': tseslint,
+    },
+    rules: {
+      'react/display-name': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+      // Disable expensive circular import checking for test files
+      'import/no-cycle': 'off',
+    },
+  },
+  // File-specific overrides for legacy/skipped tests
+  {
+    files: ['test/mcp_filesystem.policy.test.ts'],
+    rules: {
+      'no-undef': 'off',
+    },
+  },
+  // Node-based config files (vite/vitest) should have Node globals
+  {
+    files: ['**/vite.config.*', '**/vitest.config.*', '**/playwright.config.*'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
     rules: {},
+  },
+  // App source overrides: make `any` a warning and ignore underscore unused vars
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+    },
   },
   // Script files configuration with Node.js globals
   {
@@ -179,7 +226,8 @@ export default [
       ],
       'import/newline-after-import': ['warn', { count: 1 }],
       'import/no-duplicates': 'error',
-      'import/no-cycle': ['error', { maxDepth: 5 }],
+      // Disabled for scripts to avoid false-positive FS stat issues on Windows
+      'import/no-cycle': 'off',
       'import/no-self-import': 'error',
       'import/first': 'error',
       'import/no-useless-path-segments': ['warn', { noUselessIndex: true }],

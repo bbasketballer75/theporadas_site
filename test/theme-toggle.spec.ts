@@ -16,19 +16,19 @@ test.describe('Theme Toggle Component', () => {
     const body = page.locator('body');
 
     // Get initial theme
-    const initialClass = await body.getAttribute('class') || '';
-    const initialDataTheme = await body.getAttribute('data-theme') || '';
+    const initialClass = (await body.getAttribute('class')) || '';
+    const initialDataTheme = (await body.getAttribute('data-theme')) || '';
 
     // Click toggle
     await themeToggle.click();
     await page.waitForTimeout(300); // Wait for theme transition
 
     // Check if theme changed
-    const newClass = await body.getAttribute('class') || '';
-    const newDataTheme = await body.getAttribute('data-theme') || '';
+    const newClass = (await body.getAttribute('class')) || '';
+    const newDataTheme = (await body.getAttribute('data-theme')) || '';
 
     // At least one of these should have changed
-    const themeChanged = (initialClass !== newClass) || (initialDataTheme !== newDataTheme);
+    const themeChanged = initialClass !== newClass || initialDataTheme !== newDataTheme;
     expect(themeChanged).toBe(true);
   });
 
@@ -48,8 +48,8 @@ test.describe('Theme Toggle Component', () => {
     const body = page.locator('body');
 
     // Get initial theme
-    const initialDataTheme = await body.getAttribute('data-theme') || '';
-    const initialClass = await body.getAttribute('class') || '';
+    const initialDataTheme = (await body.getAttribute('data-theme')) || '';
+    const initialClass = (await body.getAttribute('class')) || '';
 
     // Toggle theme
     await themeToggle.click();
@@ -60,11 +60,11 @@ test.describe('Theme Toggle Component', () => {
     await page.waitForLoadState('networkidle');
 
     // Check if theme persisted
-    const reloadedDataTheme = await body.getAttribute('data-theme') || '';
-    const reloadedClass = await body.getAttribute('class') || '';
+    const reloadedDataTheme = (await body.getAttribute('data-theme')) || '';
+    const reloadedClass = (await body.getAttribute('class')) || '';
 
     // Theme should be the same as after toggle
-    const themePersisted = (initialDataTheme !== reloadedDataTheme) || (initialClass !== reloadedClass);
+    const themePersisted = initialDataTheme !== reloadedDataTheme || initialClass !== reloadedClass;
     expect(themePersisted).toBe(true);
   });
 
@@ -93,13 +93,15 @@ test.describe('Theme Toggle Component', () => {
     const body = page.locator('body');
 
     // Should respect system preference initially
-    const initialTheme = await body.getAttribute('data-theme') || await body.getAttribute('class') || '';
+    const initialTheme =
+      (await body.getAttribute('data-theme')) || (await body.getAttribute('class')) || '';
 
     // Toggle should still work
     await themeToggle.click();
     await page.waitForTimeout(300);
 
-    const newTheme = await body.getAttribute('data-theme') || await body.getAttribute('class') || '';
+    const newTheme =
+      (await body.getAttribute('data-theme')) || (await body.getAttribute('class')) || '';
     expect(initialTheme).not.toBe(newTheme);
   });
 
@@ -118,7 +120,7 @@ test.describe('Theme Toggle Component', () => {
     await page.waitForTimeout(300);
 
     // The icon state should have changed (either visibility or class)
-    const iconChanged = await sunIcon.isVisible() !== await moonIcon.isVisible();
+    const iconChanged = (await sunIcon.isVisible()) !== (await moonIcon.isVisible());
     expect(iconChanged).toBe(true);
   });
 
@@ -127,7 +129,8 @@ test.describe('Theme Toggle Component', () => {
     const body = page.locator('body');
 
     // Get initial state
-    const initialTheme = await body.getAttribute('data-theme') || await body.getAttribute('class') || '';
+    const initialTheme =
+      (await body.getAttribute('data-theme')) || (await body.getAttribute('class')) || '';
 
     // Toggle multiple times
     for (let i = 0; i < 4; i++) {
@@ -136,7 +139,8 @@ test.describe('Theme Toggle Component', () => {
     }
 
     // Should be back to initial state (even number of toggles)
-    const finalTheme = await body.getAttribute('data-theme') || await body.getAttribute('class') || '';
+    const finalTheme =
+      (await body.getAttribute('data-theme')) || (await body.getAttribute('class')) || '';
     expect(initialTheme).toBe(finalTheme);
   });
 
@@ -172,7 +176,8 @@ test.describe('Theme Toggle Component', () => {
       await page.waitForTimeout(300);
 
       const body = page.locator('body');
-      const themeChanged = await body.getAttribute('data-theme') || await body.getAttribute('class');
+      const themeChanged =
+        (await body.getAttribute('data-theme')) || (await body.getAttribute('class'));
       expect(themeChanged).toBeTruthy();
     });
   });
