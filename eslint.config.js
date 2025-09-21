@@ -23,6 +23,8 @@ export default [
       'lighthouse/**',
       '**/.vscode/**',
       'functions/venv/**',
+      'playwright-report/trace/**',
+      'playwright-report/data/**',
     ],
   },
   {
@@ -132,6 +134,8 @@ export default [
         'warn',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
+      // Disable expensive circular import checking for test files
+      'import/no-cycle': 'off',
     },
   },
   // File-specific overrides for legacy/skipped tests

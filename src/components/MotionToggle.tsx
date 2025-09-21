@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'prefersReducedMotionOverride'; // values: "reduce" | "no-preference" | null
 
@@ -49,7 +49,7 @@ export function MotionToggle() {
     <button
       type="button"
       className="btn btn-outline motion-toggle"
-      aria-pressed={pref !== null}
+      aria-pressed={pref !== null ? 'true' : 'false'}
       onClick={cycle}
       data-testid="motion-toggle"
     >

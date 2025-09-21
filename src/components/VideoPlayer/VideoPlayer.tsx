@@ -210,57 +210,65 @@ export function VideoPlayer(props: VideoPlayerProps) {
     }
   }, [loadingTimeout]);
 
+  // Extract quality source selection logic to reduce cognitive complexity
+  const useQualitySourceSelection = (
+    qualitySources?: QualitySource[],
+    preferHighestQuality?: boolean,
+  ) => {
+    return useMemo<QualitySource | undefined>(() => {
+      if (!qualitySources || qualitySources.length === 0) return undefined;
+      if (preferHighestQuality) {
+        return [...qualitySources].sort((a, b) => b.height - a.height)[0];
+      }
+      const sorted = [...qualitySources].sort((a, b) => b.height - a.height);
+
+      // Gather signals
+      const rawConnection =
+        typeof navigator !== 'undefined' &&
+        (navigator as unknown as { connection?: unknown }).connection
+          ? (navigator as unknown as { connection?: unknown }).connection
+          : undefined;
+      interface NetInfo {
+        saveData?: boolean;
+        downlink?: number; // Mbps
+      }
+      const connection: NetInfo = (rawConnection || {}) as NetInfo;
+      const saveData: boolean = !!connection.saveData;
+      const downlink: number | undefined =
+        typeof connection.downlink === 'number' ? connection.downlink : undefined; // Mbps
+      const viewportH = typeof window !== 'undefined' ? window.innerHeight || 0 : 0;
+
+      // Establish target resolution based on viewport height (simple mapping).
+      let targetHeight = 480;
+      if (viewportH >= 900) targetHeight = 1080;
+      else if (viewportH >= 720) targetHeight = 720;
+      else if (viewportH >= 540) targetHeight = 540;
+
+      // If save-data requested, clamp target lower.
+      if (saveData) targetHeight = Math.min(targetHeight, 480);
+
+      // Filter candidates under or equal to targetHeight (fallback to smallest if none)
+      let candidates = sorted.filter((q) => q.height <= targetHeight);
+      if (candidates.length === 0) candidates = [sorted[sorted.length - 1]]; // smallest
+
+      // If connection downlink present & bitrate data exists, prefer medium that fits budget.
+      if (downlink && downlink > 0) {
+        const mbpsBudget = downlink * (saveData ? 0.6 : 0.85);
+        // Convert candidate bitrate to Mbps and filter under budget
+        const bitrateFiltered = candidates.filter((c) => {
+          if (!c.bitrateKbps) return true; // unknown bitrate -> keep
+          return c.bitrateKbps / 1000 <= mbpsBudget;
+        });
+        if (bitrateFiltered.length) candidates = bitrateFiltered;
+      }
+
+      // Prefer highest resolution within candidates.
+      return candidates.sort((a, b) => b.height - a.height)[0];
+    }, [qualitySources, preferHighestQuality]);
+  };
+
   // Quality selection heuristic – choose ONE best source when qualitySources provided.
-  const selectedQualitySource = useMemo<QualitySource | undefined>(() => {
-    if (!qualitySources || qualitySources.length === 0) return undefined;
-    if (preferHighestQuality) {
-      return [...qualitySources].sort((a, b) => b.height - a.height)[0];
-    }
-    const sorted = [...qualitySources].sort((a, b) => b.height - a.height);
-
-    // Gather signals
-    const rawConnection =
-      typeof navigator !== 'undefined' &&
-      (navigator as unknown as { connection?: unknown }).connection
-        ? (navigator as unknown as { connection?: unknown }).connection
-        : undefined;
-    interface NetInfo {
-      saveData?: boolean;
-      downlink?: number; // Mbps
-    }
-    const connection: NetInfo = (rawConnection || {}) as NetInfo;
-    const saveData: boolean = !!connection.saveData;
-    const downlink: number | undefined =
-      typeof connection.downlink === 'number' ? connection.downlink : undefined; // Mbps
-    const viewportH = typeof window !== 'undefined' ? window.innerHeight || 0 : 0;
-
-    // Establish target resolution based on viewport height (simple mapping).
-    let targetHeight = 480;
-    if (viewportH >= 900) targetHeight = 1080;
-    else if (viewportH >= 720) targetHeight = 720;
-    else if (viewportH >= 540) targetHeight = 540;
-
-    // If save-data requested, clamp target lower.
-    if (saveData) targetHeight = Math.min(targetHeight, 480);
-
-    // Filter candidates under or equal to targetHeight (fallback to smallest if none)
-    let candidates = sorted.filter((q) => q.height <= targetHeight);
-    if (candidates.length === 0) candidates = [sorted[sorted.length - 1]]; // smallest
-
-    // If connection downlink present & bitrate data exists, prefer medium that fits budget.
-    if (downlink && downlink > 0) {
-      const mbpsBudget = downlink * (saveData ? 0.6 : 0.85);
-      // Convert candidate bitrate to Mbps and filter under budget
-      const bitrateFiltered = candidates.filter((c) => {
-        if (!c.bitrateKbps) return true; // unknown bitrate -> keep
-        return c.bitrateKbps / 1000 <= mbpsBudget;
-      });
-      if (bitrateFiltered.length) candidates = bitrateFiltered;
-    }
-
-    // Prefer highest resolution within candidates.
-    return candidates.sort((a, b) => b.height - a.height)[0];
-  }, [qualitySources, preferHighestQuality]);
+  const selectedQualitySource = useQualitySourceSelection(qualitySources, preferHighestQuality);
 
   // Merge single src into sources list for rendering (ignored if qualitySources active)
   const resolvedSources = useMemo<VideoSource[] | undefined>(() => {
@@ -442,6 +450,20 @@ export function VideoPlayer(props: VideoPlayerProps) {
   ]);
 
   // Compute placeholder accessible name
+  // Format time as MM:SS
+  const formatTime = useCallback((timeInSeconds: number): string => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = Math.floor(timeInSeconds % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }, []);
+
+  // Get formatted time display
+  const timeDisplay = useMemo(() => {
+    if (!duration) return '0:00 / 0:00';
+    return `${formatTime(currentTime)} / ${formatTime(duration)}`;
+  }, [duration, currentTime, formatTime]);
+
+  // Compute placeholder accessible name
   const placeholderName = useMemo(() => {
     if (placeholderLabel) return placeholderLabel;
     if (caption) return `${caption} (placeholder)`;
@@ -505,9 +527,6 @@ export function VideoPlayer(props: VideoPlayerProps) {
                 default={track.default}
               />
             ))}
-            {!tracks || tracks.length === 0 ? (
-              <track kind="captions" src="" label="No captions available" />
-            ) : null}
             Your browser does not support the video tag.
           </video>
           {/* Expose selected quality label in DOM for tests/UX */}
@@ -517,13 +536,13 @@ export function VideoPlayer(props: VideoPlayerProps) {
           {caption ? <figcaption>{caption}</figcaption> : null}
         </figure>
       ) : (
-        <div
-          className="video-placeholder"
-          role="img"
-          aria-label={placeholderName}
-          data-testid="video-loading"
-        >
-          {placeholderLabel || 'Loading video...'}
+        <div className="video-placeholder" data-testid="video-loading">
+          <img
+            src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDMTMuMSAyIDE0IDIuOSAxNCA0VjE2QzE0IDE3LjEgMTMuMSAxOCA5LjUgMTJDOS41IDE4IDggMTcuMSAxNiAxNkMxNiAxNC45IDE2LjkgMTQgMTggMTRIMTJDMTguMSAxNCAxOSAxNC45IDE5IDE2VjE4QzE5IDE5LjEgMTguMSAyMCAxNyAyMEgxN0MxNS45IDIwIDE1IDE5LjEgMTUgMThWNFoiIGZpbGw9IiM5Q0E0QUYiLz4KPC9zdmc+"
+            alt={placeholderName}
+            className="video-placeholder-icon"
+          />
+          <span>{placeholderLabel || 'Loading video...'}</span>
         </div>
       )}
 
@@ -558,22 +577,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
             />
           </div>
 
-          <div className="video-time">
-            {duration ? (
-              <>
-                {Math.floor(currentTime / 60)}:
-                {Math.floor(currentTime % 60)
-                  .toString()
-                  .padStart(2, '0')}{' '}
-                / {Math.floor(duration / 60)}:
-                {Math.floor(duration % 60)
-                  .toString()
-                  .padStart(2, '0')}
-              </>
-            ) : (
-              '0:00 / 0:00'
-            )}
-          </div>
+          <div className="video-time">{timeDisplay}</div>
 
           <div className="volume-control">
             <button

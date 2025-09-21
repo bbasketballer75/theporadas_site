@@ -3,9 +3,7 @@ import React, { Suspense } from 'react';
 
 import { BackgroundAudio } from './components/BackgroundAudio';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { Gallery } from './components/Gallery';
 import './components/gallery.css';
-import { GuestMessages } from './components/GuestMessages';
 import { Head } from './components/Head';
 import { HeroVideo } from './components/HeroVideo';
 import { IntroVideo } from './components/IntroVideo';
@@ -23,6 +21,12 @@ import { listVideos } from './video/registry';
 // Lazy load heavy components
 const LazyFamilyTree = React.lazy(() => import('./components/FamilyTree'));
 const LazyMap = React.lazy(() => import('./components/Map'));
+const LazyGallery = React.lazy(() =>
+  import('./components/Gallery').then((module) => ({ default: module.Gallery })),
+);
+const LazyGuestMessages = React.lazy(() =>
+  import('./components/GuestMessages').then((module) => ({ default: module.GuestMessages })),
+);
 
 // Loading fallback component
 const LoadingFallback = ({ component }: { component: string }) => (
@@ -101,7 +105,9 @@ function App() {
           <div className="card stack">
             <h2 id="gallery-heading">Gallery</h2>
             <ErrorBoundary>
-              <Gallery headingId="gallery-heading" />
+              <Suspense fallback={<LoadingFallback component="Gallery" />}>
+                <LazyGallery headingId="gallery-heading" />
+              </Suspense>
             </ErrorBoundary>
           </div>
         </section>
@@ -119,7 +125,9 @@ function App() {
           <div className="card stack">
             <h2 id="guest-messages-heading">Guest Messages</h2>
             <ErrorBoundary>
-              <GuestMessages />
+              <Suspense fallback={<LoadingFallback component="Guest Messages" />}>
+                <LazyGuestMessages />
+              </Suspense>
             </ErrorBoundary>
           </div>
         </section>
