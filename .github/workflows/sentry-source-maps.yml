@@ -80,6 +80,18 @@ jobs:
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
           DERIVED_ORG: ${{ steps.derive-slugs.outputs.org }}
           DERIVED_PROJECT: ${{ steps.derive-slugs.outputs.project }}
+      - name: List uploaded Sentry release files (debug)
+        if: success()
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG || steps.derive-slugs.outputs.org }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT || steps.derive-slugs.outputs.project }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SENTRY_AUTH_TOKEN}" ] || [ -z "${SENTRY_ORG}" ] || [ -z "${SENTRY_PROJECT}" ]; then
+            echo "Missing auth or slugs; skipping list."; exit 0; fi
+          echo "Listing files for release $GITHUB_SHA" 
+          npx @sentry/cli releases files "$GITHUB_SHA" list || echo "Listing failed (may be too early)."
       - name: Verify release in Sentry (strict mode)
         if: success()
         env:
