@@ -67,6 +67,9 @@ jobs:
           : "${SENTRY_PROJECT:=${DERIVED_PROJECT}}"
           if [ -z "${SENTRY_AUTH_TOKEN}" ]; then echo "SENTRY_AUTH_TOKEN not set; skipping upload."; exit 0; fi
           if [ -z "${SENTRY_ORG}" ] || [ -z "${SENTRY_PROJECT}" ]; then echo "Slugs unresolved; skipping."; exit 0; fi
+          if [ ! -d dist ]; then echo "dist directory missing (build step failed?)"; exit 1; fi
+          map_count=$(find dist -type f -name '*.js.map' | wc -l | tr -d ' ')
+          if [ "$map_count" = "0" ]; then echo "No .js.map files found in dist; aborting upload."; exit 1; fi
           echo "Creating Sentry release $GITHUB_SHA (org=$SENTRY_ORG project=$SENTRY_PROJECT)"
           npx @sentry/cli releases new "$GITHUB_SHA"
           npx @sentry/cli releases files "$GITHUB_SHA" upload-sourcemaps dist --rewrite --url-prefix "~/"
@@ -85,17 +88,35 @@ jobs:
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT || steps.derive-slugs.outputs.project }}
           GIT_SHA: ${{ github.sha }}
           SENTRY_STRICT: ${{ vars.SENTRY_STRICT || 'true' }}
+          SENTRY_DEBUG: ${{ vars.SENTRY_DEBUG || 'false' }}
         run: |
           set -euo pipefail
           if [ -z "${SENTRY_AUTH_TOKEN}" ] || [ -z "${SENTRY_ORG}" ] || [ -z "${SENTRY_PROJECT}" ]; then
             echo "Missing auth or slugs; skipping verification"; exit 0; fi
-          release_json=$(curl -sf -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
-            https://sentry.io/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/${GIT_SHA}/ || true)
+          attempts=0
+          release_json=""
+          while [ $attempts -lt 6 ]; do
+            release_json=$(curl -sf -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
+              https://sentry.io/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/${GIT_SHA}/ || true)
+            if [ -n "$release_json" ]; then break; fi
+            attempts=$((attempts+1))
+            echo "Release not visible yet (attempt $attempts); waiting..."
+            sleep 5
+          done
           if [ -z "$release_json" ]; then
-            echo "Release not found in Sentry."; if [ "$SENTRY_STRICT" = "true" ]; then exit 1; else exit 0; fi
+            echo "Release not found in Sentry after retries."; if [ "$SENTRY_STRICT" = "true" ]; then exit 1; else exit 0; fi
           fi
-          file_count=$(echo "$release_json" | jq '.files | length' 2>/dev/null || echo 0)
-          echo "Release found. Source map file count: $file_count"
+          # Fetch files list (pagination not expected for small builds)
+          files_json=$(curl -sf -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
+            https://sentry.io/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/${GIT_SHA}/files/ || true)
+          file_count=$(echo "$files_json" | jq 'length' 2>/dev/null || echo 0)
+          echo "Release found. Reported file count: $file_count"
+          if [ "$SENTRY_DEBUG" = "true" ]; then
+            echo '--- RELEASE JSON (truncated) ---'
+            echo "$release_json" | jq '{version, dateCreated, dateReleased, files: (.files | length)}'
+            echo '--- FILE LIST ---'
+            echo "$files_json" | jq '.[].name'
+          fi
           if [ "$file_count" -eq 0 ]; then
-            echo "No source maps attached."; if [ "$SENTRY_STRICT" = "true" ]; then exit 1; fi
+            echo "No source map files returned by API."; if [ "$SENTRY_STRICT" = "true" ]; then exit 1; fi
           fi
