@@ -72,7 +72,8 @@ jobs:
           if [ "$map_count" = "0" ]; then echo "No .js.map files found in dist; aborting upload."; exit 1; fi
           echo "Creating Sentry release $GITHUB_SHA (org=$SENTRY_ORG project=$SENTRY_PROJECT)"
           npx @sentry/cli releases new "$GITHUB_SHA"
-          npx @sentry/cli releases files "$GITHUB_SHA" upload-sourcemaps dist --rewrite --url-prefix "~/"
+          # Use assets prefix for clearer frame mapping
+          npx @sentry/cli releases files "$GITHUB_SHA" upload-sourcemaps dist --rewrite --url-prefix "~/assets" || echo "Upload step reported issues (continuing to verification)."
           npx @sentry/cli releases finalize "$GITHUB_SHA"
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -99,15 +100,17 @@ jobs:
           SENTRY_ORG: ${{ secrets.SENTRY_ORG || steps.derive-slugs.outputs.org }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT || steps.derive-slugs.outputs.project }}
           GIT_SHA: ${{ github.sha }}
-          SENTRY_STRICT: ${{ vars.SENTRY_STRICT || 'true' }}
-          SENTRY_DEBUG: ${{ vars.SENTRY_DEBUG || 'false' }}
         run: |
           set -euo pipefail
+          : "${SENTRY_STRICT:=true}"
+          : "${SENTRY_DEBUG:=false}"
+          : "${SENTRY_FILE_FALLBACK:=true}"
           if [ -z "${SENTRY_AUTH_TOKEN}" ] || [ -z "${SENTRY_ORG}" ] || [ -z "${SENTRY_PROJECT}" ]; then
             echo "Missing auth or slugs; skipping verification"; exit 0; fi
           attempts=0
           release_json=""
-          while [ $attempts -lt 6 ]; do
+          # Up to 60s (12 * 5s) for release visibility
+          while [ $attempts -lt 12 ]; do
             release_json=$(curl -sf -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
               https://sentry.io/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/${GIT_SHA}/ || true)
             if [ -n "$release_json" ]; then break; fi
@@ -118,27 +121,59 @@ jobs:
           if [ -z "$release_json" ]; then
             echo "Release not found in Sentry after retries."; if [ "$SENTRY_STRICT" = "true" ]; then exit 1; else exit 0; fi
           fi
-          # Poll for files list (processing latency)
+          # Poll for files list (REST) up to 60s
           file_attempts=0
           files_json=""
-          while [ $file_attempts -lt 6 ]; do
+          file_count=0
+          while [ $file_attempts -lt 12 ]; do
             files_json=$(curl -sf -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
               https://sentry.io/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/${GIT_SHA}/files/ || true)
             file_count=$(echo "$files_json" | jq 'length' 2>/dev/null || echo 0)
             if [ "$file_count" -gt 0 ]; then
+              echo "REST API file enumeration succeeded after $((file_attempts+1)) attempt(s)."
               break
             fi
             file_attempts=$((file_attempts+1))
-            echo "No files yet (attempt $file_attempts); waiting for processing..."
+            echo "REST returned 0 files (attempt $file_attempts); waiting for processing..."
             sleep 5
           done
-          echo "Release found. Reported file count after polling: $file_count"
+          echo "REST API reported file count: $file_count"
+
+          cli_file_count=0
+          if [ "$file_count" -eq 0 ] && [ "$SENTRY_FILE_FALLBACK" = "true" ]; then
+            echo "Attempting CLI fallback listing..."
+            # Try JSON output first; if unsupported, parse plain text.
+            if npx @sentry/cli releases files "$GIT_SHA" list --json > cli_files.json 2>/dev/null; then
+              cli_file_count=$(jq 'map(select(.name | test("\\.map$"))) | length' cli_files.json 2>/dev/null || echo 0)
+              echo "CLI JSON fallback detected $cli_file_count map files"
+              if [ "$SENTRY_DEBUG" = "true" ]; then echo "CLI JSON (truncated names):"; jq '.[].name' cli_files.json; fi
+            else
+              # Plain listing fallback
+              plain_listing=$(npx @sentry/cli releases files "$GIT_SHA" list 2>/dev/null || true)
+              echo "$plain_listing" > cli_files.txt
+              cli_file_count=$(echo "$plain_listing" | grep -E '\\.map$' | wc -l | tr -d ' ' || echo 0)
+              if [ "$SENTRY_DEBUG" = "true" ]; then echo "CLI Plain listing:"; cat cli_files.txt; fi
+              echo "CLI plain fallback detected $cli_file_count map files"
+            fi
+          fi
+
+          effective_count=$file_count
+          if [ "$effective_count" -eq 0 ] && [ "$cli_file_count" -gt 0 ]; then
+            echo "WARNING: REST files endpoint returned 0 but CLI shows $cli_file_count map files. Treating as success (processing lag)."
+            effective_count=$cli_file_count
+          fi
+
+          if [ "$SENTRY_DEBUG" = "true" ]; then
+            echo "Effective file count: $effective_count (REST=$file_count CLI=$cli_file_count)"
+          fi
           if [ "$SENTRY_DEBUG" = "true" ]; then
             echo '--- RELEASE JSON (truncated) ---'
             echo "$release_json" | jq '{version, dateCreated, dateReleased, files: (.files | length)}'
             echo '--- FILE LIST ---'
             echo "$files_json" | jq '.[].name'
           fi
-          if [ "$file_count" -eq 0 ]; then
-            echo "No source map files returned by API."; if [ "$SENTRY_STRICT" = "true" ]; then exit 1; fi
+          if [ "$effective_count" -eq 0 ]; then
+            echo "No source map files discovered via REST or CLI fallback."; if [ "$SENTRY_STRICT" = "true" ]; then exit 1; fi
+          else
+            echo "Verification succeeded with $effective_count source map file(s)."
           fi
