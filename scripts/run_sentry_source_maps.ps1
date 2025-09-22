@@ -40,7 +40,9 @@ param(
   [int]$LocateBaseDelaySeconds = 2,
   [int]$LocateMaxDelaySeconds = 30,
   [switch]$VerificationSummary,
-  [switch]$Json
+  [switch]$Json,
+  [switch]$ForceCommit,
+  [string]$ForceCommitMessage = "chore(ci): trigger sentry-source-maps run"
 )
 
 Set-StrictMode -Version Latest
@@ -57,11 +59,12 @@ Assert-Gh
 $workflowFile = 'sentry-source-maps.yml'
 $workflowName = 'sentry-source-maps'
 $workflowId = $null
-# Capture last known run before dispatch to differentiate new execution
-$previousRunObj = gh run list --workflow $workflowFile --limit 1 --json databaseId,createdAt,status 2>$null | ConvertFrom-Json
-if (-not $previousRunObj) { $previousRunObj = gh run list --workflow $workflowName --limit 1 --json databaseId,createdAt,status 2>$null | ConvertFrom-Json }
-$previousRunId = $null
-if ($null -ne $previousRunObj -and $previousRunObj.PSObject.Properties.Name -contains 'databaseId') { $previousRunId = $previousRunObj.databaseId }
+
+# Baseline existing runs to compute previous max databaseId
+$existingRuns = gh run list --workflow $workflowFile --limit 50 --json databaseId, headSha, createdAt, workflowName 2>$null | ConvertFrom-Json
+if (-not $existingRuns) { $existingRuns = gh run list --workflow $workflowName --limit 50 --json databaseId, headSha, createdAt, workflowName 2>$null | ConvertFrom-Json }
+$prevMaxDatabaseId = 0
+if ($existingRuns) { $prevMaxDatabaseId = ($existingRuns | Measure-Object -Property databaseId -Maximum).Maximum }
 $dispatchStart = Get-Date -AsUTC
 
 # Confirm workflow file exists locally
@@ -84,66 +87,55 @@ if (-not $workflowId) {
   Write-Host '  3. git push origin main' -ForegroundColor Yellow
 }
 
-Write-Host 'Dispatching workflow...' -ForegroundColor Cyan
-$nonce = [Guid]::NewGuid().ToString('N')
-$dispatchSucceeded = $false
-$dispatchOutput = gh workflow run $workflowFile --ref main -f nonce=$nonce 2>&1
-if ($LASTEXITCODE -eq 0) { $dispatchSucceeded = $true }
-if (-not $dispatchSucceeded) {
-  Write-Warning "Dispatch via file failed: $dispatchOutput"
-  $dispatchOutput2 = gh workflow run $workflowName --ref main -f nonce=$nonce 2>&1
-  if ($LASTEXITCODE -eq 0) { $dispatchSucceeded = $true } else { Write-Warning "Dispatch via name failed: $dispatchOutput2" }
+if ($ForceCommit) {
+  Write-Host 'ForceCommit enabled: creating empty commit.' -ForegroundColor Cyan
+  $nonce = [Guid]::NewGuid().ToString('N')
+  git commit --allow-empty -m "$ForceCommitMessage [sentry-nonce:$nonce]" | Out-Null
+  git push origin HEAD:main | Out-Null
+  $targetSha = (git rev-parse HEAD)
+  Write-Host "Pushed empty commit $targetSha" -ForegroundColor Green
 }
-if (-not $dispatchSucceeded -and $workflowId) {
-  $dispatchOutput3 = gh workflow run $workflowId --ref main -f nonce=$nonce 2>&1
-  if ($LASTEXITCODE -eq 0) { $dispatchSucceeded = $true } else { Write-Warning "Dispatch via id failed: $dispatchOutput3" }
-}
-if (-not $dispatchSucceeded) {
-  Write-Error 'Failed to dispatch workflow using file, name, or id.'
-  Write-Host 'Diagnostics:' -ForegroundColor Yellow
-  Write-Host '  gh workflow list' -ForegroundColor Yellow
-  Write-Host '  gh auth status' -ForegroundColor Yellow
-  exit 1
-}
-
-Write-Host 'Workflow dispatched. Locating latest run...' -ForegroundColor Cyan
-
-# Determine local HEAD SHA for correlation
-$localSha = (git rev-parse HEAD 2>$null)
-
-$run = $null
-Start-Sleep -Seconds 2 # brief delay to allow run registration
-for ($i = 1; $i -le $LocateAttempts; $i++) {
-  $candidateList = gh run list --workflow $workflowFile --limit 5 --json databaseId, workflowName, displayTitle, status, conclusion, headSha, createdAt, url 2>$null | ConvertFrom-Json
-  if (-not $candidateList) { $candidateList = gh run list --workflow $workflowName --limit 5 --json databaseId, workflowName, displayTitle, status, conclusion, headSha, createdAt, url 2>$null | ConvertFrom-Json }
-  if ($candidateList) {
-    $run = ($candidateList | Where-Object { ($_.databaseId -ne $previousRunId) -and ( ([DateTime]$_.createdAt) -ge $dispatchStart.AddSeconds(-15) ) -and ($_.displayTitle -like "*$nonce*") } | Sort-Object createdAt -Descending | Select-Object -First 1)
+else {
+  Write-Host 'Dispatching workflow (workflow_dispatch)...' -ForegroundColor Cyan
+  $nonce = [Guid]::NewGuid().ToString('N')
+  $dispatchSucceeded = $false
+  $dispatchOutput = gh workflow run $workflowFile --ref main -f nonce=$nonce 2>&1
+  if ($LASTEXITCODE -eq 0) { $dispatchSucceeded = $true }
+  if (-not $dispatchSucceeded) {
+    Write-Warning "Dispatch via file failed: $dispatchOutput"
+    $dispatchOutput2 = gh workflow run $workflowName --ref main -f nonce=$nonce 2>&1
+    if ($LASTEXITCODE -eq 0) { $dispatchSucceeded = $true } else { Write-Warning "Dispatch via name failed: $dispatchOutput2" }
   }
-  if (-not $run) {
-    $recent = gh run list --limit 12 --json databaseId, workflowName, displayTitle, status, conclusion, headSha, createdAt, url 2>$null | ConvertFrom-Json
-    if ($recent) {
-      $run = ($recent | Where-Object {
-          ($_.databaseId -ne $previousRunId) -and
-          ( ([DateTime]$_.createdAt) -ge $dispatchStart.AddSeconds(-15) ) -and
-          ( $_.displayTitle -like "*$nonce*" )
-        } | Sort-Object createdAt -Descending | Select-Object -First 1)
+  if (-not $dispatchSucceeded -and $workflowId) {
+    $dispatchOutput3 = gh workflow run $workflowId --ref main -f nonce=$nonce 2>&1
+    if ($LASTEXITCODE -eq 0) { $dispatchSucceeded = $true } else { Write-Warning "Dispatch via id failed: $dispatchOutput3" }
+  }
+  if (-not $dispatchSucceeded) { Write-Error 'Failed to dispatch workflow.'; exit 1 }
+  $targetSha = (git rev-parse HEAD)
+}
+
+Write-Host 'Locating new workflow run...' -ForegroundColor Cyan
+Start-Sleep -Seconds 3
+$run = $null
+for ($i = 1; $i -le $LocateAttempts; $i++) {
+  $candidateList = gh run list --workflow $workflowFile --limit 30 --json databaseId, workflowName, displayTitle, status, conclusion, headSha, createdAt, url 2>$null | ConvertFrom-Json
+  if (-not $candidateList) { $candidateList = gh run list --workflow $workflowName --limit 30 --json databaseId, workflowName, displayTitle, status, conclusion, headSha, createdAt, url 2>$null | ConvertFrom-Json }
+  if ($candidateList) {
+    if ($ForceCommit) {
+      $run = ($candidateList | Where-Object { $_.headSha -eq $targetSha } | Sort-Object createdAt -Descending | Select-Object -First 1)
+    }
+    else {
+      $run = ($candidateList | Where-Object { $_.databaseId -gt $prevMaxDatabaseId -and $_.workflowName -match 'sentry' } | Sort-Object databaseId -Descending | Select-Object -First 1)
     }
   }
   if ($run) { break }
   $delay = [Math]::Min($LocateMaxDelaySeconds, [Math]::Pow(2, $i - 1) * $LocateBaseDelaySeconds)
-  Write-Host ("Attempt {0}/{1}: run not visible yet; waiting {2}s..." -f $i, $LocateAttempts, [int]$delay) -ForegroundColor DarkYellow
+  Write-Host ("Attempt {0}/{1}: new run not visible yet; waiting {2}s..." -f $i, $LocateAttempts, [int]$delay) -ForegroundColor DarkYellow
   Start-Sleep -Seconds ([int]$delay)
 }
-
-if (-not $run) {
-  Write-Error 'Unable to retrieve workflow run metadata after retries.'
-  Write-Host 'Diagnosis steps:' -ForegroundColor Yellow
-  Write-Host '  gh workflow list' -ForegroundColor Yellow
-  Write-Host "  gh run list --limit 10 | Select-String sentry" -ForegroundColor Yellow
-  exit 1
-}
-
-Write-Host "Run URL: $($run.htmlURL) (SHA: $($run.headSha))" -ForegroundColor Green
+if (-not $run) { Write-Error 'Unable to locate new workflow run after retries.'; gh run list --workflow $workflowFile --limit 5 | Out-String | Write-Host; exit 1 }
+Write-Host ("Run ID: {0} Status: {1} Head: {2}" -f $run.databaseId, $run.status, $run.headSha) -ForegroundColor Green
+Write-Host ("Run URL: {0}" -f ($run.url ?? 'Open Actions tab manually')) -ForegroundColor Green
 
 if (-not $Wait) { return }
 
@@ -190,7 +182,8 @@ if ($VerificationSummary) {
   }
   if ($Json) {
     $parsed | ConvertTo-Json -Depth 3 | Write-Output
-  } else {
+  }
+  else {
     Write-Host '--- Parsed Verification Summary ---' -ForegroundColor Green
     $parsed.GetEnumerator() | ForEach-Object { Write-Host ("{0}: {1}" -f $_.Key, $_.Value) }
   }

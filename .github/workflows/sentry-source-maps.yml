@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
     inputs:
       nonce:
-        description: "Unique nonce to force a distinct manual run"
+        description: 'Unique nonce to force a distinct manual run'
         required: false
-        default: ""
+        default: ''
 
 permissions:
   contents: read
