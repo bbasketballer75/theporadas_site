@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Video Player Component', () => {
   test.beforeEach(async ({ page }) => {
@@ -65,10 +65,10 @@ test.describe('Video Player Component', () => {
     await expect(controls).toBeVisible();
 
     // Check for common controls
-    const playPause = page.getByTestId('play-pause');
+    const playButton = page.getByTestId('play-button');
 
     // At least play/pause should be present
-    await expect(playPause).toBeVisible();
+    await expect(playButton).toBeVisible();
   });
 
   test('progress bar allows seeking', async ({ page }) => {
