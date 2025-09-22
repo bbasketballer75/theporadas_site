@@ -85,16 +85,17 @@ if (-not $workflowId) {
 }
 
 Write-Host 'Dispatching workflow...' -ForegroundColor Cyan
+$nonce = [Guid]::NewGuid().ToString('N')
 $dispatchSucceeded = $false
-$dispatchOutput = gh workflow run $workflowFile --ref main 2>&1
+$dispatchOutput = gh workflow run $workflowFile --ref main -f nonce=$nonce 2>&1
 if ($LASTEXITCODE -eq 0) { $dispatchSucceeded = $true }
 if (-not $dispatchSucceeded) {
   Write-Warning "Dispatch via file failed: $dispatchOutput"
-  $dispatchOutput2 = gh workflow run $workflowName --ref main 2>&1
+  $dispatchOutput2 = gh workflow run $workflowName --ref main -f nonce=$nonce 2>&1
   if ($LASTEXITCODE -eq 0) { $dispatchSucceeded = $true } else { Write-Warning "Dispatch via name failed: $dispatchOutput2" }
 }
 if (-not $dispatchSucceeded -and $workflowId) {
-  $dispatchOutput3 = gh workflow run $workflowId --ref main 2>&1
+  $dispatchOutput3 = gh workflow run $workflowId --ref main -f nonce=$nonce 2>&1
   if ($LASTEXITCODE -eq 0) { $dispatchSucceeded = $true } else { Write-Warning "Dispatch via id failed: $dispatchOutput3" }
 }
 if (-not $dispatchSucceeded) {
@@ -116,15 +117,15 @@ for ($i = 1; $i -le $LocateAttempts; $i++) {
   $candidateList = gh run list --workflow $workflowFile --limit 5 --json databaseId, workflowName, displayTitle, status, conclusion, headSha, createdAt, url 2>$null | ConvertFrom-Json
   if (-not $candidateList) { $candidateList = gh run list --workflow $workflowName --limit 5 --json databaseId, workflowName, displayTitle, status, conclusion, headSha, createdAt, url 2>$null | ConvertFrom-Json }
   if ($candidateList) {
-    $run = ($candidateList | Where-Object { ($_.databaseId -ne $previousRunId) -and ( ([DateTime]$_.createdAt) -ge $dispatchStart.AddSeconds(-5) ) } | Sort-Object createdAt -Descending | Select-Object -First 1)
+    $run = ($candidateList | Where-Object { ($_.databaseId -ne $previousRunId) -and ( ([DateTime]$_.createdAt) -ge $dispatchStart.AddSeconds(-15) ) -and ($_.displayTitle -like "*$nonce*") } | Sort-Object createdAt -Descending | Select-Object -First 1)
   }
   if (-not $run) {
     $recent = gh run list --limit 12 --json databaseId, workflowName, displayTitle, status, conclusion, headSha, createdAt, url 2>$null | ConvertFrom-Json
     if ($recent) {
       $run = ($recent | Where-Object {
           ($_.databaseId -ne $previousRunId) -and
-          ( ([DateTime]$_.createdAt) -ge $dispatchStart.AddSeconds(-5) ) -and
-          ( $_.workflowName -match 'sentry' -or $_.displayTitle -match 'sentry' -or ($localSha -and $_.headSha -eq $localSha) )
+          ( ([DateTime]$_.createdAt) -ge $dispatchStart.AddSeconds(-15) ) -and
+          ( $_.displayTitle -like "*$nonce*" )
         } | Sort-Object createdAt -Descending | Select-Object -First 1)
     }
   }
