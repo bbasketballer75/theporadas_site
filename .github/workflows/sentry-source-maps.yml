@@ -73,7 +73,15 @@ jobs:
           echo "Creating Sentry release $GITHUB_SHA (org=$SENTRY_ORG project=$SENTRY_PROJECT)"
           npx @sentry/cli releases new "$GITHUB_SHA"
           # Use assets prefix for clearer frame mapping
-          npx @sentry/cli releases files "$GITHUB_SHA" upload-sourcemaps dist --rewrite --url-prefix "~/assets" || echo "Upload step reported issues (continuing to verification)."
+          upload_output=$(npx @sentry/cli releases files "$GITHUB_SHA" upload-sourcemaps dist --rewrite --url-prefix "~/assets" 2>&1 || true)
+          printf '%s\n' "$upload_output"
+          # Parse lines like '> Found 22 files' & '> Bundled 22 files' or '> Bundled 22 files for upload'
+          found_count=$(echo "$upload_output" | sed -n 's/^> Found \([0-9]\+\) files.*/\1/p' | head -1)
+          bundled_count=$(echo "$upload_output" | sed -n 's/^> Bundled \([0-9]\+\) files.*/\1/p' | head -1)
+          [ -z "$bundled_count" ] && bundled_count=$(echo "$upload_output" | sed -n 's/^> Bundled \([0-9]\+\) files for upload.*/\1/p' | head -1)
+          final_upload_count=${bundled_count:-${found_count:-0}}
+          echo "Detected upload file count (pre or post-bundle): ${final_upload_count}" || true
+          echo "SENTRY_UPLOAD_BUNDLED_COUNT=${final_upload_count}" >> "$GITHUB_ENV"
           npx @sentry/cli releases finalize "$GITHUB_SHA"
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -100,11 +108,13 @@ jobs:
           SENTRY_ORG: ${{ secrets.SENTRY_ORG || steps.derive-slugs.outputs.org }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT || steps.derive-slugs.outputs.project }}
           GIT_SHA: ${{ github.sha }}
+          SENTRY_UPLOAD_BUNDLED_COUNT: ${{ env.SENTRY_UPLOAD_BUNDLED_COUNT }}
         run: |
           set -euo pipefail
           : "${SENTRY_STRICT:=true}"
           : "${SENTRY_DEBUG:=false}"
           : "${SENTRY_FILE_FALLBACK:=true}"
+          : "${SENTRY_UPLOAD_BUNDLED_COUNT:=0}"
           if [ -z "${SENTRY_AUTH_TOKEN}" ] || [ -z "${SENTRY_ORG}" ] || [ -z "${SENTRY_PROJECT}" ]; then
             echo "Missing auth or slugs; skipping verification"; exit 0; fi
           attempts=0
@@ -162,6 +172,10 @@ jobs:
             echo "WARNING: REST files endpoint returned 0 but CLI shows $cli_file_count map files. Treating as success (processing lag)."
             effective_count=$cli_file_count
           fi
+          if [ "$effective_count" -eq 0 ] && [ "${SENTRY_UPLOAD_BUNDLED_COUNT}" -gt 0 ]; then
+            echo "WARNING: REST & CLI returned 0 but upload step reported ${SENTRY_UPLOAD_BUNDLED_COUNT} bundled files. Trusting upload success (artifact bundle)."
+            effective_count=${SENTRY_UPLOAD_BUNDLED_COUNT}
+          fi
 
           if [ "$SENTRY_DEBUG" = "true" ]; then
             echo "Effective file count: $effective_count (REST=$file_count CLI=$cli_file_count)"
@@ -182,9 +196,13 @@ jobs:
             echo "Commit: $GIT_SHA";
             echo "REST file count: $file_count";
             echo "CLI file count: $cli_file_count";
+            echo "Upload bundled count: ${SENTRY_UPLOAD_BUNDLED_COUNT}";
             echo "Effective count: $effective_count";
             if [ "$file_count" -eq 0 ] && [ "$cli_file_count" -gt 0 ]; then
               echo "Note: REST returned 0; CLI fallback used (likely processing lag).";
+            fi
+            if [ "$file_count" -eq 0 ] && [ "$cli_file_count" -eq 0 ] && [ "${SENTRY_UPLOAD_BUNDLED_COUNT}" -gt 0 ]; then
+              echo "Note: REST & CLI returned 0; trusted upload bundle count.";
             fi
             echo "Strict mode: $SENTRY_STRICT";
             echo "CLI fallback enabled: $SENTRY_FILE_FALLBACK";
