@@ -181,20 +181,18 @@ export function BackgroundAudio({ src, autoPlay = false, loop = true }: Backgrou
   };
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVolume = parseFloat(e.target.value);
-    setVolume(newVolume);
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume;
-    }
     // Accept both 0-1 and 0-100 for test compatibility
     let newVolume = parseFloat(e.target.value);
+    if (Number.isNaN(newVolume)) return;
     if (newVolume > 1) newVolume = newVolume / 100;
+    if (newVolume < 0) newVolume = 0;
+    if (newVolume > 1) newVolume = 1;
     setVolume(newVolume);
-    setVolumeChanged(true);
-    setTimeout(() => setVolumeChanged(false), 1000);
     if (audioRef.current) {
       audioRef.current.volume = newVolume;
     }
+    setVolumeChanged(true);
+    setTimeout(() => setVolumeChanged(false), 1000);
   };
 
   const toggleMute = () => {
