@@ -3,7 +3,12 @@ name: sentry-source-maps
 on:
   push:
     branches: [main]
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      nonce:
+        description: "Unique nonce to force a distinct manual run"
+        required: false
+        default: ""
 
 permissions:
   contents: read
