@@ -10,11 +10,37 @@ function loadSentry() {
 export async function initSentry(dsn: string | undefined) {
   if (!dsn) return;
   const Sentry = await loadSentry();
+  const release: string | undefined =
+    (globalThis as unknown as { __GIT_SHA__?: string }).__GIT_SHA__ ||
+    (import.meta as unknown as { env?: Record<string, string> }).env?.VITE_GIT_SHA ||
+    undefined;
+  const environment: string =
+    (import.meta as unknown as { env?: Record<string, string> }).env?.MODE ||
+    (import.meta as unknown as { env?: Record<string, string> }).env?.NODE_ENV ||
+    'production';
   Sentry.init({
     dsn,
+    release,
+    environment,
     integrations: [Sentry.browserTracingIntegration()],
-    tracesSampleRate: 1.0,
+    tracesSampleRate: environment === 'production' ? 0.3 : 1.0,
   });
+  // Lazy import web-vitals and send as custom measurements (non-blocking)
+  try {
+    // dynamic import only if browser
+    if (typeof window !== 'undefined') {
+      const { onCLS, onLCP, onINP } = await import('web-vitals');
+      type Metric = { value: number };
+      const send = (name: string, metric: Metric) => {
+        void setMeasurement(name, metric.value);
+      };
+      onCLS((m) => send('CLS', m));
+      onLCP((m) => send('LCP', m));
+      onINP((m) => send('INP', m));
+    }
+  } catch {
+    // ignore failures silently
+  }
 }
 
 export type SentryLevel = 'fatal' | 'error' | 'warning' | 'log' | 'info' | 'debug' | 'critical';

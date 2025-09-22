@@ -97,7 +97,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
     caption,
     placeholderLabel,
     onEvent,
-    showChapters = true,
+    showChapters,
     poster,
     autoPlay,
     muted,
@@ -162,11 +162,8 @@ export function VideoPlayer(props: VideoPlayerProps) {
             video.load();
           }, 100);
         }
-      }, 2000); // 2 second delay before retry
+      }, 2000);
       setRetryTimeout(retryId);
-    } else if (loadAttempts >= maxRetries) {
-      setHasError(true);
-      setIsLoading(false);
     }
   }, [isLoading, loadAttempts, maxRetries]);
 

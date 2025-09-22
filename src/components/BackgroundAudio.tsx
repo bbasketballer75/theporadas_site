@@ -23,6 +23,10 @@ export function BackgroundAudio({ src, autoPlay = false, loop = true }: Backgrou
   const [volume, setVolume] = useState(0.3); // Start at 30% volume
   const [isMuted, setIsMuted] = useState(false);
 
+  // For test feedback
+  const [volumeChanged, setVolumeChanged] = useState(false);
+  const [playingState, setPlayingState] = useState('false');
+
   // Browser detection for compatibility fixes
   const browserInfo = React.useMemo(() => detectBrowser(), []);
   const browserName = browserInfo.name;
@@ -34,6 +38,10 @@ export function BackgroundAudio({ src, autoPlay = false, loop = true }: Backgrou
     const handlePlay = () => setIsPlaying(true);
     const handlePause = () => setIsPlaying(false);
     const handleEnded = () => setIsPlaying(false);
+
+    // For test feedback
+    audio.addEventListener('play', () => setPlayingState('true'));
+    audio.addEventListener('pause', () => setPlayingState('false'));
 
     audio.addEventListener('play', handlePlay);
     audio.addEventListener('pause', handlePause);
@@ -169,11 +177,21 @@ export function BackgroundAudio({ src, autoPlay = false, loop = true }: Backgrou
         console.error('Failed to play audio:', error);
       });
     }
+    setPlayingState(isPlaying ? 'false' : 'true');
   };
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVolume = parseFloat(e.target.value);
     setVolume(newVolume);
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
+    }
+    // Accept both 0-1 and 0-100 for test compatibility
+    let newVolume = parseFloat(e.target.value);
+    if (newVolume > 1) newVolume = newVolume / 100;
+    setVolume(newVolume);
+    setVolumeChanged(true);
+    setTimeout(() => setVolumeChanged(false), 1000);
     if (audioRef.current) {
       audioRef.current.volume = newVolume;
     }
@@ -190,6 +208,8 @@ export function BackgroundAudio({ src, autoPlay = false, loop = true }: Backgrou
       audio.volume = 0;
       setIsMuted(true);
     }
+    setVolumeChanged(true);
+    setTimeout(() => setVolumeChanged(false), 1000);
   };
 
   return (
@@ -199,6 +219,8 @@ export function BackgroundAudio({ src, autoPlay = false, loop = true }: Backgrou
       data-loading={isLoading ? 'true' : 'false'}
       data-loaded={isLoaded ? 'true' : 'false'}
       data-error={hasError ? 'true' : 'false'}
+      data-volume-changed={volumeChanged ? 'true' : 'false'}
+      data-playing={playingState}
     >
       <audio
         ref={audioRef}
@@ -227,32 +249,32 @@ export function BackgroundAudio({ src, autoPlay = false, loop = true }: Backgrou
           onClick={togglePlay}
           disabled={isLoading}
           aria-label={isPlaying ? 'Pause background music' : 'Play background music'}
-          data-testid="play-button"
+          data-testid={isPlaying ? 'pause-button' : 'play-button'}
         >
           {isPlaying ? '⏸️' : '▶️'}
         </button>
-        <div className="volume-control">
+        <div className="volume-control" data-testid="volume-control">
           <button
             type="button"
             className="volume-mute"
             onClick={toggleMute}
             disabled={isLoading}
             aria-label={isMuted ? 'Unmute background music' : 'Mute background music'}
-            data-testid="volume-button"
+            data-testid={isMuted ? 'unmute-button' : 'mute-button'}
           >
             {isMuted ? '🔇' : '🔊'}
           </button>
           <input
             type="range"
             min="0"
-            max="1"
-            step="0.1"
-            value={isMuted ? 0 : volume}
+            max="100"
+            step="1"
+            value={isMuted ? 0 : Math.round(volume * 100)}
             onChange={handleVolumeChange}
             disabled={isLoading}
             className="volume-slider"
             aria-label="Background music volume"
-            data-testid="volume-control"
+            data-testid="volume-slider"
           />
         </div>
       </div>

@@ -1,17 +1,18 @@
-// This file has been deprecated and is being removed.
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { AutoApprovalRule } from '../utils/autoApprovalManager';
 import { MCPTool } from '../utils/mcpMarketplace';
 import { ModeManager } from '../utils/modeManager';
 import { notificationManager, NotificationMessage } from '../utils/notificationManager';
 
-interface ModeSelectorProps {
+// --- Mode Selector ---
+export function CopilotModeSelector({
+  modeManager,
+  onModeChange,
+}: {
   modeManager: ModeManager;
   onModeChange: (modeId: string) => void;
-}
-
-export function ModeSelector({ modeManager, onModeChange }: ModeSelectorProps) {
+}) {
   const [currentMode, setCurrentMode] = useState(modeManager.getCurrentMode());
   const allModes = useMemo(() => modeManager.getAllModes(), [modeManager]);
 
@@ -27,18 +28,15 @@ export function ModeSelector({ modeManager, onModeChange }: ModeSelectorProps) {
   };
 
   return (
-    <div className="mode-selector bg-white rounded-lg shadow-md p-4">
-      <h3 className="text-lg font-semibold mb-3">AI Mode</h3>
+    <div className="copilot-mode-selector bg-white rounded-lg shadow-md p-4">
+      <h3 className="text-lg font-semibold mb-3">Copilot AI Mode</h3>
       <div className="grid grid-cols-2 gap-2">
         {allModes.map((mode) => (
           <button
             key={mode.id}
             onClick={() => handleModeChange(mode.id)}
-            className={`p-3 rounded-lg border-2 transition-all ${
-              currentMode.id === mode.id
-                ? 'border-blue-500 bg-blue-50 text-blue-700'
-                : 'border-gray-200 hover:border-gray-300 text-gray-700'
-            }`}
+            aria-pressed={currentMode.id === mode.id}
+            className={`p-3 rounded-lg border-2 transition-all ${currentMode.id === mode.id ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 hover:border-gray-300 text-gray-700'}`}
           >
             <div className="text-2xl mb-1">{mode.icon}</div>
             <div className="font-medium text-sm">{mode.name}</div>
@@ -50,13 +48,16 @@ export function ModeSelector({ modeManager, onModeChange }: ModeSelectorProps) {
   );
 }
 
-interface NotificationPanelProps {
+// --- Notification Panel ---
+export function CopilotNotificationPanel({
+  notifications,
+  onDismiss,
+  onAction,
+}: {
   notifications: NotificationMessage[];
   onDismiss: (id: string) => void;
   onAction: (notification: NotificationMessage) => void;
-}
-
-export function NotificationPanel({ notifications, onDismiss, onAction }: NotificationPanelProps) {
+}) {
   const getTypeStyles = (type: NotificationMessage['type']) => {
     switch (type) {
       case 'success':
@@ -69,13 +70,9 @@ export function NotificationPanel({ notifications, onDismiss, onAction }: Notifi
         return 'bg-blue-50 border-blue-200 text-blue-800';
     }
   };
-
-  if (notifications.length === 0) {
-    return null;
-  }
-
+  if (notifications.length === 0) return null;
   return (
-    <div className="notification-panel fixed top-4 right-4 z-50 space-y-2 max-w-sm">
+    <div className="copilot-notification-panel fixed top-4 right-4 z-50 space-y-2 max-w-sm">
       {notifications.map((notification) => (
         <div
           key={notification.id}
@@ -107,22 +104,23 @@ export function NotificationPanel({ notifications, onDismiss, onAction }: Notifi
   );
 }
 
-interface MCPToolPanelProps {
+// --- MCP Tool Panel ---
+export function CopilotToolPanel({
+  tools,
+  onToggleTool,
+  onExecuteTool,
+}: {
   tools: MCPTool[];
   onToggleTool: (toolId: string, enabled: boolean) => void;
   onExecuteTool: (toolId: string) => void;
-}
-
-export function MCPToolPanel({ tools, onToggleTool, onExecuteTool }: MCPToolPanelProps) {
+}) {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [toolResults, setToolResults] = useState<
     Record<string, { result?: unknown; error?: string }>
   >({});
   const categories = ['All', ...new Set(tools.map((tool) => tool.category))];
-
   const filteredTools =
     selectedCategory === 'All' ? tools : tools.filter((tool) => tool.category === selectedCategory);
-
   const handleExecute = async (toolId: string) => {
     setToolResults((prev) => ({ ...prev, [toolId]: { result: undefined, error: undefined } }));
     try {
@@ -130,25 +128,25 @@ export function MCPToolPanel({ tools, onToggleTool, onExecuteTool }: MCPToolPane
       setToolResults((prev) => ({ ...prev, [toolId]: { result, error: undefined } }));
     } catch (err: unknown) {
       let errorMsg = 'Unknown error';
-      if (err instanceof Error) {
-        errorMsg = err.message;
-      } else if (typeof err === 'string') {
-        errorMsg = err;
-      }
-      setToolResults((prev) => ({
-        ...prev,
-        [toolId]: { result: undefined, error: errorMsg },
-      }));
+      if (err instanceof Error) errorMsg = err.message;
+      else if (typeof err === 'string') errorMsg = err;
+      setToolResults((prev) => ({ ...prev, [toolId]: { result: undefined, error: errorMsg } }));
     }
   };
-
   return (
-    <div className="mcp-tool-panel bg-white rounded-lg shadow-md p-4">
-      <h3 className="text-lg font-semibold mb-3">MCP Tools</h3>
-
-      {/* Category Filter */}
+    <div className="copilot-tool-panel bg-white rounded-lg shadow-md p-4">
+      <h3 className="text-lg font-semibold mb-3">Copilot MCP Tools</h3>
       <div className="mb-4">
+        <label
+          id="tool-category-label"
+          htmlFor="tool-category-select"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          Tool Category
+        </label>
         <select
+          id="tool-category-select"
+          aria-labelledby="tool-category-label"
           title="Filter tools by category"
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
@@ -161,11 +159,31 @@ export function MCPToolPanel({ tools, onToggleTool, onExecuteTool }: MCPToolPane
           ))}
         </select>
       </div>
-
-      {/* Tools Grid */}
       <div className="grid grid-cols-1 gap-3 max-h-96 overflow-y-auto">
         {filteredTools.map((tool) => {
           const resultObj = toolResults[tool.id] || {};
+          let resultContent: React.ReactNode = null;
+          if (resultObj.result !== undefined) {
+            if (typeof resultObj.result === 'string') {
+              resultContent = <pre className="text-xs whitespace-pre-wrap">{resultObj.result}</pre>;
+            } else if (
+              resultObj.result &&
+              typeof resultObj.result === 'object' &&
+              'content' in resultObj.result
+            ) {
+              resultContent = (
+                <pre className="text-xs whitespace-pre-wrap">
+                  {String(resultObj.result.content)}
+                </pre>
+              );
+            } else {
+              resultContent = (
+                <pre className="text-xs whitespace-pre-wrap">
+                  {JSON.stringify(resultObj.result, null, 2)}
+                </pre>
+              );
+            }
+          }
           return (
             <div key={tool.id} className="border border-gray-200 rounded-lg p-3">
               <div className="flex items-start justify-between mb-2">
@@ -186,6 +204,7 @@ export function MCPToolPanel({ tools, onToggleTool, onExecuteTool }: MCPToolPane
                   <button
                     onClick={() => handleExecute(tool.id)}
                     disabled={!tool.isEnabled}
+                    aria-label={`Execute ${tool.name}`}
                     className={`px-3 py-1 text-xs rounded ${
                       tool.isEnabled
                         ? 'bg-green-500 text-white hover:bg-green-600'
@@ -199,14 +218,13 @@ export function MCPToolPanel({ tools, onToggleTool, onExecuteTool }: MCPToolPane
                       type="checkbox"
                       checked={tool.isEnabled}
                       onChange={(e) => onToggleTool(tool.id, e.target.checked)}
+                      aria-label={`Toggle ${tool.name} enabled`}
                       className="mr-2"
                     />
                     <span className="text-xs">Enabled</span>
                   </label>
                 </div>
               </div>
-
-              {/* Capabilities */}
               <div className="mt-2">
                 <div className="flex flex-wrap gap-1">
                   {tool.capabilities.map((capability) => (
@@ -219,32 +237,10 @@ export function MCPToolPanel({ tools, onToggleTool, onExecuteTool }: MCPToolPane
                   ))}
                 </div>
               </div>
-
-              {/* Tool Execution Result */}
               {resultObj.result !== undefined && (
                 <div className="mt-3 p-2 bg-gray-50 border rounded">
                   <h5 className="font-semibold text-xs mb-1">Result:</h5>
-                  {(() => {
-                    if (typeof resultObj.result === 'string') {
-                      return <pre className="text-xs whitespace-pre-wrap">{resultObj.result}</pre>;
-                    }
-                    if (
-                      resultObj.result &&
-                      typeof resultObj.result === 'object' &&
-                      'content' in resultObj.result
-                    ) {
-                      return (
-                        <pre className="text-xs whitespace-pre-wrap">
-                          {String(resultObj.result.content)}
-                        </pre>
-                      );
-                    }
-                    return (
-                      <pre className="text-xs whitespace-pre-wrap">
-                        {JSON.stringify(resultObj.result, null, 2)}
-                      </pre>
-                    );
-                  })()}
+                  {resultContent}
                 </div>
               )}
               {resultObj.error && (
@@ -261,21 +257,20 @@ export function MCPToolPanel({ tools, onToggleTool, onExecuteTool }: MCPToolPane
   );
 }
 
-interface AutoApprovalPanelProps {
-  rules: AutoApprovalRule[];
-  onToggleRule: (ruleId: string, enabled: boolean) => void;
-  onAddRule: () => void;
-  onEditRule: (ruleId: string) => void;
-  onDeleteRule: (ruleId: string) => void;
-}
-
-export function AutoApprovalPanel({
+// --- Auto-Approval Panel ---
+export function CopilotAutoApprovalPanel({
   rules,
   onToggleRule,
   onAddRule,
   onEditRule,
   onDeleteRule,
-}: AutoApprovalPanelProps) {
+}: {
+  rules: AutoApprovalRule[];
+  onToggleRule: (ruleId: string, enabled: boolean) => void;
+  onAddRule: () => void;
+  onEditRule: (ruleId: string) => void;
+  onDeleteRule: (ruleId: string) => void;
+}) {
   const getRiskColor = (risk: string) => {
     switch (risk) {
       case 'low':
@@ -288,11 +283,10 @@ export function AutoApprovalPanel({
         return 'text-gray-600 bg-gray-100';
     }
   };
-
   return (
-    <div className="auto-approval-panel bg-white rounded-lg shadow-md p-4">
+    <div className="copilot-auto-approval-panel bg-white rounded-lg shadow-md p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-semibold">Auto-Approval Rules</h3>
+        <h3 className="text-lg font-semibold">Copilot Auto-Approval Rules</h3>
         <button
           onClick={onAddRule}
           className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -300,7 +294,6 @@ export function AutoApprovalPanel({
           Add Rule
         </button>
       </div>
-
       <div className="space-y-3 max-h-96 overflow-y-auto">
         {rules.map((rule) => (
           <div key={rule.id} className="border border-gray-200 rounded-lg p-3">
@@ -348,7 +341,6 @@ export function AutoApprovalPanel({
             </div>
           </div>
         ))}
-
         {rules.length === 0 && (
           <div className="text-center py-8 text-gray-500">
             <p>No auto-approval rules configured</p>

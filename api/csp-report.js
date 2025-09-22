@@ -17,14 +17,27 @@ export default async function handler(req) {
       // Some browsers send application/csp-report with JSON structure already
     }
 
+    const now = new Date();
+    const dayKey = now.toISOString().slice(0, 10); // YYYY-MM-DD
     const entry = {
-      ts: new Date().toISOString(),
+      ts: now.toISOString(),
+      day: dayKey,
       ip: req.headers.get('x-forwarded-for') || 'unknown',
       ua: req.headers.get('user-agent') || '',
-      report: report || bodyText,
+      blockedURI: report?.['csp-report']?.['blocked-uri'] || report?.['blocked-uri'] || null,
+      violatedDirective:
+        report?.['csp-report']?.['violated-directive'] || report?.['violated-directive'] || null,
+      effectiveDirective:
+        report?.['csp-report']?.['effective-directive'] || report?.['effective-directive'] || null,
+      originalPolicy:
+        report?.['csp-report']?.['original-policy'] || report?.['original-policy'] || null,
+      disposition: report?.['csp-report']?.disposition || report?.disposition || null,
+      sourceFile: report?.['csp-report']?.['source-file'] || report?.['source-file'] || null,
+      lineNumber: report?.['csp-report']?.['line-number'] || report?.['line-number'] || null,
+      columnNumber: report?.['csp-report']?.['column-number'] || report?.['column-number'] || null,
+      raw: report || bodyText,
     };
 
-    // For now, just log. (Vercel will aggregate in function logs)
     console.log('[csp-report]', JSON.stringify(entry));
 
     return new Response(JSON.stringify({ received: true }), {
