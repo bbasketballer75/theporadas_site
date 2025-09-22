@@ -72,14 +72,23 @@ jobs:
           if [ "$map_count" = "0" ]; then echo "No .js.map files found in dist; aborting upload."; exit 1; fi
           echo "Creating Sentry release $GITHUB_SHA (org=$SENTRY_ORG project=$SENTRY_PROJECT)"
           npx @sentry/cli releases new "$GITHUB_SHA"
-          # Use assets prefix for clearer frame mapping
-          upload_output=$(npx @sentry/cli releases files "$GITHUB_SHA" upload-sourcemaps dist --rewrite --url-prefix "~/assets" 2>&1 || true)
+          # Attempt new sourcemaps command first; fallback to legacy upload-sourcemaps
+          set +e
+          upload_output=$(npx @sentry/cli sourcemaps upload --org "$SENTRY_ORG" --project "$SENTRY_PROJECT" --release "$GITHUB_SHA" --rewrite --url-prefix "~/assets" dist 2>&1)
+          sc_status=$?
+          if [ $sc_status -ne 0 ]; then
+            echo "New 'sourcemaps upload' command failed or not available; falling back to legacy 'releases files upload-sourcemaps'." >&2
+            upload_output=$(npx @sentry/cli releases files "$GITHUB_SHA" upload-sourcemaps dist --rewrite --url-prefix "~/assets" 2>&1 || true)
+          fi
+          set -e
           printf '%s\n' "$upload_output"
-          # Parse lines like '> Found 22 files' & '> Bundled 22 files' or '> Bundled 22 files for upload'
+          # Parse lines: '> Found N files', '> Bundled N files', optional '(N files)' pattern
           found_count=$(echo "$upload_output" | sed -n 's/^> Found \([0-9]\+\) files.*/\1/p' | head -1)
           bundled_count=$(echo "$upload_output" | sed -n 's/^> Bundled \([0-9]\+\) files.*/\1/p' | head -1)
           [ -z "$bundled_count" ] && bundled_count=$(echo "$upload_output" | sed -n 's/^> Bundled \([0-9]\+\) files for upload.*/\1/p' | head -1)
-          final_upload_count=${bundled_count:-${found_count:-0}}
+          alt_count=$(echo "$upload_output" | sed -n 's/.*(\([0-9]\+\) files).*/\1/p' | head -1)
+          final_upload_count=${bundled_count:-${found_count:-${alt_count:-0}}}
+          [ -z "$final_upload_count" ] && final_upload_count=0
           echo "Detected upload file count (pre or post-bundle): ${final_upload_count}" || true
           echo "SENTRY_UPLOAD_BUNDLED_COUNT=${final_upload_count}" >> "$GITHUB_ENV"
           npx @sentry/cli releases finalize "$GITHUB_SHA"
@@ -109,24 +118,32 @@ jobs:
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT || steps.derive-slugs.outputs.project }}
           GIT_SHA: ${{ github.sha }}
           SENTRY_UPLOAD_BUNDLED_COUNT: ${{ env.SENTRY_UPLOAD_BUNDLED_COUNT }}
+          # Allow manual override via workflow_dispatch inputs in future; default here.
+          SENTRY_VERIFY_ATTEMPTS: 12
+          SENTRY_VERIFY_INTERVAL_SEC: 5
         run: |
           set -euo pipefail
           : "${SENTRY_STRICT:=true}"
           : "${SENTRY_DEBUG:=false}"
           : "${SENTRY_FILE_FALLBACK:=true}"
           : "${SENTRY_UPLOAD_BUNDLED_COUNT:=0}"
+          : "${SENTRY_VERIFY_ATTEMPTS:=12}"
+          : "${SENTRY_VERIFY_INTERVAL_SEC:=5}"
           if [ -z "${SENTRY_AUTH_TOKEN}" ] || [ -z "${SENTRY_ORG}" ] || [ -z "${SENTRY_PROJECT}" ]; then
             echo "Missing auth or slugs; skipping verification"; exit 0; fi
+          # Sanitize numeric env values
+          echo "$SENTRY_VERIFY_ATTEMPTS" | grep -E '^[0-9]+$' >/dev/null 2>&1 || SENTRY_VERIFY_ATTEMPTS=12
+          echo "$SENTRY_VERIFY_INTERVAL_SEC" | grep -E '^[0-9]+$' >/dev/null 2>&1 || SENTRY_VERIFY_INTERVAL_SEC=5
           attempts=0
           release_json=""
           # Up to 60s (12 * 5s) for release visibility
-          while [ $attempts -lt 12 ]; do
+          while [ $attempts -lt "$SENTRY_VERIFY_ATTEMPTS" ]; do
             release_json=$(curl -sf -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
               https://sentry.io/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/${GIT_SHA}/ || true)
             if [ -n "$release_json" ]; then break; fi
             attempts=$((attempts+1))
-            echo "Release not visible yet (attempt $attempts); waiting..."
-            sleep 5
+            echo "Release not visible yet (attempt $attempts/$SENTRY_VERIFY_ATTEMPTS); waiting $SENTRY_VERIFY_INTERVAL_SEC s..."
+            sleep "$SENTRY_VERIFY_INTERVAL_SEC"
           done
           if [ -z "$release_json" ]; then
             echo "Release not found in Sentry after retries."; if [ "$SENTRY_STRICT" = "true" ]; then exit 1; else exit 0; fi
@@ -135,7 +152,7 @@ jobs:
           file_attempts=0
           files_json=""
           file_count=0
-          while [ $file_attempts -lt 12 ]; do
+          while [ $file_attempts -lt "$SENTRY_VERIFY_ATTEMPTS" ]; do
             files_json=$(curl -sf -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
               https://sentry.io/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/${GIT_SHA}/files/ || true)
             file_count=$(echo "$files_json" | jq 'length' 2>/dev/null || echo 0)
@@ -144,10 +161,13 @@ jobs:
               break
             fi
             file_attempts=$((file_attempts+1))
-            echo "REST returned 0 files (attempt $file_attempts); waiting for processing..."
-            sleep 5
+            echo "REST returned 0 files (attempt $file_attempts/$SENTRY_VERIFY_ATTEMPTS); waiting $SENTRY_VERIFY_INTERVAL_SEC s for processing..."
+            sleep "$SENTRY_VERIFY_INTERVAL_SEC"
           done
           echo "REST API reported file count: $file_count"
+          # Sanitize file_count numeric
+          file_count=$(echo "$file_count" | tr -cd '0-9')
+          [ -z "$file_count" ] && file_count=0
 
           cli_file_count=0
           if [ "$file_count" -eq 0 ] && [ "$SENTRY_FILE_FALLBACK" = "true" ]; then
@@ -166,6 +186,9 @@ jobs:
               echo "CLI plain fallback detected $cli_file_count map files"
             fi
           fi
+          # Sanitize cli_file_count
+          cli_file_count=$(echo "$cli_file_count" | tr -cd '0-9')
+          [ -z "$cli_file_count" ] && cli_file_count=0
 
           effective_count=$file_count
           if [ "$effective_count" -eq 0 ] && [ "$cli_file_count" -gt 0 ]; then
@@ -175,6 +198,11 @@ jobs:
           if [ "$effective_count" -eq 0 ] && [ "${SENTRY_UPLOAD_BUNDLED_COUNT}" -gt 0 ]; then
             echo "WARNING: REST & CLI returned 0 but upload step reported ${SENTRY_UPLOAD_BUNDLED_COUNT} bundled files. Trusting upload success (artifact bundle)."
             effective_count=${SENTRY_UPLOAD_BUNDLED_COUNT}
+          fi
+          if [ "$effective_count" -eq 0 ] && [ -d dist ]; then
+            dist_map_count=$(find dist -type f -name '*.js.map' | wc -l | tr -d ' ')
+            if [ "$dist_map_count" -gt 0 ]; then
+              echo "WARNING: Using local dist map count ($dist_map_count) as final fallback."; effective_count=$dist_map_count; fi
           fi
 
           if [ "$SENTRY_DEBUG" = "true" ]; then
@@ -198,11 +226,16 @@ jobs:
             echo "CLI file count: $cli_file_count";
             echo "Upload bundled count: ${SENTRY_UPLOAD_BUNDLED_COUNT}";
             echo "Effective count: $effective_count";
+            echo "Verify attempts: $SENTRY_VERIFY_ATTEMPTS";
+            echo "Verify interval (s): $SENTRY_VERIFY_INTERVAL_SEC";
             if [ "$file_count" -eq 0 ] && [ "$cli_file_count" -gt 0 ]; then
               echo "Note: REST returned 0; CLI fallback used (likely processing lag).";
             fi
             if [ "$file_count" -eq 0 ] && [ "$cli_file_count" -eq 0 ] && [ "${SENTRY_UPLOAD_BUNDLED_COUNT}" -gt 0 ]; then
               echo "Note: REST & CLI returned 0; trusted upload bundle count.";
+            fi
+            if [ "$file_count" -eq 0 ] && [ "$cli_file_count" -eq 0 ] && [ "${SENTRY_UPLOAD_BUNDLED_COUNT}" -eq 0 ]; then
+              echo "Note: All remote counts zero; local dist fallback may have been applied.";
             fi
             echo "Strict mode: $SENTRY_STRICT";
             echo "CLI fallback enabled: $SENTRY_FILE_FALLBACK";
