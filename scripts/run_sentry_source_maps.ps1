@@ -111,6 +111,7 @@ Write-Host 'Workflow dispatched. Locating latest run...' -ForegroundColor Cyan
 $localSha = (git rev-parse HEAD 2>$null)
 
 $run = $null
+Start-Sleep -Seconds 2 # brief delay to allow run registration
 for ($i = 1; $i -le $LocateAttempts; $i++) {
   $candidateList = gh run list --workflow $workflowFile --limit 5 --json databaseId, workflowName, displayTitle, status, conclusion, headSha, createdAt, url 2>$null | ConvertFrom-Json
   if (-not $candidateList) { $candidateList = gh run list --workflow $workflowName --limit 5 --json databaseId, workflowName, displayTitle, status, conclusion, headSha, createdAt, url 2>$null | ConvertFrom-Json }
@@ -134,17 +135,11 @@ for ($i = 1; $i -le $LocateAttempts; $i++) {
 }
 
 if (-not $run) {
-  Write-Warning 'Unable to positively identify a new workflow run; using most recent matching run as fallback.'
-  $fallback = gh run list --workflow $workflowFile --limit 1 --json databaseId, workflowName, displayTitle, status, conclusion, headSha, createdAt, url 2>$null | ConvertFrom-Json
-  if (-not $fallback) { $fallback = gh run list --workflow $workflowName --limit 1 --json databaseId, workflowName, displayTitle, status, conclusion, headSha, createdAt, url 2>$null | ConvertFrom-Json }
-  if (-not $fallback) {
-    Write-Error 'No workflow runs available to use as fallback.'
-    Write-Host 'Diagnosis steps:' -ForegroundColor Yellow
-    Write-Host '  gh workflow list' -ForegroundColor Yellow
-    Write-Host "  gh run list --limit 10 | Select-String sentry" -ForegroundColor Yellow
-    exit 1
-  }
-  $run = $fallback | Select-Object -First 1
+  Write-Error 'Unable to retrieve workflow run metadata after retries.'
+  Write-Host 'Diagnosis steps:' -ForegroundColor Yellow
+  Write-Host '  gh workflow list' -ForegroundColor Yellow
+  Write-Host "  gh run list --limit 10 | Select-String sentry" -ForegroundColor Yellow
+  exit 1
 }
 
 Write-Host "Run URL: $($run.htmlURL) (SHA: $($run.headSha))" -ForegroundColor Green
