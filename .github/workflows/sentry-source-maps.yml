@@ -90,7 +90,7 @@ jobs:
           set -euo pipefail
           if [ -z "${SENTRY_AUTH_TOKEN}" ] || [ -z "${SENTRY_ORG}" ] || [ -z "${SENTRY_PROJECT}" ]; then
             echo "Missing auth or slugs; skipping list."; exit 0; fi
-          echo "Listing files for release $GITHUB_SHA" 
+          echo "Listing files for release $GITHUB_SHA"
           npx @sentry/cli releases files "$GITHUB_SHA" list || echo "Listing failed (may be too early)."
       - name: Verify release in Sentry (strict mode)
         if: success()
@@ -118,11 +118,21 @@ jobs:
           if [ -z "$release_json" ]; then
             echo "Release not found in Sentry after retries."; if [ "$SENTRY_STRICT" = "true" ]; then exit 1; else exit 0; fi
           fi
-          # Fetch files list (pagination not expected for small builds)
-          files_json=$(curl -sf -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
-            https://sentry.io/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/${GIT_SHA}/files/ || true)
-          file_count=$(echo "$files_json" | jq 'length' 2>/dev/null || echo 0)
-          echo "Release found. Reported file count: $file_count"
+          # Poll for files list (processing latency)
+          file_attempts=0
+          files_json=""
+          while [ $file_attempts -lt 6 ]; do
+            files_json=$(curl -sf -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
+              https://sentry.io/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/${GIT_SHA}/files/ || true)
+            file_count=$(echo "$files_json" | jq 'length' 2>/dev/null || echo 0)
+            if [ "$file_count" -gt 0 ]; then
+              break
+            fi
+            file_attempts=$((file_attempts+1))
+            echo "No files yet (attempt $file_attempts); waiting for processing..."
+            sleep 5
+          done
+          echo "Release found. Reported file count after polling: $file_count"
           if [ "$SENTRY_DEBUG" = "true" ]; then
             echo '--- RELEASE JSON (truncated) ---'
             echo "$release_json" | jq '{version, dateCreated, dateReleased, files: (.files | length)}'
