@@ -49,8 +49,9 @@ export default defineConfig({
     minify: 'terser',
     // Set chunk size warnings
     chunkSizeWarningLimit: 1000,
-    // Enable source maps for production debugging
-    sourcemap: false,
+  // Enable source maps for production debugging & Sentry uploads
+  // Using true (not 'hidden') so verification can confirm presence locally; adjust to 'hidden' if desired later
+  sourcemap: true,
     // Optimize CSS
     cssCodeSplit: true,
     // Enable tree shaking
