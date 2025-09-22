@@ -1,0 +1,101 @@
+name: sentry-source-maps
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Derive Sentry slugs (if missing)
+        id: derive-slugs
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        run: |
+          set -euo pipefail
+          if [ -n "$SENTRY_ORG" ] && [ -n "$SENTRY_PROJECT" ]; then
+            echo "Using provided SENTRY_ORG/SENTRY_PROJECT secrets";
+            echo "org=$SENTRY_ORG" >> $GITHUB_OUTPUT
+            echo "project=$SENTRY_PROJECT" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          if [ -z "${SENTRY_DSN:-}" ]; then
+            echo "SENTRY_DSN not set; cannot derive"; exit 0; fi
+          if ! echo "$SENTRY_DSN" | grep -Eq 'https://[^@]+@o[0-9]+\.ingest\.[^/]+/[0-9]+'; then
+            echo "DSN pattern unexpected; skipping"; exit 0; fi
+          org_id=$(echo "$SENTRY_DSN" | grep -o 'o[0-9]*' | head -1 | sed 's/^o//')
+          project_id=$(echo "$SENTRY_DSN" | sed -E 's@.*/([0-9]+)$@\1@')
+          echo "Numeric org id: $org_id project id: $project_id"
+          if [ -z "${SENTRY_AUTH_TOKEN:-}" ]; then
+            echo "SENTRY_AUTH_TOKEN missing; cannot resolve slugs"; exit 0; fi
+          # Ensure jq present
+          if ! command -v jq >/dev/null 2>&1; then sudo apt-get update -y && sudo apt-get install -y jq; fi
+          orgs_json=$(curl -sf -H "Authorization: Bearer $SENTRY_AUTH_TOKEN" https://sentry.io/api/0/organizations/ || true)
+          [ -z "$orgs_json" ] && { echo "Failed org fetch"; exit 0; }
+          org_slug=$(echo "$orgs_json" | jq -r ".[] | select(.id==\"$org_id\") | .slug" | head -1)
+          [ -z "$org_slug" ] && { echo "Org id map failed"; exit 0; }
+          projects_json=$(curl -sf -H "Authorization: Bearer $SENTRY_AUTH_TOKEN" https://sentry.io/api/0/organizations/$org_slug/projects/ || true)
+          [ -z "$projects_json" ] && { echo "Failed project fetch"; exit 0; }
+          project_slug=$(echo "$projects_json" | jq -r ".[] | select(.id==\"$project_id\") | .slug" | head -1)
+          [ -z "$project_slug" ] && { echo "Project id map failed"; exit 0; }
+          echo "Resolved org slug: $org_slug project slug: $project_slug"
+          echo "org=$org_slug" >> $GITHUB_OUTPUT
+          echo "project=$project_slug" >> $GITHUB_OUTPUT
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Build (production)
+        run: npm run build
+        env:
+          VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+      - name: Upload source maps
+        if: success()
+        run: |
+          : "${SENTRY_ORG:=${DERIVED_ORG}}"
+          : "${SENTRY_PROJECT:=${DERIVED_PROJECT}}"
+          if [ -z "${SENTRY_AUTH_TOKEN}" ]; then echo "SENTRY_AUTH_TOKEN not set; skipping upload."; exit 0; fi
+          if [ -z "${SENTRY_ORG}" ] || [ -z "${SENTRY_PROJECT}" ]; then echo "Slugs unresolved; skipping."; exit 0; fi
+          echo "Creating Sentry release $GITHUB_SHA (org=$SENTRY_ORG project=$SENTRY_PROJECT)"
+          npx @sentry/cli releases new "$GITHUB_SHA"
+          npx @sentry/cli releases files "$GITHUB_SHA" upload-sourcemaps dist --rewrite --url-prefix "~/"
+          npx @sentry/cli releases finalize "$GITHUB_SHA"
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+          DERIVED_ORG: ${{ steps.derive-slugs.outputs.org }}
+          DERIVED_PROJECT: ${{ steps.derive-slugs.outputs.project }}
+      - name: Verify release in Sentry (strict mode)
+        if: success()
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG || steps.derive-slugs.outputs.org }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT || steps.derive-slugs.outputs.project }}
+          GIT_SHA: ${{ github.sha }}
+          SENTRY_STRICT: ${{ vars.SENTRY_STRICT || 'true' }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SENTRY_AUTH_TOKEN}" ] || [ -z "${SENTRY_ORG}" ] || [ -z "${SENTRY_PROJECT}" ]; then
+            echo "Missing auth or slugs; skipping verification"; exit 0; fi
+          release_json=$(curl -sf -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
+            https://sentry.io/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/${GIT_SHA}/ || true)
+          if [ -z "$release_json" ]; then
+            echo "Release not found in Sentry."; if [ "$SENTRY_STRICT" = "true" ]; then exit 1; else exit 0; fi
+          fi
+          file_count=$(echo "$release_json" | jq '.files | length' 2>/dev/null || echo 0)
+          echo "Release found. Source map file count: $file_count"
+          if [ "$file_count" -eq 0 ]; then
+            echo "No source maps attached."; if [ "$SENTRY_STRICT" = "true" ]; then exit 1; fi
+          fi
