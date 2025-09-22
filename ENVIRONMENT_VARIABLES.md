@@ -1005,3 +1005,88 @@ Configuration for GitHub App integration.
 - Database credentials should use managed identities when available
 - GitHub App configuration is only needed for local code scanning scripts
 - Placeholder variables are for future features and can be ignored currently
+
+### SQL Server Credential Guidance
+
+Prefer using the discrete variables (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`) or a consolidated `SQLSERVER_CONNECTION_STRING` referencing a least-privileged login (not `sa`). See `docs/internal/mssql-login-migration.md` for the procedure to create and migrate to an application-specific principal. Avoid shipping `sa` credentials in any environment variable or connection string. Rotate credentials regularly and restrict permissions to only required operations.
+
+### MSSQL_APP_USER
+
+**Purpose:** Canonical environment variable naming for the dedicated least-privileged SQL Server login the application uses post-migration.
+
+**Example:** `MSSQL_APP_USER=app_user`
+
+**Security Notes:** Must not be `sa`; ensure only necessary database roles are granted.
+
+**Setup Instructions:** Created via provisioning script `scripts/mssql_provision_app_user.ps1`.
+
+### MSSQL_APP_PASSWORD
+
+**Purpose:** Password for `MSSQL_APP_USER` (stored only in secret management, injected at runtime).
+
+**Example:** `MSSQL_APP_PASSWORD=Gen3r@tedLongRandom!`
+
+**Security Notes:** Never commit; rotate on schedule or incident; length >=16, high entropy.
+
+**Setup Instructions:** Provide secure value before starting app; if rotated, restart application components consuming it.
+
+### GitHub Secrets: SQL Server Monitoring & App Credentials
+
+The GitHub Actions workflow `.github/workflows/mssql-security.yml` can optionally use a
+non-`sa` monitoring login and an application login. After running
+`scripts/reset_mssql_and_provision_monitor.ps1` (or the individual provisioning scripts), set
+these repository secrets:
+
+Required (for monitor-based archival instead of `sa`):
+
+- `MSSQL_SERVER` – Host and port (e.g. `prod-sql.internal:1433` or `localhost,1433` for local)
+- `MSSQL_MONITOR_USER` – Monitoring login (VIEW SERVER STATE permission only)
+- `MSSQL_MONITOR_PASSWORD` – Password for the monitoring login
+
+Optional (application credentials for future jobs or deploy steps):
+
+- `MSSQL_APP_USER` / `DB_USER` – Choose one naming convention (workflows currently only use monitor vars)
+- `MSSQL_APP_PASSWORD` / `DB_PASSWORD`
+- `MSSQL_APP_DB` / `DB_NAME`
+
+Do NOT store `sa` credentials unless temporarily required; prefer the monitor login for telemetry
+and the app user for application connections.
+
+#### Setting Secrets via GitHub UI
+
+1. Navigate: Repository → Settings → Secrets and variables → Actions → New repository secret.
+2. Add each name/value pair above.
+3. Re-run `mssql-security` workflow to confirm monitor path is taken (log line: `Using monitor login`).
+
+#### Setting Secrets via GitHub CLI
+
+```powershell
+gh secret set MSSQL_SERVER --body "localhost,1433"
+gh secret set MSSQL_MONITOR_USER --body "monitor_login"
+gh secret set MSSQL_MONITOR_PASSWORD --body "<generated-monitor-password>"
+# Optional app credentials
+gh secret set MSSQL_APP_USER --body "app_user"
+gh secret set MSSQL_APP_PASSWORD --body "<generated-app-password>"
+gh secret set MSSQL_APP_DB --body "appdb"
+```
+
+#### Rotation Procedure
+
+1. Generate a new password (minimum 32 chars, high entropy) locally.
+2. Update login in SQL Server (example):
+
+```powershell
+pwsh scripts/invoke_sql.ps1 -Server localhost,1433 -User sa -Password (Read-Host -AsSecureString 'SA PW') -File scripts/rotate_monitor_login.sql
+```
+
+Or run an `ALTER LOGIN` in a secure session. 3. Update the corresponding GitHub secret(s) immediately. 4. Invalidate old password (done by ALTER LOGIN) and monitor workflow run for success. 5. Document rotation (timestamp + actor) if required internally.
+
+#### Validation
+
+After setting secrets, dispatch or wait for the scheduled workflow. In logs:
+
+- Presence of `Using monitor login` confirms secrets are loaded.
+- Absence of fallback lines referencing `sa` indicates correct least-privilege usage.
+- Archival step should produce an artifact without authentication errors.
+
+If secrets are missing, workflow will skip or fallback to `sa` (discouraged). Add missing secrets and re-run.

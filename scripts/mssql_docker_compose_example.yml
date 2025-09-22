@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: local-mssql
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD:?err}
+      # Optional: Limit external exposure; application should use app user, not sa.
+    ports:
+      - '1433:1433'
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'bash',
+          '-c',
+          "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $MSSQL_SA_PASSWORD -Q 'SELECT 1' || exit 1",
+        ]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 5s
+    volumes:
+      - mssql_data:/var/opt/mssql
+    restart: unless-stopped
+
+  app:
+    build: ..
+    depends_on:
+      - mssql
+    environment:
+      - DB_HOST=mssql
+      - DB_PORT=1433
+      - DB_NAME=${MSSQL_APP_DB:?err}
+      - DB_USER=${MSSQL_APP_USER:?err}
+      - DB_PASSWORD=${MSSQL_APP_PASSWORD:?err}
+    # networks: inherit default compose network
+
+volumes:
+  mssql_data:
+# Usage:
+#  1. export MSSQL_SA_PASSWORD (only for provisioning) with strong value.
+#  2. docker compose -f scripts/mssql_docker_compose_example.yml up -d mssql
+#  3. Run provisioning script to create app login.
+#  4. Set MSSQL_APP_USER / MSSQL_APP_PASSWORD env vars before starting 'app' service.

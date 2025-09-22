@@ -93,6 +93,12 @@ export function ImageUpload({
       <div style={{ marginBottom: '20px' }}>
         <label
           htmlFor="file-input"
+          style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}
+        >
+          Select an image file to upload:
+        </label>
+        <label
+          htmlFor="file-input"
           style={{
             display: 'inline-block',
             padding: '10px 20px',
@@ -111,6 +117,7 @@ export function ImageUpload({
           type="file"
           accept={acceptedTypes.join(',')}
           onChange={handleFileSelect}
+          aria-label="Image file input"
           style={{ display: 'none' }}
         />
         {selectedFile && (
@@ -140,6 +147,7 @@ export function ImageUpload({
         <button
           onClick={handleUpload}
           disabled={uploading}
+          aria-label={uploading ? 'Processing image' : 'Process image'}
           style={{
             backgroundColor: uploading ? '#ccc' : '#4ecdc4',
             color: 'white',
@@ -160,6 +168,7 @@ export function ImageUpload({
       {(selectedFile || processedUrl) && (
         <button
           onClick={resetUpload}
+          aria-label="Reset image upload"
           style={{
             backgroundColor: '#666',
             color: 'white',
@@ -209,6 +218,7 @@ export function ImageUpload({
           <div style={{ marginTop: '10px' }}>
             <button
               onClick={handleDownload}
+              aria-label="Download processed image"
               style={{
                 backgroundColor: '#28a745',
                 color: 'white',

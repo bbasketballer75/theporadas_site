@@ -2,6 +2,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { Suspense } from 'react';
 
 import { BackgroundAudio } from './components/BackgroundAudio';
+import {
+  CopilotAutoApprovalPanel,
+  CopilotModeSelector,
+  CopilotNotificationPanel,
+  CopilotToolPanel,
+} from './components/CopilotFeatures';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import './components/gallery.css';
 import { Head } from './components/Head';
@@ -16,6 +22,7 @@ import { getNonHeroSections } from './content/loader';
 import './designSystem.css';
 import { useHashNavigation } from './hooks/useHashNavigation';
 import { useRoutePerformance } from './hooks/usePerformanceMonitor';
+import { ModeManager } from './utils/modeManager';
 import { listVideos } from './video/registry';
 
 // Lazy load heavy components
@@ -139,6 +146,21 @@ function App() {
                 <LazyMap />
               </Suspense>
             </ErrorBoundary>
+          </div>
+        </section>
+        <section id="copilot-features" className="snap-section" aria-label="Copilot Features">
+          <div className="card stack">
+            <h2 id="copilot-features-heading">Copilot Features</h2>
+            <CopilotModeSelector modeManager={new ModeManager()} onModeChange={() => {}} />
+            <CopilotNotificationPanel notifications={[]} onDismiss={() => {}} onAction={() => {}} />
+            <CopilotToolPanel tools={[]} onToggleTool={() => {}} onExecuteTool={() => {}} />
+            <CopilotAutoApprovalPanel
+              rules={[]}
+              onToggleRule={() => {}}
+              onAddRule={() => {}}
+              onEditRule={() => {}}
+              onDeleteRule={() => {}}
+            />
           </div>
         </section>
         {sections.map((s) => {

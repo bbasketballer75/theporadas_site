@@ -995,202 +995,86 @@ Logs are prefixed with `[reset-link]` and clearly show which package manager pat
 
 ---
 
-## MCP Configuration Examples
+## MSSQL Local Reset, Monitoring & Credential Rotation
 
-GitHub hosted server:
+Hardened automation supports local SQL Server usage, monitoring, and secure credential rotation.
 
-```json
-{
-  "servers": { "github": { "type": "http", "url": "https://api.githubcopilot.com/mcp/" } }
-}
+### Key Scripts
+
+| Script                                          | Purpose                                                                          |
+| ----------------------------------------------- | -------------------------------------------------------------------------------- |
+| `scripts/reset_mssql_and_provision_monitor.ps1` | Destructive reset + monitor/app user provisioning with readiness & health logic. |
+| `scripts/run_reset_exec.ps1`                    | Quick reset (monitor only).                                                      |
+| `scripts/run_reset_with_app_user.ps1`           | Reset including app user/database (random password).                             |
+| `scripts/rotate_monitor_password.ps1`           | Rotate monitor login password (`-WhatIf`).                                       |
+| `scripts/password_utils.ps1`                    | Strong password generator (≥1 upper/lower/digit/symbol).                         |
+| `scripts/trigger_mssql_security_workflow.ps1`   | Dispatch security workflow.                                                      |
+| `scripts/enforce_no_sa_usage.ps1`               | CI enforcement blocking `sa` in code.                                            |
+| `scripts/archive_failed_logins.ps1`             | Nightly failed login archival using monitor login.                               |
+
+### Workflows
+
+| Workflow                  | File                                                  | Function                                |
+| ------------------------- | ----------------------------------------------------- | --------------------------------------- |
+| Security & Monitoring     | `.github/workflows/mssql-security.yml`                | Enforce no `sa`; archive failed logins. |
+| Monitor Password Rotation | `.github/workflows/mssql-rotate-monitor-password.yml` | Quarterly rotation + manual dispatch.   |
+
+### Secrets
+
+```bash
+MSSQL_SERVER=localhost,14333
+MSSQL_SA_PASSWORD=<strong dev sa password>
+MSSQL_MONITOR_USER=monitor_login
+MSSQL_MONITOR_PASSWORD=<from reset/rotation>
 ```
 
-Stripe (secure key prompt):
+Optional app user:
 
-```json
-{
-  "inputs": [
-    {
-      "id": "stripe_api_key",
-      "type": "promptString",
-      "description": "Stripe API Key",
-      "password": true
-    }
-  ],
-  "servers": {
-    "stripe": {
-      "type": "http",
-      "url": "https://api.stripe.com/mcp/",
-      "headers": { "Authorization": "Bearer ${input:stripe_api_key}" }
-    }
-  }
-}
+```bash
+DB_USER=app_user
+DB_PASSWORD=<random output>
+DB_NAME=appdb
 ```
 
----
-
-## Dockerized MCP Services
-
-The repository provides containerized Model Context Protocol (MCP) servers for
-local development and experimentation. All services are defined in
-`docker-compose.yml` and built from either `Dockerfile.mcp` (Node-only) or
-`Dockerfile.mcp-python` (adds Python runtime).
-
-### MCP Service Inventory
-
-| Service     | Container         | Script                        | Purpose                             | Key Env Vars                        |
-| ----------- | ----------------- | ----------------------------- | ----------------------------------- | ----------------------------------- |
-| Tavily API  | `mcp-tavily`      | `scripts/mcp_tavily.mjs`      | Web search                          | `TAVILY_API_KEY`                    |
-| Notion API  | `mcp-notion`      | `scripts/mcp_notion.mjs`      | Notion content access               | `NOTION_API_KEY`                    |
-| Mem0        | `mcp-mem0`        | `scripts/mcp_mem0.mjs`        | External memory API                 | `MEM0_API_KEY`                      |
-| SQL Server  | `mcp-sqlserver`   | `scripts/mcp_sqlserver.mjs`   | Query local MSSQL (`mssql` service) | `SQLSERVER_HOST/PORT/USER/PASSWORD` |
-| Filesystem  | `mcp-fs`          | `scripts/mcp_filesystem.mjs`  | Read/write sandboxed FS             | `MCP_FS_ROOT` (mapped volume)       |
-| Memory Bank | `mcp-memory-bank` | `scripts/mcp_memory_bank.mjs` | Simple file-backed memory           | `MCP_MEMORY_BANK_DIR`               |
-| KG Memory   | `mcp-kg`          | `scripts/mcp_kg_memory.mjs`   | In-memory knowledge graph           | `MCP_KG_MAX_TRIPLES`                |
-| Python Exec | `mcp-python`      | `scripts/mcp_python.mjs`      | Sandboxed short Python code runs    | `MCP_PY_TIMEOUT_MS`                 |
-| Supervisor  | `mcp-supervisor`  | `scripts/mcp_supervisor.mjs`  | Multi-server aggregator (subset)    | `SUPERVISED_SERVERS`                |
-
-### Basic Usage
-
-Build everything:
+### Resets
 
 ```powershell
-docker compose build
+pwsh scripts/run_reset_exec.ps1
+pwsh scripts/run_reset_with_app_user.ps1
 ```
 
-Start (detached):
+### Rotation
 
 ```powershell
-docker compose up -d
+pwsh scripts/rotate_monitor_password.ps1 -Server localhost,14333 -SaUser sa -SaPasswordPlain 'CurrentSAPassword' -MonitorLogin monitor_login
+pwsh scripts/rotate_monitor_password.ps1 -Server localhost,14333 -SaUser sa -SaPasswordPlain 'CurrentSAPassword' -MonitorLogin monitor_login -WhatIf
 ```
 
-Status & logs:
+Quarterly workflow output: update `MSSQL_MONITOR_PASSWORD` secret manually.
+
+### Readiness & Health Flow
+
+1. Recreate container.
+2. Wait readiness log.
+3. HEALTHCHECK wait or TCP probe.
+4. Retry `sa` connect (upgrade window).
+5. Provision / rotate logins & app user.
+6. Validate monitor login.
+
+### Security Notes
+
+- Passwords length ≥32 (default 40) with class diversity.
+- Plaintext `-SaPasswordPlain` limited to non-interactive automation.
+- Manual secret update ensures audit visibility.
+
+### Manual Workflow Dispatch
 
 ```powershell
-docker compose ps
-docker compose logs -f mcp_filesystem
+pwsh scripts/trigger_mssql_security_workflow.ps1 -RepoOwner <owner> -RepoName <repo> -Token $env:GITHUB_TOKEN
 ```
 
-Rebuild a single service after code changes:
+### Future Hardening
 
-```powershell
-docker compose build mcp_filesystem && docker compose up -d mcp_filesystem
-```
-
-### Healthchecks
-
-Local MCP services now use a slightly stronger liveness probe: script file
-exists AND PID 1 is the `node` process. For deeper readiness (e.g., initial
-warmup) you can later swap to a JSON-RPC ping wrapper.
-
-### Profiles
-
-Compose profile `mcp-local` gates purely local experimental MCP containers
-(`mcp_filesystem`, `mcp_memory_bank`, `mcp_kg_memory`, `mcp_python`). Start only
-core remote/API backed services:
-
-```powershell
-docker compose up -d mcp_tavily mcp_notion mcp_mem0 mcp_sqlserver
-```
-
-Start all MCP services including local experimental ones:
-
-```powershell
-docker compose --profile mcp-local up -d
-```
-
-### Configuration
-
-Place secrets in a `.env` file (not committed) or export inline:
-
-```env
-TAVILY_API_KEY=your-key
-NOTION_API_KEY=secret
-MEM0_API_KEY=secret
-```
-
-Optional tuning:
-
-```env
-MCP_KG_MAX_TRIPLES=10000
-MCP_PY_TIMEOUT_MS=5000
-```
-
-### Filesystem Sandbox
-
-`mcp_filesystem` mounts `./mcp_fs_sandbox` to `/data/fs` (`MCP_FS_ROOT`). Editing locally reflects instantly inside the container.
-
-### Supervisor Notes
-
-`mcp_supervisor` currently supervises: `tavily,notion,mem0,sqlserver`.
-Local-only experimental services (filesystem, memory bank, kg, python) run
-independently for isolation. Extend `SUPERVISED_SERVERS` if you prefer
-aggregation.
-
-### Troubleshooting
-
-- Restart loop: check `docker compose logs <service>`; ensure keep-alive code present (already included in images).
-- Auth errors: confirm environment variables loaded; re-run `docker compose up -d` after adding `.env`.
-- Code not updating: you likely forgot to rebuild (`docker compose build <service>`).
-
-### Future Enhancements (Optional)
-
-- Compose profiles for selective startup
-- Active healthchecks (JSON-RPC ping)
-- Persistent backing store for knowledge graph
-
----
-
-## Contributing
-
-1. Branch from `main`
-2. Keep PRs focused and small
-3. Ensure: lint (0 warnings) + tests + typecheck + coverage unchanged/non-regressive
-4. For Windows-specific fixes include rationale and cross-platform notes
-
-## Security & Dependency Automation
-
-Automated supply‑chain & code scanning layers:
-
-- Dependabot: Daily `npm` plus weekly `github-actions` updates (`.github/dependabot.yml`). Grouped minor/patch for npm, max 5 open PRs per ecosystem.
-- CodeQL: Static analysis of JS/TS on push/PR + weekly schedule (`codeql` workflow) with security & quality queries.
-- Weekly Audit: `weekly-audit` workflow runs `npm audit --json` and
-  `scripts/ci_audit_guard.mjs` to fail on new or escalated moderate+
-  production vulns compared to `security/audit-baseline.json`.
-- Audit Guard Script: Filters dev dependencies (unless `AUDIT_ALLOW_DEV=1`),
-  supports threshold override (`AUDIT_FAIL_LEVEL`). Exit code 1 blocks merge
-  when violations found.
-- Documentation: Accepted residual low tooling-only findings & rationale in `SECURITY_NOTES.md`.
-
-Operational guidance:
-
-- Prefer small, focused upgrade PRs (especially major) for clearer review & rollback.
-- If audit guard fails due to newly published advisory, update dependencies or
-  (temporarily) add advisory to baseline only with documented rationale in
-  `SECURITY_NOTES.md`.
-- Treat CodeQL alerts as required triage; open issue linking alert if fix not immediate.
-
-Reference: See `SECURITY_NOTES.md` for current posture, compensating controls, and triggers for expedited remediation.
-
----
-
-## License
-
-See `LICENSE` (Apache-2.0 for vendored Lighthouse; site code retains existing license choice).
-
-### Quality History Tracking
-
-Automated `quality-history` workflow appends summary JSON lines to `quality-history.jsonl` containing:
-
-- Commit (short), branch, timestamp
-- Coverage aggregates (lines/statements/functions/branches %) if coverage summary present
-- Lighthouse performance score (0–100) if a report JSON is found
-
-Scripts:
-
-- `scripts/append_quality_history.mjs` – extracts metrics from multiple candidate artifact paths
-- `scripts/analyze_quality_history.mjs` – generates human-readable delta summary (saved to `artifacts/quality-analysis-latest.txt`)
-
-Update candidate paths in `append_quality_history.mjs` if artifact locations change.
-
-<!-- env-dump-diagnostic-marker:1 -->
+- Managed secret store integration.
+- Certificate / AAD auth for monitor.
+- Optional automated secret update workflow (PAT gated).
