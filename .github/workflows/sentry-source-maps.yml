@@ -177,3 +177,15 @@ jobs:
           else
             echo "Verification succeeded with $effective_count source map file(s)."
           fi
+          {
+            echo "# Sentry Source Map Verification";
+            echo "Commit: $GIT_SHA";
+            echo "REST file count: $file_count";
+            echo "CLI file count: $cli_file_count";
+            echo "Effective count: $effective_count";
+            if [ "$file_count" -eq 0 ] && [ "$cli_file_count" -gt 0 ]; then
+              echo "Note: REST returned 0; CLI fallback used (likely processing lag).";
+            fi
+            echo "Strict mode: $SENTRY_STRICT";
+            echo "CLI fallback enabled: $SENTRY_FILE_FALLBACK";
+          } >> "$GITHUB_STEP_SUMMARY"
