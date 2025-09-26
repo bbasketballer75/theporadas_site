@@ -1,5 +1,4 @@
 Traceback (most recent call last):
-  File "C:\Users\Austin\Documents\theporadas_site\servers\src\time\src\mcp_server_time\server.py", line 7, in <module>
-    from tzlocal import get_localzone_name  # \u2190 returns "Europe/Paris", etc.
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ModuleNotFoundError: No module named 'tzlocal'
+  File "C:\Users\Austin\Documents\theporadas_site\servers\src\time\src\mcp_server_time\server.py", line 40, in <module>
+    from mcp.server import Server
+ModuleNotFoundError: No module named 'mcp'
