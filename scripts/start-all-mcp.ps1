@@ -291,20 +291,20 @@ foreach ($svc in $pythonMarkers.Keys) {
 
     while ((Get-Date) -lt $timeout -and -not $found) {
         foreach ($hf in $candidateHealthFiles) {
-            if (Test-Path $hf) { $found = $true; Write-Output "Found health file for $svc: $hf"; break }
+            if (Test-Path $hf) { $found = $true; Write-Output ("Found health file for {0}: {1}" -f $svc, $hf); break }
         }
         if ($found) { break }
 
         foreach ($ef in $candidateErrFiles) {
             if (Test-Path $ef) {
                 $content = Get-Content $ef -Raw -ErrorAction SilentlyContinue
-                if ($content -match [regex]::Escape($marker)) { $found = $true; Write-Output "Found stderr marker for $svc in $ef"; break }
+                if ($content -match [regex]::Escape($marker)) { $found = $true; Write-Output ("Found stderr marker for {0} in {1}" -f $svc, $ef); break }
             }
         }
         if ($found) { break }
         Start-Sleep -Milliseconds 300
     }
-    if (-not $found) { Write-Output "Did not find health/marker for $svc within timeout (checked: $($candidateHealthFiles -join ', ') )" }
+    if (-not $found) { Write-Output ("Did not find health/marker for {0} within timeout (checked: {1})" -f $svc, ($candidateHealthFiles -join ', ')) }
 }
 
 Write-Output "MCP Server verification results:"
