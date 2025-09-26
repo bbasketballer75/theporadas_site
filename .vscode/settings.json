@@ -1,124 +1,51 @@
 {
-  "github.copilotChat.model": "Grok Code Fast 1 (Preview)",
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true,
-  "github.copilot.enable": {
-    "*": true
-  },
-  "github.copilot.editor.enableAutoCompletions": true,
-  "python.terminal.useEnvFile": true,
-  "python.envFile": "${workspaceFolder}/.env",
-  "python.defaultInterpreterPath": "python",
-  "python.terminal.activateEnvironment": false,
-  "python.venvFolders": ["venv", ".venv"],
-  "python.venvPath": "",
-  "python.experiments.optInto": ["pythonTerminalEnvVarActivation"],
-  "python.workspaceSymbols.enabled": true,
-  "python.analysis.autoImportCompletions": false,
-  "python.analysis.exclude": [
-    "**/node_modules/**",
-    "**/dist/**",
-    "**/build/**",
-    "**/.git/**",
-    "**/coverage/**"
-  ],
-  // Exclude procedural markdown checklists (PR/issue templates, self review) from TODO scanners.
-  "todo-tree.filtering.excludeGlobs": [
-    "**/docs/self_review_checklist.md",
-    "**/.github/pull_request_template.md",
-    "**/.github/ISSUE_TEMPLATE/**",
-    "**/.github/project_instructions.md",
-    "**/CHANGELOG.md",
-    "**/coverage/**",
-    "**/CONTRIBUTING.md", // treat as process doc; actionable dev TODOs should live in code comments
-    "**/lighthouse/**", // vendored upstream; upstream TODOs tracked externally
-    "**/docs/accessibility_performance_plan.md", // plan tasks now tracked as GitHub issues #8-#15
-    "**/docs/gallery.md" // contains reusable unchecked template checklist (not actionable backlog)
-  ],
-  // Ensure VS Code sessions (especially extension host) see concrete Node paths (mitigates %NVM_HOME% unresolved placeholders)
-  "terminal.integrated.env.windows": {
-    "NVM_HOME": "${env:LOCALAPPDATA}\\nvm",
-    "NVM_SYMLINK": "${env:LOCALAPPDATA}\\nodejs",
-    "PATH": "${env:LOCALAPPDATA}\\nodejs;${env:APPDATA}\\npm;${env:PATH}"
-  },
-  // Hint vitest extension to use npx invocation (resolves when global node not auto-detected)
-  "vitest.commandLine": "npx vitest",
-  "vitest.workspaceConfigPath": "vitest.config.ts",
-  // Use Docker extension formatter for Dockerfiles; Prettier does not handle them.
-  "[dockerfile]": {
-    "editor.defaultFormatter": "ms-azuretools.vscode-containers"
-  },
-  "cSpell.words": ["Autobuild", "tavily", "TAVILY", "tvsearch"],
-  // Enhanced settings for better development experience
-  "files.eol": "\n",
-  "eslint.format.enable": true,
+  "git.autofetch": true,
   "git.confirmSync": false,
-  "github.copilot.inlineSuggest.enable": true,
-  "github.copilot.chat.codeSelection": "expanded",
-  "vitest.enable": true,
-  "vitest.showNodeProcessStack": true,
-  // PowerShell formatting for scripts
-  "[powershell]": {
-    "editor.defaultFormatter": "ms-vscode.powershell",
-    "editor.formatOnSave": true
-  },
-  // Ensure consistent formatting
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit",
-    "source.organizeImports": "explicit"
-  },
-  // Performance optimizations
-  "editor.largeFileOptimizations": true,
-  "files.watcherExclude": {
-    "**/.git/objects/**": true,
-    "**/.git/subtree-cache/**": true,
-    "**/node_modules/**": true,
-    "**/dist/**": true,
-    "**/build/**": true,
-    "**/coverage/**": true,
-    "**/.tmp/**": true
-  },
-  // Better search and file handling
-  "search.exclude": {
-    "**/node_modules": true,
-    "**/dist": true,
-    "**/build": true,
-    "**/.git": true,
-    "**/coverage": true,
-    "**/*.log": true,
-    "**/.tmp/**": true
-  },
-  // Enhanced TypeScript support
-  "typescript.preferences.includePackageJsonAutoImports": "auto",
-  "typescript.suggest.autoImports": true,
-  "typescript.updateImportsOnFileMove.enabled": "always",
-  // Additional productivity enhancements
-  "editor.suggest.showKeywords": false,
-  "editor.suggest.showSnippets": true,
-  "editor.quickSuggestions": {
-    "other": "on",
-    "comments": "off",
-    "strings": "on"
-  },
-  "editor.parameterHints.enabled": true,
-  "editor.semanticHighlighting.enabled": true,
-  "editor.hover.enabled": true,
-  "workbench.editor.enablePreview": false,
-  "workbench.editor.showTabs": "multiple",
-  "workbench.quickOpen.closeOnFocusLost": false,
+  "git.enableSmartCommit": true,
+  "git.allowForcePush": true,
+  "debug.inlineValues": "on",
+  "debug.openDebug": "neverOpen",
+  "problems.autoReveal": true,
+  "security.workspace.trust.untrustedFiles": "open",
+  "files.maxMemoryForLargeFilesMB": 4096,
+  "github.copilot.enable": { "enabled": true },
+  "github.copilot.suggestion.showOnDemand": true,
+  "breadcrumbs.enabled": true,
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "explorer.autoReveal": true,
+  "workbench.statusBar.visible": true,
   "python-envs.defaultEnvManager": "ms-python.python:system",
   "python-envs.pythonProjects": [],
-  // MCP (Model Context Protocol) server support
-  "chat.mcp.access": "all",
-  "chat.mcp.discovery.enabled": {
-    "claude-desktop": false,
-    "windsurf": false,
-    "cursor-global": false,
-    "cursor-workspace": true
+  "terminal.integrated.automationProfile.windows": {
+    "path": "PowerShell",
+    "args": []
   },
-  "chat.mcp.autostart": "newAndOutdated",
-  // Ensure all MCP tools are available in all chat modes
-  "chat.agent.maxTools": 128,
-  "github.copilot.chat.agent.enabled": true,
-  "github.copilot.chat.agent.mode": true
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "terminal.integrated.shellIntegration.enabled": true,
+  "files.autoSave": "onWindowChange",
+  "files.exclude": { "**/.git": false, "**/node_modules": false },
+  "search.useIgnoreFiles": false,
+  "extensions.autoUpdate": true,
+  "extensions.ignoreRecommendations": false,
+  "security.workspace.trust.enabled": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  },
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": true,
+  "editor.suggestSelection": "first",
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": true,
+    "strings": true
+  },
+  "task.allowAutomaticTasks": "on",
+  "task.autoDetect": "on",
+  "window.zoomLevel": 0,
+  "workbench.startupEditor": "none",
+  "workbench.editor.enablePreview": false,
+  "remote.WSL.fileWatcher.polling": true,
+  "remote.WSL.useShellEnvironment": true
 }
