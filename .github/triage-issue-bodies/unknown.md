@@ -7,3 +7,16 @@ Suggested action:
 
 Auto-generated file: .github/triage-issue-bodies/unknown.md
 
+## Remediation checklist & rotation evidence
+
+- [ ] Manually review the samples and context to determine if this is a false positive.
+- [ ] If sensitive, follow the rotate & revoke checklist below and document the response.
+
+Rotation evidence:
+
+- Rotated at (UTC):
+- Systems updated:
+- Notes / audit links:
+
+Rotation playbooks: security-scans/rotation-playbooks/general.md
+

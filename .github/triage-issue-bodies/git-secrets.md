@@ -9,3 +9,17 @@ Suggested action:
 
 Auto-generated file: .github/triage-issue-bodies/git-secrets.md
 
+## Remediation checklist & rotation evidence
+
+- [ ] Determine if the detection is an example/allowed entry in git-secrets or a real secret.
+- [ ] If allowed example: update git-secrets configuration to avoid noisy matches and document why this is safe.
+- [ ] If real exposure: remove the secret, rotate it, and update the allow/deny lists.
+
+Rotation evidence:
+
+- Rotated at (UTC):
+- Files or commits affected:
+- Steps taken to prevent recurrence:
+
+See rotation playbooks: security-scans/rotation-playbooks/general.md and security-scans/rotation-playbooks/github.md
+

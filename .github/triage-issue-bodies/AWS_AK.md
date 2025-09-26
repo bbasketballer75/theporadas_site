@@ -18,4 +18,21 @@
 
 Raw scans and full outputs are archived in the release: TBD_release_url
 
+## Remediation checklist & rotation evidence
+
+- [ ] Confirm whether this is a false positive (examples or test data).
+- [ ] If valid exposure: revoke and rotate the AWS credential immediately.
+- [ ] Replace the old key with a new key stored in a secure secrets manager (e.g., AWS Secrets Manager) and update all systems referencing it.
+- [ ] Update CI/CD and deployment environments to reference the new secret; avoid committing secrets to the repo.
+- [ ] Check access logs for suspicious activity and, if any, treat as a potential compromise.
+
+Please add rotation evidence below when you rotate the credential:
+
+- Rotated at (UTC):
+- New secret storage location:
+- Rollout verification (systems updated):
+- Notes / audit links:
+
+Reference rotation playbooks: security-scans/rotation-playbooks/aws.md
+
 
