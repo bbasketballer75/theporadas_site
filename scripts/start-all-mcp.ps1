@@ -244,70 +244,40 @@ $pythonMarkers = @{
     'git'   = 'MCP_GIT_SERVER_INITIALIZED'
 }
 
-# Build mapping from service short-name -> server.py path so we can find repo-specific logs
-$pyMap = @{}
-foreach ($py in $pyServers) {
-    if ($py -match 'mcp_server_(\w+)') {
-        $svcName = $Matches[1]
-        $pyMap[$svcName] = $py
-    }
-}
-
-# Helper: find repo root by walking up (similar to server.py behavior)
-function Find-RepoRoot {
-    param([string] $startPath)
-    $cur = (Get-Item $startPath).Directory
-    for ($i = 0; $i -lt 12; $i++) {
-        if (Test-Path (Join-Path $cur 'package.json') -or Test-Path (Join-Path $cur '.git')) { return $cur.FullName }
-        if ($null -eq $cur.Parent) { break }
-        $cur = $cur.Parent
-    }
-    return (Get-Item $startPath).Directory.FullName
-}
-
-# Check Python server initialization markers in stderr logs or repo-specific health files
+# Check Python server initialization markers in stderr logs (and nested servers/logs)
 foreach ($svc in $pythonMarkers.Keys) {
     $marker = $pythonMarkers[$svc]
     $found = $false
     $timeout = (Get-Date).AddSeconds(30)
-
-    # Prepare candidate paths: top-level logs and the server's repo-specific logs if available
-    $candidateHealthFiles = @()
-    $candidateErrFiles = @()
-    $topHealth = Join-Path $logsDir "$svc.ready"
-    $topErr = Join-Path $logsDir "$svc.err.log"
-    $candidateHealthFiles += $topHealth
-    $candidateErrFiles += $topErr
-
-    if ($pyMap.ContainsKey($svc)) {
-        $serverPy = $pyMap[$svc]
-        try {
-            $svcRepoRoot = Find-RepoRoot -startPath $serverPy
-            $svcLogsDir = Join-Path $svcRepoRoot 'logs'
-            $svcHealth = Join-Path $svcLogsDir "$svc.ready"
-            $svcErr = Join-Path $svcLogsDir "$svc.err.log"
-            $candidateHealthFiles += $svcHealth
-            $candidateErrFiles += $svcErr
-        }
-        catch { }
-    }
-
+    # Candidate health-file locations: top-level logs and nested servers/logs
+    $candidateHealthFiles = @(
+        Join-Path $logsDir "$svc.ready",
+        Join-Path $repoRoot 'servers\logs' "$svc.ready"
+    )
     while ((Get-Date) -lt $timeout -and -not $found) {
-        foreach ($hf in $candidateHealthFiles) {
-            if (Test-Path $hf) { $found = $true; Write-Output ("Found health file for {0}: {1}" -f $svc, $hf); break }
-        }
-        if ($found) { break }
-
-        foreach ($ef in $candidateErrFiles) {
-            if (Test-Path $ef) {
-                $content = Get-Content $ef -Raw -ErrorAction SilentlyContinue
-                if ($content -match [regex]::Escape($marker)) { $found = $true; Write-Output ("Found stderr marker for {0} in {1}" -f $svc, $ef); break }
+        foreach ($candidate in $candidateHealthFiles) {
+            if (Test-Path $candidate) {
+                $found = $true
+                Write-Output ("Found health file for {0}: {1}" -f $svc, $candidate)
+                break
             }
         }
         if ($found) { break }
-        Start-Sleep -Milliseconds 300
+
+        # fallback: scan stderr in both top-level logs and nested servers/logs
+        $errFiles = @(
+            Join-Path $logsDir "$svc.err.log",
+            Join-Path $repoRoot 'servers\logs' "$svc.err.log"
+        )
+        foreach ($errFile in $errFiles) {
+            if (Test-Path $errFile) {
+                $content = Get-Content $errFile -Raw -ErrorAction SilentlyContinue
+                if ($content -match [regex]::Escape($marker)) { $found = $true; Write-Output ("Found stderr marker for {0} in {1}" -f $svc, $errFile); break }
+            }
+        }
+        if (-not $found) { Start-Sleep -Milliseconds 300 }
     }
-    if (-not $found) { Write-Output ("Did not find health/marker for {0} within timeout (checked: {1})" -f $svc, ($candidateHealthFiles -join ', ')) }
+    if (-not $found) { Write-Output ("Did not find health/marker for {0} within timeout" -f $svc) }
 }
 
 Write-Output "MCP Server verification results:"
