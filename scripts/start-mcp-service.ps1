@@ -124,29 +124,38 @@ switch ($lower) {
         }
     }
     'git' {
+        $venvPy = Join-Path $repoRoot '.venv\Scripts\python.exe'
         $py = Join-Path $repoRoot 'servers/src/git/src/mcp_server_git/server.py'
+        if (Test-Path $venvPy) { $pythonExec = $venvPy } else { $pythonExec = 'python' }
         if (Test-Path $py) {
             $pyLog = Join-Path $logsDir ((Split-Path $py -Leaf) + '.log')
             $pyErr = Join-Path $logsDir ((Split-Path $py -Leaf) + '.err.log')
-            $proc = Start-Process python -ArgumentList @($py) -RedirectStandardOutput $pyLog -RedirectStandardError $pyErr -PassThru
+            $proc = Start-Process $pythonExec -ArgumentList @($py) -RedirectStandardOutput $pyLog -RedirectStandardError $pyErr -PassThru
             $procId = $proc.Id
         }
     }
     'fetch' {
-        $py = Join-Path $repoRoot 'servers/src/fetch/src/mcp_server_fetch/server.py'
-        if (Test-Path $py) {
-            $pyLog = Join-Path $logsDir ((Split-Path $py -Leaf) + '.log')
-            $pyErr = Join-Path $logsDir ((Split-Path $py -Leaf) + '.err.log')
-            $proc = Start-Process python -ArgumentList @($py) -RedirectStandardOutput $pyLog -RedirectStandardError $pyErr -PassThru
+        $venvPy = Join-Path $repoRoot '.venv\Scripts\python.exe'
+        $timePackageDir = Join-Path $repoRoot 'servers/src/fetch'
+        if (Test-Path $venvPy) { $pythonExec = $venvPy } else { $pythonExec = 'python' }
+        $pyLog = Join-Path $logsDir 'fetch.log'
+        $pyErr = Join-Path $logsDir 'fetch.err.log'
+        if (Test-Path $timePackageDir) {
+            $args = @('-m', 'mcp_server_fetch')
+            $proc = Start-Process $pythonExec -ArgumentList $args -RedirectStandardOutput $pyLog -RedirectStandardError $pyErr -WorkingDirectory $timePackageDir -PassThru
             $procId = $proc.Id
         }
     }
     'time' {
-        $py = Join-Path $repoRoot 'servers/src/time/src/mcp_server_time/server.py'
-        if (Test-Path $py) {
-            $pyLog = Join-Path $logsDir ((Split-Path $py -Leaf) + '.log')
-            $pyErr = Join-Path $logsDir ((Split-Path $py -Leaf) + '.err.log')
-            $proc = Start-Process python -ArgumentList @($py) -RedirectStandardOutput $pyLog -RedirectStandardError $pyErr -PassThru
+        # Prefer venv python if present and run the package as a module so local package imports work
+        $venvPy = Join-Path $repoRoot '.venv\Scripts\python.exe'
+        $timePackageDir = Join-Path $repoRoot 'servers/src/time'
+        if (Test-Path $venvPy) { $pythonExec = $venvPy } else { $pythonExec = 'python' }
+        $pyLog = Join-Path $logsDir 'time.log'
+        $pyErr = Join-Path $logsDir 'time.err.log'
+        if (Test-Path $timePackageDir) {
+            $args = @('-m', 'mcp_server_time')
+            $proc = Start-Process $pythonExec -ArgumentList $args -RedirectStandardOutput $pyLog -RedirectStandardError $pyErr -WorkingDirectory $timePackageDir -PassThru
             $procId = $proc.Id
         }
     }
@@ -157,16 +166,21 @@ switch ($lower) {
 }
 
 if ($procId) {
-    # update pids.json
+    # update pids.json robustly
     $pidsPath = Join-Path $logsDir 'pids.json'
-    $map = @{
-        if (Test-Path $pidsPath) { $map = Get-Content $pidsPath | ConvertFrom-Json }
-        $map[$Service] = $procId
-        $map | ConvertTo-Json -Depth 3 | Set-Content -Path $pidsPath -Encoding UTF8
-        Write-Output "Started service $Service with PID $procId (logs: see $logsDir)"
-        exit 0
+    $map = @{}
+    if (Test-Path $pidsPath) {
+        $existing = Get-Content $pidsPath -Raw | ConvertFrom-Json -ErrorAction SilentlyContinue
+        if ($existing) {
+            foreach ($prop in $existing.PSObject.Properties) { $map[$prop.Name] = $prop.Value }
+        }
     }
-    else {
-        Write-Error "Failed to start $Service"
-        exit 1
-    }
+    $map[$Service] = $procId
+    $map | ConvertTo-Json -Depth 3 | Set-Content -Path $pidsPath -Encoding UTF8
+    Write-Output "Started service $Service with PID $procId (logs: see $logsDir)"
+    exit 0
+}
+else {
+    Write-Error "Failed to start $Service"
+    exit 1
+}
