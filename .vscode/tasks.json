@@ -2,128 +2,156 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Setup: Check tools",
-      "type": "process",
-      "command": "pwsh",
+      "label": "Start MCP Filesystem Server",
+      "type": "shell",
+      "command": "npx",
       "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}/scripts/setup.ps1"
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:/Users/Austin/Documents/theporadas_site"
       ],
+      "isBackground": true,
       "problemMatcher": []
     },
     {
-      "label": "Setup: Install (Admin)",
-      "type": "process",
-      "command": "pwsh",
+      "label": "Start MCP Git Server",
+      "type": "shell",
+      "command": "node",
       "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}/scripts/setup_admin.ps1"
+        "C:/Users/Austin/Documents/GitHub/servers/src/git/dist/index.js"
       ],
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Start MCP Memory Server",
+      "type": "shell",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Start MCP Brave Search Server",
+      "type": "shell",
+      "command": "pwsh",
+      "args": ["-File", "start-brave-search.ps1"],
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Start MCP Puppeteer Server",
+      "type": "shell",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Start MCP Sequential Thinking Server",
+      "type": "shell",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Start MCP Postgres Server",
+      "type": "shell",
+      "command": "pwsh -c \"npx -y @modelcontextprotocol/server-postgres $(Get-Content 'C:/Users/Austin/Documents/theporadas_site/.env' | Select-String '^PG_URL=' | ForEach-Object { $_.ToString().Split('=')[1].Trim() })\"",
+      "args": [],
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Start MCP Playwright Server",
+      "type": "shell",
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"],
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Start All MCP Servers",
+      "dependsOn": [
+        "Start MCP Filesystem Server",
+        "Start MCP Git Server",
+        "Start MCP Memory Server",
+        "Start MCP Brave Search Server",
+        "Start MCP Puppeteer Server",
+        "Start MCP Sequential Thinking Server",
+        "Start MCP Postgres Server",
+        "Start MCP Playwright Server"
+      ],
+      "dependsOrder": "parallel",
       "group": {
         "kind": "build",
         "isDefault": true
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated"
-      },
-      "problemMatcher": []
+      }
     },
     {
-      "label": "Setup: Install missing tools (Non-Admin)",
-      "type": "process",
-      "command": "pwsh",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}/scripts/setup.ps1",
-        "-Install",
-        "-WithGit",
-        "-WithGcloud",
-        "-WithNode",
-        "-WithPython",
-        "-WithPnpm",
-        "-WithUv"
-      ],
-      "problemMatcher": []
-    },
-    {
-      "label": "Setup: Refresh Node PATH (session)",
-      "type": "process",
-      "command": "pwsh",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}/scripts/refresh_node_path.ps1"
-      ],
-      "problemMatcher": []
-    },
-    {
-      "label": "Firebase: Login",
-      "type": "process",
-      "command": "pwsh",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}/scripts/firebase_login.ps1",
-        "-Reauth"
-      ],
-      "problemMatcher": []
-    },
-    {
-      "label": "MCP: Start Supervisor (Background)",
-      "type": "process",
-      "command": "node",
-      "args": ["${workspaceFolder}/scripts/mcp_supervisor.mjs"],
-      "isBackground": true,
-      "presentation": {
-        "echo": false,
-        "reveal": "never",
-        "focus": false,
-        "panel": "dedicated"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "MCP: Start Supervisor (Manual)",
-      "type": "process",
-      "command": "node",
-      "args": ["${workspaceFolder}/scripts/mcp_supervisor.mjs"],
-      "isBackground": true,
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "dedicated"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Automate MCP server dependencies (Node, npm, Docker, Python, uvx)",
+      "label": "Start All MCP Servers (script)",
       "type": "shell",
-      "command": "pwsh",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-Command",
-        "$ErrorActionPreference = 'Stop'; if (-not (Get-Command node -ErrorAction SilentlyContinue)) { Write-Host 'Installing Node.js...'; Invoke-WebRequest -Uri 'https://nodejs.org/dist/v20.11.1/node-v20.11.1-x64.msi' -OutFile 'nodejs.msi'; Start-Process 'msiexec.exe' -ArgumentList '/i nodejs.msi /quiet' -Wait; Remove-Item 'nodejs.msi'; }; if (-not (Get-Command npm -ErrorAction SilentlyContinue)) { Write-Host 'npm should be installed with Node.js.' }; if (-not (Get-Command docker -ErrorAction SilentlyContinue)) { Write-Host 'Please install Docker Desktop from https://www.docker.com/products/docker-desktop and start it.' }; if (-not (Get-Command python -ErrorAction SilentlyContinue)) { Write-Host 'Installing Python...'; Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.12.2/python-3.12.2-amd64.exe' -OutFile 'python-installer.exe'; Start-Process 'python-installer.exe' -ArgumentList '/quiet InstallAllUsers=1 PrependPath=1' -Wait; Remove-Item 'python-installer.exe'; }; npm install -g uvx; npm install @upstash/context7-mcp @modelcontextprotocol/server-sequential-thinking @modelcontextprotocol/server-memory @modelcontextprotocol/server-brave-search @modelcontextprotocol/server-puppeteer @notionhq/notion-mcp-server tavily-mcp@0.2.3 mcp-sqlite"
-      ],
-      "isBackground": false,
-      "problemMatcher": ["$tsc"],
-      "group": "build"
+      "command": "npm",
+      "args": ["run", "start:mcp"],
+      "isBackground": true,
+      "presentation": {
+        "panel": "shared",
+        "reveal": "always",
+        "echo": true,
+        "focus": false,
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Terminate MCP Servers (PID)",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "stop:mcp"],
+      "presentation": {
+        "panel": "shared",
+        "reveal": "always",
+        "echo": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Terminate MCP Servers (kill ports)",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "stop:mcp:kill-ports"],
+      "presentation": {
+        "panel": "shared",
+        "reveal": "always",
+        "echo": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Monitor MCP Servers (once)",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "monitor:mcp"],
+      "presentation": { "panel": "shared", "reveal": "always", "echo": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Monitor MCP Servers (watch)",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "monitor:mcp:watch"],
+      "presentation": { "panel": "shared", "reveal": "always", "echo": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Start single MCP service",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "start:mcp:service", "--"],
+      "presentation": { "panel": "shared", "reveal": "always", "echo": true },
+      "problemMatcher": []
     }
   ]
 }

@@ -1,6 +1,0 @@
-#!/usr/bin/env sh
-# Husky pre-push hook
-# Previous version attempted to invoke a nested 'git push' causing recursive
-# executions and failures. This hook is intentionally a no-op placeholder.
-# Add lightweight validations here (lint, tests) if desired, but avoid any push.
-exit 0
