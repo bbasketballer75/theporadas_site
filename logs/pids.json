@@ -1,7 +1,10 @@
 ﻿{
-    "filesystem":  8828,
-    "memory":  11996,
     "everything-streamable":  16760,
+    "time":  2696,
+    "filesystem":  8828,
+    "fetch":  21176,
     "everything-sse":  8428,
-    "sequentialthinking":  21336
+    "sequentialthinking":  21336,
+    "memory":  11996,
+    "git":  12916
 }
