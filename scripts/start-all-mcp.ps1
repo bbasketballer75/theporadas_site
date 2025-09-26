@@ -177,10 +177,14 @@ $pyServers = @(
 )
 foreach ($py in $pyServers) {
     if (Test-Path $py) {
-        Write-Output "Starting Python server $py..."
-        $pyLog = Join-Path $logsDir ((Split-Path $py -Leaf) + '.log')
-        $pyErr = Join-Path $logsDir ((Split-Path $py -Leaf) + '.err.log')
-        Start-Process python -ArgumentList @($py) -RedirectStandardOutput $pyLog -RedirectStandardError $pyErr -PassThru
+        # Derive short service name from the path (e.g. mcp_server_time -> time)
+        if ($py -match 'mcp_server_(\w+)') { $svcShort = $Matches[1] } else { $svcShort = (Split-Path $py -Leaf) }
+        Write-Output ("Starting Python server {0} (helper) for script {1}..." -f $svcShort, $py)
+        $helper = Join-Path $scriptDir 'start-mcp-service.ps1'
+        # Start the helper which will start the service and write diagnostics/pids
+        $procArgs = @('-ExecutionPolicy', 'Bypass', '-File', $helper, '-Service', $svcShort)
+        $p = Start-Process -FilePath 'powershell' -ArgumentList $procArgs -NoNewWindow -PassThru
+        # Give helper a short moment to start the service and write pids.json
         Start-Sleep -Milliseconds 200
     }
     else {
@@ -256,7 +260,7 @@ function Find-RepoRoot {
     $cur = (Get-Item $startPath).Directory
     for ($i = 0; $i -lt 12; $i++) {
         if (Test-Path (Join-Path $cur 'package.json') -or Test-Path (Join-Path $cur '.git')) { return $cur.FullName }
-        if ($cur.Parent -eq $null) { break }
+        if ($null -eq $cur.Parent) { break }
         $cur = $cur.Parent
     }
     return (Get-Item $startPath).Directory.FullName
