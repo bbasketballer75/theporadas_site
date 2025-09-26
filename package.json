@@ -15,6 +15,7 @@
     "stop:mcp:force": "powershell -ExecutionPolicy Bypass -File ./scripts/stop-mcp.ps1 -Force",
     "stop:mcp:kill-ports": "npx kill-port 3001 3002 || true",
     "monitor:mcp": "powershell -ExecutionPolicy Bypass -File ./scripts/monitor-mcp.ps1",
+    "show:mcp:progress": "powershell -ExecutionPolicy Bypass -File ./scripts/show-mcp-progress.ps1",
     "monitor:mcp:watch": "powershell -ExecutionPolicy Bypass -File ./scripts/monitor-mcp.ps1 -Watch",
     "publish-all": "npm publish --workspaces --access public",
     "link-all": "npm link --workspaces"
@@ -32,6 +33,7 @@
     "@types/jest": "^30.0.0",
     "@types/minimatch": "^5.1.2",
     "@types/node": "^24.5.2",
-    "kill-port": "^2.0.1"
+    "kill-port": "^2.0.1",
+    "shx": "^0.4.0"
   }
 }
