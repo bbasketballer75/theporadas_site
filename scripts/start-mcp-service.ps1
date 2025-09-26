@@ -262,6 +262,34 @@ switch ($lower) {
             }
         }
     }
+    'postgres' {
+        # Start Postgres MCP server by reading PG_URL from environment or .env
+        $logFile = Join-Path $logsDir 'postgres.log'
+        $errFile = Join-Path $logsDir 'postgres.err.log'
+
+        # Look for PG_URL in the current environment first
+        $pgUrl = $null
+        if ($env:PG_URL) { $pgUrl = $env:PG_URL }
+
+        # If not set, attempt to read from repository .env file (already auto-copied from .env.example above if missing)
+        if (-not $pgUrl -and (Test-Path $envPath)) {
+            try {
+                $envContent = Get-Content $envPath -Raw -ErrorAction SilentlyContinue
+                if ($envContent -match '^PG_URL\s*=\s*(.+)$') { $pgUrl = $Matches[1].Trim() }
+                elseif ($envContent -match '^PGURL\s*=\s*(.+)$') { $pgUrl = $Matches[1].Trim() }
+            } catch {
+                # ignore parse failures
+            }
+        }
+
+        if (-not $pgUrl) {
+            Write-Error "Postgres server requires a database URL. Provide it via environment variable PG_URL, a .env file entry 'PG_URL=postgresql://...', or pass it as the first CLI argument to the npx command. Example: npx -y @modelcontextprotocol/server-postgres postgresql://postgres:password@localhost:5432/mydb"
+            exit 1
+        }
+
+        # Start the published package, passing the DB URL as the required argument
+        $procId = Start-NpxProcess @('@modelcontextprotocol/server-postgres@latest', $pgUrl) $logFile $errFile
+    }
     default {
         Write-Error "Unknown service name: $Service"
         exit 2
