@@ -1,0 +1,8 @@
+# Replace GitHub PATs
+regex:github_pat_[A-Za-z0-9_\-]+==>REDACTED_GITHUB_PAT
+# Replace explicit named env entries
+regex:GITHUB_PERSONAL_ACCESS_TOKEN=[^\r\n]+==>GITHUB_PERSONAL_ACCESS_TOKEN=REDACTED
+regex:NOTION_TOKEN=[^\r\n]+==>NOTION_TOKEN=REDACTED
+regex:CANVA_MCP_ACCESS_TOKEN=[^\r\n]+==>CANVA_MCP_ACCESS_TOKEN=REDACTED
+# Also redact raw PAT-like tokens
+regex:\bghp_[A-Za-z0-9_\-]+\b==>REDACTED_GITHUB_PAT
