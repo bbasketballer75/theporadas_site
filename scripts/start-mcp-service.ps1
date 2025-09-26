@@ -64,6 +64,36 @@ function Find-RepoRoot {
     return (Get-Item $startPath).Directory.FullName
 }
 
+# Ensure a .env exists for local dev to prevent services from failing fast
+$envPath = Join-Path $repoRoot '.env'
+$envExamplePath = Join-Path $repoRoot '.env.example'
+if (-not (Test-Path $envPath) -and (Test-Path $envExamplePath)) {
+    Write-Output "No .env found; copying .env.example -> .env as a placeholder (please update with real secrets)"
+    Copy-Item -Path $envExamplePath -Destination $envPath -Force
+}
+
+function Decode-FileUri {
+    param([string] $uri)
+    if (-not $uri) { return $uri }
+    # If this looks like a file URI, try to convert to local path
+    if ($uri -match '^file:') {
+        try {
+            $u = [System.Uri] $uri
+            return $u.LocalPath
+        }
+        catch {
+            # fallback: unescape percent-encoding and strip any leading slashes
+            $decoded = [System.Uri]::UnescapeDataString($uri -replace '^file:\/\/', '')
+            return $decoded
+        }
+    }
+    # If string contains percent-encoded sequences, unescape them
+    if ($uri -match '%[0-9A-Fa-f]{2}') {
+        try { return [System.Uri]::UnescapeDataString($uri) } catch { return $uri }
+    }
+    return $uri
+}
+
 # Map service names to start logic
 $lower = $Service.ToLower()
 $procId = $null
@@ -105,7 +135,9 @@ switch ($lower) {
             }
         }
         if (-not $procId) {
-            $procId = Start-NpxProcess @('@modelcontextprotocol/server-filesystem@latest', $repoRoot) $logFile $errFile
+            # Decode repo root in case it was provided as a file:// URI or percent-encoded
+            $decodedRepoRoot = Decode-FileUri $repoRoot
+            $procId = Start-NpxProcess @('@modelcontextprotocol/server-filesystem@latest', $decodedRepoRoot) $logFile $errFile
         }
     }
     'memory' {
