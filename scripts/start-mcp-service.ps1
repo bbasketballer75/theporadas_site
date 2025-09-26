@@ -12,6 +12,8 @@ Set-Location $repoRoot
 
 $logsDir = Join-Path $repoRoot 'logs'
 if (-Not (Test-Path $logsDir)) { New-Item -ItemType Directory -Path $logsDir | Out-Null }
+# Write a starter trace so we can confirm this helper runs
+try { $starterLog = Join-Path $logsDir 'service-starter.log'; New-Item -Path $starterLog -ItemType File -Force | Out-Null; ("[{0}] start-mcp-service invoked for service: {1} (PID {2})" -f (Get-Date), $Service, $PID) | Out-File -FilePath $starterLog -Encoding utf8 -Append } catch {}
 
 function Start-NpxProcess {
     param(
@@ -175,10 +177,10 @@ switch ($lower) {
         $pyLog = Join-Path $logsDir 'fetch.log'
         $pyErr = Join-Path $logsDir 'fetch.err.log'
         if (Test-Path $timePackageDir) {
-            $args = @('-m', 'mcp_server_fetch')
+            $pyArgs = @('-m', 'mcp_server_fetch')
             "Starting fetch server with python: $pythonExec; module: mcp_server_fetch; cwd: $timePackageDir" | Out-File -FilePath (Join-Path $logsDir 'fetch.debug.log') -Encoding utf8 -Append
             try { New-Item -Path (Join-Path $logsDir 'fetch.debug.log') -ItemType File -Force | Out-Null } catch {}
-            $proc = Start-Process $pythonExec -ArgumentList $args -RedirectStandardOutput $pyLog -RedirectStandardError $pyErr -WorkingDirectory $timePackageDir -PassThru
+            $proc = Start-Process $pythonExec -ArgumentList $pyArgs -RedirectStandardOutput $pyLog -RedirectStandardError $pyErr -WorkingDirectory $timePackageDir -PassThru
             $procId = $proc.Id
 
             # diagnostic health wait similar to git
@@ -205,10 +207,10 @@ switch ($lower) {
         $pyLog = Join-Path $logsDir 'time.log'
         $pyErr = Join-Path $logsDir 'time.err.log'
         if (Test-Path $timePackageDir) {
-            $args = @('-m', 'mcp_server_time')
+            $pyArgs = @('-m', 'mcp_server_time')
             "Starting time server with python: $pythonExec; module: mcp_server_time; cwd: $timePackageDir" | Out-File -FilePath (Join-Path $logsDir 'time.debug.log') -Encoding utf8 -Append
             try { New-Item -Path (Join-Path $logsDir 'time.debug.log') -ItemType File -Force | Out-Null } catch {}
-            $proc = Start-Process $pythonExec -ArgumentList $args -RedirectStandardOutput $pyLog -RedirectStandardError $pyErr -WorkingDirectory $timePackageDir -PassThru
+            $proc = Start-Process $pythonExec -ArgumentList $pyArgs -RedirectStandardOutput $pyLog -RedirectStandardError $pyErr -WorkingDirectory $timePackageDir -PassThru
             $procId = $proc.Id
 
             # diagnostic health wait similar to others
