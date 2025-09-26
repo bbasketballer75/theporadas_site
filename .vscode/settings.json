@@ -47,5 +47,6 @@
   "workbench.startupEditor": "none",
   "workbench.editor.enablePreview": false,
   "remote.WSL.fileWatcher.polling": true,
-  "remote.WSL.useShellEnvironment": true
+  "remote.WSL.useShellEnvironment": true,
+  "python.terminal.useEnvFile": true
 }

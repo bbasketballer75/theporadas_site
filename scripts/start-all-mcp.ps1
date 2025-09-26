@@ -234,6 +234,29 @@ else {
     $verify += @{ port = 3002; status = $status }
 }
 
+# existing verification map probably scans logs for LISTENING - add python server markers mapping
+$pythonMarkers = @{
+    'time'  = 'MCP_TIME_SERVER_INITIALIZED'
+    'fetch' = 'MCP_FETCH_SERVER_INITIALIZED'
+    'git'   = 'MCP_GIT_SERVER_INITIALIZED'
+}
+
+# Check Python server initialization markers in stderr logs
+foreach ($svc in $pythonMarkers.Keys) {
+    $marker = $pythonMarkers[$svc]
+    $errFile = Join-Path $logsDir "$svc.err.log"
+    $found = $false
+    $timeout = (Get-Date).AddSeconds(30)
+    while ((Get-Date) -lt $timeout -and -not $found) {
+        if (Test-Path $errFile) {
+            $content = Get-Content $errFile -Raw -ErrorAction SilentlyContinue
+            if ($content -match [regex]::Escape($marker)) { $found = $true; Write-Output "Found marker for $svc"; break }
+        }
+        Start-Sleep -Milliseconds 300
+    }
+    if (-not $found) { Write-Output "Did not find marker for $svc within timeout" }
+}
+
 Write-Output "MCP Server verification results:"
 foreach ($r in $verify) {
     Write-Output ("Port {0}: {1}" -f $r.port, $r.status)
