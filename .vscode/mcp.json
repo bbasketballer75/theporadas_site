@@ -1,109 +1,40 @@
 {
   "servers": {
-    "github": {
-      "type": "stdio",
-      "command": "docker",
+    "filesystem": {
+      "command": "npx",
       "args": [
-        "run",
-        "-i",
-        "--rm",
-        "-e",
-        "GITHUB_PERSONAL_ACCESS_TOKEN",
-        "-e",
-        "GITHUB_TOOLSETS",
-        "-e",
-        "GITHUB_READ_ONLY",
-        "ghcr.io/github/github-mcp-server"
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "${workspaceFolder}"
       ],
-      "envFile": "${workspaceFolder}/.env"
-    },
-    "context7": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"],
-      "envFile": "${workspaceFolder}/.env"
-    },
-    "puppeteer": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-puppeteer"]
-    },
-    "sequentialthinking": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
-    },
-    "brave-search": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
-      "envFile": "${workspaceFolder}/.env"
-    },
-    "time": {
-      "type": "stdio",
-      "command": "python",
-      "args": ["-m", "mcp_server_time"]
+      "type": "stdio"
     },
     "memory": {
-      "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"]
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "type": "stdio"
     },
-    "sqlite": {
-      "type": "stdio",
+    "sequentialthinking": {
       "command": "npx",
-      "args": ["-y", "mcp-sqlite", "C:/Users/Austin/Documents/theporadas_site/database.db"]
-    },
-    "tavily": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "tavily-mcp@0.2.3"],
-      "envFile": "${workspaceFolder}/.env"
-    },
-    "sentry": {
-      "type": "stdio",
-      "command": "uvx",
-      "args": [
-        "mcp-server-sentry",
-        "--auth-token",
-        "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"
-      ]
-    },
-    "notion": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@notionhq/notion-mcp-server"],
-      "envFile": "${workspaceFolder}/.env"
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "type": "stdio"
     },
     "git": {
-      "type": "stdio",
-      "command": "uvx",
-      "args": ["mcp-server-git", "--repository", "C:/Users/Austin/Documents/theporadas_site"]
-    },
-    "filesystem": {
-      "type": "stdio",
-      "command": "docker",
+      "command": "node",
       "args": [
-        "run",
-        "-i",
-        "--rm",
-        "--mount",
-        "type=bind,src=C:/Users/Austin/Documents,dst=/projects",
-        "mcp/filesystem",
-        "/projects"
-      ]
+        "C:/Users/Austin/Documents/GitHub/servers/src/git/dist/index.js"
+      ],
+      "type": "stdio"
     },
     "playwright": {
-      "type": "stdio",
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "--init",
-        "--pull=always",
-        "mcr.microsoft.com/playwright/mcp@sha256:48cfafeaaf213c618fff8d2e311f33b170dd1eab87a351260cdb9c24a785fc50"
-      ]
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"],
+      "type": "stdio"
+    },
+    "canva-dev": {
+      "command": "npx",
+      "args": ["-y", "@canva/cli@latest", "mcp"],
+      "type": "stdio"
     }
   }
 }
