@@ -130,8 +130,29 @@ switch ($lower) {
         if (Test-Path $py) {
             $pyLog = Join-Path $logsDir ((Split-Path $py -Leaf) + '.log')
             $pyErr = Join-Path $logsDir ((Split-Path $py -Leaf) + '.err.log')
+            # write a short diagnostic header for later debugging
+            $debugFile = Join-Path $logsDir 'git.debug.log'
+            "Starting git server with python: $pythonExec; script: $py; cwd: $repoRoot" | Out-File -FilePath $debugFile -Encoding utf8 -Append
             $proc = Start-Process $pythonExec -ArgumentList @($py) -RedirectStandardOutput $pyLog -RedirectStandardError $pyErr -PassThru
             $procId = $proc.Id
+
+            # wait briefly for health in both top-level logs and repo-specific logs
+            $svcHealthCandidates = @((Join-Path $logsDir 'git.ready'))
+            try { $svcRepoRoot = Find-RepoRoot -startPath $py; $svcHealthCandidates += (Join-Path $svcRepoRoot 'logs\git.ready') } catch {}
+            $healthFound = $false
+            $healthTimeout = (Get-Date).AddSeconds(10)
+            while ((Get-Date) -lt $healthTimeout -and -not $healthFound) {
+                foreach ($hf in $svcHealthCandidates) { if (Test-Path $hf) { $healthFound = $true; break } }
+                Start-Sleep -Milliseconds 200
+            }
+            if (-not $healthFound) {
+                # append current environment snapshot and tail of err log for debugging
+                "--- Diagnostic snapshot for git server start ---" | Out-File -FilePath $debugFile -Encoding utf8 -Append
+                "PythonExec=$pythonExec" | Out-File -FilePath $debugFile -Encoding utf8 -Append
+                "WorkDir=$repoRoot" | Out-File -FilePath $debugFile -Encoding utf8 -Append
+                try { if (Test-Path $pyErr) { Get-Content $pyErr -Tail 2000 | Out-File -FilePath $debugFile -Encoding utf8 -Append } }
+                catch {}
+            }
         }
     }
     'fetch' {
@@ -142,12 +163,28 @@ switch ($lower) {
         $pyErr = Join-Path $logsDir 'fetch.err.log'
         if (Test-Path $timePackageDir) {
             $args = @('-m', 'mcp_server_fetch')
+            "Starting fetch server with python: $pythonExec; module: mcp_server_fetch; cwd: $timePackageDir" | Out-File -FilePath (Join-Path $logsDir 'fetch.debug.log') -Encoding utf8 -Append
             $proc = Start-Process $pythonExec -ArgumentList $args -RedirectStandardOutput $pyLog -RedirectStandardError $pyErr -WorkingDirectory $timePackageDir -PassThru
             $procId = $proc.Id
+
+            # diagnostic health wait similar to git
+            $svcHealthCandidates = @((Join-Path $logsDir 'fetch.ready'))
+            try { $svcRepoRoot = Find-RepoRoot -startPath (Join-Path $timePackageDir 'server.py'); $svcHealthCandidates += (Join-Path $svcRepoRoot 'logs\fetch.ready') } catch {}
+            $healthFound = $false
+            $healthTimeout = (Get-Date).AddSeconds(10)
+            while ((Get-Date) -lt $healthTimeout -and -not $healthFound) {
+                foreach ($hf in $svcHealthCandidates) { if (Test-Path $hf) { $healthFound = $true; break } }
+                Start-Sleep -Milliseconds 200
+            }
+            if (-not $healthFound) {
+                "--- Diagnostic snapshot for fetch server start ---" | Out-File -FilePath (Join-Path $logsDir 'fetch.debug.log') -Encoding utf8 -Append
+                "PythonExec=$pythonExec" | Out-File -FilePath (Join-Path $logsDir 'fetch.debug.log') -Encoding utf8 -Append
+                try { if (Test-Path $pyErr) { Get-Content $pyErr -Tail 2000 | Out-File -FilePath (Join-Path $logsDir 'fetch.debug.log') -Encoding utf8 -Append } }
+                catch {}
+            }
         }
     }
     'time' {
-        # Prefer venv python if present and run the package as a module so local package imports work
         $venvPy = Join-Path $repoRoot '.venv\Scripts\python.exe'
         $timePackageDir = Join-Path $repoRoot 'servers/src/time'
         if (Test-Path $venvPy) { $pythonExec = $venvPy } else { $pythonExec = 'python' }
@@ -155,8 +192,25 @@ switch ($lower) {
         $pyErr = Join-Path $logsDir 'time.err.log'
         if (Test-Path $timePackageDir) {
             $args = @('-m', 'mcp_server_time')
+            "Starting time server with python: $pythonExec; module: mcp_server_time; cwd: $timePackageDir" | Out-File -FilePath (Join-Path $logsDir 'time.debug.log') -Encoding utf8 -Append
             $proc = Start-Process $pythonExec -ArgumentList $args -RedirectStandardOutput $pyLog -RedirectStandardError $pyErr -WorkingDirectory $timePackageDir -PassThru
             $procId = $proc.Id
+
+            # diagnostic health wait similar to others
+            $svcHealthCandidates = @((Join-Path $logsDir 'time.ready'))
+            try { $svcRepoRoot = Find-RepoRoot -startPath (Join-Path $timePackageDir 'server.py'); $svcHealthCandidates += (Join-Path $svcRepoRoot 'logs\time.ready') } catch {}
+            $healthFound = $false
+            $healthTimeout = (Get-Date).AddSeconds(10)
+            while ((Get-Date) -lt $healthTimeout -and -not $healthFound) {
+                foreach ($hf in $svcHealthCandidates) { if (Test-Path $hf) { $healthFound = $true; break } }
+                Start-Sleep -Milliseconds 200
+            }
+            if (-not $healthFound) {
+                "--- Diagnostic snapshot for time server start ---" | Out-File -FilePath (Join-Path $logsDir 'time.debug.log') -Encoding utf8 -Append
+                "PythonExec=$pythonExec" | Out-File -FilePath (Join-Path $logsDir 'time.debug.log') -Encoding utf8 -Append
+                try { if (Test-Path $pyErr) { Get-Content $pyErr -Tail 2000 | Out-File -FilePath (Join-Path $logsDir 'time.debug.log') -Encoding utf8 -Append } }
+                catch {}
+            }
         }
     }
     default {
