@@ -7,3 +7,4 @@ Suggested action:
 - If confirmed, add a comment to the per-commit triage issues referencing the file.
 
 Auto-generated file: .github/triage-issue-bodies/command.js.md
+

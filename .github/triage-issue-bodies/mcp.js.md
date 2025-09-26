@@ -6,3 +6,4 @@ Suggested action:
 - Inspect the referenced lines and tag as false-positive or exposure as appropriate.
 
 Auto-generated file: .github/triage-issue-bodies/mcp.js.md
+

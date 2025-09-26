@@ -1,4 +1,4 @@
-﻿# Triage: AWS_AK
+# Triage: AWS_AK
 
 **Matches found:** 400
 
@@ -17,4 +17,5 @@
 ## Raw outputs
 
 Raw scans and full outputs are archived in the release: TBD_release_url
+
 

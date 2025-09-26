@@ -8,3 +8,4 @@ Suggested action:
 - Otherwise, rotate any real tokens and update the master rotation issue #43.
 
 Auto-generated file: .github/triage-issue-bodies/git-secrets.md
+
