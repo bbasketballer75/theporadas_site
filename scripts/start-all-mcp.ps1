@@ -250,9 +250,10 @@ foreach ($svc in $pythonMarkers.Keys) {
     $found = $false
     $timeout = (Get-Date).AddSeconds(30)
     # Candidate health-file locations: top-level logs and nested servers/logs
+    $nestedLogsDir = Join-Path $repoRoot 'servers\logs'
     $candidateHealthFiles = @(
-        Join-Path $logsDir "$svc.ready",
-        Join-Path $repoRoot 'servers\logs' "$svc.ready"
+        Join-Path $logsDir ($svc + '.ready'),
+        Join-Path $nestedLogsDir ($svc + '.ready')
     )
     while ((Get-Date) -lt $timeout -and -not $found) {
         foreach ($candidate in $candidateHealthFiles) {
@@ -266,8 +267,8 @@ foreach ($svc in $pythonMarkers.Keys) {
 
         # fallback: scan stderr in both top-level logs and nested servers/logs
         $errFiles = @(
-            Join-Path $logsDir "$svc.err.log",
-            Join-Path $repoRoot 'servers\logs' "$svc.err.log"
+            Join-Path $logsDir ($svc + '.err.log'),
+            Join-Path $nestedLogsDir ($svc + '.err.log')
         )
         foreach ($errFile in $errFiles) {
             if (Test-Path $errFile) {
