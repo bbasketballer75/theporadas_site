@@ -143,6 +143,8 @@ switch ($lower) {
             $pyErr = Join-Path $logsDir ((Split-Path $py -Leaf) + '.err.log')
             # write a short diagnostic header for later debugging
             $debugFile = Join-Path $logsDir 'git.debug.log'
+            # ensure debug file exists
+            try { New-Item -Path $debugFile -ItemType File -Force | Out-Null } catch {}
             "Starting git server with python: $pythonExec; script: $py; cwd: $repoRoot" | Out-File -FilePath $debugFile -Encoding utf8 -Append
             $proc = Start-Process $pythonExec -ArgumentList @($py) -RedirectStandardOutput $pyLog -RedirectStandardError $pyErr -PassThru
             $procId = $proc.Id
@@ -175,6 +177,7 @@ switch ($lower) {
         if (Test-Path $timePackageDir) {
             $args = @('-m', 'mcp_server_fetch')
             "Starting fetch server with python: $pythonExec; module: mcp_server_fetch; cwd: $timePackageDir" | Out-File -FilePath (Join-Path $logsDir 'fetch.debug.log') -Encoding utf8 -Append
+            try { New-Item -Path (Join-Path $logsDir 'fetch.debug.log') -ItemType File -Force | Out-Null } catch {}
             $proc = Start-Process $pythonExec -ArgumentList $args -RedirectStandardOutput $pyLog -RedirectStandardError $pyErr -WorkingDirectory $timePackageDir -PassThru
             $procId = $proc.Id
 
@@ -204,6 +207,7 @@ switch ($lower) {
         if (Test-Path $timePackageDir) {
             $args = @('-m', 'mcp_server_time')
             "Starting time server with python: $pythonExec; module: mcp_server_time; cwd: $timePackageDir" | Out-File -FilePath (Join-Path $logsDir 'time.debug.log') -Encoding utf8 -Append
+            try { New-Item -Path (Join-Path $logsDir 'time.debug.log') -ItemType File -Force | Out-Null } catch {}
             $proc = Start-Process $pythonExec -ArgumentList $args -RedirectStandardOutput $pyLog -RedirectStandardError $pyErr -WorkingDirectory $timePackageDir -PassThru
             $procId = $proc.Id
 
