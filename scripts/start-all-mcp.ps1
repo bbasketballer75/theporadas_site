@@ -181,10 +181,9 @@ foreach ($py in $pyServers) {
         if ($py -match 'mcp_server_(\w+)') { $svcShort = $Matches[1] } else { $svcShort = (Split-Path $py -Leaf) }
         Write-Output ("Starting Python server {0} (helper) for script {1}..." -f $svcShort, $py)
         $helper = Join-Path $scriptDir 'start-mcp-service.ps1'
-        # Start the helper which will start the service and write diagnostics/pids
-        $procArgs = @('-ExecutionPolicy', 'Bypass', '-File', $helper, '-Service', $svcShort)
-        $p = Start-Process -FilePath 'powershell' -ArgumentList $procArgs -NoNewWindow -PassThru
-        # Give helper a short moment to start the service and write pids.json
+        # Call the helper synchronously so it runs and writes debug/pids before we continue
+        & $helper -Service $svcShort -SkipLocalBuild:$false
+        # Give helper a short moment to ensure files are written
         Start-Sleep -Milliseconds 200
     }
     else {
