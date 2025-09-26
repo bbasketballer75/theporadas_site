@@ -277,7 +277,8 @@ switch ($lower) {
                 $envContent = Get-Content $envPath -Raw -ErrorAction SilentlyContinue
                 if ($envContent -match '^PG_URL\s*=\s*(.+)$') { $pgUrl = $Matches[1].Trim() }
                 elseif ($envContent -match '^PGURL\s*=\s*(.+)$') { $pgUrl = $Matches[1].Trim() }
-            } catch {
+            }
+            catch {
                 # ignore parse failures
             }
         }
