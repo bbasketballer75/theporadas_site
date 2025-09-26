@@ -45,7 +45,7 @@
   "task.autoDetect": "on",
   "window.zoomLevel": 0,
   "workbench.startupEditor": "none",
-  "workbench.editor.enablePreview": false,
+  "workbench.editor.enablePreview": true,
   "remote.WSL.fileWatcher.polling": true,
   "remote.WSL.useShellEnvironment": true,
   "python.terminal.useEnvFile": true
