@@ -1,3 +1,9 @@
 node_modules
 .env
 backup-pre-filter.bundle
+# Local backup bundles created by developers or backup tools
+backup-*.bundle
+*-backup.bundle
+*.localbundle
+# temporary bundle files
+*.bundle.backup
