@@ -51,6 +51,17 @@ function Start-NpxProcess {
     }
 }
 
+function Find-RepoRoot {
+    param([string] $startPath)
+    $cur = (Get-Item $startPath).Directory
+    for ($i = 0; $i -lt 12; $i++) {
+        if (Test-Path (Join-Path $cur 'package.json') -or Test-Path (Join-Path $cur '.git')) { return $cur.FullName }
+        if ($null -eq $cur.Parent) { break }
+        $cur = $cur.Parent
+    }
+    return (Get-Item $startPath).Directory.FullName
+}
+
 # Map service names to start logic
 $lower = $Service.ToLower()
 $procId = $null
