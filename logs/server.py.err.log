@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "C:\Users\Austin\Documents\theporadas_site\servers\src\time\src\mcp_server_time\server.py", line 40, in <module>
-    from mcp.server import Server
-ModuleNotFoundError: No module named 'mcp'

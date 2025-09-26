@@ -1,0 +1,4 @@
+﻿Starting git server with python: C:\Users\Austin\Documents\theporadas_site\.venv\Scripts\python.exe; script: C:\Users\Austin\Documents\theporadas_site\servers\src\git\src\mcp_server_git\server.py; cwd: C:\Users\Austin\Documents\theporadas_site
+--- Diagnostic snapshot for git server start ---
+PythonExec=C:\Users\Austin\Documents\theporadas_site\.venv\Scripts\python.exe
+WorkDir=C:\Users\Austin\Documents\theporadas_site
