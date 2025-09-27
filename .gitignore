@@ -7,3 +7,5 @@ backup-*.bundle
 *.localbundle
 # temporary bundle files
 *.bundle.backup
+# Ignore Next.js build artifacts
+.next/
