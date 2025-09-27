@@ -12,10 +12,10 @@ async function checkSymlinkSupport(): Promise<boolean> {
   try {
     const targetFile = path.join(testDir, 'target.txt');
     const linkFile = path.join(testDir, 'link.txt');
-    
+
     await fs.writeFile(targetFile, 'test');
     await fs.symlink(targetFile, linkFile);
-    
+
     // If we get here, symlinks are supported
     return true;
   } catch (error) {

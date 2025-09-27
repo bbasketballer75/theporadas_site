@@ -1,0 +1,51 @@
+name: Auto Revert Formatting on Failure
+
+on:
+  workflow_run:
+    workflows: ["build-and-deploy"]
+    types:
+      - completed
+
+jobs:
+  auto-revert:
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Find formatting commit
+        id: find
+        run: |
+          echo "Searching recent commits for the formatting commit..."
+          sha=$(git log --pretty=format:%H -n 100 --grep="chore: format repository with Prettier" | head -n1 || true)
+          if [ -z "$sha" ]; then
+            echo "no_sha=true" >> $GITHUB_OUTPUT
+            echo "Found no formatting commit in recent history; exiting"
+            exit 0
+          fi
+          echo "sha=$sha" >> $GITHUB_OUTPUT
+
+      - name: Create revert branch and revert commit
+        if: ${{ steps.find.outputs.no_sha != 'true' }}
+        run: |
+          sha=${{ steps.find.outputs.sha }}
+          branch="auto-revert/format-${sha}"
+          git checkout -b "$branch"
+          git revert --no-edit --no-commit $sha || true
+          git commit -m "revert: automated revert of formatting commit $sha (CI failure)"
+          git push --set-upstream origin "$branch"
+
+      - name: Create Pull Request
+        if: ${{ steps.find.outputs.no_sha != 'true' }}
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "revert: automated revert of formatting commit ${{ steps.find.outputs.sha }} (CI failure)"
+          branch: "auto-revert/format-${{ steps.find.outputs.sha }}"
+          title: "revert: automated revert of formatting commit ${{ steps.find.outputs.sha }}"
+          body: |-
+            The automated CI monitor detected failing checks after the formatting commit. This PR reverts the formatting changes for further investigation.
+

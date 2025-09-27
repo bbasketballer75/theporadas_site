@@ -11,7 +11,7 @@ $repoRoot = Resolve-Path (Join-Path $scriptDir '..')
 Set-Location $repoRoot
 
 $logsDir = Join-Path $repoRoot 'logs'
-if (-Not (Test-Path $logsDir)) { New-Item -ItemType Directory -Path $logsDir | Out-Null }
+if (-not (Test-Path $logsDir)) { New-Item -ItemType Directory -Path $logsDir | Out-Null }
 # Write a starter trace so we can confirm this helper runs
 try { $starterLog = Join-Path $logsDir 'service-starter.log'; New-Item -Path $starterLog -ItemType File -Force | Out-Null; ("[{0}] start-mcp-service invoked for service: {1} (PID {2})" -f (Get-Date), $Service, $PID) | Out-File -FilePath $starterLog -Encoding utf8 -Append } catch {}
 
@@ -318,7 +318,7 @@ switch ($lower) {
 
                 # Determine which host port maps to container 5432
                 Start-Sleep -Seconds 1
-                $inspectPort = & docker inspect --format '{{(index (index .NetworkSettings.Ports "5432/tcp") 0).HostPort}}' $containerName 2>$null
+                $inspectPort = & docker inspect --format '{ { (index (index .NetworkSettings.Ports "5432/tcp") 0).HostPort } }' $containerName 2>$null
                 if ($inspectPort -and $inspectPort -ne '') { $hostPort = $inspectPort.Trim() }
 
                 # Wait for postgres to be ready by checking container logs for readiness or using pg_isready if available
@@ -348,8 +348,8 @@ switch ($lower) {
                 try {
                     if (Test-Path $envPath) {
                         $envText = Get-Content $envPath -Raw
-                        if ($envText -match '(^|\n)PG_URL\s*=') {
-                            $newEnvText = $envText -replace '(^|\n)PG_URL\s*=.*', "`nPG_URL=$pgUrl"
+                        if ($envText -match '(^ | \n)PG_URL\s*=') {
+                            $newEnvText = $envText -replace '(^ | \n)PG_URL\s*=.*', "`nPG_URL=$pgUrl"
                             Set-Content -Path $envPath -Value $newEnvText -Encoding UTF8
                         }
                         else { Add-Content -Path $envPath -Value "`nPG_URL=$pgUrl" }

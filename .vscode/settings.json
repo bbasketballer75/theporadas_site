@@ -49,5 +49,6 @@
   "remote.WSL.fileWatcher.polling": true,
   "remote.WSL.useShellEnvironment": true,
   "python.terminal.useEnvFile": true,
-  "npm.packageManager": "npm"
+  "npm.packageManager": "npm",
+  "docwriter.style": "Auto-detect"
 }
