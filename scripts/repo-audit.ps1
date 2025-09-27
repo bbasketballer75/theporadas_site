@@ -18,7 +18,8 @@ param(
     $HistoryCommitsLimit = 500,
 
     [string]
-    $OutputPath = "$PSScriptRoot\..\audit-report.txt"
+    # Use Join-Path to build a safe output path instead of relying on raw backslashes
+    $OutputPath = (Join-Path -Path $PSScriptRoot -ChildPath '..\audit-report.txt')
 )
 
 function Convert-SizeToHuman([int64]$bytes) {
@@ -123,14 +124,17 @@ $trackedFiles = @()
 try { $trackedFiles = & git ls-files -co --exclude-standard 2>$null } catch { $trackedFiles = @() }
 
 if ($trackedFiles.Count -eq 0) {
-    "No tracked/unignored files found (or git not available) — skipping tracked-file secret scan." | Out-File -FilePath $OutputPath -Append
+    # Use a plain ASCII hyphen in messages to avoid accidental unicode or parsing issues
+    "No tracked/unignored files found (or git not available) - skipping tracked-file secret scan." | Out-File -FilePath $OutputPath -Append
 }
 else {
     foreach ($p in $patterns) {
         "-- Pattern: $($p.Name) --" | Out-File -FilePath $OutputPath -Append
         foreach ($f in $trackedFiles) {
             try {
-                $matches = Select-String -Path $f -Pattern $p.Regex -AllMatches -SimpleMatch:$false -ErrorAction SilentlyContinue
+                # Remove the incorrect -SimpleMatch:$false syntax (Select-String's -SimpleMatch is a switch).
+                # Defaults to regex mode (what we want); keep -AllMatches and error handling.
+                $matches = Select-String -Path $f -Pattern $p.Regex -AllMatches -ErrorAction SilentlyContinue
                 if ($matches) {
                     foreach ($m in $matches) {
                         "{0}:{1}: {2}" -f $f, $m.LineNumber, ($m.Line.Trim()) | Out-File -FilePath $OutputPath -Append
@@ -153,7 +157,7 @@ catch {
 }
 
 if ($commits.Count -eq 0) {
-    "No commits enumerated (git unavailable or empty repo) — skipping history pattern scan." | Out-File -FilePath $OutputPath -Append
+    "No commits enumerated (git unavailable or empty repo) - skipping history pattern scan." | Out-File -FilePath $OutputPath -Append
 }
 else {
     foreach ($p in $patterns) {

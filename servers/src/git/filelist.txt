@@ -1,0 +1,2552 @@
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:58 PM                .clinerules
+d----           9/24/2025  7:58 PM                .github
+d----           9/24/2025  7:58 PM                docs
+d----           9/24/2025  7:59 PM                node_modules
+d----           9/24/2025  7:58 PM                scripts
+d----           9/24/2025  7:58 PM                src
+d----           9/24/2025  7:58 PM                tests
+-a---           9/24/2025  7:58 PM           1096 .env.example
+-a---           9/24/2025  7:58 PM           4719 .gitignore
+-a---           9/24/2025  7:58 PM            130 .ncurc.json
+-a---           9/24/2025  7:58 PM          26160 CHANGELOG.md
+-a---           9/24/2025  7:58 PM           1520 Dockerfile
+-a---           9/24/2025  7:58 PM            782 eslint.config.js
+-a---           9/24/2025  8:02 PM              0 filelist.txt
+-a---           9/24/2025  7:58 PM          11517 LICENSE
+-a---           9/24/2025  7:58 PM            265 mcp.json
+-a---           9/24/2025  7:58 PM         263120 package-lock.json
+-a---           9/24/2025  7:58 PM           4377 package.json
+-a---           9/24/2025  7:58 PM          16101 README.md
+-a---           9/24/2025  7:58 PM            416 repomix.config.json
+-a---           9/24/2025  7:58 PM           3927 server.json
+-a---           9/24/2025  7:58 PM           2781 smithery.yaml
+-a---           9/24/2025  7:58 PM           1528 tsconfig.json
+-a---           9/24/2025  7:58 PM            174 tsconfig.typedoc.json
+-a---           9/24/2025  7:58 PM            333 tsconfig.vitest.json
+-a---           9/24/2025  7:58 PM            956 tsdoc.json
+-a---           9/24/2025  7:58 PM            356 typedoc.json
+-a---           9/24/2025  7:58 PM            607 vitest.config.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\.clinerules
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM           9732 clinerules.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\.github
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:58 PM                workflows
+-a---           9/24/2025  7:58 PM            829 FUNDING.yml
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\.github\workflows
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            603 publish.yml
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\docs
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM           7751 publishing-mcp-server-regi
+                                                  stry.md
+-a---           9/24/2025  7:58 PM           9436 tree.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                @modelcontextprotocol
+d----           9/24/2025  7:59 PM                accepts
+d----           9/24/2025  7:59 PM                ajv
+d----           9/24/2025  7:59 PM                body-parser
+d----           9/24/2025  7:59 PM                content-disposition
+d----           9/24/2025  7:59 PM                cookie-signature
+d----           9/24/2025  7:59 PM                debug
+d----           9/24/2025  7:59 PM                express
+d----           9/24/2025  7:59 PM                finalhandler
+d----           9/24/2025  7:59 PM                fresh
+d----           9/24/2025  7:59 PM                globals
+d----           9/24/2025  7:59 PM                iconv-lite
+d----           9/24/2025  7:59 PM                media-typer
+d----           9/24/2025  7:59 PM                merge-descriptors
+d----           9/24/2025  7:59 PM                mime-db
+d----           9/24/2025  7:59 PM                mime-types
+d----           9/24/2025  7:59 PM                ms
+d----           9/24/2025  7:59 PM                negotiator
+d----           9/24/2025  7:59 PM                qs
+d----           9/24/2025  7:59 PM                send
+d----           9/24/2025  7:59 PM                serve-static
+d----           9/24/2025  7:59 PM                type-is
+d----           9/24/2025  7:59 PM                vite-tsconfig-paths
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                sdk
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                dist
+d----           9/24/2025  7:59 PM                node_modules
+-a---           9/24/2025  7:59 PM           1071 LICENSE
+-a---           9/24/2025  7:59 PM           3114 package.json
+-a---           9/24/2025  7:59 PM          38166 README.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                cjs
+d----           9/24/2025  7:59 PM                esm
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\cjs
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                client
+d----           9/24/2025  7:59 PM                examples
+d----           9/24/2025  7:59 PM                server
+d----           9/24/2025  7:59 PM                shared
+-a---           9/24/2025  7:59 PM             44 cli.d.ts
+-a---           9/24/2025  7:59 PM            103 cli.d.ts.map
+-a---           9/24/2025  7:59 PM           4815 cli.js
+-a---           9/24/2025  7:59 PM           4261 cli.js.map
+-a---           9/24/2025  7:59 PM           1163 inMemory.d.ts
+-a---           9/24/2025  7:59 PM            882 inMemory.d.ts.map
+-a---           9/24/2025  7:59 PM           2157 inMemory.js
+-a---           9/24/2025  7:59 PM           1390 inMemory.js.map
+-a---           9/24/2025  7:59 PM             21 package.json
+-a---           9/24/2025  7:59 PM        2907956 types.d.ts
+-a---           9/24/2025  7:59 PM         154760 types.d.ts.map
+-a---           9/24/2025  7:59 PM          53641 types.js
+-a---           9/24/2025  7:59 PM          25137 types.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\cjs\client
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM          11814 auth.d.ts
+-a---           9/24/2025  7:59 PM           4614 auth.d.ts.map
+-a---           9/24/2025  7:59 PM          31664 auth.js
+-a---           9/24/2025  7:59 PM          19116 auth.js.map
+-a---           9/24/2025  7:59 PM         140199 index.d.ts
+-a---           9/24/2025  7:59 PM           4019 index.d.ts.map
+-a---           9/24/2025  7:59 PM          13286 index.js
+-a---           9/24/2025  7:59 PM           7891 index.js.map
+-a---           9/24/2025  7:59 PM           6215 middleware.d.ts
+-a---           9/24/2025  7:59 PM           1280 middleware.d.ts.map
+-a---           9/24/2025  7:59 PM          10462 middleware.js
+-a---           9/24/2025  7:59 PM           4962 middleware.js.map
+-a---           9/24/2025  7:59 PM           3577 sse.d.ts
+-a---           9/24/2025  7:59 PM           1532 sse.d.ts.map
+-a---           9/24/2025  7:59 PM           8613 sse.js
+-a---           9/24/2025  7:59 PM           6234 sse.js.map
+-a---           9/24/2025  7:59 PM           2810 stdio.d.ts
+-a---           9/24/2025  7:59 PM           1334 stdio.d.ts.map
+-a---           9/24/2025  7:59 PM           7264 stdio.js
+-a---           9/24/2025  7:59 PM           4387 stdio.js.map
+-a---           9/24/2025  7:59 PM           6439 streamableHttp.d.ts
+-a---           9/24/2025  7:59 PM           2244 streamableHttp.d.ts.map
+-a---           9/24/2025  7:59 PM          18468 streamableHttp.js
+-a---           9/24/2025  7:59 PM          11544 streamableHttp.js.map
+-a---           9/24/2025  7:59 PM            598 websocket.d.ts
+-a---           9/24/2025  7:59 PM            610 websocket.d.ts.map
+-a---           9/24/2025  7:59 PM           2444 websocket.js
+-a---           9/24/2025  7:59 PM           1783 websocket.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\cjs\examples
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                client
+d----           9/24/2025  7:59 PM                server
+d----           9/24/2025  7:59 PM                shared
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\cjs\examples\client
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM             64 multipleClientsParallel.d.
+                                                  ts
+-a---           9/24/2025  7:59 PM            165 multipleClientsParallel.d.
+                                                  ts.map
+-a---           9/24/2025  7:59 PM           5107 multipleClientsParallel.js
+-a---           9/24/2025  7:59 PM           4028 multipleClientsParallel.js
+                                                  .map
+-a---           9/24/2025  7:59 PM             64 parallelToolCallsClient.d.
+                                                  ts
+-a---           9/24/2025  7:59 PM            165 parallelToolCallsClient.d.
+                                                  ts.map
+-a---           9/24/2025  7:59 PM           6720 parallelToolCallsClient.js
+-a---           9/24/2025  7:59 PM           4797 parallelToolCallsClient.js
+                                                  .map
+-a---           9/24/2025  7:59 PM             78 simpleOAuthClient.d.ts
+-a---           9/24/2025  7:59 PM            153 simpleOAuthClient.d.ts.map
+-a---           9/24/2025  7:59 PM          13546 simpleOAuthClient.js
+-a---           9/24/2025  7:59 PM          10305 simpleOAuthClient.js.map
+-a---           9/24/2025  7:59 PM             61 simpleStreamableHttp.d.ts
+-a---           9/24/2025  7:59 PM            159 simpleStreamableHttp.d.ts.
+                                                  map
+-a---           9/24/2025  7:59 PM          30035 simpleStreamableHttp.js
+-a---           9/24/2025  7:59 PM          23325 simpleStreamableHttp.js.ma
+                                                  p
+-a---           9/24/2025  7:59 PM             76 streamableHttpWithSseFallb
+                                                  ackClient.d.ts
+-a---           9/24/2025  7:59 PM            189 streamableHttpWithSseFallb
+                                                  ackClient.d.ts.map
+-a---           9/24/2025  7:59 PM           6424 streamableHttpWithSseFallb
+                                                  ackClient.js
+-a---           9/24/2025  7:59 PM           4465 streamableHttpWithSseFallb
+                                                  ackClient.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\cjs\examples\server
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           3573 demoInMemoryOAuthProvider.
+                                                  d.ts
+-a---           9/24/2025  7:59 PM           1424 demoInMemoryOAuthProvider.
+                                                  d.ts.map
+-a---           9/24/2025  7:59 PM           7115 demoInMemoryOAuthProvider.
+                                                  js
+-a---           9/24/2025  7:59 PM           5466 demoInMemoryOAuthProvider.
+                                                  js.map
+-a---           9/24/2025  7:59 PM             67 jsonResponseStreamableHttp
+                                                  .d.ts
+-a---           9/24/2025  7:59 PM            171 jsonResponseStreamableHttp
+                                                  .d.ts.map
+-a---           9/24/2025  7:59 PM           5842 jsonResponseStreamableHttp
+                                                  .js
+-a---           9/24/2025  7:59 PM           4276 jsonResponseStreamableHttp
+                                                  .js.map
+-a---           9/24/2025  7:59 PM            236 mcpServerOutputSchema.d.ts
+-a---           9/24/2025  7:59 PM            173 mcpServerOutputSchema.d.ts
+                                                  .map
+-a---           9/24/2025  7:59 PM           2494 mcpServerOutputSchema.js
+-a---           9/24/2025  7:59 PM           2366 mcpServerOutputSchema.js.m
+                                                  ap
+-a---           9/24/2025  7:59 PM             56 simpleSseServer.d.ts
+-a---           9/24/2025  7:59 PM            149 simpleSseServer.d.ts.map
+-a---           9/24/2025  7:59 PM           5568 simpleSseServer.js
+-a---           9/24/2025  7:59 PM           4343 simpleSseServer.js.map
+-a---           9/24/2025  7:59 PM             70 simpleStatelessStreamableH
+                                                  ttp.d.ts
+-a---           9/24/2025  7:59 PM            177 simpleStatelessStreamableH
+                                                  ttp.d.ts.map
+-a---           9/24/2025  7:59 PM           5091 simpleStatelessStreamableH
+                                                  ttp.js
+-a---           9/24/2025  7:59 PM           4258 simpleStatelessStreamableH
+                                                  ttp.js.map
+-a---           9/24/2025  7:59 PM             61 simpleStreamableHttp.d.ts
+-a---           9/24/2025  7:59 PM            159 simpleStreamableHttp.d.ts.
+                                                  map
+-a---           9/24/2025  7:59 PM          23129 simpleStreamableHttp.js
+-a---           9/24/2025  7:59 PM          15390 simpleStreamableHttp.js.ma
+                                                  p
+-a---           9/24/2025  7:59 PM             77 sseAndStreamableHttpCompat
+                                                  ibleServer.d.ts
+-a---           9/24/2025  7:59 PM            191 sseAndStreamableHttpCompat
+                                                  ibleServer.d.ts.map
+-a---           9/24/2025  7:59 PM           9659 sseAndStreamableHttpCompat
+                                                  ibleServer.js
+-a---           9/24/2025  7:59 PM           6132 sseAndStreamableHttpCompat
+                                                  ibleServer.js.map
+-a---           9/24/2025  7:59 PM             75 standaloneSseWithGetStream
+                                                  ableHttp.d.ts
+-a---           9/24/2025  7:59 PM            187 standaloneSseWithGetStream
+                                                  ableHttp.d.ts.map
+-a---           9/24/2025  7:59 PM           4620 standaloneSseWithGetStream
+                                                  ableHttp.js
+-a---           9/24/2025  7:59 PM           3647 standaloneSseWithGetStream
+                                                  ableHttp.js.map
+-a---           9/24/2025  7:59 PM             61 toolWithSampleServer.d.ts
+-a---           9/24/2025  7:59 PM            159 toolWithSampleServer.d.ts.
+                                                  map
+-a---           9/24/2025  7:59 PM           1565 toolWithSampleServer.js
+-a---           9/24/2025  7:59 PM           1270 toolWithSampleServer.js.ma
+                                                  p
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\cjs\examples\shared
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           1139 inMemoryEventStore.d.ts
+-a---           9/24/2025  7:59 PM            656 inMemoryEventStore.d.ts.ma
+                                                  p
+-a---           9/24/2025  7:59 PM           2414 inMemoryEventStore.js
+-a---           9/24/2025  7:59 PM           1783 inMemoryEventStore.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\cjs\server
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                auth
+-a---           9/24/2025  7:59 PM           1164 completable.d.ts
+-a---           9/24/2025  7:59 PM           1183 completable.d.ts.map
+-a---           9/24/2025  7:59 PM           2546 completable.js
+-a---           9/24/2025  7:59 PM           1966 completable.js.map
+-a---           9/24/2025  7:59 PM          11554 index.d.ts
+-a---           9/24/2025  7:59 PM           1998 index.d.ts.map
+-a---           9/24/2025  7:59 PM          11710 index.js
+-a---           9/24/2025  7:59 PM           6881 index.js.map
+-a---           9/24/2025  7:59 PM          14593 mcp.d.ts
+-a---           9/24/2025  7:59 PM           8356 mcp.d.ts.map
+-a---           9/24/2025  7:59 PM          30713 mcp.js
+-a---           9/24/2025  7:59 PM          23461 mcp.js.map
+-a---           9/24/2025  7:59 PM           2861 sse.d.ts
+-a---           9/24/2025  7:59 PM           1390 sse.d.ts.map
+-a---           9/24/2025  7:59 PM           7026 sse.js
+-a---           9/24/2025  7:59 PM           4480 sse.js.map
+-a---           9/24/2025  7:59 PM            990 stdio.d.ts
+-a---           9/24/2025  7:59 PM            799 stdio.d.ts.map
+-a---           9/24/2025  7:59 PM           3256 stdio.js
+-a---           9/24/2025  7:59 PM           2069 stdio.js.map
+-a---           9/24/2025  7:59 PM           6946 streamableHttp.d.ts
+-a---           9/24/2025  7:59 PM           2575 streamableHttp.d.ts.map
+-a---           9/24/2025  7:59 PM          27196 streamableHttp.js
+-a---           9/24/2025  7:59 PM          16800 streamableHttp.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\cjs\server\auth
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                handlers
+d----           9/24/2025  7:59 PM                middleware
+d----           9/24/2025  7:59 PM                providers
+-a---           9/24/2025  7:59 PM           1266 clients.d.ts
+-a---           9/24/2025  7:59 PM            452 clients.d.ts.map
+-a---           9/24/2025  7:59 PM            112 clients.js
+-a---           9/24/2025  7:59 PM            127 clients.js.map
+-a---           9/24/2025  7:59 PM           4679 errors.d.ts
+-a---           9/24/2025  7:59 PM           1777 errors.d.ts.map
+-a---           9/24/2025  7:59 PM           7615 errors.js
+-a---           9/24/2025  7:59 PM           2909 errors.js.map
+-a---           9/24/2025  7:59 PM           3092 provider.d.ts
+-a---           9/24/2025  7:59 PM           1477 provider.d.ts.map
+-a---           9/24/2025  7:59 PM            113 provider.js
+-a---           9/24/2025  7:59 PM            129 provider.js.map
+-a---           9/24/2025  7:59 PM           3938 router.d.ts
+-a---           9/24/2025  7:59 PM           1614 router.d.ts.map
+-a---           9/24/2025  7:59 PM           6312 router.js
+-a---           9/24/2025  7:59 PM           3830 router.js.map
+-a---           9/24/2025  7:59 PM            881 types.d.ts
+-a---           9/24/2025  7:59 PM            428 types.d.ts.map
+-a---           9/24/2025  7:59 PM            110 types.js
+-a---           9/24/2025  7:59 PM            123 types.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\cjs\server\auth\handlers
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            614 authorize.d.ts
+-a---           9/24/2025  7:59 PM            510 authorize.d.ts.map
+-a---           9/24/2025  7:59 PM           7087 authorize.js
+-a---           9/24/2025  7:59 PM           5094 authorize.js.map
+-a---           9/24/2025  7:59 PM            284 metadata.d.ts
+-a---           9/24/2025  7:59 PM            304 metadata.d.ts.map
+-a---           9/24/2025  7:59 PM            929 metadata.js
+-a---           9/24/2025  7:59 PM            603 metadata.js.map
+-a---           9/24/2025  7:59 PM           1322 register.d.ts
+-a---           9/24/2025  7:59 PM            638 register.d.ts.map
+-a---           9/24/2025  7:59 PM           4096 register.js
+-a---           9/24/2025  7:59 PM           2778 register.js.map
+-a---           9/24/2025  7:59 PM            606 revoke.d.ts
+-a---           9/24/2025  7:59 PM            506 revoke.d.ts.map
+-a---           9/24/2025  7:59 PM           3065 revoke.js
+-a---           9/24/2025  7:59 PM           2177 revoke.js.map
+-a---           9/24/2025  7:59 PM            578 token.d.ts
+-a---           9/24/2025  7:59 PM            501 token.d.ts.map
+-a---           9/24/2025  7:59 PM           5821 token.js
+-a---           9/24/2025  7:59 PM           4231 token.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\cjs\server\auth\middleware
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            451 allowedMethods.d.ts
+-a---           9/24/2025  7:59 PM            269 allowedMethods.d.ts.map
+-a---           9/24/2025  7:59 PM            917 allowedMethods.js
+-a---           9/24/2025  7:59 PM            619 allowedMethods.js.map
+-a---           9/24/2025  7:59 PM           1274 bearerAuth.d.ts
+-a---           9/24/2025  7:59 PM            645 bearerAuth.d.ts.map
+-a---           9/24/2025  7:59 PM           3598 bearerAuth.js
+-a---           9/24/2025  7:59 PM           2571 bearerAuth.js.map
+-a---           9/24/2025  7:59 PM            771 clientAuth.d.ts
+-a---           9/24/2025  7:59 PM            519 clientAuth.d.ts.map
+-a---           9/24/2025  7:59 PM           2293 clientAuth.js
+-a---           9/24/2025  7:59 PM           1812 clientAuth.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\cjs\server\auth\providers
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           2420 proxyProvider.d.ts
+-a---           9/24/2025  7:59 PM           1930 proxyProvider.d.ts.map
+-a---           9/24/2025  7:59 PM           6692 proxyProvider.js
+-a---           9/24/2025  7:59 PM           5086 proxyProvider.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\cjs\shared
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           1026 auth-utils.d.ts
+-a---           9/24/2025  7:59 PM            389 auth-utils.d.ts.map
+-a---           9/24/2025  7:59 PM           2448 auth-utils.js
+-a---           9/24/2025  7:59 PM           1398 auth-utils.js.map
+-a---           9/24/2025  7:59 PM          40635 auth.d.ts
+-a---           9/24/2025  7:59 PM           2058 auth.d.ts.map
+-a---           9/24/2025  7:59 PM           9472 auth.js
+-a---           9/24/2025  7:59 PM           7505 auth.js.map
+-a---           9/24/2025  7:59 PM            501 metadataUtils.d.ts
+-a---           9/24/2025  7:59 PM            252 metadataUtils.d.ts.map
+-a---           9/24/2025  7:59 PM           1118 metadataUtils.js
+-a---           9/24/2025  7:59 PM            583 metadataUtils.js.map
+-a---           9/24/2025  7:59 PM           9433 protocol.d.ts
+-a---           9/24/2025  7:59 PM           4094 protocol.d.ts.map
+-a---           9/24/2025  7:59 PM          19453 protocol.js
+-a---           9/24/2025  7:59 PM          13831 protocol.js.map
+-a---           9/24/2025  7:59 PM            460 stdio.d.ts
+-a---           9/24/2025  7:59 PM            424 stdio.d.ts.map
+-a---           9/24/2025  7:59 PM           1142 stdio.js
+-a---           9/24/2025  7:59 PM           1103 stdio.js.map
+-a---           9/24/2025  7:59 PM           2958 transport.d.ts
+-a---           9/24/2025  7:59 PM           1079 transport.d.ts.map
+-a---           9/24/2025  7:59 PM            114 transport.js
+-a---           9/24/2025  7:59 PM            123 transport.js.map
+-a---           9/24/2025  7:59 PM            828 uriTemplate.d.ts
+-a---           9/24/2025  7:59 PM            715 uriTemplate.d.ts.map
+-a---           9/24/2025  7:59 PM           8910 uriTemplate.js
+-a---           9/24/2025  7:59 PM           8861 uriTemplate.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\esm
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                client
+d----           9/24/2025  7:59 PM                examples
+d----           9/24/2025  7:59 PM                server
+d----           9/24/2025  7:59 PM                shared
+-a---           9/24/2025  7:59 PM             44 cli.d.ts
+-a---           9/24/2025  7:59 PM            103 cli.d.ts.map
+-a---           9/24/2025  7:59 PM           4490 cli.js
+-a---           9/24/2025  7:59 PM           4533 cli.js.map
+-a---           9/24/2025  7:59 PM           1163 inMemory.d.ts
+-a---           9/24/2025  7:59 PM            882 inMemory.d.ts.map
+-a---           9/24/2025  7:59 PM           2004 inMemory.js
+-a---           9/24/2025  7:59 PM           1379 inMemory.js.map
+-a---           9/24/2025  7:59 PM             19 package.json
+-a---           9/24/2025  7:59 PM        2907956 types.d.ts
+-a---           9/24/2025  7:59 PM         154760 types.d.ts.map
+-a---           9/24/2025  7:59 PM          46777 types.js
+-a---           9/24/2025  7:59 PM          26006 types.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\esm\client
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM          11814 auth.d.ts
+-a---           9/24/2025  7:59 PM           4614 auth.d.ts.map
+-a---           9/24/2025  7:59 PM          30792 auth.js
+-a---           9/24/2025  7:59 PM          19339 auth.js.map
+-a---           9/24/2025  7:59 PM         140199 index.d.ts
+-a---           9/24/2025  7:59 PM           4019 index.d.ts.map
+-a---           9/24/2025  7:59 PM          13041 index.js
+-a---           9/24/2025  7:59 PM           8118 index.js.map
+-a---           9/24/2025  7:59 PM           6215 middleware.d.ts
+-a---           9/24/2025  7:59 PM           1280 middleware.d.ts.map
+-a---           9/24/2025  7:59 PM          10115 middleware.js
+-a---           9/24/2025  7:59 PM           4949 middleware.js.map
+-a---           9/24/2025  7:59 PM           3577 sse.d.ts
+-a---           9/24/2025  7:59 PM           1532 sse.d.ts.map
+-a---           9/24/2025  7:59 PM           8313 sse.js
+-a---           9/24/2025  7:59 PM           6304 sse.js.map
+-a---           9/24/2025  7:59 PM           2810 stdio.d.ts
+-a---           9/24/2025  7:59 PM           1334 stdio.d.ts.map
+-a---           9/24/2025  7:59 PM           6708 stdio.js
+-a---           9/24/2025  7:59 PM           4462 stdio.js.map
+-a---           9/24/2025  7:59 PM           6439 streamableHttp.d.ts
+-a---           9/24/2025  7:59 PM           2244 streamableHttp.d.ts.map
+-a---           9/24/2025  7:59 PM          18133 streamableHttp.js
+-a---           9/24/2025  7:59 PM          11644 streamableHttp.js.map
+-a---           9/24/2025  7:59 PM            598 websocket.d.ts
+-a---           9/24/2025  7:59 PM            610 websocket.d.ts.map
+-a---           9/24/2025  7:59 PM           2268 websocket.js
+-a---           9/24/2025  7:59 PM           1803 websocket.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\esm\examples
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                client
+d----           9/24/2025  7:59 PM                server
+d----           9/24/2025  7:59 PM                shared
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\esm\examples\client
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM             64 multipleClientsParallel.d.
+                                                  ts
+-a---           9/24/2025  7:59 PM            165 multipleClientsParallel.d.
+                                                  ts.map
+-a---           9/24/2025  7:59 PM           5025 multipleClientsParallel.js
+-a---           9/24/2025  7:59 PM           4133 multipleClientsParallel.js
+                                                  .map
+-a---           9/24/2025  7:59 PM             64 parallelToolCallsClient.d.
+                                                  ts
+-a---           9/24/2025  7:59 PM            165 parallelToolCallsClient.d.
+                                                  ts.map
+-a---           9/24/2025  7:59 PM           6650 parallelToolCallsClient.js
+-a---           9/24/2025  7:59 PM           4915 parallelToolCallsClient.js
+                                                  .map
+-a---           9/24/2025  7:59 PM             78 simpleOAuthClient.d.ts
+-a---           9/24/2025  7:59 PM            153 simpleOAuthClient.d.ts.map
+-a---           9/24/2025  7:59 PM          13337 simpleOAuthClient.js
+-a---           9/24/2025  7:59 PM          10539 simpleOAuthClient.js.map
+-a---           9/24/2025  7:59 PM             61 simpleStreamableHttp.d.ts
+-a---           9/24/2025  7:59 PM            159 simpleStreamableHttp.d.ts.
+                                                  map
+-a---           9/24/2025  7:59 PM          29766 simpleStreamableHttp.js
+-a---           9/24/2025  7:59 PM          23569 simpleStreamableHttp.js.ma
+                                                  p
+-a---           9/24/2025  7:59 PM             76 streamableHttpWithSseFallb
+                                                  ackClient.d.ts
+-a---           9/24/2025  7:59 PM            189 streamableHttpWithSseFallb
+                                                  ackClient.d.ts.map
+-a---           9/24/2025  7:59 PM           6343 streamableHttpWithSseFallb
+                                                  ackClient.js
+-a---           9/24/2025  7:59 PM           4614 streamableHttpWithSseFallb
+                                                  ackClient.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\esm\examples\server
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           3573 demoInMemoryOAuthProvider.
+                                                  d.ts
+-a---           9/24/2025  7:59 PM           1424 demoInMemoryOAuthProvider.
+                                                  d.ts.map
+-a---           9/24/2025  7:59 PM           6525 demoInMemoryOAuthProvider.
+                                                  js
+-a---           9/24/2025  7:59 PM           5517 demoInMemoryOAuthProvider.
+                                                  js.map
+-a---           9/24/2025  7:59 PM             67 jsonResponseStreamableHttp
+                                                  .d.ts
+-a---           9/24/2025  7:59 PM            171 jsonResponseStreamableHttp
+                                                  .d.ts.map
+-a---           9/24/2025  7:59 PM           5470 jsonResponseStreamableHttp
+                                                  .js
+-a---           9/24/2025  7:59 PM           4435 jsonResponseStreamableHttp
+                                                  .js.map
+-a---           9/24/2025  7:59 PM            236 mcpServerOutputSchema.d.ts
+-a---           9/24/2025  7:59 PM            173 mcpServerOutputSchema.d.ts
+                                                  .map
+-a---           9/24/2025  7:59 PM           2341 mcpServerOutputSchema.js
+-a---           9/24/2025  7:59 PM           2453 mcpServerOutputSchema.js.m
+                                                  ap
+-a---           9/24/2025  7:59 PM             56 simpleSseServer.d.ts
+-a---           9/24/2025  7:59 PM            149 simpleSseServer.d.ts.map
+-a---           9/24/2025  7:59 PM           5277 simpleSseServer.js
+-a---           9/24/2025  7:59 PM           4439 simpleSseServer.js.map
+-a---           9/24/2025  7:59 PM             70 simpleStatelessStreamableH
+                                                  ttp.d.ts
+-a---           9/24/2025  7:59 PM            177 simpleStatelessStreamableH
+                                                  ttp.d.ts.map
+-a---           9/24/2025  7:59 PM           4744 simpleStatelessStreamableH
+                                                  ttp.js
+-a---           9/24/2025  7:59 PM           4367 simpleStatelessStreamableH
+                                                  ttp.js.map
+-a---           9/24/2025  7:59 PM             61 simpleStreamableHttp.d.ts
+-a---           9/24/2025  7:59 PM            159 simpleStreamableHttp.d.ts.
+                                                  map
+-a---           9/24/2025  7:59 PM          22621 simpleStreamableHttp.js
+-a---           9/24/2025  7:59 PM          15694 simpleStreamableHttp.js.ma
+                                                  p
+-a---           9/24/2025  7:59 PM             77 sseAndStreamableHttpCompat
+                                                  ibleServer.d.ts
+-a---           9/24/2025  7:59 PM            191 sseAndStreamableHttpCompat
+                                                  ibleServer.d.ts.map
+-a---           9/24/2025  7:59 PM           9228 sseAndStreamableHttpCompat
+                                                  ibleServer.js
+-a---           9/24/2025  7:59 PM           6355 sseAndStreamableHttpCompat
+                                                  ibleServer.js.map
+-a---           9/24/2025  7:59 PM             75 standaloneSseWithGetStream
+                                                  ableHttp.d.ts
+-a---           9/24/2025  7:59 PM            187 standaloneSseWithGetStream
+                                                  ableHttp.d.ts.map
+-a---           9/24/2025  7:59 PM           4285 standaloneSseWithGetStream
+                                                  ableHttp.js
+-a---           9/24/2025  7:59 PM           3759 standaloneSseWithGetStream
+                                                  ableHttp.js.map
+-a---           9/24/2025  7:59 PM             61 toolWithSampleServer.d.ts
+-a---           9/24/2025  7:59 PM            159 toolWithSampleServer.d.ts.
+                                                  map
+-a---           9/24/2025  7:59 PM           1466 toolWithSampleServer.js
+-a---           9/24/2025  7:59 PM           1357 toolWithSampleServer.js.ma
+                                                  p
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\esm\examples\shared
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           1139 inMemoryEventStore.d.ts
+-a---           9/24/2025  7:59 PM            656 inMemoryEventStore.d.ts.ma
+                                                  p
+-a---           9/24/2025  7:59 PM           2258 inMemoryEventStore.js
+-a---           9/24/2025  7:59 PM           1772 inMemoryEventStore.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\esm\server
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                auth
+-a---           9/24/2025  7:59 PM           1164 completable.d.ts
+-a---           9/24/2025  7:59 PM           1183 completable.d.ts.map
+-a---           9/24/2025  7:59 PM           2336 completable.js
+-a---           9/24/2025  7:59 PM           1984 completable.js.map
+-a---           9/24/2025  7:59 PM          11554 index.d.ts
+-a---           9/24/2025  7:59 PM           1998 index.d.ts.map
+-a---           9/24/2025  7:59 PM          11472 index.js
+-a---           9/24/2025  7:59 PM           7084 index.js.map
+-a---           9/24/2025  7:59 PM          14593 mcp.d.ts
+-a---           9/24/2025  7:59 PM           8356 mcp.d.ts.map
+-a---           9/24/2025  7:59 PM          30101 mcp.js
+-a---           9/24/2025  7:59 PM          23687 mcp.js.map
+-a---           9/24/2025  7:59 PM           2861 sse.d.ts
+-a---           9/24/2025  7:59 PM           1390 sse.d.ts.map
+-a---           9/24/2025  7:59 PM           6626 sse.js
+-a---           9/24/2025  7:59 PM           4577 sse.js.map
+-a---           9/24/2025  7:59 PM            990 stdio.d.ts
+-a---           9/24/2025  7:59 PM            799 stdio.d.ts.map
+-a---           9/24/2025  7:59 PM           2886 stdio.js
+-a---           9/24/2025  7:59 PM           2107 stdio.js.map
+-a---           9/24/2025  7:59 PM           6946 streamableHttp.d.ts
+-a---           9/24/2025  7:59 PM           2575 streamableHttp.d.ts.map
+-a---           9/24/2025  7:59 PM          26734 streamableHttp.js
+-a---           9/24/2025  7:59 PM          16899 streamableHttp.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\esm\server\auth
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                handlers
+d----           9/24/2025  7:59 PM                middleware
+d----           9/24/2025  7:59 PM                providers
+-a---           9/24/2025  7:59 PM           1266 clients.d.ts
+-a---           9/24/2025  7:59 PM            452 clients.d.ts.map
+-a---           9/24/2025  7:59 PM             46 clients.js
+-a---           9/24/2025  7:59 PM            127 clients.js.map
+-a---           9/24/2025  7:59 PM           4679 errors.d.ts
+-a---           9/24/2025  7:59 PM           1777 errors.d.ts.map
+-a---           9/24/2025  7:59 PM           6129 errors.js
+-a---           9/24/2025  7:59 PM           2806 errors.js.map
+-a---           9/24/2025  7:59 PM           3092 provider.d.ts
+-a---           9/24/2025  7:59 PM           1477 provider.d.ts.map
+-a---           9/24/2025  7:59 PM             47 provider.js
+-a---           9/24/2025  7:59 PM            129 provider.js.map
+-a---           9/24/2025  7:59 PM           3938 router.d.ts
+-a---           9/24/2025  7:59 PM           1614 router.d.ts.map
+-a---           9/24/2025  7:59 PM           5712 router.js
+-a---           9/24/2025  7:59 PM           3921 router.js.map
+-a---           9/24/2025  7:59 PM            881 types.d.ts
+-a---           9/24/2025  7:59 PM            428 types.d.ts.map
+-a---           9/24/2025  7:59 PM             44 types.js
+-a---           9/24/2025  7:59 PM            123 types.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\esm\server\auth\handlers
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            614 authorize.d.ts
+-a---           9/24/2025  7:59 PM            510 authorize.d.ts.map
+-a---           9/24/2025  7:59 PM           6596 authorize.js
+-a---           9/24/2025  7:59 PM           5257 authorize.js.map
+-a---           9/24/2025  7:59 PM            284 metadata.d.ts
+-a---           9/24/2025  7:59 PM            304 metadata.d.ts.map
+-a---           9/24/2025  7:59 PM            573 metadata.js
+-a---           9/24/2025  7:59 PM            645 metadata.js.map
+-a---           9/24/2025  7:59 PM           1322 register.d.ts
+-a---           9/24/2025  7:59 PM            638 register.d.ts.map
+-a---           9/24/2025  7:59 PM           3619 register.js
+-a---           9/24/2025  7:59 PM           2952 register.js.map
+-a---           9/24/2025  7:59 PM            606 revoke.d.ts
+-a---           9/24/2025  7:59 PM            506 revoke.d.ts.map
+-a---           9/24/2025  7:59 PM           2634 revoke.js
+-a---           9/24/2025  7:59 PM           2360 revoke.js.map
+-a---           9/24/2025  7:59 PM            578 token.d.ts
+-a---           9/24/2025  7:59 PM            501 token.d.ts.map
+-a---           9/24/2025  7:59 PM           5289 token.js
+-a---           9/24/2025  7:59 PM           4460 token.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\esm\server\auth\middleware
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            451 allowedMethods.d.ts
+-a---           9/24/2025  7:59 PM            269 allowedMethods.d.ts.map
+-a---           9/24/2025  7:59 PM            803 allowedMethods.js
+-a---           9/24/2025  7:59 PM            639 allowedMethods.js.map
+-a---           9/24/2025  7:59 PM           1274 bearerAuth.d.ts
+-a---           9/24/2025  7:59 PM            645 bearerAuth.d.ts.map
+-a---           9/24/2025  7:59 PM           3415 bearerAuth.js
+-a---           9/24/2025  7:59 PM           2618 bearerAuth.js.map
+-a---           9/24/2025  7:59 PM            771 clientAuth.d.ts
+-a---           9/24/2025  7:59 PM            519 clientAuth.d.ts.map
+-a---           9/24/2025  7:59 PM           2107 clientAuth.js
+-a---           9/24/2025  7:59 PM           1887 clientAuth.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\esm\server\auth\providers
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           2420 proxyProvider.d.ts
+-a---           9/24/2025  7:59 PM           1930 proxyProvider.d.ts.map
+-a---           9/24/2025  7:59 PM           6481 proxyProvider.js
+-a---           9/24/2025  7:59 PM           5145 proxyProvider.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\dist\esm\shared
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           1026 auth-utils.d.ts
+-a---           9/24/2025  7:59 PM            389 auth-utils.d.ts.map
+-a---           9/24/2025  7:59 PM           2271 auth-utils.js
+-a---           9/24/2025  7:59 PM           1380 auth-utils.js.map
+-a---           9/24/2025  7:59 PM          40635 auth.d.ts
+-a---           9/24/2025  7:59 PM           2058 auth.d.ts.map
+-a---           9/24/2025  7:59 PM           7986 auth.js
+-a---           9/24/2025  7:59 PM           7632 auth.js.map
+-a---           9/24/2025  7:59 PM            501 metadataUtils.d.ts
+-a---           9/24/2025  7:59 PM            252 metadataUtils.d.ts.map
+-a---           9/24/2025  7:59 PM           1007 metadataUtils.js
+-a---           9/24/2025  7:59 PM            572 metadataUtils.js.map
+-a---           9/24/2025  7:59 PM           9433 protocol.d.ts
+-a---           9/24/2025  7:59 PM           4094 protocol.d.ts.map
+-a---           9/24/2025  7:59 PM          19194 protocol.js
+-a---           9/24/2025  7:59 PM          13907 protocol.js.map
+-a---           9/24/2025  7:59 PM            460 stdio.d.ts
+-a---           9/24/2025  7:59 PM            424 stdio.d.ts.map
+-a---           9/24/2025  7:59 PM            928 stdio.js
+-a---           9/24/2025  7:59 PM           1107 stdio.js.map
+-a---           9/24/2025  7:59 PM           2958 transport.d.ts
+-a---           9/24/2025  7:59 PM           1079 transport.d.ts.map
+-a---           9/24/2025  7:59 PM             48 transport.js
+-a---           9/24/2025  7:59 PM            123 transport.js.map
+-a---           9/24/2025  7:59 PM            828 uriTemplate.d.ts
+-a---           9/24/2025  7:59 PM            715 uriTemplate.d.ts.map
+-a---           9/24/2025  7:59 PM           8775 uriTemplate.js
+-a---           9/24/2025  7:59 PM           8850 uriTemplate.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\node_modules
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                ajv
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\node_modules\ajv
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                dist
+d----           9/24/2025  7:59 PM                lib
+d----           9/24/2025  7:59 PM                scripts
+-a---           9/24/2025  7:59 PM            439 .tonic_example.js
+-a---           9/24/2025  7:59 PM           1090 LICENSE
+-a---           9/24/2025  7:59 PM           3120 package.json
+-a---           9/24/2025  7:59 PM          85598 README.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\node_modules\ajv\dist
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM         272665 ajv.bundle.js
+-a---           9/24/2025  7:59 PM         121997 ajv.min.js
+-a---           9/24/2025  7:59 PM         140201 ajv.min.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\node_modules\ajv\lib
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                compile
+d----           9/24/2025  7:59 PM                dot
+d----           9/24/2025  7:59 PM                dotjs
+d----           9/24/2025  7:59 PM                refs
+-a---           9/24/2025  7:59 PM          13221 ajv.d.ts
+-a---           9/24/2025  7:59 PM          15837 ajv.js
+-a---           9/24/2025  7:59 PM            409 cache.js
+-a---           9/24/2025  7:59 PM           1048 data.js
+-a---           9/24/2025  7:59 PM            872 definition_schema.js
+-a---           9/24/2025  7:59 PM           3911 keyword.js
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\node_modules\ajv\lib\compile
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           2644 async.js
+-a---           9/24/2025  7:59 PM            176 equal.js
+-a---           9/24/2025  7:59 PM            828 error_classes.js
+-a---           9/24/2025  7:59 PM          12081 formats.js
+-a---           9/24/2025  7:59 PM          10695 index.js
+-a---           9/24/2025  7:59 PM           7847 resolve.js
+-a---           9/24/2025  7:59 PM           2021 rules.js
+-a---           9/24/2025  7:59 PM            133 schema_obj.js
+-a---           9/24/2025  7:59 PM            558 ucs2length.js
+-a---           9/24/2025  7:59 PM           6974 util.js
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\node_modules\ajv\lib\dot
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           3932 _limit.jst
+-a---           9/24/2025  7:59 PM            353 _limitItems.jst
+-a---           9/24/2025  7:59 PM            358 _limitLength.jst
+-a---           9/24/2025  7:59 PM            376 _limitProperties.jst
+-a---           9/24/2025  7:59 PM            609 allOf.jst
+-a---           9/24/2025  7:59 PM            921 anyOf.jst
+-a---           9/24/2025  7:59 PM           1979 coerce.def
+-a---           9/24/2025  7:59 PM            322 comment.jst
+-a---           9/24/2025  7:59 PM            280 const.jst
+-a---           9/24/2025  7:59 PM           1188 contains.jst
+-a---           9/24/2025  7:59 PM           4945 custom.jst
+-a---           9/24/2025  7:59 PM           1285 defaults.def
+-a---           9/24/2025  7:59 PM           4022 definitions.def
+-a---           9/24/2025  7:59 PM           1868 dependencies.jst
+-a---           9/24/2025  7:59 PM            552 enum.jst
+-a---           9/24/2025  7:59 PM           8282 errors.def
+-a---           9/24/2025  7:59 PM           3136 format.jst
+-a---           9/24/2025  7:59 PM           1618 if.jst
+-a---           9/24/2025  7:59 PM           2610 items.jst
+-a---           9/24/2025  7:59 PM           1194 missing.def
+-a---           9/24/2025  7:59 PM            644 multipleOf.jst
+-a---           9/24/2025  7:59 PM            861 not.jst
+-a---           9/24/2025  7:59 PM           1150 oneOf.jst
+-a---           9/24/2025  7:59 PM            348 pattern.jst
+-a---           9/24/2025  7:59 PM           7725 properties.jst
+-a---           9/24/2025  7:59 PM           1284 propertyNames.jst
+-a---           9/24/2025  7:59 PM           2454 ref.jst
+-a---           9/24/2025  7:59 PM           2868 required.jst
+-a---           9/24/2025  7:59 PM           1696 uniqueItems.jst
+-a---           9/24/2025  7:59 PM           7717 validate.jst
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\node_modules\ajv\lib\dotjs
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           7395 _limit.js
+-a---           9/24/2025  7:59 PM           2704 _limitItems.js
+-a---           9/24/2025  7:59 PM           2825 _limitLength.js
+-a---           9/24/2025  7:59 PM           2742 _limitProperties.js
+-a---           9/24/2025  7:59 PM           1349 allOf.js
+-a---           9/24/2025  7:59 PM           2925 anyOf.js
+-a---           9/24/2025  7:59 PM            573 comment.js
+-a---           9/24/2025  7:59 PM           2113 const.js
+-a---           9/24/2025  7:59 PM           3370 contains.js
+-a---           9/24/2025  7:59 PM           9770 custom.js
+-a---           9/24/2025  7:59 PM           7720 dependencies.js
+-a---           9/24/2025  7:59 PM           2586 enum.js
+-a---           9/24/2025  7:59 PM           5565 format.js
+-a---           9/24/2025  7:59 PM           4159 if.js
+-a---           9/24/2025  7:59 PM           1100 index.js
+-a---           9/24/2025  7:59 PM           6214 items.js
+-a---           9/24/2025  7:59 PM           2807 multipleOf.js
+-a---           9/24/2025  7:59 PM           3460 not.js
+-a---           9/24/2025  7:59 PM           3188 oneOf.js
+-a---           9/24/2025  7:59 PM           2586 pattern.js
+-a---           9/24/2025  7:59 PM          15121 properties.js
+-a---           9/24/2025  7:59 PM           3607 propertyNames.js
+-a---           9/24/2025  7:59 PM            149 README.md
+-a---           9/24/2025  7:59 PM           4711 ref.js
+-a---           9/24/2025  7:59 PM          12395 required.js
+-a---           9/24/2025  7:59 PM           3694 uniqueItems.js
+-a---           9/24/2025  7:59 PM          20018 validate.js
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\node_modules\ajv\lib\refs
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            551 data.json
+-a---           9/24/2025  7:59 PM           4357 json-schema-draft-04.json
+-a---           9/24/2025  7:59 PM           4445 json-schema-draft-06.json
+-a---           9/24/2025  7:59 PM           4879 json-schema-draft-07.json
+-a---           9/24/2025  7:59 PM           2572 json-schema-secure.json
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\@modelcontextprotocol\sdk\node_modules\ajv\scripts
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM             62 .eslintrc.yml
+-a---           9/24/2025  7:59 PM           1795 bundle.js
+-a---           9/24/2025  7:59 PM           2431 compile-dots.js
+-a---           9/24/2025  7:59 PM            289 info
+-a---           9/24/2025  7:59 PM            269 prepare-tests
+-a---           9/24/2025  7:59 PM            842 publish-built-version
+-a---           9/24/2025  7:59 PM            874 travis-gh-pages
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\accepts
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           5218 HISTORY.md
+-a---           9/24/2025  7:59 PM           5253 index.js
+-a---           9/24/2025  7:59 PM           1167 LICENSE
+-a---           9/24/2025  7:59 PM           1157 package.json
+-a---           9/24/2025  7:59 PM           4122 README.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                dist
+d----           9/24/2025  7:59 PM                lib
+d----           9/24/2025  7:59 PM                node_modules
+-a---           9/24/2025  7:59 PM            496 .runkit_example.js
+-a---           9/24/2025  7:59 PM           1090 LICENSE
+-a---           9/24/2025  7:59 PM           4457 package.json
+-a---           9/24/2025  7:59 PM          13781 README.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                compile
+d----           9/24/2025  7:59 PM                refs
+d----           9/24/2025  7:59 PM                runtime
+d----           9/24/2025  7:59 PM                standalone
+d----           9/24/2025  7:59 PM                types
+d----           9/24/2025  7:59 PM                vocabularies
+-a---           9/24/2025  7:59 PM           1241 2019.d.ts
+-a---           9/24/2025  7:59 PM           3188 2019.js
+-a---           9/24/2025  7:59 PM           1639 2019.js.map
+-a---           9/24/2025  7:59 PM           1241 2020.d.ts
+-a---           9/24/2025  7:59 PM           2894 2020.js
+-a---           9/24/2025  7:59 PM           1473 2020.js.map
+-a---           9/24/2025  7:59 PM           1211 ajv.d.ts
+-a---           9/24/2025  7:59 PM           2841 ajv.js
+-a---           9/24/2025  7:59 PM           1476 ajv.js.map
+-a---           9/24/2025  7:59 PM           8287 core.d.ts
+-a---           9/24/2025  7:59 PM          25185 core.js
+-a---           9/24/2025  7:59 PM          21583 core.js.map
+-a---           9/24/2025  7:59 PM           2223 jtd.d.ts
+-a---           9/24/2025  7:59 PM           3360 jtd.js
+-a---           9/24/2025  7:59 PM           2036 jtd.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\compile
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                codegen
+d----           9/24/2025  7:59 PM                jtd
+d----           9/24/2025  7:59 PM                validate
+-a---           9/24/2025  7:59 PM            826 errors.d.ts
+-a---           9/24/2025  7:59 PM           5771 errors.js
+-a---           9/24/2025  7:59 PM           6085 errors.js.map
+-a---           9/24/2025  7:59 PM           2914 index.d.ts
+-a---           9/24/2025  7:59 PM          10046 index.js
+-a---           9/24/2025  7:59 PM           9269 index.js.map
+-a---           9/24/2025  7:59 PM            398 names.d.ts
+-a---           9/24/2025  7:59 PM           1440 names.js
+-a---           9/24/2025  7:59 PM            974 names.js.map
+-a---           9/24/2025  7:59 PM            252 ref_error.d.ts
+-a---           9/24/2025  7:59 PM            543 ref_error.js
+-a---           9/24/2025  7:59 PM            474 ref_error.js.map
+-a---           9/24/2025  7:59 PM            755 resolve.d.ts
+-a---           9/24/2025  7:59 PM           5006 resolve.js
+-a---           9/24/2025  7:59 PM           4850 resolve.js.map
+-a---           9/24/2025  7:59 PM            809 rules.d.ts
+-a---           9/24/2025  7:59 PM            918 rules.js
+-a---           9/24/2025  7:59 PM           1030 rules.js.map
+-a---           9/24/2025  7:59 PM           2210 util.d.ts
+-a---           9/24/2025  7:59 PM           7103 util.js
+-a---           9/24/2025  7:59 PM           7083 util.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\compile\codegen
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           1638 code.d.ts
+-a---           9/24/2025  7:59 PM           4676 code.js
+-a---           9/24/2025  7:59 PM           5309 code.js.map
+-a---           9/24/2025  7:59 PM           3316 index.d.ts
+-a---           9/24/2025  7:59 PM          23127 index.js
+-a---           9/24/2025  7:59 PM          23829 index.js.map
+-a---           9/24/2025  7:59 PM           2397 scope.d.ts
+-a---           9/24/2025  7:59 PM           5198 scope.js
+-a---           9/24/2025  7:59 PM           5174 scope.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\compile\jtd
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            217 parse.d.ts
+-a---           9/24/2025  7:59 PM          13727 parse.js
+-a---           9/24/2025  7:59 PM          15725 parse.js.map
+-a---           9/24/2025  7:59 PM            221 serialize.d.ts
+-a---           9/24/2025  7:59 PM           8962 serialize.js
+-a---           9/24/2025  7:59 PM          10276 serialize.js.map
+-a---           9/24/2025  7:59 PM            309 types.d.ts
+-a---           9/24/2025  7:59 PM            291 types.js
+-a---           9/24/2025  7:59 PM            236 types.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\compile\validate
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            456 applicability.d.ts
+-a---           9/24/2025  7:59 PM            853 applicability.js
+-a---           9/24/2025  7:59 PM            775 applicability.js.map
+-a---           9/24/2025  7:59 PM            216 boolSchema.d.ts
+-a---           9/24/2025  7:59 PM           1531 boolSchema.js
+-a---           9/24/2025  7:59 PM           1380 boolSchema.js.map
+-a---           9/24/2025  7:59 PM            884 dataType.d.ts
+-a---           9/24/2025  7:59 PM           8409 dataType.js
+-a---           9/24/2025  7:59 PM           7776 dataType.js.map
+-a---           9/24/2025  7:59 PM            117 defaults.d.ts
+-a---           9/24/2025  7:59 PM           1448 defaults.js
+-a---           9/24/2025  7:59 PM           1342 defaults.js.map
+-a---           9/24/2025  7:59 PM           2073 index.d.ts
+-a---           9/24/2025  7:59 PM          20552 index.js
+-a---           9/24/2025  7:59 PM          21391 index.js.map
+-a---           9/24/2025  7:59 PM            679 keyword.d.ts
+-a---           9/24/2025  7:59 PM           5695 keyword.js
+-a---           9/24/2025  7:59 PM           6011 keyword.js.map
+-a---           9/24/2025  7:59 PM           1722 subschema.d.ts
+-a---           9/24/2025  7:59 PM           3858 subschema.js
+-a---           9/24/2025  7:59 PM           3148 subschema.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\refs
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                json-schema-2019-09
+d----           9/24/2025  7:59 PM                json-schema-2020-12
+-a---           9/24/2025  7:59 PM            409 data.json
+-a---           9/24/2025  7:59 PM           3449 json-schema-draft-06.json
+-a---           9/24/2025  7:59 PM           3811 json-schema-draft-07.json
+-a---           9/24/2025  7:59 PM           2521 json-schema-secure.json
+-a---           9/24/2025  7:59 PM            114 jtd-schema.d.ts
+-a---           9/24/2025  7:59 PM           2882 jtd-schema.js
+-a---           9/24/2025  7:59 PM           2824 jtd-schema.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\refs\json-schema-2019-09
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                meta
+-a---           9/24/2025  7:59 PM            111 index.d.ts
+-a---           9/24/2025  7:59 PM            938 index.js
+-a---           9/24/2025  7:59 PM            726 index.js.map
+-a---           9/24/2025  7:59 PM           1579 schema.json
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\refs\json-schema-2019-09\meta
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           1566 applicator.json
+-a---           9/24/2025  7:59 PM            477 content.json
+-a---           9/24/2025  7:59 PM           1273 core.json
+-a---           9/24/2025  7:59 PM            375 format.json
+-a---           9/24/2025  7:59 PM            758 meta-data.json
+-a---           9/24/2025  7:59 PM           2264 validation.json
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\refs\json-schema-2020-12
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                meta
+-a---           9/24/2025  7:59 PM            111 index.d.ts
+-a---           9/24/2025  7:59 PM           1026 index.js
+-a---           9/24/2025  7:59 PM            751 index.js.map
+-a---           9/24/2025  7:59 PM           2166 schema.json
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\refs\json-schema-2020-12\meta
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           1441 applicator.json
+-a---           9/24/2025  7:59 PM            479 content.json
+-a---           9/24/2025  7:59 PM           1344 core.json
+-a---           9/24/2025  7:59 PM            420 format-annotation.json
+-a---           9/24/2025  7:59 PM            758 meta-data.json
+-a---           9/24/2025  7:59 PM            472 unevaluated.json
+-a---           9/24/2025  7:59 PM           2264 validation.json
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\runtime
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            149 equal.d.ts
+-a---           9/24/2025  7:59 PM            286 equal.js
+-a---           9/24/2025  7:59 PM            199 equal.js.map
+-a---           9/24/2025  7:59 PM            642 parseJson.d.ts
+-a---           9/24/2025  7:59 PM           5401 parseJson.js
+-a---           9/24/2025  7:59 PM           5339 parseJson.js.map
+-a---           9/24/2025  7:59 PM            115 quote.d.ts
+-a---           9/24/2025  7:59 PM            943 quote.js
+-a---           9/24/2025  7:59 PM            877 quote.js.map
+-a---           9/24/2025  7:59 PM            129 re2.d.ts
+-a---           9/24/2025  7:59 PM            213 re2.js
+-a---           9/24/2025  7:59 PM            182 re2.js.map
+-a---           9/24/2025  7:59 PM            165 timestamp.d.ts
+-a---           9/24/2025  7:59 PM           1536 timestamp.js
+-a---           9/24/2025  7:59 PM           1994 timestamp.js.map
+-a---           9/24/2025  7:59 PM            132 ucs2length.d.ts
+-a---           9/24/2025  7:59 PM            808 ucs2length.js
+-a---           9/24/2025  7:59 PM            728 ucs2length.js.map
+-a---           9/24/2025  7:59 PM            134 uri.d.ts
+-a---           9/24/2025  7:59 PM            218 uri.js
+-a---           9/24/2025  7:59 PM            182 uri.js.map
+-a---           9/24/2025  7:59 PM            249 validation_error.d.ts
+-a---           9/24/2025  7:59 PM            337 validation_error.js
+-a---           9/24/2025  7:59 PM            332 validation_error.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\standalone
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            243 index.d.ts
+-a---           9/24/2025  7:59 PM           4480 index.js
+-a---           9/24/2025  7:59 PM           4078 index.js.map
+-a---           9/24/2025  7:59 PM            633 instance.d.ts
+-a---           9/24/2025  7:59 PM           1015 instance.js
+-a---           9/24/2025  7:59 PM           1091 instance.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\types
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           6383 index.d.ts
+-a---           9/24/2025  7:59 PM            110 index.js
+-a---           9/24/2025  7:59 PM            111 index.js.map
+-a---           9/24/2025  7:59 PM           5029 json-schema.d.ts
+-a---           9/24/2025  7:59 PM            116 json-schema.js
+-a---           9/24/2025  7:59 PM            123 json-schema.js.map
+-a---           9/24/2025  7:59 PM           7072 jtd-schema.d.ts
+-a---           9/24/2025  7:59 PM            115 jtd-schema.js
+-a---           9/24/2025  7:59 PM            121 jtd-schema.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\vocabularies
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                applicator
+d----           9/24/2025  7:59 PM                core
+d----           9/24/2025  7:59 PM                discriminator
+d----           9/24/2025  7:59 PM                dynamic
+d----           9/24/2025  7:59 PM                format
+d----           9/24/2025  7:59 PM                jtd
+d----           9/24/2025  7:59 PM                unevaluated
+d----           9/24/2025  7:59 PM                validation
+-a---           9/24/2025  7:59 PM           1462 code.d.ts
+-a---           9/24/2025  7:59 PM           6216 code.js
+-a---           9/24/2025  7:59 PM           6030 code.js.map
+-a---           9/24/2025  7:59 PM            133 draft2020.d.ts
+-a---           9/24/2025  7:59 PM            762 draft2020.js
+-a---           9/24/2025  7:59 PM            419 draft2020.js.map
+-a---           9/24/2025  7:59 PM            127 draft7.d.ts
+-a---           9/24/2025  7:59 PM            557 draft7.js
+-a---           9/24/2025  7:59 PM            328 draft7.js.map
+-a---           9/24/2025  7:59 PM            737 errors.d.ts
+-a---           9/24/2025  7:59 PM            111 errors.js
+-a---           9/24/2025  7:59 PM            120 errors.js.map
+-a---           9/24/2025  7:59 PM            149 metadata.d.ts
+-a---           9/24/2025  7:59 PM            427 metadata.js
+-a---           9/24/2025  7:59 PM            299 metadata.js.map
+-a---           9/24/2025  7:59 PM             97 next.d.ts
+-a---           9/24/2025  7:59 PM            433 next.js
+-a---           9/24/2025  7:59 PM            243 next.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\vocabularies\applicator
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            396 additionalItems.d.ts
+-a---           9/24/2025  7:59 PM           1931 additionalItems.js
+-a---           9/24/2025  7:59 PM           2093 additionalItems.js.map
+-a---           9/24/2025  7:59 PM            318 additionalProperties.d.ts
+-a---           9/24/2025  7:59 PM           4309 additionalProperties.js
+-a---           9/24/2025  7:59 PM           3762 additionalProperties.js.ma
+                                                  p
+-a---           9/24/2025  7:59 PM            120 allOf.d.ts
+-a---           9/24/2025  7:59 PM            756 allOf.js
+-a---           9/24/2025  7:59 PM            812 allOf.js.map
+-a---           9/24/2025  7:59 PM            208 anyOf.d.ts
+-a---           9/24/2025  7:59 PM            343 anyOf.js
+-a---           9/24/2025  7:59 PM            327 anyOf.js.map
+-a---           9/24/2025  7:59 PM            264 contains.d.ts
+-a---           9/24/2025  7:59 PM           3680 contains.js
+-a---           9/24/2025  7:59 PM           3843 contains.js.map
+-a---           9/24/2025  7:59 PM            839 dependencies.d.ts
+-a---           9/24/2025  7:59 PM           3198 dependencies.js
+-a---           9/24/2025  7:59 PM           3172 dependencies.js.map
+-a---           9/24/2025  7:59 PM            120 dependentSchemas.d.ts
+-a---           9/24/2025  7:59 PM            354 dependentSchemas.js
+-a---           9/24/2025  7:59 PM            353 dependentSchemas.js.map
+-a---           9/24/2025  7:59 PM            236 if.d.ts
+-a---           9/24/2025  7:59 PM           2438 if.js
+-a---           9/24/2025  7:59 PM           2455 if.js.map
+-a---           9/24/2025  7:59 PM            858 index.d.ts
+-a---           9/24/2025  7:59 PM           1529 index.js
+-a---           9/24/2025  7:59 PM            766 index.js.map
+-a---           9/24/2025  7:59 PM            293 items.d.ts
+-a---           9/24/2025  7:59 PM           1993 items.js
+-a---           9/24/2025  7:59 PM           2052 items.js.map
+-a---           9/24/2025  7:59 PM            226 items2020.d.ts
+-a---           9/24/2025  7:59 PM           1037 items2020.js
+-a---           9/24/2025  7:59 PM            947 items2020.js.map
+-a---           9/24/2025  7:59 PM            209 not.d.ts
+-a---           9/24/2025  7:59 PM            773 not.js
+-a---           9/24/2025  7:59 PM            831 not.js.map
+-a---           9/24/2025  7:59 PM            254 oneOf.d.ts
+-a---           9/24/2025  7:59 PM           2257 oneOf.js
+-a---           9/24/2025  7:59 PM           2046 oneOf.js.map
+-a---           9/24/2025  7:59 PM            120 patternProperties.d.ts
+-a---           9/24/2025  7:59 PM           3236 patternProperties.js
+-a---           9/24/2025  7:59 PM           2734 patternProperties.js.map
+-a---           9/24/2025  7:59 PM            120 prefixItems.d.ts
+-a---           9/24/2025  7:59 PM            354 prefixItems.js
+-a---           9/24/2025  7:59 PM            381 prefixItems.js.map
+-a---           9/24/2025  7:59 PM            120 properties.d.ts
+-a---           9/24/2025  7:59 PM           2153 properties.js
+-a---           9/24/2025  7:59 PM           2054 properties.js.map
+-a---           9/24/2025  7:59 PM            249 propertyNames.d.ts
+-a---           9/24/2025  7:59 PM           1221 propertyNames.js
+-a---           9/24/2025  7:59 PM           1230 propertyNames.js.map
+-a---           9/24/2025  7:59 PM            120 thenElse.d.ts
+-a---           9/24/2025  7:59 PM            446 thenElse.js
+-a---           9/24/2025  7:59 PM            442 thenElse.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\vocabularies\core
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            120 id.d.ts
+-a---           9/24/2025  7:59 PM            267 id.js
+-a---           9/24/2025  7:59 PM            257 id.js.map
+-a---           9/24/2025  7:59 PM            100 index.d.ts
+-a---           9/24/2025  7:59 PM            357 index.js
+-a---           9/24/2025  7:59 PM            306 index.js.map
+-a---           9/24/2025  7:59 PM            443 ref.d.ts
+-a---           9/24/2025  7:59 PM           5234 ref.js
+-a---           9/24/2025  7:59 PM           5094 ref.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\vocabularies\discriminator
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            288 index.d.ts
+-a---           9/24/2025  7:59 PM           4845 index.js
+-a---           9/24/2025  7:59 PM           4243 index.js.map
+-a---           9/24/2025  7:59 PM            271 types.d.ts
+-a---           9/24/2025  7:59 PM            308 types.js
+-a---           9/24/2025  7:59 PM            239 types.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\vocabularies\dynamic
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            256 dynamicAnchor.d.ts
+-a---           9/24/2025  7:59 PM           1261 dynamicAnchor.js
+-a---           9/24/2025  7:59 PM           1351 dynamicAnchor.js.map
+-a---           9/24/2025  7:59 PM            250 dynamicRef.d.ts
+-a---           9/24/2025  7:59 PM           1985 dynamicRef.js
+-a---           9/24/2025  7:59 PM           1679 dynamicRef.js.map
+-a---           9/24/2025  7:59 PM            106 index.d.ts
+-a---           9/24/2025  7:59 PM            457 index.js
+-a---           9/24/2025  7:59 PM            278 index.js.map
+-a---           9/24/2025  7:59 PM            120 recursiveAnchor.d.ts
+-a---           9/24/2025  7:59 PM            522 recursiveAnchor.js
+-a---           9/24/2025  7:59 PM            435 recursiveAnchor.js.map
+-a---           9/24/2025  7:59 PM            120 recursiveRef.d.ts
+-a---           9/24/2025  7:59 PM            325 recursiveRef.js
+-a---           9/24/2025  7:59 PM            339 recursiveRef.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\vocabularies\format
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            240 format.d.ts
+-a---           9/24/2025  7:59 PM           4317 format.js
+-a---           9/24/2025  7:59 PM           3832 format.js.map
+-a---           9/24/2025  7:59 PM            104 index.d.ts
+-a---           9/24/2025  7:59 PM            209 index.js
+-a---           9/24/2025  7:59 PM            205 index.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\vocabularies\jtd
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            383 discriminator.d.ts
+-a---           9/24/2025  7:59 PM           2785 discriminator.js
+-a---           9/24/2025  7:59 PM           2701 discriminator.js.map
+-a---           9/24/2025  7:59 PM            256 elements.d.ts
+-a---           9/24/2025  7:59 PM            949 elements.js
+-a---           9/24/2025  7:59 PM            908 elements.js.map
+-a---           9/24/2025  7:59 PM            225 enum.d.ts
+-a---           9/24/2025  7:59 PM           1745 enum.js
+-a---           9/24/2025  7:59 PM           1708 enum.js.map
+-a---           9/24/2025  7:59 PM            521 error.d.ts
+-a---           9/24/2025  7:59 PM            893 error.js
+-a---           9/24/2025  7:59 PM            716 error.js.map
+-a---           9/24/2025  7:59 PM            533 index.d.ts
+-a---           9/24/2025  7:59 PM            962 index.js
+-a---           9/24/2025  7:59 PM            530 index.js.map
+-a---           9/24/2025  7:59 PM            254 metadata.d.ts
+-a---           9/24/2025  7:59 PM            810 metadata.js
+-a---           9/24/2025  7:59 PM            797 metadata.js.map
+-a---           9/24/2025  7:59 PM            305 nullable.d.ts
+-a---           9/24/2025  7:59 PM            859 nullable.js
+-a---           9/24/2025  7:59 PM            821 nullable.js.map
+-a---           9/24/2025  7:59 PM            120 optionalProperties.d.ts
+-a---           9/24/2025  7:59 PM            436 optionalProperties.js
+-a---           9/24/2025  7:59 PM            398 optionalProperties.js.map
+-a---           9/24/2025  7:59 PM            879 properties.d.ts
+-a---           9/24/2025  7:59 PM           6320 properties.js
+-a---           9/24/2025  7:59 PM           5884 properties.js.map
+-a---           9/24/2025  7:59 PM            203 ref.d.ts
+-a---           9/24/2025  7:59 PM           2648 ref.js
+-a---           9/24/2025  7:59 PM           2476 ref.js.map
+-a---           9/24/2025  7:59 PM            485 type.d.ts
+-a---           9/24/2025  7:59 PM           2706 type.js
+-a---           9/24/2025  7:59 PM           2614 type.js.map
+-a---           9/24/2025  7:59 PM            120 union.d.ts
+-a---           9/24/2025  7:59 PM            343 union.js
+-a---           9/24/2025  7:59 PM            320 union.js.map
+-a---           9/24/2025  7:59 PM            253 values.d.ts
+-a---           9/24/2025  7:59 PM           1838 values.js
+-a---           9/24/2025  7:59 PM           1783 values.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\vocabularies\unevaluated
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            114 index.d.ts
+-a---           9/24/2025  7:59 PM            350 index.js
+-a---           9/24/2025  7:59 PM            236 index.js.map
+-a---           9/24/2025  7:59 PM            248 unevaluatedItems.d.ts
+-a---           9/24/2025  7:59 PM           1588 unevaluatedItems.js
+-a---           9/24/2025  7:59 PM           1813 unevaluatedItems.js.map
+-a---           9/24/2025  7:59 PM            272 unevaluatedProperties.d.ts
+-a---           9/24/2025  7:59 PM           2608 unevaluatedProperties.js
+-a---           9/24/2025  7:59 PM           2518 unevaluatedProperties.js.m
+                                                  ap
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\dist\vocabularies\validation
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            208 const.d.ts
+-a---           9/24/2025  7:59 PM            852 const.js
+-a---           9/24/2025  7:59 PM            819 const.js.map
+-a---           9/24/2025  7:59 PM            343 dependentRequired.d.ts
+-a---           9/24/2025  7:59 PM            403 dependentRequired.js
+-a---           9/24/2025  7:59 PM            376 dependentRequired.js.map
+-a---           9/24/2025  7:59 PM            241 enum.d.ts
+-a---           9/24/2025  7:59 PM           1901 enum.js
+-a---           9/24/2025  7:59 PM           1999 enum.js.map
+-a---           9/24/2025  7:59 PM            771 index.d.ts
+-a---           9/24/2025  7:59 PM           1036 index.js
+-a---           9/24/2025  7:59 PM            595 index.js.map
+-a---           9/24/2025  7:59 PM            120 limitContains.d.ts
+-a---           9/24/2025  7:59 PM            495 limitContains.js
+-a---           9/24/2025  7:59 PM            473 limitContains.js.map
+-a---           9/24/2025  7:59 PM            120 limitItems.d.ts
+-a---           9/24/2025  7:59 PM            852 limitItems.js
+-a---           9/24/2025  7:59 PM            905 limitItems.js.map
+-a---           9/24/2025  7:59 PM            120 limitLength.d.ts
+-a---           9/24/2025  7:59 PM           1130 limitLength.js
+-a---           9/24/2025  7:59 PM           1145 limitLength.js.map
+-a---           9/24/2025  7:59 PM            386 limitNumber.d.ts
+-a---           9/24/2025  7:59 PM           1036 limitNumber.js
+-a---           9/24/2025  7:59 PM           1300 limitNumber.js.map
+-a---           9/24/2025  7:59 PM            120 limitProperties.d.ts
+-a---           9/24/2025  7:59 PM            896 limitProperties.js
+-a---           9/24/2025  7:59 PM            915 limitProperties.js.map
+-a---           9/24/2025  7:59 PM            252 multipleOf.d.ts
+-a---           9/24/2025  7:59 PM           1023 multipleOf.js
+-a---           9/24/2025  7:59 PM            986 multipleOf.js.map
+-a---           9/24/2025  7:59 PM            243 pattern.d.ts
+-a---           9/24/2025  7:59 PM            905 pattern.js
+-a---           9/24/2025  7:59 PM            933 pattern.js.map
+-a---           9/24/2025  7:59 PM            255 required.d.ts
+-a---           9/24/2025  7:59 PM           3188 required.js
+-a---           9/24/2025  7:59 PM           2994 required.js.map
+-a---           9/24/2025  7:59 PM            261 uniqueItems.d.ts
+-a---           9/24/2025  7:59 PM           3037 uniqueItems.js
+-a---           9/24/2025  7:59 PM           3354 uniqueItems.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                compile
+d----           9/24/2025  7:59 PM                refs
+d----           9/24/2025  7:59 PM                runtime
+d----           9/24/2025  7:59 PM                standalone
+d----           9/24/2025  7:59 PM                types
+d----           9/24/2025  7:59 PM                vocabularies
+-a---           9/24/2025  7:59 PM           2502 2019.ts
+-a---           9/24/2025  7:59 PM           2217 2020.ts
+-a---           9/24/2025  7:59 PM           2229 ajv.ts
+-a---           9/24/2025  7:59 PM          30726 core.ts
+-a---           9/24/2025  7:59 PM           4172 jtd.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\compile
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                codegen
+d----           9/24/2025  7:59 PM                jtd
+d----           9/24/2025  7:59 PM                validate
+-a---           9/24/2025  7:59 PM           5269 errors.ts
+-a---           9/24/2025  7:59 PM          12299 index.ts
+-a---           9/24/2025  7:59 PM           1116 names.ts
+-a---           9/24/2025  7:59 PM            513 ref_error.ts
+-a---           9/24/2025  7:59 PM           4674 resolve.ts
+-a---           9/24/2025  7:59 PM           1456 rules.ts
+-a---           9/24/2025  7:59 PM           6639 util.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\compile\codegen
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           4474 code.ts
+-a---           9/24/2025  7:59 PM          23051 index.ts
+-a---           9/24/2025  7:59 PM           5981 scope.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\compile\jtd
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM          12345 parse.ts
+-a---           9/24/2025  7:59 PM           8219 serialize.ts
+-a---           9/24/2025  7:59 PM            311 types.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\compile\validate
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            739 applicability.ts
+-a---           9/24/2025  7:59 PM           1298 boolSchema.ts
+-a---           9/24/2025  7:59 PM           7094 dataType.ts
+-a---           9/24/2025  7:59 PM           1215 defaults.ts
+-a---           9/24/2025  7:59 PM          19445 index.ts
+-a---           9/24/2025  7:59 PM           5337 keyword.ts
+-a---           9/24/2025  7:59 PM           4366 subschema.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\refs
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                json-schema-2019-09
+d----           9/24/2025  7:59 PM                json-schema-2020-12
+-a---           9/24/2025  7:59 PM            409 data.json
+-a---           9/24/2025  7:59 PM           3449 json-schema-draft-06.json
+-a---           9/24/2025  7:59 PM           3811 json-schema-draft-07.json
+-a---           9/24/2025  7:59 PM           2521 json-schema-secure.json
+-a---           9/24/2025  7:59 PM           2586 jtd-schema.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\refs\json-schema-2019-09
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                meta
+-a---           9/24/2025  7:59 PM            899 index.ts
+-a---           9/24/2025  7:59 PM           1579 schema.json
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\refs\json-schema-2019-09\meta
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           1566 applicator.json
+-a---           9/24/2025  7:59 PM            477 content.json
+-a---           9/24/2025  7:59 PM           1273 core.json
+-a---           9/24/2025  7:59 PM            375 format.json
+-a---           9/24/2025  7:59 PM            758 meta-data.json
+-a---           9/24/2025  7:59 PM           2264 validation.json
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\refs\json-schema-2020-12
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                meta
+-a---           9/24/2025  7:59 PM            982 index.ts
+-a---           9/24/2025  7:59 PM           2166 schema.json
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\refs\json-schema-2020-12\meta
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           1441 applicator.json
+-a---           9/24/2025  7:59 PM            479 content.json
+-a---           9/24/2025  7:59 PM           1344 core.json
+-a---           9/24/2025  7:59 PM            420 format-annotation.json
+-a---           9/24/2025  7:59 PM            758 meta-data.json
+-a---           9/24/2025  7:59 PM            472 unevaluated.json
+-a---           9/24/2025  7:59 PM           2264 validation.json
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\runtime
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            236 equal.ts
+-a---           9/24/2025  7:59 PM           4553 parseJson.ts
+-a---           9/24/2025  7:59 PM            802 quote.ts
+-a---           9/24/2025  7:59 PM            157 re2.ts
+-a---           9/24/2025  7:59 PM           1492 timestamp.ts
+-a---           9/24/2025  7:59 PM            629 ucs2length.ts
+-a---           9/24/2025  7:59 PM            162 uri.ts
+-a---           9/24/2025  7:59 PM            336 validation_error.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\standalone
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           4151 index.ts
+-a---           9/24/2025  7:59 PM           1272 instance.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\types
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           7289 index.ts
+-a---           9/24/2025  7:59 PM           6380 json-schema.ts
+-a---           9/24/2025  7:59 PM           9321 jtd-schema.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\vocabularies
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                applicator
+d----           9/24/2025  7:59 PM                core
+d----           9/24/2025  7:59 PM                discriminator
+d----           9/24/2025  7:59 PM                dynamic
+d----           9/24/2025  7:59 PM                format
+d----           9/24/2025  7:59 PM                jtd
+d----           9/24/2025  7:59 PM                unevaluated
+d----           9/24/2025  7:59 PM                validation
+-a---           9/24/2025  7:59 PM           5247 code.ts
+-a---           9/24/2025  7:59 PM            698 draft2020.ts
+-a---           9/24/2025  7:59 PM            496 draft7.ts
+-a---           9/24/2025  7:59 PM            731 errors.ts
+-a---           9/24/2025  7:59 PM            304 metadata.ts
+-a---           9/24/2025  7:59 PM            320 next.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\vocabularies\applicator
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           1824 additionalItems.ts
+-a---           9/24/2025  7:59 PM           3782 additionalProperties.ts
+-a---           9/24/2025  7:59 PM            717 allOf.ts
+-a---           9/24/2025  7:59 PM            380 anyOf.ts
+-a---           9/24/2025  7:59 PM           3278 contains.ts
+-a---           9/24/2025  7:59 PM           3391 dependencies.ts
+-a---           9/24/2025  7:59 PM            280 dependentSchemas.ts
+-a---           9/24/2025  7:59 PM           2395 if.ts
+-a---           9/24/2025  7:59 PM           1592 index.ts
+-a---           9/24/2025  7:59 PM           1892 items.ts
+-a---           9/24/2025  7:59 PM           1053 items2020.ts
+-a---           9/24/2025  7:59 PM            859 not.ts
+-a---           9/24/2025  7:59 PM           2197 oneOf.ts
+-a---           9/24/2025  7:59 PM           2870 patternProperties.ts
+-a---           9/24/2025  7:59 PM            292 prefixItems.ts
+-a---           9/24/2025  7:59 PM           1845 properties.ts
+-a---           9/24/2025  7:59 PM           1247 propertyNames.ts
+-a---           9/24/2025  7:59 PM            441 thenElse.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\vocabularies\core
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            224 id.ts
+-a---           9/24/2025  7:59 PM            274 index.ts
+-a---           9/24/2025  7:59 PM           4384 ref.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\vocabularies\discriminator
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           4304 index.ts
+-a---           9/24/2025  7:59 PM            251 types.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\vocabularies\dynamic
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           1122 dynamicAnchor.ts
+-a---           9/24/2025  7:59 PM           1797 dynamicRef.ts
+-a---           9/24/2025  7:59 PM            328 index.ts
+-a---           9/24/2025  7:59 PM            401 recursiveAnchor.ts
+-a---           9/24/2025  7:59 PM            253 recursiveRef.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\vocabularies\format
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           3987 format.ts
+-a---           9/24/2025  7:59 PM            148 index.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\vocabularies\jtd
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           2656 discriminator.ts
+-a---           9/24/2025  7:59 PM            976 elements.ts
+-a---           9/24/2025  7:59 PM           1627 enum.ts
+-a---           9/24/2025  7:59 PM            746 error.ts
+-a---           9/24/2025  7:59 PM           1007 index.ts
+-a---           9/24/2025  7:59 PM            716 metadata.ts
+-a---           9/24/2025  7:59 PM            649 nullable.ts
+-a---           9/24/2025  7:59 PM            394 optionalProperties.ts
+-a---           9/24/2025  7:59 PM           6244 properties.ts
+-a---           9/24/2025  7:59 PM           2346 ref.ts
+-a---           9/24/2025  7:59 PM           2547 type.ts
+-a---           9/24/2025  7:59 PM            292 union.ts
+-a---           9/24/2025  7:59 PM           1681 values.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\vocabularies\unevaluated
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            257 index.ts
+-a---           9/24/2025  7:59 PM           1524 unevaluatedItems.ts
+-a---           9/24/2025  7:59 PM           2440 unevaluatedProperties.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\lib\vocabularies\validation
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            863 const.ts
+-a---           9/24/2025  7:59 PM            510 dependentRequired.ts
+-a---           9/24/2025  7:59 PM           1837 enum.ts
+-a---           9/24/2025  7:59 PM           1271 index.ts
+-a---           9/24/2025  7:59 PM            485 limitContains.ts
+-a---           9/24/2025  7:59 PM            812 limitItems.ts
+-a---           9/24/2025  7:59 PM           1025 limitLength.ts
+-a---           9/24/2025  7:59 PM           1350 limitNumber.ts
+-a---           9/24/2025  7:59 PM            851 limitProperties.ts
+-a---           9/24/2025  7:59 PM           1072 multipleOf.ts
+-a---           9/24/2025  7:59 PM            961 pattern.ts
+-a---           9/24/2025  7:59 PM           2961 required.ts
+-a---           9/24/2025  7:59 PM           2690 uniqueItems.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\node_modules
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                json-schema-traverse
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\node_modules\json-schema-traverse
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                .github
+d----           9/24/2025  7:59 PM                spec
+-a---           9/24/2025  7:59 PM            630 .eslintrc.yml
+-a---           9/24/2025  7:59 PM            740 index.d.ts
+-a---           9/24/2025  7:59 PM           2428 index.js
+-a---           9/24/2025  7:59 PM           1074 LICENSE
+-a---           9/24/2025  7:59 PM           1004 package.json
+-a---           9/24/2025  7:59 PM           3350 README.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\node_modules\json-schema-traverse\.github
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                workflows
+-a---           9/24/2025  7:59 PM             57 FUNDING.yml
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\node_modules\json-schema-traverse\.github\workflows
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            582 build.yml
+-a---           9/24/2025  7:59 PM            678 publish.yml
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\node_modules\json-schema-traverse\spec
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                fixtures
+-a---           9/24/2025  7:59 PM             91 .eslintrc.yml
+-a---           9/24/2025  7:59 PM           6042 index.spec.js
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ajv\node_modules\json-schema-traverse\spec\fixtures
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           5544 schema.js
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\body-parser
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                lib
+-a---           9/24/2025  7:59 PM          18277 HISTORY.md
+-a---           9/24/2025  7:59 PM           1315 index.js
+-a---           9/24/2025  7:59 PM           1172 LICENSE
+-a---           9/24/2025  7:59 PM           1272 package.json
+-a---           9/24/2025  7:59 PM          19420 README.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\body-parser\lib
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                types
+-a---           9/24/2025  7:59 PM           4527 read.js
+-a---           9/24/2025  7:59 PM           1667 utils.js
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\body-parser\lib\types
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           4508 json.js
+-a---           9/24/2025  7:59 PM           1353 raw.js
+-a---           9/24/2025  7:59 PM           1490 text.js
+-a---           9/24/2025  7:59 PM           4257 urlencoded.js
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\content-disposition
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           1112 HISTORY.md
+-a---           9/24/2025  7:59 PM          10594 index.js
+-a---           9/24/2025  7:59 PM           1094 LICENSE
+-a---           9/24/2025  7:59 PM           1106 package.json
+-a---           9/24/2025  7:59 PM           5205 README.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\cookie-signature
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           1481 History.md
+-a---           9/24/2025  7:59 PM           1413 index.js
+-a---           9/24/2025  7:59 PM           1124 LICENSE
+-a---           9/24/2025  7:59 PM            548 package.json
+-a---           9/24/2025  7:59 PM            427 Readme.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\debug
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                src
+-a---           9/24/2025  7:59 PM           1139 LICENSE
+-a---           9/24/2025  7:59 PM           1479 package.json
+-a---           9/24/2025  7:59 PM          22115 README.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\debug\src
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           6103 browser.js
+-a---           9/24/2025  7:59 PM           6915 common.js
+-a---           9/24/2025  7:59 PM            314 index.js
+-a---           9/24/2025  7:59 PM           4728 node.js
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\express
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                lib
+-a---           9/24/2025  7:59 PM         122540 History.md
+-a---           9/24/2025  7:59 PM            224 index.js
+-a---           9/24/2025  7:59 PM           1249 LICENSE
+-a---           9/24/2025  7:59 PM           2693 package.json
+-a---           9/24/2025  7:59 PM           9350 Readme.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\express\lib
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM          13987 application.js
+-a---           9/24/2025  7:59 PM           1636 express.js
+-a---           9/24/2025  7:59 PM          11721 request.js
+-a---           9/24/2025  7:59 PM          24561 response.js
+-a---           9/24/2025  7:59 PM           5244 utils.js
+-a---           9/24/2025  7:59 PM           3809 view.js
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\finalhandler
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           5289 HISTORY.md
+-a---           9/24/2025  7:59 PM           5818 index.js
+-a---           9/24/2025  7:59 PM           1119 LICENSE
+-a---           9/24/2025  7:59 PM           1179 package.json
+-a---           9/24/2025  7:59 PM           4120 README.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\fresh
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           1844 HISTORY.md
+-a---           9/24/2025  7:59 PM           2705 index.js
+-a---           9/24/2025  7:59 PM           1174 LICENSE
+-a---           9/24/2025  7:59 PM           1218 package.json
+-a---           9/24/2025  7:59 PM           3348 README.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\globals
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM          81428 globals.json
+-a---           9/24/2025  7:59 PM         109437 index.d.ts
+-a---           9/24/2025  7:59 PM             58 index.js
+-a---           9/24/2025  7:59 PM           1117 license
+-a---           9/24/2025  7:59 PM           2659 package.json
+-a---           9/24/2025  7:59 PM           1623 readme.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\iconv-lite
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                .github
+d----           9/24/2025  7:59 PM                .idea
+d----           9/24/2025  7:59 PM                encodings
+d----           9/24/2025  7:59 PM                lib
+-a---           9/24/2025  7:59 PM           6581 Changelog.md
+-a---           9/24/2025  7:59 PM           1064 LICENSE
+-a---           9/24/2025  7:59 PM           1131 package.json
+-a---           9/24/2025  7:59 PM           6352 README.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\iconv-lite\.github
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            321 dependabot.yml
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\iconv-lite\.idea
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                codeStyles
+d----           9/24/2025  7:59 PM                inspectionProfiles
+-a---           9/24/2025  7:59 PM            458 iconv-lite.iml
+-a---           9/24/2025  7:59 PM            272 modules.xml
+-a---           9/24/2025  7:59 PM            180 vcs.xml
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\iconv-lite\.idea\codeStyles
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            142 codeStyleConfig.xml
+-a---           9/24/2025  7:59 PM           2141 Project.xml
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\iconv-lite\.idea\inspectionProfiles
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            251 Project_Default.xml
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\iconv-lite\encodings
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                tables
+-a---           9/24/2025  7:59 PM          23065 dbcs-codec.js
+-a---           9/24/2025  7:59 PM           9389 dbcs-data.js
+-a---           9/24/2025  7:59 PM            733 index.js
+-a---           9/24/2025  7:59 PM           6309 internal.js
+-a---           9/24/2025  7:59 PM           2191 sbcs-codec.js
+-a---           9/24/2025  7:59 PM          32034 sbcs-data-generated.js
+-a---           9/24/2025  7:59 PM           5116 sbcs-data.js
+-a---           9/24/2025  7:59 PM           5502 utf16.js
+-a---           9/24/2025  7:59 PM           9982 utf32.js
+-a---           9/24/2025  7:59 PM           9283 utf7.js
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\iconv-lite\encodings\tables
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM          17717 big5-added.json
+-a---           9/24/2025  7:59 PM          47320 cp936.json
+-a---           9/24/2025  7:59 PM          38122 cp949.json
+-a---           9/24/2025  7:59 PM          42356 cp950.json
+-a---           9/24/2025  7:59 PM          41064 eucjp.json
+-a---           9/24/2025  7:59 PM           2216 gb18030-ranges.json
+-a---           9/24/2025  7:59 PM           1247 gbk-added.json
+-a---           9/24/2025  7:59 PM          23782 shiftjis.json
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\iconv-lite\lib
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           1109 bom-handling.js
+-a---           9/24/2025  7:59 PM           1387 index.d.ts
+-a---           9/24/2025  7:59 PM           6321 index.js
+-a---           9/24/2025  7:59 PM           3380 streams.js
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\media-typer
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           1155 HISTORY.md
+-a---           9/24/2025  7:59 PM           3090 index.js
+-a---           9/24/2025  7:59 PM           1094 LICENSE
+-a---           9/24/2025  7:59 PM            925 package.json
+-a---           9/24/2025  7:59 PM           2992 README.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\merge-descriptors
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            635 index.d.ts
+-a---           9/24/2025  7:59 PM            616 index.js
+-a---           9/24/2025  7:59 PM           1231 license
+-a---           9/24/2025  7:59 PM            961 package.json
+-a---           9/24/2025  7:59 PM            930 readme.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\mime-db
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM         203840 db.json
+-a---           9/24/2025  7:59 PM          13886 HISTORY.md
+-a---           9/24/2025  7:59 PM            189 index.js
+-a---           9/24/2025  7:59 PM           1172 LICENSE
+-a---           9/24/2025  7:59 PM           1530 package.json
+-a---           9/24/2025  7:59 PM           4949 README.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\mime-types
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           9627 HISTORY.md
+-a---           9/24/2025  7:59 PM           4554 index.js
+-a---           9/24/2025  7:59 PM           1167 LICENSE
+-a---           9/24/2025  7:59 PM           1351 mimeScore.js
+-a---           9/24/2025  7:59 PM           1170 package.json
+-a---           9/24/2025  7:59 PM           4472 README.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\ms
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           3024 index.js
+-a---           9/24/2025  7:59 PM           1079 license.md
+-a---           9/24/2025  7:59 PM            732 package.json
+-a---           9/24/2025  7:59 PM           1886 readme.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\negotiator
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                lib
+-a---           9/24/2025  7:59 PM           2619 HISTORY.md
+-a---           9/24/2025  7:59 PM           2516 index.js
+-a---           9/24/2025  7:59 PM           1177 LICENSE
+-a---           9/24/2025  7:59 PM           1080 package.json
+-a---           9/24/2025  7:59 PM           5330 README.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\negotiator\lib
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           3081 charset.js
+-a---           9/24/2025  7:59 PM           4155 encoding.js
+-a---           9/24/2025  7:59 PM           3409 language.js
+-a---           9/24/2025  7:59 PM           5343 mediaType.js
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\qs
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                .github
+d----           9/24/2025  7:59 PM                dist
+d----           9/24/2025  7:59 PM                lib
+d----           9/24/2025  7:59 PM                test
+-a---           9/24/2025  7:59 PM            597 .editorconfig
+-a---           9/24/2025  7:59 PM           1050 .eslintrc
+-a---           9/24/2025  7:59 PM            216 .nycrc
+-a---           9/24/2025  7:59 PM          33117 CHANGELOG.md
+-a---           9/24/2025  7:59 PM           1600 LICENSE.md
+-a---           9/24/2025  7:59 PM           3137 package.json
+-a---           9/24/2025  7:59 PM          25887 README.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\qs\.github
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            548 FUNDING.yml
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\qs\dist
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM          49512 qs.js
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\qs\lib
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            476 formats.js
+-a---           9/24/2025  7:59 PM            211 index.js
+-a---           9/24/2025  7:59 PM          12620 parse.js
+-a---           9/24/2025  7:59 PM          11475 stringify.js
+-a---           9/24/2025  7:59 PM           7352 utils.js
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\qs\test
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           7698 empty-keys-cases.js
+-a---           9/24/2025  7:59 PM          51326 parse.js
+-a---           9/24/2025  7:59 PM          53219 stringify.js
+-a---           9/24/2025  7:59 PM           8197 utils.js
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\send
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM          14801 HISTORY.md
+-a---           9/24/2025  7:59 PM          20341 index.js
+-a---           9/24/2025  7:59 PM           1128 LICENSE
+-a---           9/24/2025  7:59 PM           1589 package.json
+-a---           9/24/2025  7:59 PM           9062 README.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\serve-static
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM          11431 HISTORY.md
+-a---           9/24/2025  7:59 PM           4489 index.js
+-a---           9/24/2025  7:59 PM           1189 LICENSE
+-a---           9/24/2025  7:59 PM           1113 package.json
+-a---           9/24/2025  7:59 PM           7450 README.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\type-is
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM           6864 HISTORY.md
+-a---           9/24/2025  7:59 PM           5493 index.js
+-a---           9/24/2025  7:59 PM           1172 LICENSE
+-a---           9/24/2025  7:59 PM           1236 package.json
+-a---           9/24/2025  7:59 PM           6504 README.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\vite-tsconfig-paths
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:59 PM                dist
+d----           9/24/2025  7:59 PM                src
+-a---           9/24/2025  7:59 PM           1063 LICENSE
+-a---           9/24/2025  7:59 PM           1378 package.json
+-a---           9/24/2025  7:59 PM           5081 README.md
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\vite-tsconfig-paths\dist
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            173 index.d.mts
+-a---           9/24/2025  7:59 PM           2344 index.d.ts
+-a---           9/24/2025  7:59 PM          13400 index.js
+-a---           9/24/2025  7:59 PM          26073 index.js.map
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\node_modules\vite-tsconfig-paths\src
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:59 PM            233 debug.ts
+-a---           9/24/2025  7:59 PM          14663 index.ts
+-a---           9/24/2025  7:59 PM           1564 mappings.ts
+-a---           9/24/2025  7:59 PM            638 path.ts
+-a---           9/24/2025  7:59 PM           2322 types.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\scripts
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM           3281 clean.ts
+-a---           9/24/2025  7:58 PM           9078 fetch-openapi-spec.ts
+-a---           9/24/2025  7:58 PM           4557 make-executable.ts
+-a---           9/24/2025  7:58 PM           6674 README.md
+-a---           9/24/2025  7:58 PM          10808 tree.ts
+-a---           9/24/2025  7:58 PM           6459 validate-mcp-publish-schem
+                                                  a.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:58 PM                config
+d----           9/24/2025  7:58 PM                mcp-server
+d----           9/24/2025  7:58 PM                types-global
+d----           9/24/2025  7:58 PM                utils
+-a---           9/24/2025  7:58 PM           9198 index.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\config
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM          13340 index.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:58 PM                resources
+d----           9/24/2025  7:58 PM                tools
+d----           9/24/2025  7:58 PM                transports
+-a---           9/24/2025  7:58 PM          10048 server.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\resources
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:58 PM                gitWorkingDir
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\resources\gitWorkingDir
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            175 index.ts
+-a---           9/24/2025  7:58 PM            992 logic.ts
+-a---           9/24/2025  7:58 PM           3330 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:58 PM                gitAdd
+d----           9/24/2025  7:58 PM                gitBranch
+d----           9/24/2025  7:58 PM                gitCheckout
+d----           9/24/2025  7:58 PM                gitCherryPick
+d----           9/24/2025  7:58 PM                gitClean
+d----           9/24/2025  7:58 PM                gitClearWorkingDir
+d----           9/24/2025  7:58 PM                gitClone
+d----           9/24/2025  7:58 PM                gitCommit
+d----           9/24/2025  7:58 PM                gitDiff
+d----           9/24/2025  7:58 PM                gitFetch
+d----           9/24/2025  7:58 PM                gitInit
+d----           9/24/2025  7:58 PM                gitLog
+d----           9/24/2025  7:58 PM                gitMerge
+d----           9/24/2025  7:58 PM                gitPull
+d----           9/24/2025  7:58 PM                gitPush
+d----           9/24/2025  7:58 PM                gitRebase
+d----           9/24/2025  7:58 PM                gitRemote
+d----           9/24/2025  7:58 PM                gitReset
+d----           9/24/2025  7:58 PM                gitSetWorkingDir
+d----           9/24/2025  7:58 PM                gitShow
+d----           9/24/2025  7:58 PM                gitStash
+d----           9/24/2025  7:58 PM                gitStatus
+d----           9/24/2025  7:58 PM                gitTag
+d----           9/24/2025  7:58 PM                gitWorktree
+d----           9/24/2025  7:58 PM                gitWrapupInstructions
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitAdd
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            166 index.ts
+-a---           9/24/2025  7:58 PM           3487 logic.ts
+-a---           9/24/2025  7:58 PM           3217 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitBranch
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            175 index.ts
+-a---           9/24/2025  7:58 PM           6835 logic.ts
+-a---           9/24/2025  7:58 PM           3361 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitCheckout
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            181 index.ts
+-a---           9/24/2025  7:58 PM           3874 logic.ts
+-a---           9/24/2025  7:58 PM           3369 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitCherryPick
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            187 index.ts
+-a---           9/24/2025  7:58 PM           5039 logic.ts
+-a---           9/24/2025  7:58 PM           3523 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitClean
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            172 index.ts
+-a---           9/24/2025  7:58 PM           4278 logic.ts
+-a---           9/24/2025  7:58 PM           3433 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitClearWorkingDir
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            202 index.ts
+-a---           9/24/2025  7:58 PM           2216 logic.ts
+-a---           9/24/2025  7:58 PM           3622 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitClone
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            172 index.ts
+-a---           9/24/2025  7:58 PM           3436 logic.ts
+-a---           9/24/2025  7:58 PM           2854 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitCommit
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            175 index.ts
+-a---           9/24/2025  7:58 PM           6202 logic.ts
+-a---           9/24/2025  7:58 PM           4451 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitDiff
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            169 index.ts
+-a---           9/24/2025  7:58 PM           4907 logic.ts
+-a---           9/24/2025  7:58 PM           3392 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitFetch
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            172 index.ts
+-a---           9/24/2025  7:58 PM           2960 logic.ts
+-a---           9/24/2025  7:58 PM           3321 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitInit
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            169 index.ts
+-a---           9/24/2025  7:58 PM           4226 logic.ts
+-a---           9/24/2025  7:58 PM           2995 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitLog
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            166 index.ts
+-a---           9/24/2025  7:58 PM           5624 logic.ts
+-a---           9/24/2025  7:58 PM           3484 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitMerge
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            172 index.ts
+-a---           9/24/2025  7:58 PM           4966 logic.ts
+-a---           9/24/2025  7:58 PM           3324 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitPull
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            169 index.ts
+-a---           9/24/2025  7:58 PM           3272 logic.ts
+-a---           9/24/2025  7:58 PM           3382 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitPush
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            169 index.ts
+-a---           9/24/2025  7:58 PM           4170 logic.ts
+-a---           9/24/2025  7:58 PM           3412 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitRebase
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            175 index.ts
+-a---           9/24/2025  7:58 PM           4592 logic.ts
+-a---           9/24/2025  7:58 PM           3368 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitRemote
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            175 index.ts
+-a---           9/24/2025  7:58 PM           4828 logic.ts
+-a---           9/24/2025  7:58 PM           3221 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitReset
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            172 index.ts
+-a---           9/24/2025  7:58 PM           3066 logic.ts
+-a---           9/24/2025  7:58 PM           3450 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitSetWorkingDir
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            196 index.ts
+-a---           9/24/2025  7:58 PM           3453 logic.ts
+-a---           9/24/2025  7:58 PM           3838 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitShow
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            169 index.ts
+-a---           9/24/2025  7:58 PM           2486 logic.ts
+-a---           9/24/2025  7:58 PM           3319 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitStash
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            172 index.ts
+-a---           9/24/2025  7:58 PM           5440 logic.ts
+-a---           9/24/2025  7:58 PM           3421 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitStatus
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            175 index.ts
+-a---           9/24/2025  7:58 PM           4970 logic.ts
+-a---           9/24/2025  7:58 PM           3383 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitTag
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            166 index.ts
+-a---           9/24/2025  7:58 PM           5398 logic.ts
+-a---           9/24/2025  7:58 PM           3477 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitWorktree
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            181 index.ts
+-a---           9/24/2025  7:58 PM           6735 logic.ts
+-a---           9/24/2025  7:58 PM           3515 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\tools\gitWrapupInstructions
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            211 index.ts
+-a---           9/24/2025  7:58 PM           4935 logic.ts
+-a---           9/24/2025  7:58 PM           3774 registration.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\transports
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:58 PM                auth
+d----           9/24/2025  7:58 PM                core
+d----           9/24/2025  7:58 PM                http
+d----           9/24/2025  7:58 PM                stdio
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\transports\auth
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:58 PM                lib
+d----           9/24/2025  7:58 PM                strategies
+-a---           9/24/2025  7:58 PM           2040 authFactory.ts
+-a---           9/24/2025  7:58 PM           3374 authMiddleware.ts
+-a---           9/24/2025  7:58 PM            659 index.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\transports\auth\lib
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM           1247 authContext.ts
+-a---           9/24/2025  7:58 PM            650 authTypes.ts
+-a---           9/24/2025  7:58 PM           2867 authUtils.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\transports\auth\strategies
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            806 authStrategy.ts
+-a---           9/24/2025  7:58 PM           5480 jwtStrategy.ts
+-a---           9/24/2025  7:58 PM           5264 oauthStrategy.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\transports\core
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM           1258 baseTransportManager.ts
+-a---           9/24/2025  7:58 PM           2378 honoNodeBridge.ts
+-a---           9/24/2025  7:58 PM          11482 statefulTransportManager.t
+                                                  s
+-a---           9/24/2025  7:58 PM           4434 statelessTransportManager.
+                                                  ts
+-a---           9/24/2025  7:58 PM           2489 transportTypes.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\transports\http
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM           3574 httpErrorHandler.ts
+-a---           9/24/2025  7:58 PM          13360 httpTransport.ts
+-a---           9/24/2025  7:58 PM            611 httpTypes.ts
+-a---           9/24/2025  7:58 PM            311 index.ts
+-a---           9/24/2025  7:58 PM           4213 mcpTransportMiddleware.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\mcp-server\transports\stdio
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM            184 index.ts
+-a---           9/24/2025  7:58 PM           3548 stdioTransport.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\types-global
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM           6484 errors.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\utils
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:58 PM                internal
+d----           9/24/2025  7:58 PM                metrics
+d----           9/24/2025  7:58 PM                parsing
+d----           9/24/2025  7:58 PM                security
+-a---           9/24/2025  7:58 PM            560 index.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\utils\internal
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM          11402 errorHandler.ts
+-a---           9/24/2025  7:58 PM            104 index.ts
+-a---           9/24/2025  7:58 PM          15906 logger.ts
+-a---           9/24/2025  7:58 PM           2727 requestContext.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\utils\metrics
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM             36 index.ts
+-a---           9/24/2025  7:58 PM           6593 tokenCounter.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\utils\parsing
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM           3121 dateParser.ts
+-a---           9/24/2025  7:58 PM             68 index.ts
+-a---           9/24/2025  7:58 PM           5876 jsonParser.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\src\utils\security
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM           7154 idGenerator.ts
+-a---           9/24/2025  7:58 PM            106 index.ts
+-a---           9/24/2025  7:58 PM           7026 rateLimiter.ts
+-a---           9/24/2025  7:58 PM          19542 sanitization.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\tests
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:58 PM                mcp-server
+d----           9/24/2025  7:58 PM                mocks
+d----           9/24/2025  7:58 PM                utils
+-a---           9/24/2025  7:58 PM            300 setup.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\tests\mcp-server
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:58 PM                transports
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\tests\mcp-server\transports
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:58 PM                auth
+d----           9/24/2025  7:58 PM                stdio
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\tests\mcp-server\transports\auth
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:58 PM                lib
+d----           9/24/2025  7:58 PM                strategies
+-a---           9/24/2025  7:58 PM           5731 auth.test.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\tests\mcp-server\transports\auth\lib
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM           3986 authUtils.test.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\tests\mcp-server\transports\auth\strategies
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM           6491 oauthStrategy.test.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\tests\mcp-server\transports\stdio
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM           1671 stdioTransport.test.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\tests\mocks
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM           3697 handlers.ts
+-a---           9/24/2025  7:58 PM            210 server.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\tests\utils
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           9/24/2025  7:58 PM                internal
+d----           9/24/2025  7:58 PM                metrics
+d----           9/24/2025  7:58 PM                parsing
+d----           9/24/2025  7:58 PM                security
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\tests\utils\internal
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM           9451 errorHandler.test.ts
+-a---           9/24/2025  7:58 PM           3997 logger.test.ts
+-a---           9/24/2025  7:58 PM           2431 requestContext.test.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\tests\utils\metrics
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM           2446 tokenCounter.test.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\tests\utils\parsing
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM           3650 dateParser.test.ts
+-a---           9/24/2025  7:58 PM           5101 jsonParser.test.ts
+
+    Directory: C:\Users\Austin\Documents\GitHub\servers\src\git\tests\utils\security
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           9/24/2025  7:58 PM           3720 idGenerator.test.ts
+-a---           9/24/2025  7:58 PM           5904 rateLimiter.test.ts
+

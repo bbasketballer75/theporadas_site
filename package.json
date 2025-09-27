@@ -24,7 +24,8 @@
     "@canva/cli": "^1.2.0",
     "next": "^15.5.0",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "diff": "^5.1.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
@@ -34,6 +35,16 @@
     "@types/minimatch": "^5.1.2",
     "@types/node": "^24.5.2",
     "kill-port": "^2.0.1",
-    "shx": "^0.4.0"
+    "shx": "^0.4.0",
+    "jest": "^29.6.4",
+    "jest-environment-jsdom": "^29.6.4",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/jest-dom": "^6.8.0",
+    "jest-axe": "^10.0.0",
+    "ts-jest": "^29.4.4",
+    "typescript": "^5.4.2",
+    "@babel/core": "^7.24.0",
+    "@babel/preset-env": "^7.24.0",
+    "babel-jest": "^29.6.4"
   }
 }

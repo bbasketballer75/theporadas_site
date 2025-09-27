@@ -1,0 +1,30 @@
+name: Create PR for chore/jest-scope
+
+on:
+    workflow_dispatch:
+        inputs:
+            pr_title:
+                description: "PR title"
+                required: false
+                default: "chore(test): scope Jest and add CI + local Postgres helper"
+            pr_body:
+                description: "PR body"
+                required: false
+                default: |
+                    This PR scopes Jest to the filesystem subproject, adds dedicated CI workflows for Jest and Vitest, and improves the start-mcp-service helper to auto-start a local Postgres Docker container when PG_URL is missing.
+
+jobs:
+    create-pr:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Create Pull Request
+              uses: peter-evans/create-pull-request@v5
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  commit-message: "chore(ci): open PR for Jest scoping and local Postgres helper"
+                  title: "${{ github.event.inputs.pr_title }}"
+                  body: "${{ github.event.inputs.pr_body }}"
+                  base: main
+                  head: chore/jest-scope
+                  draft: false

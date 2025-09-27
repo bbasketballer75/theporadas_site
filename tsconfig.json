@@ -1,0 +1,8 @@
+{
+  "extends": "./servers/tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "isolatedModules": true
+  },
+  "include": ["servers/**/*", "src/**/*"]
+}

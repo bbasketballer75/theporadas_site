@@ -7,3 +7,6 @@ backup-*.bundle
 *.localbundle
 # temporary bundle files
 *.bundle.backup
+tmp-filter-clone
+tmp-filter-clone-remote
+logs/
