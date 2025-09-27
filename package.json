@@ -24,7 +24,8 @@
     "@canva/cli": "^1.2.0",
     "next": "^15.5.0",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "diff": "^5.1.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
