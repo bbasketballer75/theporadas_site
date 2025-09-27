@@ -6,7 +6,7 @@ module.exports = {
   },
   transformIgnorePatterns: ['/node_modules/', '/.next/'],
   moduleNameMapper: {
-    '^(.*)\\.js$': '$1.ts',
+    '^(\\.{1,2}\/.*)\\.js$': '$1.ts',
   },
   testPathIgnorePatterns: ['/node_modules/', '/.next/'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
