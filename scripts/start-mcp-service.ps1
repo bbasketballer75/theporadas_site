@@ -11,7 +11,7 @@ $repoRoot = Resolve-Path (Join-Path $scriptDir '..')
 Set-Location $repoRoot
 
 $logsDir = Join-Path $repoRoot 'logs'
-if (-not (Test-Path $logsDir)) { New-Item -ItemType Directory -Path $logsDir | Out-Null }
+if (-Not (Test-Path $logsDir)) { New-Item -ItemType Directory -Path $logsDir | Out-Null }
 # Write a starter trace so we can confirm this helper runs
 try { $starterLog = Join-Path $logsDir 'service-starter.log'; New-Item -Path $starterLog -ItemType File -Force | Out-Null; ("[{0}] start-mcp-service invoked for service: {1} (PID {2})" -f (Get-Date), $Service, $PID) | Out-File -FilePath $starterLog -Encoding utf8 -Append } catch {}
 
@@ -72,7 +72,7 @@ if (-not (Test-Path $envPath) -and (Test-Path $envExamplePath)) {
     Copy-Item -Path $envExamplePath -Destination $envPath -Force
 }
 
-function Convert-FileUriToPath {
+function Decode-FileUri {
     param([string] $uri)
     if (-not $uri) { return $uri }
     # If this looks like a file URI, try to convert to local path
@@ -136,7 +136,7 @@ switch ($lower) {
         }
         if (-not $procId) {
             # Decode repo root in case it was provided as a file:// URI or percent-encoded
-            $decodedRepoRoot = Convert-FileUriToPath $repoRoot
+            $decodedRepoRoot = Decode-FileUri $repoRoot
             $procId = Start-NpxProcess @('@modelcontextprotocol/server-filesystem@latest', $decodedRepoRoot) $logFile $errFile
         }
     }
@@ -274,24 +274,13 @@ switch ($lower) {
         # If not set, attempt to read from repository .env file (already auto-copied from .env.example above if missing)
         if (-not $pgUrl -and (Test-Path $envPath)) {
             try {
-                $lines = Get-Content -Path $envPath -ErrorAction SilentlyContinue
-                foreach ($line in $lines) {
-                    $trim = $line.Trim()
-                    if ($trim -match '^\s*#') { continue } # skip comments
-                    if ($trim -match '^PG_URL\s*=\s*(.+)$') { $pgUrl = $Matches[1].Trim(); break }
-                    if ($trim -match '^PGURL\s*=\s*(.+)$') { $pgUrl = $Matches[1].Trim(); break }
-                    if ($trim -match '^PG-URL\s*=\s*(.+)$') { $pgUrl = $Matches[1].Trim(); break }
-                }
+                $envContent = Get-Content $envPath -Raw -ErrorAction SilentlyContinue
+                if ($envContent -match '^PG_URL\s*=\s*(.+)$') { $pgUrl = $Matches[1].Trim() }
+                elseif ($envContent -match '^PGURL\s*=\s*(.+)$') { $pgUrl = $Matches[1].Trim() }
             }
             catch {
                 # ignore parse failures
             }
-        }
-
-        # If still not set, allow passing the DB URL as the first non-parameter argument to the script
-        if (-not $pgUrl -and $args.Count -ge 1) {
-            $maybeUrl = $args[0]
-            if ($maybeUrl -match '^postgres(?:ql)?:\/\/') { $pgUrl = $maybeUrl }
         }
 
         if (-not $pgUrl) {
@@ -301,30 +290,6 @@ switch ($lower) {
 
         # Start the published package, passing the DB URL as the required argument
         $procId = Start-NpxProcess @('@modelcontextprotocol/server-postgres@latest', $pgUrl) $logFile $errFile
-
-        # If we started an ephemeral container, register background cleanup to stop it once the started process exits
-        if ($containerName -and $procId) {
-            try {
-                Write-Output "Waiting for process $procId to exit before cleaning up container $containerName (synchronous cleanup)."
-                # Wait for the process to exit
-                try { Wait-Process -Id $procId -Timeout 0 -ErrorAction SilentlyContinue } catch {}
-                while (Get-Process -Id $procId -ErrorAction SilentlyContinue) { Start-Sleep -Seconds 1 }
-
-                # Attempt to stop the container with retries (synchronous)
-                $retry = 0
-                $stopped = $false
-                while ($retry -lt 5 -and -not $stopped) {
-                    try { & docker stop $containerName | Out-Null; $stopped = $true; break } catch { Start-Sleep -Seconds 1; $retry++ }
-                }
-                if ($stopped) { Write-Output "Container $containerName stopped after process exit." } else { Write-Warning "Failed to stop container $containerName after process exit." }
-                # Record container stopped timestamp in the pids map
-                $map["container_stopped_at_$Service"] = (Get-Date).ToString('o')
-                $map | ConvertTo-Json -Depth 5 | Set-Content -Path $pidsPath -Encoding UTF8
-            }
-            catch {
-                Write-Warning "Synchronous container cleanup failed: $_"
-            }
-        }
     }
     default {
         Write-Error "Unknown service name: $Service"
@@ -342,12 +307,8 @@ if ($procId) {
             foreach ($prop in $existing.PSObject.Properties) { $map[$prop.Name] = $prop.Value }
         }
     }
-    $map["process_pid_$Service"] = $procId
-    $map["process_started_at_$Service"] = (Get-Date).ToString('o')
-    if ($containerName) { $map["container_name_$Service"] = $containerName; $map["container_started_at_$Service"] = $containerStartedAt }
-    if ($cid) { $map["container_id_$Service"] = ($cid -split "\r?\n")[0].Trim() }
-    if ($pgUrl) { $map["pg_url_$Service"] = $pgUrl }
-    $map | ConvertTo-Json -Depth 5 | Set-Content -Path $pidsPath -Encoding UTF8
+    $map[$Service] = $procId
+    $map | ConvertTo-Json -Depth 3 | Set-Content -Path $pidsPath -Encoding UTF8
     Write-Output "Started service $Service with PID $procId (logs: see $logsDir)"
     exit 0
 }

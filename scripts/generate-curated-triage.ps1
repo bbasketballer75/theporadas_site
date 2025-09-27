@@ -15,10 +15,7 @@ param(
     $ScansDir = "security-scans",
 
     [string]
-    $OutDir = "security-scans/curated",
-
-    [string]
-    $RawOutputPath = "" # If provided, write raw scan outputs here (disabled by default)
+    $OutDir = "security-scans/curated"
 )
 
 if (-not (Test-Path $ScansDir)) {
@@ -30,12 +27,12 @@ New-Item -ItemType Directory -Path (Join-Path $OutDir 'samples') -Force | Out-Nu
 
 # Patterns to summarize (should mirror the audit script list)
 $patterns = @(
-    @{ Key = 'AWS_AK'; File = 'AWS_AK.txt'; Regex = 'AKIA[0-9A-Z]{16}' },
-    @{ Key = 'AWS_ASIA'; File = 'AWS_ASIA.txt'; Regex = 'ASIA[0-9A-Z]{16}' },
-    @{ Key = 'GITHUB_PAT'; File = 'GITHUB_PAT.txt'; Regex = 'ghp_[0-9A-Za-z_]{36,}' },
-    @{ Key = 'GITHUB_ACTIONS'; File = 'GITHUB_ACTIONS.txt'; Regex = 'gho_[0-9A-Za-z_]{36,}' },
-    @{ Key = 'PEM'; File = 'PEM_KEY.txt'; Regex = '-----BEGIN (RSA )?PRIVATE KEY-----' },
-    @{ Key = 'GENERIC_REDACTED_BY_AUDIT_ISSUE_70_ASSIGN'; File = 'GENERIC_REDACTED_BY_AUDIT_ISSUE_70_ASSIGN.txt'; Regex = '(?i)\b(?:secret|token|password|pwd|api[_-]?key)\b' }
+    @{ Key='AWS_AK'; File='AWS_AK.txt'; Regex='AKIA[0-9A-Z]{16}' },
+    @{ Key='AWS_ASIA'; File='AWS_ASIA.txt'; Regex='ASIA[0-9A-Z]{16}' },
+    @{ Key='GITHUB_PAT'; File='GITHUB_PAT.txt'; Regex='ghp_[0-9A-Za-z_]{36,}' },
+    @{ Key='GITHUB_ACTIONS'; File='GITHUB_ACTIONS.txt'; Regex='gho_[0-9A-Za-z_]{36,}' },
+    @{ Key='PEM'; File='PEM_KEY.txt'; Regex='-----BEGIN (RSA )?PRIVATE KEY-----' },
+    @{ Key='GENERIC_REDACTED_BY_AUDIT_ISSUE_70_ASSIGN'; File='GENERIC_REDACTED_BY_AUDIT_ISSUE_70_ASSIGN.txt'; Regex='(?i)\b(?:secret|token|password|pwd|api[_-]?key)\b' }
 )
 
 $summary = @()
@@ -51,12 +48,6 @@ foreach ($p in $patterns) {
                 $count++
                 if ($samples.Count -lt $MaxSamplesPerPattern) { $samples += $l.Trim() }
             }
-        }
-
-        # Optionally copy raw per-pattern file to a raw output path if requested (do NOT enable by default)
-        if ($RawOutputPath -and (Test-Path $path)) {
-            New-Item -ItemType Directory -Path $RawOutputPath -Force | Out-Null
-            Copy-Item -Path $path -Destination (Join-Path $RawOutputPath (Split-Path $path -Leaf)) -Force
         }
     }
     else {

@@ -32,24 +32,6 @@ jobs:
       - name: Generate curated triage (PowerShell)
         run: pwsh -c "./scripts/generate-curated-triage.ps1 -MaxSamplesPerPattern 5 -ScansDir security-scans -OutDir security-scans/curated"
 
-      - name: Run verification for large git objects (PowerShell)
-        run: pwsh -c "./scripts/verify-no-large-blobs.ps1 -ThresholdMB 100 -ReportPath outputs/verify-report.txt"
-
-      - name: Upload verification report
-        uses: actions/upload-artifact@v4
-        with:
-          name: verification-report
-          path: outputs/verify-report.txt
-
-      - name: Optionally upload raw artifacts to S3 (if configured)
-        if: ${{ secrets.AWS_S3_BUCKET && secrets.AWS_ACCESS_KEY_ID }}
-        run: |
-          pwsh -NoProfile -Command "if (Test-Path 'security-scans/raw') { ./scripts/upload-raw-artifacts.ps1 -ArtifactsPath 'security-scans/raw' -Provider 'aws' -Bucket '${{ secrets.AWS_S3_BUCKET }}' -Region '${{ secrets.AWS_REGION || 'us-east-1' }}' } else { Write-Output 'No raw artifacts to upload.' }"
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_REDACTED_BY_AUDIT_ISSUE_70_ACCESS_KEY: ${{ secrets.AWS_REDACTED_BY_AUDIT_ISSUE_70_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-
       - name: Upload curated artifacts
         uses: actions/upload-artifact@v4
         with:

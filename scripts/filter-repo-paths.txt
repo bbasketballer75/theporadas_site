@@ -1,6 +1,0 @@
-security-scans/per-file-issues/
-security-scans/triage-report.csv
-security-scans/triage-report.md
-security-scans/deeper_base64.txt
-security-scans/deeper_hex.txt
-security-scans/deeper_longalnum.txt
