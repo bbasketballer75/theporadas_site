@@ -1,0 +1,173 @@
+name: Build and deploy (CI)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths: ['**']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --workspaces
+
+      - name: Lint (fail on warnings)
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+      - name: Optimize images
+        run: npm run optimize-images -- --input assets/public/media/photos --output assets/public/media/optimized
+
+      - name: Verify no large git objects (PowerShell)
+        run: pwsh -c "./scripts/verify-no-large-blobs.ps1 -ThresholdMB 100 -ReportPath outputs/verify-report-build.txt"
+
+      - name: Build (root workspace)
+        run: npm run build --workspaces
+
+      - name: Upload build artifact (.next)
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          path: .next
+
+      - name: Upload verification report
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-report
+          path: outputs/verify-report-build.txt
+
+      - name: Create AI review check success
+        if: success()
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner; const repo = context.repo.repo; const head_sha = context.sha;
+            await github.checks.create({ owner, repo, name: 'ai-review', head_sha, status: 'completed', conclusion: 'success', output: { title: 'AI Review Check', summary: 'Build and tests completed successfully.' } });
+
+      - name: Create AI review check failure
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner; const repo = context.repo.repo; const head_sha = context.sha;
+            await github.checks.create({ owner, repo, name: 'ai-review', head_sha, status: 'completed', conclusion: 'failure', output: { title: 'AI Review Check', summary: 'Build or tests failed; see logs.' } });
+
+  deploy-preview:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' # previews only for PRs
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Upload build artifact for preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-build-preview
+          path: .next
+
+      - name: Post guidance about previews (Vercel GitHub App)
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) { core.info('No PR context available.'); return; }
+            const body = 'A build artifact is available for preview. If the Vercel GitHub App is installed and configured for this repository, Vercel will create a preview deployment automatically for this PR. If previews are not appearing, install the Vercel GitHub App (see .github/VERCEL_INTEGRATION.md) or trigger a manual deploy using the Vercel project.';
+            await github.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: pr.number, body });
+
+      - name: Cache Jest results
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/jest
+            node_modules/.cache
+          key: jest-cache-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            jest-cache-${{ runner.os }}-
+
+  deploy-production:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Trigger Vercel production via Deploy Hook (preferred)
+        if: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          set -e
+          echo "Triggering Vercel production deploy hook"
+          curl -s -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}" -H 'Content-Type: application/json' -d '{"source":"ci","target":"production"}' -o vercel-hook-prod.json || true
+          echo "Vercel production hook response written to vercel-hook-prod.json"
+        shell: bash
+
+      - name: Fallback to Vercel CLI if no hook
+        if: ${{ !secrets.VERCEL_DEPLOY_HOOK && secrets.VERCEL_TOKEN }}
+        run: |
+          npm install -g vercel
+          vercel --token "${{ secrets.VERCEL_TOKEN }}" --prod --confirm --scope "${{ secrets.VERCEL_ORG_ID }}" --output=json > vercel-prod.json || true
+        shell: bash
+
+      - name: Upload Vercel production output
+        uses: actions/upload-artifact@v4
+        with:
+          name: vercel-prod
+          path: |
+            vercel-hook-prod.json
+            vercel-prod.json
+
+      - name: Notify production deploy (Slack webhook or deployments issue)
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            // try Slack webhook first
+            const slackWebhook = process.env.SLACK_WEBHOOK_URL || null;
+            let content = null;
+            if (fs.existsSync('vercel-hook-prod.json')) {
+              try { content = JSON.parse(fs.readFileSync('vercel-hook-prod.json','utf8')); } catch(e) { core.info('Could not parse vercel-hook-prod.json'); }
+            }
+            if (!content && fs.existsSync('vercel-prod.json')) {
+              try { content = JSON.parse(fs.readFileSync('vercel-prod.json','utf8')); } catch(e) { core.info('Could not parse vercel-prod.json'); }
+            }
+            const url = content ? (content.url || content.previewUrl || (Array.isArray(content) && content[0] && (content[0].url || content[0].previewUrl))) : null;
+            const message = url ? `Production deployed: ${url}` : 'Production deploy attempted — see attached artifact for CLI/hook output.';
+
+            if (slackWebhook) {
+              // send to slack
+              const payload = { text: `:rocket: ${message}` };
+              const spawn = require('child_process').spawnSync;
+              spawn('curl', ['-s', '-X', 'POST', '-H', 'Content-Type: application/json', '-d', JSON.stringify(payload), slackWebhook]);
+              core.info('Posted deployment notification to Slack webhook.');
+              return;
+            }
+
+            // fallback: post to (or create) a dedicated Deployments issue
+            const list = await github.issues.listForRepo({ owner: context.repo.owner, repo: context.repo.repo, labels: 'deployments', state: 'open' });
+            let issueNumber = null;
+            if (list.data && list.data.length > 0) { issueNumber = list.data[0].number; }
+            else {
+              const created = await github.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title: 'Deployments', body: 'This issue collects deployment notifications and links to production preview URLs.' });
+              issueNumber = created.data.number;
+            }
+            await github.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: issueNumber, body: `:rocket: ${message}` });
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

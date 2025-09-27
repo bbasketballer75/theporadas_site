@@ -1,0 +1,8 @@
+.next/
+node_modules/
+coverage/
+logs/
+.env
+backup-*.bundle
+security-scans/raw/
+servers/**/dist/

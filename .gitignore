@@ -1,5 +1,7 @@
 node_modules
 .env
+# Ignore auto-generated .env files created by start-mcp-service for ephemeral local DBs
+.env.auto
 backup-pre-filter.bundle
 # Local backup bundles created by developers or backup tools
 backup-*.bundle

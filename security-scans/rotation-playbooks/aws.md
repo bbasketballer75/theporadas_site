@@ -10,6 +10,7 @@ Steps to rotate and revoke AWS credentials found in the repository or history:
 6. Notify internal security and affected teams and record rotation evidence in the triage issue.
 
 Notes:
+
 - Use IAM Access Analyzer and service control policies where appropriate.
 - Rotate programmatically using AWS CLI or IaC (CloudFormation/Terraform) if possible.
 - Ensure no secret is stored in plaintext in repository files or CI logs.

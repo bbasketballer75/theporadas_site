@@ -1,0 +1,41 @@
+name: Rotation evidence check
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+
+jobs:
+  check-rotation-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check comment for rotation evidence
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const comment = context.payload.comment.body || '';
+            const issue = context.payload.issue;
+            const evidenceRegex = /rotation[-_ ]?evidence\s*:/i;
+            if (!evidenceRegex.test(comment)) {
+              core.info('No rotation evidence found in comment; exiting.');
+              return;
+            }
+
+            // Add a label to mark that evidence was posted and remove needs-rotation if present
+            const labels = (issue.labels || []).map(l => l.name);
+            const hasNeedsRotation = labels.includes('needs-rotation');
+            if (!labels.includes('rotation-evidence-provided')) {
+              await github.issues.addLabels({ owner: context.repo.owner, repo: context.repo.repo, issue_number: issue.number, labels: ['rotation-evidence-provided'] });
+            }
+            if (hasNeedsRotation) {
+              try {
+                await github.issues.removeLabel({ owner: context.repo.owner, repo: context.repo.repo, issue_number: issue.number, name: 'needs-rotation' });
+              } catch (err) {
+                core.info('Could not remove needs-rotation label; it may have been removed already.');
+              }
+            }
+
+            await github.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: issue.number, body: 'Thanks — rotation evidence detected. Please allow maintainers to verify rollout; this issue will be labeled `rotation-evidence-provided`. If you need help, add more details or ping a maintainer.' });

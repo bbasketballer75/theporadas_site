@@ -1,0 +1,17 @@
+name: Apply Branch Protection
+
+on:
+  workflow_dispatch:
+
+jobs:
+  apply-protection:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Apply branch protection
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pwsh -c "./scripts/apply-branch-protection.ps1 -Owner ${{ github.repository_owner }} -Repo ${{ github.event.repository.name }} -Branch main"

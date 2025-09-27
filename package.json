@@ -18,7 +18,15 @@
     "show:mcp:progress": "powershell -ExecutionPolicy Bypass -File ./scripts/show-mcp-progress.ps1",
     "monitor:mcp:watch": "powershell -ExecutionPolicy Bypass -File ./scripts/monitor-mcp.ps1 -Watch",
     "publish-all": "npm publish --workspaces --access public",
-    "link-all": "npm link --workspaces"
+    "link-all": "npm link --workspaces",
+    "lint": "next lint --max-warnings 0",
+    "optimize-images": "node ./scripts/optimize-images.js",
+    "test": "jest --passWithNoTests",
+    "test:ci": "jest --runInBand --coverage",
+    "test:watch": "jest --watch",
+    "test:pages": "jest __tests__/pages.index.test.jsx --passWithNoTests",
+    "apply-branch-protection": "powershell -ExecutionPolicy Bypass -File ./scripts/apply-branch-protection.ps1",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,html,json,md,mdx}\""
   },
   "dependencies": {
     "@canva/cli": "^1.2.0",
@@ -33,7 +41,16 @@
     "@types/jest": "^30.0.0",
     "@types/minimatch": "^5.1.2",
     "@types/node": "^24.5.2",
-    "kill-port": "^2.0.1",
-    "shx": "^0.4.0"
+    "jest": "^29.6.1",
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^14.0.0",
+    "jest-axe": "^7.1.0",
+    "@semantic-release/changelog": "^6.0.0",
+    "@semantic-release/git": "^10.0.0",
+    "@semantic-release/github": "^8.0.0",
+    "@semantic-release/commit-analyzer": "^9.0.0",
+    "@semantic-release/release-notes-generator": "^11.0.0",
+    "@semantic-release/npm": "^10.0.0",
+    "semantic-release-monorepo": "^7.0.0"
   }
 }

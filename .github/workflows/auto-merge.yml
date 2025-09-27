@@ -1,0 +1,30 @@
+name: Auto Merge on AI Approval
+
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  attempt-merge:
+    if: github.event.label && github.event.label.name == 'ai-approved'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check required status checks
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) { core.info('No PR payload'); return; }
+            const owner = context.repo.owner; const repo = context.repo.repo; const ref = pr.head.sha;
+            const status = await github.repos.getCombinedStatusForRef({ owner, repo, ref });
+            const state = status.data.state; // 'success' if all status checks success
+            if (state !== 'success') { core.info('Status checks not all success; aborting auto-merge.'); return; }
+
+            // Merge the PR
+            try {
+              await github.pulls.merge({ owner, repo, pull_number: pr.number, merge_method: 'squash' });
+              await github.issues.createComment({ owner, repo, issue_number: pr.number, body: 'Auto-merged by AI approval after all checks passed.' });
+            } catch (err) {
+              core.info('Auto-merge failed: ' + err.message);
+            }
