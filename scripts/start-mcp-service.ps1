@@ -284,8 +284,87 @@ switch ($lower) {
         }
 
         if (-not $pgUrl) {
-            Write-Error "Postgres server requires a database URL. Provide it via environment variable PG_URL, a .env file entry 'PG_URL=postgresql://...', or pass it as the first CLI argument to the npx command. Example: npx -y @modelcontextprotocol/server-postgres postgresql://postgres:password@localhost:5432/mydb"
-            exit 1
+            # If no PG_URL provided, try to start a local docker postgres container automatically
+            $containerName = 'mcp-local-postgres'
+            $dockerCmd = Get-Command docker -ErrorAction SilentlyContinue
+            if ($dockerCmd) {
+                Write-Output "No PG_URL found — attempting to ensure Docker Postgres container named '$containerName' is running..."
+                # Check if the container exists
+                $existing = & docker ps -a --filter "name=$containerName" --format "{{.ID}} {{.Status}}" 2>$null
+                if (-not $existing) {
+                    # Try to run a new container; prefer fixed host port 5432 but fall back to random port if 5432 is in use
+                    $hostPort = 5432
+                    try {
+                        # Try to run with fixed port 5432
+                        Write-Output "Attempting to run Docker container $containerName mapping host port $hostPort..."
+                        & docker run -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e POSTGRES_DB=mcpdb -p ${hostPort}:5432 --name $containerName -d postgres:15-alpine | Out-Null
+                    }
+                    catch {
+                        Write-Output "Fixed port 5432 in use or container start failed; falling back to ephemeral host port..."
+                        & docker run -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e POSTGRES_DB=mcpdb -P --name $containerName -d postgres:15-alpine | Out-Null
+                    }
+                }
+                else {
+                    # If exists but not running, start it
+                    $parts = $existing -split ' '\n'
+                    if ($existing -match 'Exited') {
+                        Write-Output "Found existing container '$containerName' (exited) — starting it..."
+                        & docker start $containerName | Out-Null
+                    }
+                    else {
+                        Write-Output "Found existing container '$containerName' — leaving it running"
+                    }
+                }
+
+                # Determine which host port maps to container 5432
+                Start-Sleep -Seconds 1
+                $inspectPort = & docker inspect --format '{{(index (index .NetworkSettings.Ports "5432/tcp") 0).HostPort}}' $containerName 2>$null
+                if ($inspectPort -and $inspectPort -ne '') { $hostPort = $inspectPort.Trim() }
+
+                # Wait for postgres to be ready by checking container logs for readiness or using pg_isready if available
+                $ready = $false
+                $deadline = (Get-Date).AddSeconds(60)
+                while ((Get-Date) -lt $deadline -and -not $ready) {
+                    try {
+                        $logs = & docker logs --tail 50 $containerName 2>$null
+                        if ($logs -match 'database system is ready to accept connections') { $ready = $true; break }
+                        # If postgres client available inside container, try pg_isready
+                        $pgis = & docker exec $containerName pg_isready -U postgres 2>$null
+                        if ($pgis -and $pgis -match 'accepting connections') { $ready = $true; break }
+                    }
+                    catch {}
+                    Start-Sleep -Seconds 1
+                }
+
+                if (-not $ready) {
+                    Write-Warning "Timed out waiting for Postgres container to be ready. Check 'docker logs $containerName' for details."
+                }
+
+                # Construct PG_URL using the detected hostPort
+                $pgUrl = "postgresql://postgres:postgres@localhost:${hostPort}/mcpdb"
+
+                # Export PG_URL into current environment and append/update .env file so future runs see it
+                $env:PG_URL = $pgUrl
+                try {
+                    if (Test-Path $envPath) {
+                        $envText = Get-Content $envPath -Raw
+                        if ($envText -match '(^|\n)PG_URL\s*=') {
+                            $newEnvText = $envText -replace '(^|\n)PG_URL\s*=.*', "`nPG_URL=$pgUrl"
+                            Set-Content -Path $envPath -Value $newEnvText -Encoding UTF8
+                        }
+                        else { Add-Content -Path $envPath -Value "`nPG_URL=$pgUrl" }
+                    }
+                    else { Set-Content -Path $envPath -Value "PG_URL=$pgUrl" -Encoding UTF8 }
+                    Write-Output "Set PG_URL to $pgUrl and updated .env"
+                }
+                catch {
+                    Write-Warning "Failed to persist PG_URL to .env: $_"
+                }
+            }
+            else {
+                Write-Error "Postgres server requires a database URL. Provide it via environment variable PG_URL, a .env file entry 'PG_URL=postgresql://...', or pass it as the first CLI argument to the npx command. Example: npx -y @modelcontextprotocol/server-postgres postgresql://postgres:password@localhost:5432/mydb"
+                exit 1
+            }
         }
 
         # Start the published package, passing the DB URL as the required argument
