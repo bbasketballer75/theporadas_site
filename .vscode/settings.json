@@ -48,5 +48,10 @@
   "workbench.editor.enablePreview": true,
   "remote.WSL.fileWatcher.polling": true,
   "remote.WSL.useShellEnvironment": true,
+<<<<<<< HEAD
   "python.terminal.useEnvFile": true
+=======
+  "python.terminal.useEnvFile": true,
+  "npm.packageManager": "npm"
+>>>>>>> 5da2f6fc565c77e8b2946bf24fd8e9cfa3b09a64
 }

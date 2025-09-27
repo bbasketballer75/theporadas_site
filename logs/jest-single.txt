@@ -1,0 +1,22 @@
+ts-jest[ts-compiler] (WARN) Using hybrid module kind (Node16/18/Next) is only supported in "isolatedModules: true". Please set "isolatedModules: true" in your tsconfig.json.
+FAIL servers/src/filesystem/__tests__/path-validation.test.ts
+  ΓùÅ Test suite failed to run
+
+    Cannot find module '../path-validation.js' from 'servers/src/filesystem/__tests__/path-validation.test.ts'
+
+      3 | import * as fs from 'fs/promises';
+      4 | import * as os from 'os';
+    > 5 | import { isPathWithinAllowedDirectories } from '../path-validation.js';
+        | ^
+      6 |
+      7 | /**
+      8 |  * Check if the current environment supports symlink creation
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/resolver.js:427:11)
+      at Object.<anonymous> (servers/src/filesystem/__tests__/path-validation.test.ts:5:1)
+
+Test Suites: 1 failed, 1 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        3.099 s
+Ran all test suites matching /servers\\src\\filesystem\\__tests__\\path-validation.test.ts/i.

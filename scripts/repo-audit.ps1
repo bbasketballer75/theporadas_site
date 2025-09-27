@@ -116,7 +116,11 @@ $patterns = @(
     @{ Name = 'GitHub PAT (ghp_)'; Regex = 'ghp_[0-9A-Za-z_]{36,}' },
     @{ Name = 'GitHub Actions token (gho_)'; Regex = 'gho_[0-9A-Za-z_]{36,}' },
     @{ Name = 'Private key PEM header'; Regex = '-----BEGIN (RSA )?PRIVATE KEY-----' },
+<<<<<<< HEAD
     @{ Name = 'Generic SECRET or TOKEN assignment'; Regex = '(?i)\b(?:secret|token|password|pwd|api[_-]?key)\b\s*[:=]\s*(?:''|\")?[\w\-\._]+' }
+=======
+    @{ Name = 'Generic REDACTED_BY_AUDIT_ISSUE_70 or TOKEN assignment'; Regex = '(?i)\b(?:secret|token|password|pwd|api[_-]?key)\b\s*[:=]\s*(?:''|\")?[\w\-\._]+' }
+>>>>>>> 5da2f6fc565c77e8b2946bf24fd8e9cfa3b09a64
 )
 
 $trackedFiles = @()
