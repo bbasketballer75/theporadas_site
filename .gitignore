@@ -11,3 +11,4 @@ backup-*.bundle
 *.bundle.backup
 tmp-filter-clone
 tmp-filter-clone-remote
+logs/
