@@ -8,7 +8,9 @@ The MCP Fetch server is referenced in automation configs but the required file (
 
 # Set BRAVE_API_KEY from .env or hardcoded value
 
-$env:BRAVE_API_KEY = 'BSAS9aZVHM-uGNa2Cy4CjzeOvIBEkZi'
+# NOTE: The real API key has been removed from the README for security reasons.
+# If this was a live key, rotate/revoke it immediately.
+$env:BRAVE_API_KEY = 'REDACTED_BRAVE_API_KEY'
 
 # Start Brave Search MCP server
 
