@@ -18,14 +18,16 @@ $scriptsDir = Join-Path (Get-Location) 'scripts'
 Write-Output "Running process cleanup (stop-mcp.ps1)..."
 try {
     & "$scriptsDir/stop-mcp.ps1"
-} catch {
+}
+catch {
     Write-Warning "stop-mcp.ps1 exited with an error: $_"
 }
 
 Write-Output "Running container cleanup (stop-mcp-containers.ps1)..."
 try {
     & "$scriptsDir/stop-mcp-containers.ps1"
-} catch {
+}
+catch {
     Write-Warning "stop-mcp-containers.ps1 exited with an error: $_"
 }
 
@@ -34,10 +36,12 @@ if (Test-Path $pidsPath) {
     try {
         $final = Get-Content $pidsPath -Raw | ConvertFrom-Json
         Write-Output "Final pids.json content:"; $final | ConvertTo-Json -Depth 5 | Write-Output
-    } catch {
+    }
+    catch {
         Write-Warning "Failed to read final pids.json: $_"
     }
-} else {
+}
+else {
     Write-Output "No pids.json present after shutdown."
 }
 

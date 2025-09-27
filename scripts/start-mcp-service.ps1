@@ -320,7 +320,8 @@ switch ($lower) {
                 # Record container stopped timestamp in the pids map
                 $map["container_stopped_at_$Service"] = (Get-Date).ToString('o')
                 $map | ConvertTo-Json -Depth 5 | Set-Content -Path $pidsPath -Encoding UTF8
-            } catch {
+            }
+            catch {
                 Write-Warning "Synchronous container cleanup failed: $_"
             }
         }

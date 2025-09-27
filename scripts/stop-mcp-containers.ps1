@@ -23,11 +23,12 @@ $stoppedAny = $false
 $services = @{}
 foreach ($prop in $map.PSObject.Properties) {
     if ($prop.Name -like 'container_name_*') {
-        $svc = $prop.Name -replace '^container_name_',''
+        $svc = $prop.Name -replace '^container_name_', ''
         if (-not $services.ContainsKey($svc)) { $services[$svc] = @{ name = $null; id = $null } }
         $services[$svc].name = $prop.Value
-    } elseif ($prop.Name -like 'container_id_*') {
-        $svc = $prop.Name -replace '^container_id_',''
+    }
+    elseif ($prop.Name -like 'container_id_*') {
+        $svc = $prop.Name -replace '^container_id_', ''
         if (-not $services.ContainsKey($svc)) { $services[$svc] = @{ name = $null; id = $null } }
         $services[$svc].id = $prop.Value
     }
@@ -42,7 +43,8 @@ foreach ($svc in $services.Keys) {
         if ($map.ContainsKey("container_name_$svc")) { $map.Remove("container_name_$svc") }
         if ($map.ContainsKey("container_id_$svc")) { $map.Remove("container_id_$svc") }
         $stoppedAny = $true
-    } catch {
+    }
+    catch {
         Write-Warning "Failed to stop container for $svc: $_"
     }
 }
@@ -52,7 +54,8 @@ if ($stoppedAny) {
     foreach ($rk in $removedKeys) { if ($map.ContainsKey($rk)) { $map.Remove($rk) } }
     try { $map | ConvertTo-Json -Depth 5 | Set-Content -Path $pidsPath -Encoding UTF8 } catch { Write-Warning "Failed to update pids.json after container cleanup: $_" }
     Write-Output 'Container cleanup attempted; you may also run stop-mcp.ps1 to clean processes.'
-} else {
+}
+else {
     Write-Output 'No container_name_* or container_id_* entries were recorded in pids.json or none could be stopped.'
 }
 

@@ -26,8 +26,10 @@ if ($status -ne '') {
     if ($Push) {
         Write-Output 'Pushing formatting commit to origin...'
         git push origin HEAD
-    } else { Write-Output 'Not pushing; pass -Push to push the formatting commit.' }
-} else {
+    }
+    else { Write-Output 'Not pushing; pass -Push to push the formatting commit.' }
+}
+else {
     Write-Output 'No formatting changes detected.'
 }
 
