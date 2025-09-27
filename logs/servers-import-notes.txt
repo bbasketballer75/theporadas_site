@@ -1,0 +1,5 @@
+Servers import notes - created by automated agent
+Branch: fix/testing-deps
+Commit: 9f2ab2a
+Backup bundle: check logs/ for repo-backup-*.bundle or servers-backup-*.bundle
+Jest log: logs/jest-after-servers-import.txt (tests run attempted; many suites failed due to moduleNameMapper config)

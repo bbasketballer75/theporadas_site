@@ -1,0 +1,1057 @@
+FAIL servers/src/filesystem/dist/__tests__/path-validation.test.js
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/filesystem/dist/__tests__/directory-tree.test.js
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/filesystem/dist/__tests__/path-utils.test.js
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/filesystem/dist/__tests__/roots-utils.test.js
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/mcp-server/transports/auth/strategies/oauthStrategy.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/mcp-server/transports/auth/auth.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/mcp-server/transports/stdio/stdioTransport.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/utils/parsing/jsonParser.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/utils/parsing/dateParser.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/utils/security/rateLimiter.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/utils/security/idGenerator.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/utils/metrics/tokenCounter.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/utils/internal/requestContext.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/utils/internal/logger.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/utils/internal/errorHandler.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/filesystem/dist/__tests__/lib.test.js
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/filesystem/__tests__/roots-utils.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/filesystem/__tests__/path-validation.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/filesystem/__tests__/path-utils.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/filesystem/__tests__/lib.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/filesystem/__tests__/directory-tree.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+Summary of all failing tests
+FAIL servers/src/filesystem/dist/__tests__/path-validation.test.js
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/filesystem/dist/__tests__/directory-tree.test.js
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/filesystem/dist/__tests__/path-utils.test.js
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/filesystem/dist/__tests__/roots-utils.test.js
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/mcp-server/transports/auth/strategies/oauthStrategy.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/mcp-server/transports/auth/auth.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/mcp-server/transports/stdio/stdioTransport.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/utils/parsing/jsonParser.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/utils/parsing/dateParser.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/utils/security/rateLimiter.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/utils/security/idGenerator.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/utils/metrics/tokenCounter.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/utils/internal/requestContext.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/utils/internal/logger.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/git/tests/utils/internal/errorHandler.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/filesystem/dist/__tests__/lib.test.js
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/filesystem/__tests__/roots-utils.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/filesystem/__tests__/path-validation.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/filesystem/__tests__/path-utils.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/filesystem/__tests__/lib.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+FAIL servers/src/filesystem/__tests__/directory-tree.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+
+Test Suites: 21 failed, 21 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        0.7 s, estimated 2 s
+Ran all test suites.

@@ -1,0 +1,30 @@
+FAIL servers/src/filesystem/__tests__/path-validation.test.ts
+  ΓùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module ./cjs/react-is.development.js mapped as:
+    $1.ts.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^(\.{1,2}\/.*)\.js$/": "$1.ts"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.<anonymous> (node_modules/react-is/index.js:6:20)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/plugins/ReactElement.js:7:39)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/pretty-format/build/index.js:17:44)
+      at Object.<anonymous> (node_modules/@jest/expect/node_modules/expect/build/index.js:14:44)
+      at _expect (node_modules/@jest/expect/build/index.js:8:16)
+      at createJestExpect (node_modules/@jest/expect/build/index.js:29:3)
+      at Object.<anonymous> (node_modules/@jest/expect/build/index.js:39:20)
+
+Test Suites: 1 failed, 1 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        0.355 s
+Ran all test suites matching /servers\\src\\filesystem\\__tests__\\path-validation.test.ts/i.

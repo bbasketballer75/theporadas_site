@@ -1,0 +1,709 @@
+PASS servers/src/filesystem/dist/__tests__/path-validation.test.js
+  ΓùÅ Console
+
+    console.log
+      
+      ΓÜá∩╕Å  Symlink tests will be skipped - symlink creation not supported in this environment
+
+      at log (servers/src/filesystem/dist/__tests__/path-validation.test.js:40:21)
+
+    console.log
+         On Windows, enable Developer Mode or run as Administrator to enable symlink tests
+
+      at log (servers/src/filesystem/dist/__tests__/path-validation.test.js:41:21)
+
+    console.log
+         ΓÅ¡∩╕Å  Skipping symlink race condition test - symlinks not supported
+
+      at Object.log (servers/src/filesystem/dist/__tests__/path-validation.test.js:519:25)
+
+    console.log
+         ΓÅ¡∩╕Å  Skipping timing validation test - symlinks not supported
+
+      at Object.log (servers/src/filesystem/dist/__tests__/path-validation.test.js:535:25)
+
+    console.log
+         ΓÅ¡∩╕Å  Skipping directory creation timing test - symlinks not supported
+
+      at Object.log (servers/src/filesystem/dist/__tests__/path-validation.test.js:550:25)
+
+    console.log
+         ΓÅ¡∩╕Å  Skipping exclusive file creation test - symlinks not supported
+
+      at Object.log (servers/src/filesystem/dist/__tests__/path-validation.test.js:564:25)
+
+    console.log
+         ΓÅ¡∩╕Å  Skipping resolved parent paths test - symlinks not supported
+
+      at Object.log (servers/src/filesystem/dist/__tests__/path-validation.test.js:577:25)
+
+    console.log
+         ΓÅ¡∩╕Å  Skipping parent directory symlink traversal test - symlinks not supported
+
+      at Object.log (servers/src/filesystem/dist/__tests__/path-validation.test.js:594:25)
+
+    console.log
+         ΓÅ¡∩╕Å  Skipping race condition prevention test - symlinks not supported
+
+      at Object.log (servers/src/filesystem/dist/__tests__/path-validation.test.js:613:25)
+
+    console.log
+         ΓÅ¡∩╕Å  Skipping symlinks within allowed directories test - symlinks not supported
+
+      at Object.log (servers/src/filesystem/dist/__tests__/path-validation.test.js:654:25)
+
+    console.log
+         ΓÅ¡∩╕Å  Skipping symlink overwrite prevention test - symlinks not supported
+
+      at Object.log (servers/src/filesystem/dist/__tests__/path-validation.test.js:681:25)
+
+    console.log
+         ΓÅ¡∩╕Å  Skipping race condition in read operations test - symlinks not supported
+
+      at Object.log (servers/src/filesystem/dist/__tests__/path-validation.test.js:708:25)
+
+    console.log
+         ΓÅ¡∩╕Å  Skipping rename symlink test - symlinks not supported
+
+      at Object.log (servers/src/filesystem/dist/__tests__/path-validation.test.js:732:25)
+
+FAIL servers/src/filesystem/__tests__/path-validation.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/filesystem/dist/__tests__/lib.test.js
+  ΓùÅ Test suite failed to run
+
+    Cannot find module 'diff' from 'servers/src/filesystem/dist/lib.js'
+
+    Require stack:
+      servers/src/filesystem/dist/lib.js
+      servers/src/filesystem/dist/__tests__/lib.test.js
+
+      2 | import path from "path";
+      3 | import { randomBytes } from 'crypto';
+    > 4 | import { createTwoFilesPatch } from 'diff';
+        | ^
+      5 | import minimatch from 'minimatch';
+      6 | import { normalizePath, expandHome } from './path-utils.js';
+      7 | import { isPathWithinAllowedDirectories } from './path-validation.js';
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/resolver.js:427:11)
+      at Object.require (servers/src/filesystem/dist/lib.js:4:1)
+      at Object.require (servers/src/filesystem/dist/__tests__/lib.test.js:4:1)
+
+FAIL servers/src/filesystem/__tests__/lib.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/utils/internal/errorHandler.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+PASS servers/src/filesystem/dist/__tests__/path-utils.test.js
+FAIL servers/src/filesystem/__tests__/path-utils.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/mcp-server/transports/auth/strategies/oauthStrategy.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/filesystem/__tests__/directory-tree.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/utils/security/rateLimiter.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+PASS servers/src/filesystem/dist/__tests__/directory-tree.test.js
+FAIL servers/src/git/tests/mcp-server/transports/auth/auth.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/utils/parsing/jsonParser.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/utils/internal/logger.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/utils/security/idGenerator.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/utils/parsing/dateParser.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+PASS servers/src/filesystem/dist/__tests__/roots-utils.test.js
+  ΓùÅ Console
+
+    console.error
+      Skipping invalid path or inaccessible: file://C:\Users\Austin\AppData\Local\Temp\non-existent-directory-12345
+
+      51 |         const resolvedPath = await parseRootUri(requestedRoot.uri);
+      52 |         if (!resolvedPath) {
+    > 53 |             console.error(formatDirectoryError(requestedRoot.uri, undefined, 'invalid path or inaccessible'));
+         |                     ^
+      54 |             continue;
+      55 |         }
+      56 |         try {
+
+      at error (servers/src/filesystem/dist/roots-utils.js:53:21)
+      at Object.<anonymous> (servers/src/filesystem/dist/__tests__/roots-utils.test.js:60:28)
+
+    console.error
+      Skipping non-directory root: C:\Users\Austin\AppData\Local\Temp\mcp-roots-test1-GVHE2x\test-file.txt
+
+      60 |             }
+      61 |             else {
+    > 62 |                 console.error(formatDirectoryError(resolvedPath, undefined, 'non-directory root'));
+         |                         ^
+      63 |             }
+      64 |         }
+      65 |         catch (error) {
+
+      at error (servers/src/filesystem/dist/roots-utils.js:62:25)
+      at Object.<anonymous> (servers/src/filesystem/dist/__tests__/roots-utils.test.js:60:28)
+
+    console.error
+      Skipping invalid path or inaccessible: file:// invalid path
+
+      51 |         const resolvedPath = await parseRootUri(requestedRoot.uri);
+      52 |         if (!resolvedPath) {
+    > 53 |             console.error(formatDirectoryError(requestedRoot.uri, undefined, 'invalid path or inaccessible'));
+         |                     ^
+      54 |             continue;
+      55 |         }
+      56 |         try {
+
+      at error (servers/src/filesystem/dist/roots-utils.js:53:21)
+      at Object.<anonymous> (servers/src/filesystem/dist/__tests__/roots-utils.test.js:60:28)
+
+FAIL servers/src/filesystem/__tests__/roots-utils.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/utils/metrics/tokenCounter.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/utils/internal/requestContext.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/mcp-server/transports/stdio/stdioTransport.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+Summary of all failing tests
+FAIL servers/src/filesystem/__tests__/path-validation.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/filesystem/dist/__tests__/lib.test.js
+  ΓùÅ Test suite failed to run
+
+    Cannot find module 'diff' from 'servers/src/filesystem/dist/lib.js'
+
+    Require stack:
+      servers/src/filesystem/dist/lib.js
+      servers/src/filesystem/dist/__tests__/lib.test.js
+
+      2 | import path from "path";
+      3 | import { randomBytes } from 'crypto';
+    > 4 | import { createTwoFilesPatch } from 'diff';
+        | ^
+      5 | import minimatch from 'minimatch';
+      6 | import { normalizePath, expandHome } from './path-utils.js';
+      7 | import { isPathWithinAllowedDirectories } from './path-validation.js';
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/resolver.js:427:11)
+      at Object.require (servers/src/filesystem/dist/lib.js:4:1)
+      at Object.require (servers/src/filesystem/dist/__tests__/lib.test.js:4:1)
+
+FAIL servers/src/filesystem/__tests__/lib.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/utils/internal/errorHandler.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/filesystem/__tests__/path-utils.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/mcp-server/transports/auth/strategies/oauthStrategy.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/filesystem/__tests__/directory-tree.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/utils/security/rateLimiter.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/mcp-server/transports/auth/auth.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/utils/parsing/jsonParser.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/utils/internal/logger.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/utils/security/idGenerator.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/utils/parsing/dateParser.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/filesystem/__tests__/roots-utils.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/utils/metrics/tokenCounter.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/utils/internal/requestContext.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+FAIL servers/src/git/tests/mcp-server/transports/stdio/stdioTransport.test.ts
+  ΓùÅ Test suite failed to run
+
+    File not found: tsconfig.json (resolved as: C:\Users\Austin\Documents\theporadas_site\tsconfig.json)
+
+      at ConfigSet.resolvePath (node_modules/ts-jest/dist/legacy/config/config-set.js:616:19)
+      at ConfigSet._setupConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:322:71)
+      at new ConfigSet (node_modules/ts-jest/dist/legacy/config/config-set.js:206:14)
+      at TsJestTransformer._createConfigSet (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:119:16)
+      at TsJestTransformer._configsFor (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:98:34)
+      at TsJestTransformer.getCacheKey (node_modules/ts-jest/dist/legacy/ts-jest-transformer.js:249:30)
+      at ScriptTransformer._getCacheKey (node_modules/@jest/transform/build/ScriptTransformer.js:228:41)
+      at ScriptTransformer._getFileCachePath (node_modules/@jest/transform/build/ScriptTransformer.js:289:27)
+      at ScriptTransformer.transformSource (node_modules/@jest/transform/build/ScriptTransformer.js:525:32)
+      at ScriptTransformer._transformAndBuildScript (node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+
+Test Suites: 17 failed, 4 passed, 21 total
+Tests:       83 passed, 83 total
+Snapshots:   0 total
+Time:        2.863 s
+Ran all test suites.

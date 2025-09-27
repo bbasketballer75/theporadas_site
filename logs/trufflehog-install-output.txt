@@ -1,0 +1,33 @@
+Collecting truffleHog
+  Obtaining dependency information for truffleHog from https://files.pythonhosted.org/packages/23/4d/54d244c106941403b5881533af03dd070554262a7e101fdbac79c2092705/truffleHog-2.2.1-py2.py3-none-any.whl.metadata
+  Downloading truffleHog-2.2.1-py2.py3-none-any.whl.metadata (376 bytes)
+Collecting GitPython==3.0.6 (from truffleHog)
+  Obtaining dependency information for GitPython==3.0.6 from https://files.pythonhosted.org/packages/3e/aa/b0b6ee23f72a1255ba8aaffa38459d17e884f7056189bd733adee4f9a1e2/GitPython-3.0.6-py3-none-any.whl.metadata
+  Downloading GitPython-3.0.6-py3-none-any.whl.metadata (1.1 kB)
+Collecting truffleHogRegexes==0.0.7 (from truffleHog)
+  Obtaining dependency information for truffleHogRegexes==0.0.7 from https://files.pythonhosted.org/packages/7d/e3/5f800360d7f0b68f935fcd06ec18ec28802b931aa4bf6caef20de00b6546/truffleHogRegexes-0.0.7-py2.py3-none-any.whl.metadata
+  Downloading truffleHogRegexes-0.0.7-py2.py3-none-any.whl.metadata (255 bytes)
+Collecting gitdb2>=2.0.0 (from GitPython==3.0.6->truffleHog)
+  Obtaining dependency information for gitdb2>=2.0.0 from https://files.pythonhosted.org/packages/52/7e/59f96b47f671b3fe0aa0c1b609531a540434b719a10c417581e25b383909/gitdb2-4.0.2-py3-none-any.whl.metadata
+  Downloading gitdb2-4.0.2-py3-none-any.whl.metadata (383 bytes)
+Collecting gitdb>=4.0.1 (from gitdb2>=2.0.0->GitPython==3.0.6->truffleHog)
+  Obtaining dependency information for gitdb>=4.0.1 from https://files.pythonhosted.org/packages/a0/61/5c78b91c3143ed5c14207f463aecfc8f9dbb5092fb2869baf37c273b2705/gitdb-4.0.12-py3-none-any.whl.metadata
+  Downloading gitdb-4.0.12-py3-none-any.whl.metadata (1.2 kB)
+Collecting smmap<6,>=3.0.1 (from gitdb>=4.0.1->gitdb2>=2.0.0->GitPython==3.0.6->truffleHog)
+  Obtaining dependency information for smmap<6,>=3.0.1 from https://files.pythonhosted.org/packages/04/be/d09147ad1ec7934636ad912901c5fd7667e1c858e19d355237db0d0cd5e4/smmap-5.0.2-py3-none-any.whl.metadata
+  Downloading smmap-5.0.2-py3-none-any.whl.metadata (4.3 kB)
+Downloading truffleHog-2.2.1-py2.py3-none-any.whl (13 kB)
+Downloading GitPython-3.0.6-py3-none-any.whl (451 kB)
+   ---------------------------------------- 451.8/451.8 kB 4.1 MB/s eta 0:00:00
+Downloading truffleHogRegexes-0.0.7-py2.py3-none-any.whl (2.5 kB)
+Downloading gitdb2-4.0.2-py3-none-any.whl (1.1 kB)
+Downloading gitdb-4.0.12-py3-none-any.whl (62 kB)
+   ---------------------------------------- 62.8/62.8 kB ? eta 0:00:00
+Downloading smmap-5.0.2-py3-none-any.whl (24 kB)
+Installing collected packages: truffleHogRegexes, smmap, gitdb, gitdb2, GitPython, truffleHog
+  WARNING: The script trufflehog.exe is installed in 'C:\Users\Austin\AppData\Roaming\Python\Python312\Scripts' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+Successfully installed GitPython-3.0.6 gitdb-4.0.12 gitdb2-4.0.2 smmap-5.0.2 truffleHog-2.2.1 truffleHogRegexes-0.0.7
+
+[notice] A new release of pip is available: 23.2.1 -> 25.2
+[notice] To update, run: C:\Users\Austin\AppData\Local\Programs\Python\Python312\python.exe -m pip install --upgrade pip

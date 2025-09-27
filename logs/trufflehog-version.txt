@@ -1,0 +1,1 @@
+C:\Users\Austin\AppData\Local\Programs\Python\Python312\python.exe: No module named truffleHog.__main__; 'truffleHog' is a package and cannot be directly executed
